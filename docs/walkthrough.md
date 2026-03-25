@@ -1,6 +1,6 @@
 # Run Your First GOSTA Session
 
-> **Status:** Specification stable. Tier 0 validated. Tier 1 implementation next.
+> **Status:** Beta — Specification complete. Tier 0 usable. Tier 1 implementation next.
 
 This walkthrough takes you from zero to a working GOSTA session. You'll need an AI assistant that can read files (Claude Code, Claude Cowork, or similar).
 

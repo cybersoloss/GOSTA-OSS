@@ -1,8 +1,8 @@
 # GOSTA-Cowork Protocol v3.8
 
-> **Status:** Specification stable. Tier 0 validated. Tier 1 implementation next.
+> **Status:** Beta — Specification complete. Tier 0 usable. Tier 1 implementation next.
 
-Run the GOSTA framework with session-based AI (Claude Cowork or Claude Code) as orchestrator/executor.
+Run the GOSTA framework with any session-based AI (Claude, ChatGPT, or similar) as orchestrator/executor.
 
 ## Quick Start
 
@@ -60,13 +60,6 @@ cowork/
     ├── health-report.md               ← Health computation output
     └── signal-entry.md                ← Signal recording format
 ```
-
-## What Changed from v2.2
-
-- **Sessions directory:** Standard location changed from `experiments/` to `sessions/` (legacy scopes remain in `experiments/`)
-- **Session launcher template:** New recommended bootstrap method with `{{PLACEHOLDER}}` syntax
-- **Protocol v2.4:** Aligned with GOSTA — deliberation integration (§7.5 three-tier escalation, §18.5 multi-agent parallelism), analytical scope support, analytical guardrails, domain model replacement protocol, guardrail evaluation timing
-- **CLAUDE.md:** Updated to reference v2.4, sessions/ language
 
 ## Protocol Reference
 

@@ -1,6 +1,6 @@
 # GOSTA Quick Start Guide
 
-> **Status:** Specification stable. Tier 0 validated. Tier 1 implementation next.
+> **Status:** Beta — Specification complete. Tier 0 usable. Tier 1 implementation next.
 
 This guide walks you through running your first GOSTA session using Tier 0 (file-based, no code). You'll need any conversational AI tool — Claude, ChatGPT, or similar.
 
@@ -25,7 +25,7 @@ A complete GOSTA session that:
 
 GOSTA organizes autonomous AI work into five layers:
 
-![Five Layer Hierarchy](images/gosta-five-layers.svg)
+![Five Layer Hierarchy](images/gosta-five-layers.gif)
 
 **Commands flow down:** Your goal constrains what objectives are valid. Objectives constrain which strategies make sense. Strategies constrain which tactics to test. Tactics generate concrete actions.
 
@@ -187,7 +187,7 @@ See the complete example in [`docs/examples/feature-prioritization/`](examples/f
 
 ## Implementation Tiers
 
-![Implementation Tiers](images/gosta-tiers.svg)
+![Implementation Tiers](images/gosta-tiers.gif)
 
 Start with Tier 0. It requires nothing but files and a conversation. When you've validated the framework for your use case, you can invest in coded implementations (Tier 1+) that add automation, databases, and structured APIs — but the governance model stays the same.
 
