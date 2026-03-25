@@ -1,27 +1,12 @@
-# GOSTA Quick Start Guide
+# GOSTA Architecture Guide
 
 > **Status:** Beta — Specification complete. Tier 0 usable. Tier 1 implementation next.
 
-This guide walks you through running your first GOSTA session using Tier 0 (file-based, no code). You'll need any conversational AI tool — Claude, ChatGPT, or similar.
-
-**Time required:** 30–60 minutes for your first session.
+This guide explains how GOSTA works — the five-layer hierarchy, implementation tiers, session lifecycle, and decision mechanics. Read it before or after the [hands-on walkthrough](walkthrough.md).
 
 ---
 
-## What You'll Build
-
-A complete GOSTA session that:
-- Defines a goal with guardrails
-- Breaks it into measurable objectives, strategies, and tactics
-- Executes actions and emits signals
-- Computes health and surfaces recommendations
-- Presents structured decisions to you (the Governor)
-
-![GOSTA Session Demo](images/gosta-session-demo.gif)
-
----
-
-## Step 1: Understand the Basics
+## The Five Layers
 
 GOSTA organizes autonomous AI work into five layers:
 
@@ -35,7 +20,15 @@ GOSTA organizes autonomous AI work into five layers:
 
 ---
 
-## Step 2: Read the Core Documents
+## Implementation Tiers
+
+![Implementation Tiers](images/gosta-tiers.gif)
+
+Start with Tier 0. It requires nothing but files and a conversation. When you've validated the framework for your use case, you can invest in coded implementations (Tier 1+) that add automation, databases, and structured APIs — but the governance model stays the same.
+
+---
+
+## Core Documents
 
 Before starting, skim these files (you don't need to memorize them — the AI reads them too):
 
@@ -47,64 +40,41 @@ Before starting, skim these files (you don't need to memorize them — the AI re
 
 ---
 
-## Step 3: Start a Session
+## How a Session Works
 
-### Option A: Interactive Bootstrap (Recommended)
+Every GOSTA session follows the same lifecycle. The [walkthrough](walkthrough.md) runs through this with a concrete scenario; here's the structure.
 
-Open a conversation with your AI assistant and say:
+### Starting a Session
 
-> Read `cowork/startup.md` and start a new session.
+There are three ways to start:
 
-The AI will ask you a series of questions — session name, goal, scope type, complexity — and scaffold everything for you. This is the easiest path.
+**Interactive bootstrap (recommended)** — Open a conversation with your AI assistant and say: *"Read cowork/startup.md and start a new session."* The AI asks you questions — session name, goal, scope type, complexity — and scaffolds everything.
 
-### Option B: Template Launch
+**Template launch** — Open `cowork/session-launcher-template.md`, fill in the `{{PLACEHOLDER}}` values, paste it into a fresh AI conversation. The AI scaffolds the directory and begins Phase 0.
 
-1. Open `cowork/session-launcher-template.md`
-2. Fill in the `{{PLACEHOLDER}}` values (goal, scope type, domain models, etc.)
-3. Paste the filled template into a fresh AI conversation
-4. The AI scaffolds the directory and begins Phase 0
-
-### Option C: Manual Setup
+**Manual setup** — Create the session directory, copy templates and protocol files, then tell the AI to bootstrap:
 
 ```bash
-# Create session directory
 mkdir -p sessions/my-project/{domain-models,reference,signals,health-reports,decisions,deliverables,session-logs}
-
-# Copy templates
 cp cowork/templates/* sessions/my-project/
-
-# Copy protocol and directive
 cp cowork/gosta-cowork-protocol.md cowork/CLAUDE.md sessions/my-project/
 ```
 
-Then tell the AI: *"Read the GOSTA cowork protocol and bootstrap a new session. Here's my goal: [describe what you're doing]."*
+### The Bootstrap Phase (Phase 0)
 
----
+The AI:
 
-## Step 4: What Happens During Bootstrap (Phase 0)
-
-The AI will:
-
-1. **Read the framework and protocol** — building its understanding of GOSTA
-2. **Ask you clarifying questions** — scope type, complexity, what you're trying to achieve
-3. **Create or load domain models** — pluggable knowledge files that ground the AI's reasoning in your specific domain
-4. **Draft an Operating Document (OD)** — the single document that contains your goal, guardrails, objectives, strategies, tactics, and actions
-5. **Present the OD for your approval** — you review, request changes, and approve
+1. **Reads the framework and protocol** — building its understanding of GOSTA
+2. **Asks you clarifying questions** — scope type, complexity, what you're trying to achieve
+3. **Creates or loads domain models** — pluggable knowledge files that ground the AI's reasoning in your specific domain
+4. **Drafts an Operating Document (OD)** — the single document that contains your goal, guardrails, objectives, strategies, tactics, and actions
+5. **Presents the OD for your approval** — you review, request changes, and approve
 
 The OD is the most important artifact. Everything downstream inherits its structure. Take the time to get it right.
 
-### Phase Gate 0→1
+Before execution begins, the AI presents a structured **Phase Gate Request**: Are all guardrails feasible? Are kill conditions discriminating? Is the domain model loaded and quality-gated? You approve, and execution begins.
 
-Before execution begins, the AI presents a structured Phase Gate Request:
-- Are all guardrails feasible given the available data?
-- Are kill conditions discriminating (could they actually trigger)?
-- Is the domain model loaded and quality-gated?
-
-You approve, and execution begins.
-
----
-
-## Step 5: Execution Cycles
+### Execution Cycles (Phase 1+)
 
 Each cycle follows the same pattern:
 
@@ -114,7 +84,7 @@ Each cycle follows the same pattern:
 4. **Present recommendations** — the AI recommends kill, pivot, or persevere for each tactic and strategy
 5. **Governor decides** — you make the call at each phase gate
 
-### Reading a Health Report
+### Health Reports
 
 Health reports use a traffic-light system:
 
@@ -124,28 +94,19 @@ Health reports use a traffic-light system:
 | **AMBER** | Below projection but not critical. Monitor closely. |
 | **RED** | Approaching or at kill threshold. Decision required. |
 
-Every health report includes:
-- Signal-recommendation alignment check (are the recommendations consistent with the data?)
-- Risk factors (non-empty, substantive — not generic dismissals)
-- Sycophancy self-check (is the AI being over-optimistic?)
+Every health report includes a signal-recommendation alignment check (are the recommendations consistent with the data?), risk factors (non-empty, substantive — not generic dismissals), and a sycophancy self-check (is the AI being over-optimistic?).
 
----
+### Making Decisions
 
-## Step 6: Making Decisions
+At each phase gate, you have three options for each tactic or strategy:
 
-At each phase gate, you have three options for each tactic/strategy:
-
-- **Persevere** — continue as planned
-- **Pivot** — change approach while keeping the same hypothesis
-- **Kill** — stop this line of work entirely
+**Persevere** — continue as planned. **Pivot** — change approach while keeping the same hypothesis. **Kill** — stop this line of work entirely.
 
 The AI presents each decision with evidence, alternatives, and tensions. Your job is to decide — not to accept the AI's recommendation uncritically.
 
 Kill conditions exist to make kills mechanical: *"If metric X is below threshold Y after Z weeks, kill the tactic."* This prevents the sunk-cost fallacy from keeping failing approaches alive.
 
----
-
-## Step 7: Closeout
+### Session Closeout
 
 When the scope is complete (finite scopes) or a major cycle ends (ongoing scopes):
 
@@ -156,22 +117,7 @@ When the scope is complete (finite scopes) or a major cycle ends (ongoing scopes
 
 ---
 
-## Example Session
-
-See the complete example in [`docs/examples/feature-prioritization/`](examples/feature-prioritization/) — a multi-domain feature prioritization scope for an EU developer tools SaaS, showing:
-
-- 3 domain models (market-fit, technical-feasibility, regulatory-compliance) with 16 core concepts
-- A full Operating Document with deliberation enabled (5-agent roster)
-- 4 position papers from domain agents with cross-domain scoring of 12 features
-- Coordinator interim assessment identifying 5 hard disagreements and 2 convergent features
-- Synthesis report with 3 consensus features and 4 structured Governor decisions
-- Governor decisions resolving market-vs-regulatory tensions, resource allocation trade-offs
-- Health report with GREEN/AMBER status and sycophancy self-check
-- Final deliverables: scored feature matrix and phased Q2–Q3 roadmap
-
----
-
-## Key Concepts to Remember
+## Key Concepts
 
 **The Operating Document is the single source of truth.** Everything the AI does flows from it. If the OD is wrong, everything downstream is wrong.
 
@@ -185,17 +131,17 @@ See the complete example in [`docs/examples/feature-prioritization/`](examples/f
 
 ---
 
-## Implementation Tiers
+## Example Sessions
 
-![Implementation Tiers](images/gosta-tiers.gif)
+**[Run your first session](walkthrough.md)** — 10-minute hands-on walkthrough. Score 5 features across 2 domain models, test a hypothesis, make a governed decision.
 
-Start with Tier 0. It requires nothing but files and a conversation. When you've validated the framework for your use case, you can invest in coded implementations (Tier 1+) that add automation, databases, and structured APIs — but the governance model stays the same.
+**[Feature prioritization with deliberation](examples/feature-prioritization/)** — A multi-domain scope for an EU developer tools SaaS showing 3 domain models (market-fit, technical-feasibility, regulatory-compliance) with 16 core concepts, a 5-agent deliberation round with position papers, a synthesis report with 5 hard disagreements, and Governor decisions resolving market-vs-regulatory tensions.
 
 ---
 
 ## Next Steps
 
+- **Try it:** [Run your first session](walkthrough.md)
 - **Read the spec:** `GOSTA-agentic-execution-architecture.md` — start with §0
-- **Try a session:** Use `cowork/startup.md` to bootstrap interactively
 - **Create a domain model:** Use `cowork/templates/domain-model.md` as the template
 - **Explore examples:** `domain-models/examples/` has two complete domain models

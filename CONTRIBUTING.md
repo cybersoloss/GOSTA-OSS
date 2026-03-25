@@ -48,7 +48,7 @@ To submit a domain model:
 
 GOSTA was developed with significant AI assistance. The specification, protocols, documentation, and tooling were authored collaboratively between human authors and AI systems (primarily Claude). We practice what the framework governs.
 
-If your contribution involves AI-generated content, please note this in your pull request description — including which AI tool was used, what it generated, and what you edited or validated. This isn't a gate — it's transparency. AI-assisted contributions are welcome; undisclosed AI-generated contributions are not.
+If your contribution involves AI-generated content, note this in your pull request description — which AI tool you used and what you reviewed or rewrote. A single sentence is fine. AI-assisted contributions are welcome; undisclosed AI-generated contributions are not.
 
 ## Code of Conduct
 

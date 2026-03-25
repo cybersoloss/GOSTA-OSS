@@ -2,7 +2,7 @@
 
 > **Status:** Beta — Specification complete. Tier 0 usable. Tier 1 implementation next.
 
-This walkthrough takes you from zero to a working GOSTA session. You'll need an AI assistant that can read files (Claude Code, Claude Cowork, or similar).
+This walkthrough takes you from zero to a working GOSTA session in about 10 minutes. You'll need any AI assistant that can read files — Claude, ChatGPT, or similar.
 
 ---
 
@@ -22,7 +22,7 @@ cd GOSTA-OSS
 mkdir -p sessions/my-first-session
 ```
 
-If you're using Cowork mode (no terminal), just point your AI at the repo folder. It will create directories as it goes.
+If your AI tool has direct file access (no terminal needed), just point it at the repo folder. It will create directories as it goes.
 
 ---
 
@@ -386,4 +386,8 @@ This is what GOSTA does: it makes the AI's reasoning transparent, structured, an
 - **Try an ongoing scope** — recurring review cycles with health reports that track metric changes over time.
 - **Use the session-launcher template** (`cowork/session-launcher-template.md`) instead of the interactive bootstrapper for faster setup once you're comfortable.
 
-**Read the full framework:** `GOSTA-agentic-execution-architecture.md` §0 (Start Here) explains the five-layer hierarchy, implementation tiers, and the philosophy behind structured AI governance.
+**Try a public interest scenario:** Municipal budget allocation, policy analysis, sustainability planning — domains where decisions carry public accountability and auditability requirements. Public sector and sustainability examples are on the [roadmap](../README.md#whats-next).
+
+**Understand the architecture:** The [Architecture Guide](architecture-guide.md) explains the five-layer hierarchy, implementation tiers, session lifecycle, and decision mechanics with diagrams.
+
+**Read the full framework:** `GOSTA-agentic-execution-architecture.md` §0 (Start Here) for the complete specification.
