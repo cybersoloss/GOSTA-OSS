@@ -1,0 +1,33 @@
+#!/bin/bash
+# Pre-commit hook: block commits containing private/commercial files or content.
+# Install: cp .github/hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+
+FORBIDDEN_PATHS="internal/|sessions/|experiments/|[Oo]bligo/|tempposts/|[Oo]lder-?[Vv]ersions/|[Dd]ocs/|samples/|\.claude/"
+FORBIDDEN_CONTENT="Obligo|obligo|OBLIGO|Cybersol|cybersol|Progon|progon|mhcandan|CIF-NL"
+
+# Files where controlled references are expected (LICENSE contains copyright holder name)
+ALLOWED_FILES="^LICENSE$|^\.github/hooks/pre-commit$|^\.gitignore$|^README\.md$|^CONTRIBUTING\.md$"
+
+# Check staged file paths
+BLOCKED_FILES=$(git diff --cached --name-only | grep -iE "$FORBIDDEN_PATHS")
+if [ -n "$BLOCKED_FILES" ]; then
+  echo "BLOCKED: Attempting to commit files from private directories:"
+  echo "$BLOCKED_FILES"
+  exit 1
+fi
+
+# Check staged file content for commercial/personal references
+# Skip allowlisted files where such references are expected
+FILES_TO_CHECK=$(git diff --cached --name-only --diff-filter=ACMR | grep -ivE "$ALLOWED_FILES")
+if [ -n "$FILES_TO_CHECK" ]; then
+  CONTENT_MATCHES=$(echo "$FILES_TO_CHECK" | xargs -I{} git diff --cached -U0 -- {} | grep -iE "^\+" | grep -iE "$FORBIDDEN_CONTENT" | grep -v "^+++")
+  if [ -n "$CONTENT_MATCHES" ]; then
+    echo "BLOCKED: Staged content contains private/commercial references:"
+    echo "$CONTENT_MATCHES"
+    echo ""
+    echo "Remove these references before committing."
+    exit 1
+  fi
+fi
+
+exit 0

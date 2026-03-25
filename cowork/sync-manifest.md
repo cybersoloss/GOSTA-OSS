@@ -1,0 +1,240 @@
+# Framework-to-Protocol Sync Manifest
+
+**Purpose:** Maps every point where the Cowork Protocol or Deliberation Protocol restates, operationalizes, or depends on a specific Framework section. When a Framework section changes, this manifest tells you exactly which protocol sections must be reviewed and potentially updated.
+
+**Usage:** After any Framework edit, grep the "Framework Section" column for the changed section number. Every matching row identifies a protocol section that may need updating. The "Derivation Type" tells you how tightly coupled the dependency is.
+
+**Version:** Framework v6.1 | Cowork Protocol v3.8 | Deliberation Protocol v0.7 | OD Drafting Protocol v0.1
+
+---
+
+## Derivation Types
+
+- **restatement** — The protocol section contains an operational copy of the Framework rule. Must be updated whenever the Framework rule changes. Highest coupling.
+- **reference** — The protocol cites the Framework section for context but doesn't restate its content. Only the section number needs to stay current.
+- **extension** — The protocol extends the Framework mechanism with protocol-specific additions. Changes to the base mechanism may require protocol changes; additions to the base mechanism may not.
+- **mapping** — The protocol maps a Framework concept to a protocol-specific operational equivalent. Conceptual changes in the Framework require review; structural changes usually don't.
+
+---
+
+## Cowork Protocol (v3.8) Derivations
+
+| # | Framework Section | Protocol Section | Derivation Type | What's Restated/Extended | Last Verified |
+|---|-------------------|------------------|-----------------|--------------------------|---------------|
+| C1 | §6.2 (Governor-AI modes) | §1 (line 19) | restatement | Three concurrent AI modes: executor, orchestrator, governor-interface | v6.0 |
+| C2 | §17.2.1 (OD staleness) | §3.2 (line 152) | restatement | OD staleness triggers and thresholds | v6.0 |
+| C3 | §5.1-5.3 (Guardrails) | §4.1 (line 163) | restatement | Guardrail architecture: hard/soft, severity, propagation, calibration above baseline | v6.0 |
+| C4 | §13.3 (Domain model quality) | §5.1 (line 260) | restatement | Three quality tests: specificity, distinctiveness, anti-pattern specificity | v6.0 |
+| C5 | §7.4 (Signal specification) | §6.2 (line 338) | restatement | Signal type taxonomy and format. Protocol has simplified subset of Framework's full signal spec. | v6.0 |
+| C6 | §20.3-20.5 (Tactic health) | §7.1 (line 387) | restatement | Health computation: signal aggregation, trend detection, health score formula | v6.0 |
+| C7 | §4.3 (Kill/pivot/persevere) | §7.2 (line 410) | restatement | Kill-vs-pivot precedence rules | v6.0 |
+| C8 | §14.7 (Escalation model) | §7.5 (line 460) | restatement | Three-level escalation model: Level 1/2/3 definitions and triggers | v6.0 |
+| C9 | §20.10 (Scoring) | §7.6 (line 482) | restatement | Scoring protocol: 1-10 integer scale, calibration, normalization | v6.0 |
+| C10 | §20.11 (Dependency validation) | §7.7 (line 498) | restatement | Dependency type validation rules | v6.0 |
+| C11 | §4.2 (A/B testing) | §7.8 (line 511) | restatement | A/B testing mechanics: variant creation, traffic split, measurement | v6.0 |
+| C12 | §8 (Structural integrity) | §12.1 (line 635) | restatement | OD structural integrity rules for validation | v6.0 |
+| C13 | §7.7 (Agent failure) | §14 (line 680) | restatement | Agent failure modes and safe defaults | v6.0 |
+| C14 | §6.1 (Governor role) | §15 (line 711) | restatement | Governor succession and handoff mechanics | v6.0 |
+| C15 | §7.12 (Parallelism) | §17 (line 767) | restatement | Parallelism rules: fork, execute, merge pattern | v6.0 |
+| C16 | §14.3.1 (Schema validation) | §12.1 | extension | OD structural integrity as schema validation. Enforcement at bootstrap and phase gates. | v6.0 |
+| C17 | §14.3.2 (Domain knowledge store) | §12.2 | extension | Domain model grounding with `[UNGROUNDED]` flag protocol, scoring grounding, anti-pattern detection. | v6.0 |
+| C18 | §14.3.3 (Data grounding) | §12.3 | extension | Signal provenance requirements by source type. `[PROVENANCE-INCOMPLETE]` flag. 50% weighting rule. | v6.0 |
+| C19 | §14.3.4 (Attribution) | §12.4 | restatement | Attribution validation. Signals without attribution rejected. | v6.0 |
+| C20 | §14.3.5 (Synthesis verification) | §12.5 | reference | Governor verification obligations for Level 3 deliberation. Cross-refs Deliberation Protocol §9.3. | v6.0 |
+| C21 | §14.3.4 (Attribution) | §7.1 (Attribution Validation) | extension | Orphan detection and exclusion in health computation. `[ORPHANED]` flag. Provenance cross-check. | v6.0 |
+| C22 | §14.3.6 (Capability Validation) | §12.6 | extension | Capability Validation operationalized for Tier 0: pre-proposal feasibility check, reformulate-not-include discipline, Governor second check, capability change tracking, scale checks. | v6.0 |
+| C23 | §18.2.5 (Prospective Memory) | §5.1 Step 5 | extension | Session-end prospective memory obligation: AI scans active tactics for approaching deadlines when updating bootstrap "What Is Pending." | v6.0 |
+| C24 | §18.2.6 (Meta-Memory) | learnings.md template | extension | Summary Fidelity Audit table added to learnings template. Governor picks 1-2 tactic summaries per strategy review and compares against full health reports. | v6.0 |
+| C25 | §6.7 (Autonomy Safeguards) | §11.1 | extension | Four autonomy safeguards operationalized for Tier 0: degraded-mode (grounding health check at session start), reversibility (assessment before autonomous decisions), magnitude thresholds (OD-defined), conditional grants (condition checking at session start). | v6.0 |
+| C26 | §6.7.3 (Risk-Magnitude Thresholds) | operating-document.md template | extension | Magnitude Thresholds section added: resource cost, timeline impact, stakeholder visibility, external commitment. At least one threshold should be set at OD creation. | v6.0 |
+| C27 | §6.7.4 (Conditional Autonomy Grants) | operating-document.md template | extension | Autonomy Conditions section added with COND-N entries: trigger, scope, reversion level, expiry. | v6.0 |
+| C28 | §6.7.1 (Degraded-Mode Autonomy) | 00-BOOTSTRAP.md template | extension | Autonomy Constraints field added to Current State: tracks active degraded-mode or fired condition constraints. | v6.0 |
+| C29 | §7.13 (Failure Resilience) | §14.4 | extension | Five failure resilience mechanisms operationalized for Tier 0: signal freshness (§7.13.1), recovery verification (§7.13.2), context/memory integrity (§7.13.3), capacity degradation (§7.13.4), Governor decision validation (§7.13.6). §7.13.5 (cascading failure) not applicable at Tier 0. | v6.0 |
+| C30 | §7.13.3 (Context/Memory Failure) | 00-BOOTSTRAP.md template | extension | Session-Start Integrity section added: 6 checks (bootstrap validation, temporal consistency, learnings coherence, cross-file references, signal freshness, context utilization) filled by AI at session start. | v6.0 |
+| C31 | §7.13 (Failure Resilience) | health-report.md template | extension | System Health section added to health report: signal pipeline status, recovery status, context utilization, Governor decision validations. | v6.0 |
+| C32 | §7.13.1 (Signal Pipeline) | §6.2 signal taxonomy | extension | Added `signal_pipeline_degradation` and `signal_pipeline_failure` to signal type table with system attribution and field schemas. | v6.0 |
+| C33 | §7.13 (Failure Resilience) | session-log.md template | extension | System Resilience section added: integrity checks, signal freshness, recovery status, context utilization, Governor decision validations. | v6.0 |
+| C34 | §7.13 (Failure Resilience) | learnings.md template | extension | Failure Resilience Observations section added with 4 subsections: signal pipeline health, recovery patterns, memory/context issues, Governor decision consistency. | v6.0 |
+| C35 | §7.13.4 (Capacity Degradation) | operating-document.md template | extension | Failure Resilience Thresholds section added: signal freshness cadence, recovery stability window, chronic instability threshold, Governor review capacity. | v6.0 |
+| C36 | §7.13 (Failure Resilience) | §16.11 (Graduation) | reference | Failure resilience prerequisites added to graduation: signal pipeline health, recovery stability, integrity checks, Governor decision validation must be operational before Stage 3+ graduation. | v6.0 |
+| C37 | §7.14 (Environmental Signal) | §6.2 signal taxonomy | extension | Added `environmental` signal type to signal type table with system/goal attribution and field schema. | v6.0 |
+| C38 | §7.14 (Environmental Watch List) | operating-document.md template | extension | Environmental Watch List section added: ID, condition, relevance, monitoring method, check cadence, change threshold. | v6.0 |
+| C39 | §20.12 (Goal Health) | health-report.md template | extension | Goal Health section updated from basic objective-progress view to full §20.12 computation: objective portfolio, environmental alignment, watch list changes, goal health composite. | v6.0 |
+| C40 | §20.1 (Computation Trace) | health-report.md template | extension | Computation Trace section added: signals included/excluded, thresholds applied, recommendation basis. Optional at Tier 0, structured at Tier 1+. | v6.0 |
+| C41 | §7.14 (Environmental Signal) | signal-entry.md template | extension | Added `environmental` to signal type enum. | v6.0 |
+| C42 | §20.12 (Goal Health) | §7.3 | restatement | Goal health computation updated from basic objective-progress to full §20.12: objective portfolio assessment, environmental alignment, goal health composite, maintain/investigate/reassess recommendations. | v6.0 |
+| C43 | §6.4.4 (Cadence Evaluation) | learnings.md template | extension | Cadence Calibration subsection added under Failure Resilience Observations: review cycle effectiveness, signal-to-review ratio observations, event-triggered review frequency patterns, cadence adjustment decisions. | v6.0 |
+| C44 | §8.1 (Semantic Coherence) | §12.7 | restatement | Semantic coherence validation operationalized for Tier 0: kill condition evaluability, allocation arithmetic, temporal ordering, hypothesis-domain coherence, WMBT-objective alignment, guardrail consistency, reconciliation check. | v6.0 |
+| C45 | §8.2 (Decision-to-State Traceability) | §12.8 | restatement | Decision-to-state traceability operationalized for Tier 0: decision-first write protocol, authorization sources (DEC/GOV/SYSTEM), cross-session gap mitigation. | v6.0 |
+| C46 | §8.1 (Semantic Coherence) | health-report.md template | extension | Semantic Coherence section added: invariant check results (C1-C3, R1-R4), decision-state reconciliation summary. | v6.0 |
+| C47 | §8.2 (Decision-to-State Traceability) | decision-entry.md template | extension | Authorization field added linking decisions to resulting OD state changes. | v6.0 |
+| C48 | §8.1.1 (Core Invariants — C1) | 00-BOOTSTRAP.md template | extension | Kill condition evaluability check added to Session-Start Integrity section. | v6.0 |
+| C49 | §8.1 (Semantic Coherence) | §5.1 Step 3c | extension | Coherence check step added to session lifecycle: C1-C3 at authoring, R1-R4 + reconciliation at strategy review. | v6.0 |
+| C50 | §8.1, §12.7 (Semantic Coherence) | §12.1 | reference | §12.1 gains relationship paragraph noting §12.7 as semantic complement to structural validation. | v6.0 |
+| C51 | §8.1 (Semantic Coherence) | session-log.md template | extension | Semantic Coherence section added: authoring-time check results, review-time check results, reconciliation summary. | v6.0 |
+| C52 | §8.1 (Semantic Coherence) | learnings.md template | extension | Coherence Validation Patterns subsection added: recurring coherence issues, resolution patterns, override history. | v6.0 |
+| C53 | §8.2.1 (Authorization Field) | operating-document.md template | extension | `authorized_by` field added to strategy and tactic sections with examples (GOV-session, DEC-N, SYSTEM-mechanism). | v6.0 |
+| C54 | §8.3 (OD State Versioning) | §12.9 | restatement | OD state versioning operationalized for Tier 0: decision context snapshots (target spec, prior_authorized_by, key signals, environmental context), cross-session edit detection via OD fingerprint. | v6.0 |
+| C55 | §8.4 (Causal Context at Kill) | §12.10 | restatement | Causal context at kill decisions operationalized for Tier 0: 6-point confounder checklist, confounder presentation before recommendation, confounder recording in decision entries. | v6.0 |
+| C56 | §8.3.1 (Decision Context Snapshot) | decision-entry.md template | extension | Context Snapshot section added: target spec at decision time, prior_authorized_by, key signals, environmental context. | v6.0 |
+| C57 | §8.4.2 (Confounder Recording) | decision-entry.md template | extension | Confounders section added: 6 confounder types with present/absent and disposition fields. | v6.0 |
+| C58 | §8.3.3 (Cross-Session Edit Detection) | 00-BOOTSTRAP.md template | extension | OD fingerprint field added to Session-Start Integrity: structural counts + allocation sum compared across sessions. | v6.0 |
+| C59 | §8.1.1 (Execution-completion kill condition default) | operating-document.md + health-report.md + 00-BOOTSTRAP.md | restatement | Kill condition field guidance updated: execution-only tactics must use completion-based form. C1 check expanded to flag N/A kill conditions. Bootstrap validates execution-only defaults. | v6.0 |
+| C60 | §20.12 (Cross-objective tradeoff governance) | health-report.md + decision-entry.md | extension | Cross-Objective Tradeoff Assessment section added to health report. `cross_objective_tradeoff` added to decision type enum. Escalation after 2 unresolved reviews. | v6.0 |
+| C61 | §4.3 (External dependency pre-kill viability check) | operating-document.md + health-report.md + decision-entry.md | restatement | External Dependencies field added to OD tactic ROBUST section. Dependency Viability section added to health report. External dependency strain added as confounder type. | v6.0 |
+| C62 | §6.1 (Governor attention capacity validation) | operating-document.md + health-report.md + 00-BOOTSTRAP.md | extension | Governor Attention Capacity section added to OD. Governor Review Load field added to System Health. Capacity alignment check added to bootstrap integrity. | v6.0 |
+| C63 | §13.3 (Execution cost tracking) | operating-document.md + health-report.md + signal-entry.md + 00-BOOTSTRAP.md + decision-entry.md | extension | Execution Cost Tracking section added to OD. Cost Status section added to health report. `cost_exceeded` and `cost_data_missing` signal types added. Cost guardrail status added to bootstrap. Cost overrun confounder added to decision entry. | v6.0 |
+| C64 | §7.8, §8.5.3, §3.1 (Entity status vocabularies) | health-report.md | extension | Tactic status enum expanded: `killing`, `killed_winding_down`, `graduated`, `paused`. Objective status expanded: `partially_achieved`. | v6.0 |
+| C65 | §7.8 (kill_reason: external_constraint) | decision-entry.md + learnings.md | extension | `kill_reason` field added to decision entry for kill decisions. Vector 3 External Constraint Learnings section added to learnings template. | v6.0 |
+| C66 | §7.7 (Recovery vs pause kill timer distinction) | health-report.md | extension | Kill Timer Status field added to System Health: three modes (pause, infrastructure_outage, recovery) with deadline and remaining cycles. | v6.0 |
+| C67 | §8.5.3 (Cross-strategy kill sequencing) | gosta-cowork-protocol.md + health-report.md | restatement | Batch presentation rule for 2+ kills from different strategies. `killing` intermediate status. Cross-Strategy Kill Batch field in strategy health. | v6.0 |
+| C68 | §20.12 (Multi-goal scope status aggregation) | operating-document.md + health-report.md | extension | Objective Priority field (`critical\|high\|standard`) added to OD. Worst-goal-drives-scope aggregation + priority-driven escalation added to goal health. | v6.0 |
+| C69 | §3.6 (Tactic dependency chains + guardrail calibration) | operating-document.md | extension | `depends_on: TAC-N (exit_criteria: [...])` field and `calibration: first_use` field added to OD tactic ROBUST section. | v6.0 |
+| C70 | §3.6 (Qualitative kill condition validation) | operating-document.md + health-report.md | restatement | Three-check validation (observable state, observation point, binary outcome) added to OD kill condition guidance. Qualitative type with check results added to health report kill condition assessment. | v6.0 |
+| C71 | §4.3 (Upward cascade governance) | gosta-cowork-protocol.md + health-report.md | restatement | Child scope kill does not auto-cascade to parent. Upward cascade rule added to protocol §7.2. Child Scope Status field added to strategy health report. | v6.0 |
+| C72 | §8.6 (Interface contracts) | gosta-cowork-protocol.md §14 | reference | Interface contract validation paragraph added after existing §14 checks, referencing all 8 contracts (§8.6.1-8.6.8). | v6.0 |
+| C73 | §8.6 (Interface contracts) | health-report.md System Health | extension | Interface Contract Violations field added to System Health section, surfacing signal conflicts, data insufficiency, state drift, monitoring gaps, and coverage gaps. | v6.0 |
+| C74 | §14.3.7 (Reasoning Depth Validation) | gosta-cowork-protocol.md §12.2.1 | restatement | Three self-checks (depth, coverage, chain integrity) operationalized for Tier 0. `[SHALLOW]` flag format. Interaction with tension surfacing. | v6.0 |
+| C75 | §8.6.9 (Interface contract implementation by tier) | health-report.md System Health | extension | Interface Contract Violations field updated with tier-conditional applicability: Tier 0 cognitive validation, Tier 1 programmatic checks, Tier 2+ continuous monitoring with cross-contract correlation. | v6.0 |
+| C76 | §6.1 (Governance feature implementation by tier) | gosta-cowork-protocol.md §15 | extension | Governor succession, capacity validation, delegated reviewers, and informed override operationalized with tier-specific implementation paths: Tier 0 conversational, Tier 1 system-enforced, Tier 2+ predictive. | v6.0 |
+| C77 | §7.2 (Execution loop ROBUST feature implementation by tier) | operating-document.md | extension | Precondition validation/deferral, resource ceiling management, and allocation rebalancing fields added to OD tactic section with tier-conditional guidance. | v6.0 |
+| C78 | §16.12 (Tier 2+ architecture considerations) | — (no protocol counterpart) | reference | Concurrency model, operational monitoring, scale patterns, deployment/recovery. Tier 2+ only; protocol operationalization deferred until Tier 2+ implementations exist. | v6.0 |
+| C79 | §16.12 (Operational monitoring — system health dashboard) | gosta-cowork-protocol.md §3, §5.1 Step 6b + session-status.md template | extension | Live session-status.md dashboard: overwrite-only, updated at every major checkpoint (phase gates, decisions, health computations, deliberation rounds, signal batches). Governor real-time visibility into scope state, active tactics, pending actions, signal pipeline, deliberation status, resource utilization. | v6.0 |
+| C80 | §0.3 (Feature Complexity dimension — [CORE]/[ROBUST]/[ADVANCED]) | gosta-cowork-protocol.md §4 (Field complexity determination) | extension | §4 now instructs AI to evaluate scope's adopted features against OD template's conditional field markers before drafting. Independence Level ≥ 2 or Deliberation Mode = enabled triggers ROBUST fields. Closes gap where template had conditional markers but protocol never instructed evaluation. | v6.0 |
+| C81 | §20.1 ("majority" definition) | — (framework-internal fix) | — | Added explicit definition: majority = strict >50%. Resolves P-1 audit gap where §20.4–§20.12 used "majority" in 8+ health computation rules without defining the threshold. No protocol impact — protocols don't restate health computation formulas. | v6.0 |
+| C82 | Appendix B.1 (Entity Status Vocabularies — Strategy row) | — (framework-internal fix) | — | Added `paused` to Strategy status values. §4.3 defines strategy pausing with full semantics (Pause/Resume) but B.1 table omitted it. No protocol impact — protocols reference §4.3 directly. | v6.0 |
+| C83 | §3.6 + Appendix B.2 (Finite scope decisions) | — (framework-internal fix) | — | Added `restructure` to finite scope decision list in both §3.6 and B.2. §3.6 phase gate assessment defined advance/iterate/restructure recommendations but the decision type list omitted `restructure`. Added clarifying note that `advance` (recommendation label) maps to `phase_advance` (canonical decision type name). | v6.0 |
+| C84 | §13.3 (Domain model quality criteria — Specificity test) | gosta-cowork-protocol.md §5.2 (Domain model quality gate) + startup.md Step 5 (Specificity test row) | restatement | Specificity test rewritten in all 3 locations. Test now evaluates concept *description* content, not concept *name*. Explicitly notes standard terminology (Kaufman terms, article numbers) is acceptable if description differentiates. Closes SH-001 where gate performed surface-level pattern matching on headers rather than semantic evaluation of content. | v6.0 |
+| C85 | — (protocol-originated: ISSUE-006 from ai-regulation-stress-test) | gosta-cowork-protocol.md §6.3 (Action Completion Gate) + Phase Gate template (Signal Coverage field) | extension | Signal emission is now a hard gate: action not complete until completion signal exists in signals/. Phase gate template includes Signal Coverage field reporting N-of-M actions with signals. Addresses systematic monitoring omission under context pressure at Tier 0. | v6.0 |
+| C86 | — (protocol-originated: ISSUE-002 from ai-regulation-stress-test) | gosta-cowork-protocol.md §5.2 (Domain model quality gate output format) | extension | Quality gate output now requires severity-graded format: PASS/PASS-WITH-FLAGS/FLAG-FOR-REVIEW with CRITICAL/MATERIAL/INFORMATIONAL flag classification and Governor decision prompts keyed to severity. Replaces binary pass/fail. | v6.0 |
+| C87 | — (protocol-originated: ISSUE-003 from ai-regulation-stress-test) | gosta-cowork-protocol.md §5.2 (Cross-model redundancy check) | extension | Optional cross-model redundancy check added to quality gate for multi-domain sessions. Distinguishes productive tension (different conclusions from overlapping scope) from noise (similar conclusions from different frames). Informational, not blocking. | v6.0 |
+| C88 | §14.3.8 (Finding Classification) | §7.1 (Tactic Health — epistemic classification) | extension | Tactic health recommendations carry epistemic classification (confirmed/information_gap/conditional). Kill recommendations classified as information_gap block autonomous execution at Stage 3+. | v3.5 |
+| C89 | §14.3.8 (Finding Classification) | §7.2 (Strategy Health — epistemic classification) | extension | Strategy health recommendations and WMBT status assessments carry epistemic classification. information_gap strategy kills block autonomous execution. | v3.5 |
+| C90 | §14.3.8 (Finding Classification) | §7.3 (Goal Health — epistemic classification) | extension | Goal health recommendations carry epistemic classification. information_gap reassess recommendations warn Governor to verify environmental data before restructuring. | v3.5 |
+| C91 | §14.3.8 (Finding Classification) | §12.5 (Synthesis Verification — Finding Classification verification) | extension | Governor verification obligations for each classification type: evidence existence for confirmed, data availability for information_gap, testability for conditional. | v3.5 |
+| C92 | §14.3.8 (Finding Classification) | health-report.md template (Classification column) | extension | Health report tables include epistemic classification column for every recommendation. Computation Trace includes Classification Justification field. | v3.5 |
+| C93 | §5.1 (Guardrail evaluation mode) | §4.1 (Guardrail architecture — evaluation field) | restatement | Mechanical vs interpretive guardrail evaluation mode. Mechanical checked first, deterministic. | v3.5 |
+| C94 | §5.4 (Guardrail Evaluation Routing) | §4.1 (Violation detection — evaluation ordering) | extension | Mechanical guardrails evaluated first in violation detection. Mechanical always confirmed classification. | v3.5 |
+| C95 | §14.3.9 (Sycophancy Detection) | §7.1 (Tactic Health — Risk Factors, consistency check, kill proximity, signal integrity) | extension | Mandatory Risk Factors section, signal-recommendation consistency check, kill proximity alerting, signal integrity check operationalized for Tier 0. | v6.1 |
+| C96 | §14.3.9 (Sycophancy Detection) | §6.2 (Signal integrity check) | extension | Narrative-quantitative divergence check on signals at recording time. `[DIVERGENCE]` tag. | v6.1 |
+| C97 | §14.3.9 (Sycophancy Detection) | §7.5 (Cross-deliberation dissent tracking) | extension | Low dissent frequency flag surfaced in health report System Health when deliberation mode active. | v6.1 |
+| C98 | §14.3.9 (Sycophancy Detection) | §12.5 (Sycophancy verification) | extension | Governor synthesis verification extended with sycophancy check on Coordinator framing. | v6.1 |
+| C99 | §17.2.4 (Reference Pool) | gosta-cowork-protocol.md §18.5 (Reference Pool Consumption Strategy) | extension | Semantic pool-agent for pools >50 items: all-MiniLM-L6-v2 ONNX embeddings (no torch), cosine similarity retrieval via `pool-agent.py query`. Score thresholds: ≥0.58 full read / 0.50–0.57 excerpt / <0.50 ignore. Index-first retained as fallback when no built store exists. Replaces v3.7 index-first protocol. Addresses FB-001 from product-value-validation session. | v3.8 |
+| C100 | — (protocol-internal renumbering) | gosta-cowork-protocol.md §18.6 (Multi-Agent Parallelism) | — | Former §18.5 renumbered to §18.6 to accommodate §18.5 Reference Pool Consumption Strategy insertion. All internal cross-references updated (§7.5 now points to §18.6). | v3.8 |
+| C101 | §5 (Guardrails) | gosta-cowork-protocol.md §5.2 (Bootstrap — guardrail feasibility check) | extension | After OD drafting and before Phase Gate 0→1, each guardrail referencing evidence or data inputs is verified for enforceability given actual session inputs. Non-enforceable guardrails flagged as `feasibility-limited` with Governor decision to retain/revise/remove. Addresses FB-003 from product-value-validation session. | v3.8 |
+| C102 | §20.3 (Kill conditions) | gosta-cowork-protocol.md §7.4 (Phase Gate — item 7: kill condition discriminating power) | extension | At Phase Gate 0→1, each tactic's kill condition assessed for discriminating power against known inputs. Non-discriminating conditions (where the metric cannot plausibly reach the threshold) flagged as `non-discriminating` with Governor decision to recalibrate/accept/replace. Addresses FB-004 from product-value-validation session. | v3.8 |
+| C103 | §20.10 (Scoring) | gosta-cowork-protocol.md §7.6 (Per-domain anchoring for multi-domain scoring) | extension | Level 2 Sequential Isolation extended: before each subsequent domain's scoring pass, define 3 reference anchors for that domain (one low, one mid, one high from prior calibration or domain-specific exemplars). Prevents first-domain calibration from drifting across domains. Addresses FB-006 from product-value-validation session. | v3.8 |
+| C104 | — (session-originated: FB-005 from product-value-validation) | operating-document.md (Tactic template — Evidence Blind Spots field) | extension | Optional field after Seed Actions in tactic template. Declares specific items/features/problem domains where the reference pool structurally cannot observe relevant failure modes. Scores derived from alternative evidence carry `[BLIND-SPOT]` annotation in deliverables. | v3.8 |
+| C105 | §13.3 (Domain models) | operating-document.md (Domain Model Adaptations section) | extension | New section before Multi-Domain Assessment. Per-concept applicability mapping (applies / does-not-apply / requires-interpretation) when reusing domain models across analytical contexts. Ensures concepts written for one product/domain are explicitly evaluated for fit before scoring. Addresses FB-002 from product-value-validation session. | v3.8 |
+| C106 | §21.8 (OD Authoring Checklist) + startup.md Step 9 | Framework §21.8 Completeness checks + startup.md Step 9 G-6 Deliberation Calibration block | extension | When deliberation mode is enabled, G-6 traceability guardrail threshold must equal the agent roster size (N), not the §14.7 multi-domain minimum of ≥3. §21.8 adds `[ROBUST]` checklist item as a blocking authoring error if threshold < N with no declared fallback allowance. startup.md Step 9 adds the calibration procedure with formula: G-6 threshold = N − tolerated_fallback_proxies. Addresses FG-001 from roadmap-analysis-2. | v3.9 |
+| C107 | §5.1 (Phase Gate Enforcement) | gosta-cowork-protocol.md §5.1 items 8 and 9 | extension | Item 8: Dependency Amendment Gate — synthesis-derived dependency graph amendments registered as DEP-AMEND-NNN, presented as named Governor decisions at phase gate, applied only after explicit Accept. Signal type: `dep_amendment_decision`. Item 9: Cross-Phase Consistency Check (CPCC) — mechanical cycle detection across merged dependency graph + agent prerequisite registry constraint sets; CD-NNN registration; constraint application blocked until Governor resolves cycle. Both items are `[ROBUST]`, scoped to finite sessions with dependency graph deliverables and deliberation-produced prerequisite registries. Addresses PG-002 and PG-003 from roadmap-analysis-2. | v3.9 |
+| C108 | — (session-originated: PDG-001 from roadmap-analysis-2) | startup.md Step 6 (Narrative Options-Universe Gate) | extension | When options-universe document lacks a discrete numbered list, AI must: derive item list with boundary notes, present to Governor for explicit confirmation, log as `options_universe_confirmed` signal before proceeding to scoring. Gate applies to options-universe role documents only. Signal type: `options_universe_confirmed`. | v3.9 |
+| C109 | — (session-originated) | operating-document.md Deliberation section (G-6 Traceability Calibration block) | extension | New block after Roster Rules: declares N (domain agent count), Tolerated Fallback Proxies (Governor-set, default 0), and the derived G-6 Threshold value that must be entered in the Goal-level G-6 guardrail. Makes the calibration computation explicit and auditable in the OD itself. | v3.9 |
+| C110 | §7.4 (Signal specification) | §6.2 (Signal taxonomy) | extension | Two new signal types added: `dep_amendment_decision` (Governor accept/reject on DEP-AMEND-NNN at phase gate) and `options_universe_confirmed` (Governor confirmation of derived item list from narrative options-universe). | v3.9 |
+
+## Deliberation Protocol (v0.7.1) Derivations
+
+| # | Framework Section | Protocol Section | Derivation Type | What's Restated/Extended | Last Verified |
+|---|-------------------|------------------|-----------------|--------------------------|---------------|
+| D1 | §13 (Domain models) | §2.1, §2.2 | mapping | Domain models → agent identity. One model = one agent. | v6.0 |
+| D2 | §5 (Guardrails) | §4.1 template | extension | Each agent validates guardrails from its domain's perspective. Provisional guardrail concept added. | v6.0 |
+| D3 | §4.5 (Cross-domain conflict) | §5.2, §5.3 | extension | Disagreements ARE the Framework's cross-domain conflicts, made explicit with severity classification | v6.0 |
+| D4 | §4.2 (A/B testing) | §11 mapping table | mapping | Competing agent recommendations map to competing strategies | v6.0 |
+| D5 | §4.3 (Kill/pivot/persevere) | §11 mapping table | mapping | Domain agents may disagree on kill decisions — Governor resolves | v6.0 |
+| D6 | §14.7 (Escalation model) | §1 (Coordinator role), §13 | reference | Deliberation is Level 3 of the three-level escalation model | v6.0 |
+| D7 | §14.2 (Hallucination taxonomy) | §9.3 | extension | Synthesis hallucination (Continuity Corruption category) operationalized with three verification vectors | v6.0 |
+| D8 | §14.3.5 (Synthesis verification) | §9.3 | extension | Framework defines the grounding component; protocol defines the operational verification mechanics | v6.0 |
+| D9 | §18.3 (Summary/full pattern) | §12.2 | restatement | Summary/full transitions applied to deliberation artifacts. Coordinator context growth management. | v6.0 |
+| D10 | §18.4 (Loading protocols) | §12.2, §12.3 | extension | Framework defines loading steps; protocol defines what gets loaded in each round | v6.0 |
+| D11 | — (protocol-originated: ISSUE-006 from ai-regulation-stress-test) | §3.2 (Round Completion Gate) | extension | New section: round not complete until all papers on disk, deliberation-status.md updated, and round-completion signal emitted. Coordinator must verify before producing Interim Assessment. Acknowledged gaps acceptable; silent gaps are protocol violations. | v0.5 |
+| D12 | — (protocol-originated: ISSUE-004 from ai-regulation-stress-test) | §2.1 (Deliberation Cadence — Min Rounds) + §5.1 (Convergence Criteria — Min Rounds floor) | extension | Min Rounds added as native deliberation cadence parameter. Hard floor — convergence/stall/New Argument Gate cannot trigger early termination before Min Rounds reached. Defaults: 1 for ongoing, 3 for finite/stress-test. Deprecates G-MinimumDeliberation guardrail workaround. | v0.5 |
+| D13 | — (protocol-originated: ISSUE-001 from ai-regulation-stress-test) | §2.2 (Roster Rules — agent count) | extension | "Maximum 7" replaced with tiered guidance: 5-7 recommended (full depth), 8-10 viable (4+ rounds required for equivalent coverage), >10 cluster-then-synthesize. Preserves quality signal while providing explicit path for larger rosters. | v0.5 |
+| D14 | — (protocol-originated: ISSUE-005 from ai-regulation-stress-test) | §2.1 (Engineered Contradiction Register) | extension | Optional OD section for analytical scopes declaring intentional guardrail tensions. Registered contradictions documented as resolutions, not flagged as calibration errors. Agents note registered tensions in Guardrail Assessment. | v0.5 |
+| D11 | §18.6 (Memory maintenance) | §12.3 | reference | Synthesis Report enters standard episodic memory path | v6.0 |
+| D12 | §18.2.3 (Structural transfer) | §12.3 | reference | Episodic → structural learning path for deliberation patterns | v6.0 |
+| D13 | §7.5 (Multi-domain assessment) | §13 (When NOT to use) | reference | Deliberation replaces Level 2/3 assessment; Level 2 Sequential Isolation is the simpler alternative | v6.0 |
+| D14 | §14.3 (Grounding components) | §10.5 | extension | Role-specific grounding obligations for Domain Agent, Coordinator, and Governor. `[UNGROUNDED]`, `[PARTIALLY-UNGROUNDED]`, `[COORDINATOR-UNGROUNDED]` flags. | v6.0 |
+| D15 | §14.3.4 (Attribution) | §4.4 (Attribution Chains table) | extension | Structured attribution table in Synthesis Report. Every claim traces to Agent ID + paper section + round + verbatim quote. Completeness requirement for Consensus, Agreement Map, Disagreements. | v6.0 |
+| D16 | §8.1.3 (Advanced Invariants — A2) | §3.0 | extension | Pre-Round concept consistency check: cross-domain concept names compared for definitional divergence before Round 1. `[CONCEPT-DIVERGENCE]` and `[CONCEPT-NARROWING]` flags. | v6.0 |
+| D17 | §16.12 (Operational monitoring — system health dashboard) | §1 (Coordinator role — live deliberation dashboard) + deliberation-status.md template | extension | Live deliberation-status.md dashboard: overwrite-only, updated by Coordinator after every round. Shows round progress, agent status table, convergence tracker, termination assessment, artifacts produced, pending Governor actions. Complements session-status.md at scope level. | v6.0 |
+| D18 | §14.3.8 (Finding Classification) | §4.4 (Synthesis Report — Finding Classification section) | extension | Three-class epistemic classification (confirmed/information_gap/conditional) with classification rules and Governor action mapping. Coordinator assigns at synthesis; Governor verifies. | v0.6 |
+| D19 | Appendix B.10 (Finding Classification vocabulary) | §4.4 (classification rules) | restatement | Classification values and rules restated from framework vocabulary. | v0.6 |
+| D20 | §6.1 #10 (Deliberation context) | §2.4 (Pre-Deliberation Review) | extension | Governor completes pre-deliberation review checklist before deliberation. Ensures Governor provides key context and assumptions. Default: required. | v0.6 |
+| D21 | §14.3.8 (Finding Classification — autonomy interaction) | §4.4 (Finding Classification — information_gap constraint) | extension | information_gap kill recommendations at Stage 3+ cannot be autonomously executed. Deliberation-originated kill findings classified as information_gap escalate to Governor. | v0.6 |
+| D22 | — (protocol-originated: Mirror analysis) | §4.2 (Interim Assessment — Issue Ledger) | extension | Per-round issue tracking with status progression: open → narrowed → provisionally_resolved → resolved → escalated. Coordinator maintains cumulative ledger. | v0.6 |
+| D23 | — (protocol-originated: Mirror analysis) | §4.2 (Interim Assessment — Epistemic Signals) | extension | Coordinator tracks information gaps and conditional assumptions from agent Confidence Basis and Falsifiability fields for aggregation into Finding Classification at synthesis. | v0.6 |
+| D24 | §14.3.9 (Sycophancy Detection) | §3.1 (Position independence verification) | extension | Round 1 unanimity check, reasoning diversity check, OD-anchoring detection, convergence probe trigger. | v0.7 |
+| D25 | §14.3.9 (Sycophancy Detection) | §4.5 (Convergence Probe Protocol) | extension | New section: directed adversarial prompt when Round 1 unanimity detected. Three outcome categories. | v0.7 |
+| D26 | §14.3.9 (Sycophancy Detection) | §9.1-9.2 (Groupthink + sycophancy detection) | extension | OD-anchoring detection added to groupthink checks. `sycophancy_possible` flag. Convergence Probe as mitigation. Governor option to redact OD strategy rationale. | v0.7 |
+| D27 | §14.3.9 (Sycophancy Detection) | §4.4 (Sycophancy Assessment in Synthesis Report) | extension | New synthesis report section: Round 1 independence, OD-anchoring level, Coordinator neutrality self-check, cross-cycle dissent trend. | v0.7 |
+| D28 | — (session-originated: FG-002 from roadmap-analysis-2) | deliberation-protocol.md §1.1a (Concurrency Conflict Resolution) | extension | New section in §1.1 for Code mode parallel subagent dispatch. Mandates distinct file paths for background (`-bg.md`) vs. replacement position papers. Three-case canonical ordering rule: (1) first-confirmed-wins, (2) replacement canonical under ambiguous failure with background archived, (3) DISPUTED-OUTPUT block when both complete — synthesis blocked until Governor resolves. Prevents silent score conflicts from late-completing background agents. | v0.7.1 |
+
+## OD Drafting Protocol (v0.1) Derivations
+
+| # | Framework Section | Protocol Section | Derivation Type | What's Restated/Extended | Last Verified |
+|---|-------------------|------------------|-----------------|--------------------------|---------------|
+| OD1 | §0.3 (Reading Guide) | §2.1 Step 1 (Framework Ingestion) | reference | OD Architect reads §0.3 first to orient to framework structure. Both Governor and AI reading paths used. | v6.0 |
+| OD2 | §2 (Architecture Overview — Five Layers, Dual Reading, Control Loop, Layer Transformation) | §2.1 Step 2 | reference | OD Architect reads §2 to establish decomposition vocabulary. §2.4 Layer Transformation Model used as boundary test in §6.3.4. | v6.0 |
+| OD3 | §3-5 (Layer Definitions, Guardrails) | §2.1 Step 3 | reference | OD Architect reads layer definitions, litmus tests, structural rules, guardrail architecture to constrain decomposition. | v6.0 |
+| OD4 | §13.3 (Domain model quality) | §6.2 (Domain Model Quality Gate) | restatement | Same 3-test quality gate (specificity, distinctiveness, anti-pattern specificity) with severity-graded output. | v6.0 |
+| OD5 | §8.1.1 (Core Invariants — C1, C2, C3) | §6.1 (Structural Validation) | restatement | Kill condition evaluability, allocation arithmetic, temporal ordering checked on agent-drafted OD. | v6.0 |
+| OD6 | §2.4 (Layer Transformation Model) | §6.3.4 (Decomposition Boundary Check) | extension | Transformation Model used as test: each element verified to be at correct layer (strategy vs tactic vs action). | v6.0 |
+
+### OD Drafting Protocol → Cowork Protocol Derivations
+
+| # | Cowork Section | OD Drafting Section | Derivation Type | What's Extended | Last Verified |
+|---|----------------|---------------------|-----------------|-----------------|---------------|
+| OX1 | §5.2 (Bootstrap Session — Create OD) | §9.2 | replacement | OD Drafting Protocol replaces the unstructured "Create OD" step with structured multi-agent process. | v3.4 |
+| OX2 | §4 (Field complexity determination) | §4.3 Step 6 | restatement | Same [CORE]/[ROBUST]/[ADVANCED] determination applied during OD template population. | v3.4 |
+| OX3 | §5.2 (Domain model quality gate) | §6.2 | restatement | Same quality gate, same severity-graded output format (PASS/PASS-WITH-FLAGS/FLAG-FOR-REVIEW). | v3.4 |
+| OX4 | §12.1 (OD Structural Integrity) | §6.1 | restatement | Same structural integrity checks applied to agent-drafted OD before handoff. | v3.4 |
+| OX5 | §3.1 (Domain Model Authoring — count bounds) | §4.1 (Domain Selection) | restatement | 3-5 domain models recommended. Trade-off surfaced if outside range. | v3.4 |
+
+### OD Drafting Protocol → Deliberation Protocol Derivations
+
+| # | Deliberation Section | OD Drafting Section | Derivation Type | What's Extended | Last Verified |
+|---|---------------------|---------------------|-----------------|-----------------|---------------|
+| ODX1 | §2.2 (Roster Rules — isolation) | §4.2 (Decomposition Proposals — independence) | mapping | Same isolation guarantee: domain agents produce proposals independently, no cross-reading. | v0.5 |
+| ODX2 | §2.1 (OD Deliberation section) | §4.3 Step 6 (Configure deliberation parameters) | extension | OD Architect populates the Deliberation section of the OD including roster, cadence, min rounds, convergence thresholds. | v0.5 |
+
+## Cowork Protocol → Deliberation Protocol Derivations
+
+| # | Cowork Section | Deliberation Section | Derivation Type | What's Extended | Last Verified |
+|---|----------------|---------------------|-----------------|-----------------|---------------|
+| X1 | §6 (Signals) | §7.3 | extension | `agent_source` field added to signal format | v2.6 |
+| X2 | §7 (Health/scoring) | §7.1, §7.2 | extension | Per-agent confidence feeds composite health | v2.6 |
+| X3 | §8 (Decisions) | §6 | mapping | Governor decisions resolve agent disagreements | v2.6 |
+| X4 | §5.1 Step 3b (Tensions) | §5.2 | extension | Disagreement classification extends tension types | v2.6 |
+| X5 | §3, §5.1 (Bootstrap) | §2.3 | extension | Deliberation state section added to bootstrap | v2.6 |
+| X6 | §7.5 (Multi-domain) | §1, §2 | extension | Deliberation replaces Level 2/3 assessment with structured agent debate | v2.6 |
+
+---
+
+## Verification Protocol
+
+After any Framework edit to section §X:
+
+1. **Grep this manifest** for §X in the "Framework Section" column
+2. For each **restatement** row: open the protocol section and diff against the Framework change. Update if the operational meaning changed.
+3. For each **extension** row: check if the base mechanism changed in a way that affects the extension. Update if so.
+4. For each **mapping** row: check if the conceptual meaning changed. Usually no update needed for structural-only Framework changes.
+5. For each **reference** row: check if the section number changed (renumbering). Update the reference if so.
+6. **Update the "Last Verified" column** for every row you checked.
+7. **Bump protocol version** if any operational content changed.
+
+After any Protocol edit:
+
+1. Check whether the edit affects a row in this manifest. If the edit changes how a Framework mechanism is restated, the manifest itself may need updating.
+2. If the edit introduces a new Framework dependency, add a row.
+
+---
+
+## Automated Verification (future)
+
+A script could parse this manifest and:
+- Grep the Framework file for each cited section number, confirming the section exists
+- Grep each protocol file for the cited line/section, confirming the derivation point exists
+- Flag any row where "Last Verified" is older than the current Framework version
+- Detect new "(from GOSTA" or "Framework §" references in protocols that aren't in this manifest
+
+This is not implemented yet. The manifest is currently maintained by hand.

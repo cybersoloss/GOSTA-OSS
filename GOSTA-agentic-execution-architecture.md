@@ -1,0 +1,8113 @@
+# GOSTA: Agentic Execution Architecture
+
+**Goals → Objectives → Strategies → Tactics → Actions**
+
+A Five-Layer Hierarchical Control System for Governor Governance and Agentic Orchestration
+
+**Version 6.1**
+
+---
+
+*Informed by: Levels of Autonomy for AI Agents (Knight First Amendment Institute / arXiv, 2025); Agent Behavioral Contracts (ABC) (arXiv, 2026)*
+*Simulation-tested: SecureFlow blog content marketing scenario (12-week lifecycle), NovaTech hiring sprint scenario (13-week finite scope with failure injection), Mercy Clinic healthcare operations (24-week ABC mechanism validation), Riverside City municipal emergency management (16-week multi-goal, parent/child scopes), University Research Lab (18-month Stage 4 autonomy stress test), product roadmap experiment (finite-scope protocol validation with GOSTA-Cowork Protocol), roadmap-session-v2 (scoring and dependency sequencing validation), Geopolitical analysis (4-run analytical scope with input-quality failure injection and informed user testing). Deliberation Protocol validated on geopolitical-sim (5-agent, 2-round) and roadmap-session-v2 (6-agent, 2-round, business+regulatory). See Simulation Test Reports.*
+
+*Version history: see Appendix A (end of document).*
+
+---
+
+## 0. Start Here
+
+### 0.1 What GOSTA Produces
+
+GOSTA is a specification for building an **autonomous agent system** that executes strategic decisions under human governance. When you implement GOSTA, you are building a system where:
+
+- An AI drafts strategic plans, the Governor approves them
+- The AI executes autonomously within approved bounds
+- The AI measures results, computes health, and recommends decisions
+- The Governor makes kill/pivot/persevere decisions at defined cadences
+- The cycle repeats — continuously learning and adapting
+
+**GOSTA does not produce a dashboard, a form-filling application, or a project management tool.** It produces a reasoning system that acts. The operating document is the system's configuration — when the Governor changes it, the system's behavior changes on the next cycle without code changes.
+
+### 0.2 The Two Actors
+
+**The Governor** is the person with decision authority over the scope being governed — a CEO, VP, Director, Department Head, or Project Lead. The Governor's role is **final authority**, not sole author. The AI drafts. The Governor decides.
+
+**The AI System** (orchestrator + executor agents) operates in three modes:
+
+- **Authoring Mode:** The AI drafts operating document elements — goals, strategies, tactics, kill conditions — drawing from domain models and data. The Governor reviews, modifies, and approves.
+- **Execution Mode:** The orchestrator reads the approved operating document, generates work plans, dispatches actions to executors, and collects signals. This runs autonomously within the bounds the Governor approved.
+- **Governance Mode:** The AI computes health reports, compares A/B tests, detects conflicts, and surfaces recommendations. The Governor makes decisions. The AI applies them.
+
+The Governor's time commitment depends on the review cadences defined in the operating document. See Section 6 for the full collaboration model, including the per-stage autonomy table (Section 6.3) that defines what the AI decides alone at each graduation stage.
+
+### The Operating Document
+
+The operating document is the single input to the system. It contains five layers of strategic logic:
+
+- **Goals** — Where are we going? With what guardrails?
+- **Objectives** — What measurable result, by when?
+- **Strategies** — Why this approach and not others? What must be true for it to work?
+- **Tactics** — What specific experiments test this strategy's reasoning?
+- **Actions** — What tasks need to happen, by whom, by when? (Initial set — the AI generates subsequent actions.)
+
+The AI can draft this document. The Governor approves it. Once approved, the system executes against it. See Section 9 (template), Section 21 (authoring guide), Section 11 (worked example), and `operating-documents/` for standalone examples.
+
+### 0.2.1 Domain Models
+
+Domain models are pluggable knowledge files that ground the AI's reasoning in any knowledge domain. They provide vocabulary, quality principles, anti-patterns, and hypothesis libraries. Without them, the AI operates on its general training data, which risks domain hallucination (Section 14).
+
+**The framework is domain-agnostic.** GOSTA governs execution in any domain where goals can be set, hypotheses tested, and signals measured — business, education, agriculture, scientific research, personal development, or any other structured endeavor. Domain models are content, not framework structure. Any Governor can create a domain model for any knowledge area using the schema in Section 13.3.
+
+Five domain models are included as examples: Value Creation, Marketing, Sales, Value Delivery, and Finance. These demonstrate the schema and were created for the initial use case (business operations). They are not framework requirements — a Governor governing their child's education would create Education and Child Development domain models; one managing a greenhouse would create Agriculture and Plant Science models. For scopes outside the included domains, the AI must build a new domain model as a required first-cycle deliverable (Section 13.6, Section 21.11).
+
+### 0.3 Reading Guide
+
+#### Vocabulary Reference
+
+The framework defines ~40 named vocabularies — entity statuses, decision types, signal types, kill reasons, memory types, and more. Each is defined inline in its source section. **Appendix B** provides a centralized index of every vocabulary with canonical values, source references, and complexity tags. When encountering an unfamiliar status value or enum, consult Appendix B first.
+
+#### Document Map
+
+| Section | What It Covers | Who Needs It | Tier |
+|---------|---------------|-------------|------|
+| 0 | This overview, implementation tiers, version selection | Everyone | CORE |
+| 1–2 | Design principles, architecture overview | Everyone | CORE |
+| 3 | Layer definitions (Goal through Action), scope types, entity status vocabularies, analytical scope extensions (tactic dependencies, first-use calibration, qualitative kill validation, independence levels) | Everyone | CORE (goal status: ROBUST, child scopes: ADVANCED, analytical extensions: ROBUST) |
+| 4 | Feedback loops, A/B testing, kill decisions, decision reversal, upward cascade governance, child scope disposition | Everyone | CORE (A/B: ROBUST, signal divergence: ADVANCED, decision reversal/upward cascade/child scope disposition: ADVANCED) |
+| 5 | Guardrail architecture, guardrail evaluation routing (§5.4), guardrail coherence checks | Everyone | CORE (calibration, coherence checks: ROBUST) |
+| 6 | Governor-AI collaboration model, per-stage autonomy, Governor succession, delegated reviewers, Governor attention capacity validation, autonomy safeguards, cadence evaluation, simulation test harness | Everyone | CORE (6.4-6.7: ROBUST/ADVANCED; succession, delegated reviewers, capacity validation: ROBUST) |
+| 7 | Agentic execution architecture, execution loops (including Strategy Cycle semantic coherence check), stateless variant, parallelism rules, failure resilience, environmental signal architecture | AI system + AI implementer (Governor: §7.7-7.14 at ROBUST+) | CORE (7.2 Strategy Cycle §8.1 check, 7.7-7.10, 7.12-7.14: ROBUST/ADVANCED, 7.11: CORE; ADVANCED overlays in 7.2, 7.4) |
+| 8 | Structural integrity rules, semantic coherence validation, decision-to-state traceability, OD state versioning, causal context at kill decisions, feature interaction rules (pause/kill, A/B/rebalance, strategy/tactic kill ordering, cross-strategy kill sequencing, data carryover, cold start, committed actions, API outage, synergy assessment), interface contracts between components (signal emission, health computation, decision-to-OD, OD-to-work-plan, memory loading, learning routing, environmental monitoring, deliberation output) | Everyone | CORE (8.1.2-8.1.3, 8.2-8.3, 8.5: ROBUST/ADVANCED, 8.4: CORE kill / ROBUST extension, 8.6: ROBUST) |
+| 9 | Operating document template | Everyone | CORE (9.2: ROBUST/ADVANCED) |
+| 10 | Tactic specification template | Everyone | CORE |
+| 11 | Worked example (social media growth) | Reference | ROBUST |
+| 12 | Scaling guidance | Governor + AI system | ROBUST |
+| 13 | Domain models | Everyone | CORE (stacking: ROBUST) |
+| 14 | Grounding architecture: 5-category hallucination taxonomy (including reasoning corruption), 9 grounding components — Schema Validation (§14.3.1), Domain Knowledge Store (§14.3.2), Data Grounding (§14.3.3), Attribution (§14.3.4), Synthesis Verification (§14.3.5), Capability Validation (§14.3.6), Reasoning Depth Validation (§14.3.7), Finding Classification (§14.3.8), Sycophancy Detection (§14.3.9) | AI system + AI implementer (Governor: health report interpretation) | ROBUST |
+| 15 | Systems foundations (theoretical substrate) | Reference | ROBUST |
+| 16 | Implementation sequence, graduation path (prerequisites include semantic coherence validation), Tier 2+ architecture considerations (§16.12) | Governor + AI implementer | CORE (16.11: ADVANCED, 16.12: ROBUST) |
+| 17 | Data architecture (persistence requirements) | AI system + AI implementer | CORE |
+| 18 | Memory architecture: 3 storage tiers (working, episodic, structural) + 3 functional cross-cutting types (procedural, prospective, meta-memory) = 6 memory types; 7th type (shared) at ADVANCED for multi-scope hierarchies | AI system + AI implementer | ROBUST (18.2.7 Shared: ADVANCED) |
+| 19 | Knowledge requirements per process | AI system + AI implementer | ROBUST |
+| 20 | Computation definitions, goal health computation, multi-phase signal production, metric lag adjustment, resource-normalized A/B comparison | Everyone | CORE (20.3, 20.5.1, 20.6, 20.8, 20.9, 20.10-20.12: ROBUST) |
+| 21 | Operating document authoring guide | Everyone | CORE |
+| 22 | Execution protocols: conformance requirements, Finite Stateless Pattern | AI system + AI implementer + Governor | CORE |
+| Appendix B | Vocabulary & taxonomy index: all entity statuses, decision types, signal types, kill reasons, scope types, guardrail types, memory types, learning vectors, hallucination taxonomy, grounding components, autonomy stages, failure modes | Everyone | REFERENCE (cross-tier, cross-complexity) |
+| Appendix A | Version history (changelog v4–v6.0) | Reference | REFERENCE (optional) |
+
+**Reading the "Who Needs It" column.** This column uses three role labels:
+
+- **Governor** — the human with decision authority. Reads sections to understand what the system does, what decisions they'll make, and what outputs to expect.
+- **AI system** — the running orchestrator/executor. Reads sections to know how to execute cycles, compute health, write signals, manage memory, and present recommendations. At Tier 0, the conversational AI (e.g., Claude in Cowork mode) IS the AI system — it must read everything labeled "AI system."
+- **AI implementer** — the developer building the system at Tier 1+. Reads sections to understand what to build — data schemas, execution loop logic, memory infrastructure, grounding pipelines.
+
+**At Tier 0, "AI system" and "AI implementer" are the same entity** — the conversational AI is simultaneously the running system and its own implementation. A Tier 0 AI must read all sections labeled either "AI system" or "AI implementer." At Tier 1+, these roles separate: the developer reads "AI implementer" sections to build the system; the running system reads "AI system" sections to operate. **"Everyone"** means all three roles need the section regardless of tier.
+
+#### Implementation Tiers
+
+This document contains everything needed for a full production GOSTA deployment. **You do not need all of it to start.** The framework is designed to be adopted incrementally.
+
+Two independent dimensions determine what you need:
+
+**Dimension 1: Feature Complexity — what to read.** Sections are tagged with complexity markers that indicate when to adopt them:
+
+- **`[CORE]`** — Required for any GOSTA implementation at any tier. Without these, the system doesn't function. Read these first.
+- **`[ROBUST]`** — Handles edge cases, adds operational resilience, and supports non-trivial deployments (A/B testing, domain model stacking, grounding architecture, hallucination prevention, memory taxonomy, autonomy safeguards, failure resilience, environmental scanning, cadence evaluation, goal health computation (including multi-phase signal production and metric lag adjustment — §20.3, resource-normalized A/B comparison — §20.9), semantic coherence validation, decision-to-state traceability, OD state versioning, entity status vocabularies (goal, A/B variant, strategy terminal with `graduated` state — §3.1, §4.2, §7.8), feature interaction rules (§8.5, including cross-strategy kill sequencing, data carryover, cold start, committed action on pivot, API outage kill timer, complementary strategy synergy), autonomous action loop guard (§5.1), guardrail reclassification (§5.1), informed user override (§6.1), Governor succession (§6.1), delegated reviewers (§6.3), precondition validation, deferral, and override (§7.2), signal pipeline degradation and failure signals (§7.4, §17.2.2), analytical scope extensions (§3.6 — tactic dependencies, first-use calibration, qualitative kill validation, sequential isolation/independence levels), runtime domain model quality detection and source credibility (§13.3), learning-triggered domain model changes (§19.9), OD authoring patterns (WMBT vs. guardrail — §21.5, aspiration-floor — §21.4, precondition authoring — §21.7), multi-goal scope status aggregation and cross-objective tradeoff governance (§20.12), execution-completion kill condition default (§8.1.1), external dependency pre-kill viability check (§4.3), Governor attention capacity validation (§6.1), execution cost tracking (§13.3), causal context assessment beyond kill decisions, interface contracts between components (§8.6 — signal emission, health computation, decision-to-OD, OD-to-work-plan, memory loading, learning routing, environmental monitoring, deliberation output), reasoning depth validation — §14.3.7 depth/coverage/chain integrity checks with `[SHALLOW]` flag, finding classification — §14.3.8 epistemic annotation (confirmed/information_gap/conditional) for health assessments and deliberation findings with autonomy constraints at Stage 3+, sycophancy detection — §14.3.9 health report risk factors, signal-recommendation consistency, kill proximity alerting, deliberation convergence probes and position independence verification, deliberation — see §7.1 Deliberation Components, §14.7 Multi-Domain Consultation Pattern). Read these when your first operating document is running and you've hit your first tactic review — or immediately if your scope requires features tagged ROBUST (e.g., deliberation, multi-domain grounding, Stage 3 autonomy safeguards).
+- **`[ADVANCED]`** — Supports finite scopes, multi-scope hierarchies, Stage 3+ autonomy, and production hardening (decision reversal — §4.3, upward cascade governance — §4.3, strategy kill with child scope disposition — §4.3/§7.10, child scope graduation guidance — §3.5, conversion funnel tracking — §7.2, decision batching — §7.2, cascading failure propagation — §7.13.5, advanced invariants — §8.1.3, custom review triggers and alternate Governor — §9.2, metric lag fields and metric prerequisites — §10, re-graduation after regression — §16.11.1, shared memory / cross-scope learning — §18.2.7, mid-execution precondition failure — §7.2, signal divergence detection — §4.2). Read these when you're operating multiple scopes, building toward autonomous operation, or working in domains with external dependencies.
+
+If a section has no marker, it is `[CORE]`.
+
+**Dimension 2: Implementation Mode — how to execute.** The framework's mechanisms (execution loops, health computation, grounding, memory) work at any of four implementation modes. The mode determines the infrastructure, not the concepts:
+
+- **Tier 0** — File-based, no code. AI in conversation is the orchestrator. State lives in markdown files.
+- **Tier 1** — Minimum viable coded product. Database, signal store, basic automation.
+- **Tier 2** — Robust operations. Full grounding infrastructure, automated verification, advanced orchestration.
+- **Tier 3** — Production-hardened. Multi-scope hierarchies, Stage 4-5 autonomy, conversion funnels.
+
+**These two dimensions are independent.** A Tier 0 user running deliberation needs `[ROBUST]` sections (§14 Grounding, deliberation protocol). A Tier 1 user building a simple single-domain scope may only need `[CORE]` sections. The complexity tags tell you what features to adopt; the tier tells you how to implement them.
+
+**Reading sections with mixed tiers.** Some sections are primarily CORE but contain tagged paragraphs or features at a higher tier (e.g., Section 7.2 is CORE but has `[ROBUST]` inline markers on environmental watch list checking and `[ADVANCED]` markers on conversion funnel tracking and decision batching). When reading a mixed section, skip content preceded by markers you haven't adopted. The CORE content in these sections is self-contained — skipping tagged content does not create gaps.
+
+**Tier-specific behavior within sections.** Many sections describe how a mechanism works differently at each implementation tier. Look for "by tier:" paragraphs or "Tier 0 note:" callouts. These explain how the same concept (e.g., schema validation, data grounding, context loading) translates from Tier 0 (file-based, conversational) through Tier 2+ (automated, infrastructure-backed). If a section has no tier-specific notes, its content applies identically across all tiers.
+
+#### Tier 0: Manual / AI-Assisted (No Code)
+
+**Feature complexity:** Tier 0 users read `[CORE]` sections by default — this includes §8.4 (confounder assessment for kill decisions), which is `[CORE]` because every scope makes kill decisions. Read `[ROBUST]` sections if your scope uses deliberation, multi-domain grounding, A/B testing, environmental monitoring (§7.14), goal health computation (§20.12), or has graduated to Stage 3 (which activates autonomy safeguards §6.7). Read `[ADVANCED]` sections if your scope is finite with phase gates or requires alternate Governor support.
+
+**Goal:** Run GOSTA using a session-based AI (such as Claude, ChatGPT, or any conversational AI) as orchestrator and executor, with the human Governor making decisions through conversation. No persistent process, no database, no custom code. At Tier 0, the conversational AI fills both the "AI system" and "AI implementer" roles from the Document Map — it must read all sections labeled for either role.
+
+**How it works:** All GOSTA state lives in files — markdown documents for the operating document, domain models, decision logs, signals, and health reports. The AI reconstitutes state from these files at the start of each session using a bootstrap mechanism. The Governor interacts through conversation, and the AI records decisions in append-only files.
+
+**Minimum file structure:**
+- `00-BOOTSTRAP.md` — Session entry point. Updated at the end of every session. Contains: current state, context loading order, what happened last session, what's pending.
+- `operating-document.md` — The living OD.
+- `domain-models/` — One file per domain model.
+- `decisions/governor-decisions.md` — Append-only decision log.
+- `session-logs/` — One file per session (episodic memory).
+- `learnings.md` — Structural memory across sessions.
+
+**Session lifecycle:** Orient (read bootstrap) → Load context (read OD + domain models) → Execute (perform session work) → Record (write outputs) → Update bootstrap → Write session log.
+
+**Scope types supported:** Both ongoing operational scopes (recurring review cadences) and finite analytical scopes (phase gates — see §3.6). For finite scopes, review cadence is per-phase-gate, not calendar-based.
+
+**Graduation at Tier 0:** Graduation stages 1-3 are fully supported. At Stage 1-2, the AI presents everything for Governor approval in conversation. At Stage 3, the AI executes routine actions between sessions and presents results at the next session. Stages 4-5 require a persistent process and are not available at Tier 0. At Stage 3, the autonomy safeguards (§6.7) become operationally relevant — the AI checks grounding health, assesses decision reversibility, validates magnitude thresholds, and monitors Governor-defined conditions before executing autonomous decisions.
+
+**Reference implementation:** The GOSTA-Cowork Protocol (a separate companion document) provides the complete Tier 0 specification including session types, signal format, health computation method, decision recording format, confounder assessment for kill decisions (§12.10), OD state versioning (§12.9), framework feedback mechanism, and deliberation mode support.
+
+**When to use Tier 0:** When you want to validate GOSTA with a real scope before investing in coded infrastructure; when the scope is a finite analytical project (roadmap, assessment, audit); when the Governor wants to experience the framework before committing to a build; or when operating at a scale where file-based state management is sufficient (single scope, single Governor, review cadences of days or weeks, not minutes).
+
+**When to upgrade to Tier 1:** When review cadences require sub-daily automation; when signal collection requires API integration (analytics platforms, CRM data, financial feeds); when the Governor needs a dashboard instead of reading markdown files; or when operating multiple concurrent scopes that share signals.
+
+#### Tier 1: Minimum Viable Implementation
+
+**Goal:** A single scope, Stage 1-2, continuous operation, one Governor, the AI drafts and executes under full human approval.
+
+**Sections to implement:**
+
+| Section | What You Get |
+|---------|-------------|
+| 0–3 | Framework fundamentals, five-layer hierarchy |
+| 4.1 (base feedback loop only — skip intra-tactic signal divergence paragraph), 4.3 (kill/pivot/persevere only) | Feedback loop, basic kill decisions |
+| 5 | Guardrail inheritance |
+| 6.1–6.3 (Stage 1-2 rows only) | Governor authority, basic collaboration model |
+| 7.1–7.6 | Execution loops, signal flow, system components |
+| 8.1.1, 8.4 | Core structural integrity (kill condition evaluability, allocation arithmetic, temporal ordering) + confounder assessment at kill decisions. Skip §8.1.2-8.1.4, §8.2, §8.3, §8.5, §8.6 (all ROBUST/ADVANCED). |
+| 9.1 | Required OD template elements |
+| 10 | Tactic specification template |
+| 13.1–13.6 | Domain model basics |
+| 16.1–16.9 | Build phases |
+| 17.1–17.2 | Data stores (objective statuses: `active`, `on_track`, `at_risk`, `achieved`, `failed`, `partially_met`, `revised` from §3.2; tactic statuses: `active`, `killed`, `exhausted` from §4.3/Appendix B.1) |
+| 20.1–20.5, 20.7, 20.9, 20.13 | Core computations + responsibility boundaries |
+| 21 | Authoring guide |
+| 22 | Execution protocol concepts |
+
+**What you skip:** Pause/resume, rebalance, milestone signals, conversion funnels, A/B time-normalization, alternate Governor, scope conclusion protocol, finite-scope graduation, challenge probes, governance integrity, cross-domain signal resolution, autonomy safeguards, failure resilience (signal pipeline monitoring, recovery verification, context/memory integrity, capacity degradation, constraint propagation verification, Governor decision validation), environmental signal architecture, cadence evaluation, goal health computation, computation trace, semantic coherence validation (cross-entity invariants, decision-to-state traceability, OD state versioning §8.3), memory architecture (including functional memory types), ADVANCED overlays within sections you read (§4.1 intra-tactic signal divergence, §7.2 conversion funnel tracking / decision batching / WMBT confirmation, §7.4 milestone signals), and all progressive disclosure markers below.
+
+**Statuses needed:** `active`, `killed`, `exhausted`, `on_track`, `at_risk`, `achieved`, `failed`, `partially_met`, `revised` (objective statuses from §3.2)
+
+**Decision types needed:** `kill`, `pivot`, `persevere`
+
+**Approximate build effort:** The implementation sequence (Section 16) gives you the phase order. At Tier 1, you're building Phases 0-6.
+
+**Tier 1 implementation notes (where Tier 1 differs from Tier 0 and Tier 2):** Many sections contain "Tier 0 note:" callouts describing file-based, conversational behavior. Tier 1 replaces these with coded equivalents but does NOT require the full infrastructure described in Tier 2+ paragraphs. Specifically: (a) **Health computation** — same formulas as Tier 0, but computed by code against a signal store rather than conversationally. The output is the same health report schema. (b) **Signal pipeline** — signals are stored in a database rather than markdown files, but the signal schema is identical. Pipeline monitoring (§7.13.1) is optional at Tier 1 — implement it only if signal volume or cadence warrants automated monitoring. (c) **Schema validation (§14.3.1)** — at Tier 1, this is a programmatic check at OD save time, not a conversational check at session start. Same invariants (C1-C3), different enforcement point. (d) **Grounding components §14.3.2-14.3.4** — at Tier 1, domain model grounding and attribution validation run as automated pre-checks before health computation rather than inline conversation checks. (e) **Memory architecture** — Tier 1 does not require the full memory taxonomy (§18). Working memory is the OD + signal store. Episodic memory is the session/decision log. Structural memory is the learnings store. The functional cross-cutting types (procedural, prospective, meta-memory) are Tier 2.
+
+#### Tier 2: Robust Operations
+
+**Prerequisite:** Tier 1 running, at least one full tactic review cycle completed.
+
+**Goal:** Handle real-world edge cases that a toy implementation doesn't hit. Support A/B testing, mixed-dependency tactics, multi-strategy portfolios, domain model stacking, and the full status vocabulary.
+
+**Sections to add:**
+
+| Section | What You Get |
+|---------|-------------|
+| 4.2 (A/B testing at two levels — skip staggered-start scheduling, which is ADVANCED/Tier 3) | A/B testing framework |
+| 4.4 | Mixed-dependency signal adjustment |
+| 4.5 | Cross-domain signal resolution |
+| 5.2–5.3 | Guardrail calibration |
+| 6.3 (Stage 3 rows) | Orchestrator-managed-with-exceptions autonomy |
+| 6.4 (all subsections 6.4.1–6.4.4) | Full Governor review rhythm and cadence evaluation |
+| 6.5 | Diagnostic classification |
+| 6.6 | Simulation test harness (non-production) |
+| 6.7 | Autonomy safeguards: degraded-mode, reversibility, magnitude thresholds, conditional grants |
+| 7.7 | Agent failure protocol, safe defaults |
+| 7.8 | Tactic exhaustion protocol |
+| 7.9 | Event-triggered reviews |
+| 7.12 | Parallelism rules (fork/execute/merge) |
+| 6.4.4 | Cadence evaluation: signal-to-review ratio, event-triggered frequency, decision staleness diagnostics |
+| 7.13.1–7.13.4, 7.13.6, 7.13.7 | Failure resilience: signal pipeline, recovery verification, context/memory, capacity degradation, Governor decision validation, constraint propagation verification |
+| 7.14 | Environmental signal architecture: watch list, environmental signal processing, monitoring by tier |
+| 8.1.2, 8.1.4, 8.2–8.5 | Semantic coherence: cross-entity invariants (skip §8.1.3 advanced invariants — Tier 3), decision-to-state traceability, reconciliation checks, OD state versioning (decision context snapshots, authorization chain, edit detection), causal context at kill decisions (confounder checklist), feature interaction rules |
+| 9.2 (Audience, Voice, Domain Context, A/B Tests, Reference Materials, Decision History — skip Custom Review Triggers and Alternate Governor, which are ADVANCED/Tier 3) | Recommended OD elements |
+| 11 | Worked example (reference) |
+| 12 | Scaling guidance |
+| 13.7 | Domain model stacking |
+| 14 | Full grounding architecture |
+| 17.2.3–17.2.5 (full schemas) | Complete data store schemas |
+| 18 | Memory architecture |
+| 19 | Knowledge requirements per process |
+| 16.12 | Tier 2+ architecture considerations (concurrency model, operational monitoring, scale patterns) |
+| 20.5.1, 20.6, 20.8, 20.10-20.12 | Diagnostic classification, strategy health, human creative input adjustment, scoring protocol, dependency validation, goal health computation |
+
+**Additional statuses:** `completed`, `paused`, `killing` (strategy intermediate state from §8.5.3), `leading`, `trailing`, `inconclusive`, `winner`, `voided` (A/B variant statuses from §4.2), `healthy`, `drifting`, `partially_achieved`, `suspended`, `retired` (goal statuses from §3.1)
+
+**Additional decision types:** `rebalance`, `pause`, `resume`, `revise_objective`, `resolve_conflict`, `portfolio_rebalance`, `wmbt_refinement`, `challenge_probe`
+
+**Additional vocabularies:** Sycophancy detection (§14.3.9) adds 6 flags used in health reports and deliberation status: `generic_risk_section`, `recommendation_divergence`, `kill_proximity_silent`, `round1_unanimity`, `low_dissent_frequency`, `narrative_quantitative_divergence` (Appendix B.11). Finding Classification (§14.3.8) adds 3 epistemic classification values: `confirmed`, `information_gap`, `conditional` (Appendix B.10).
+
+> **Why these are Tier 2, not Tier 3:** A Governor who sets an objective target too high on day 1 needs `revise_objective` by week 2 — that's basic operations, not advanced. And `resolve_conflict` hits any scope running two domain models (domain model stacking is Tier 2). These aren't exotic features; they're what happens when real operations meet imperfect initial plans.
+
+#### Tier 3: Advanced / Production-Hardened
+
+**Prerequisite:** Tier 2 running, operating in non-content domains or targeting Stage 3+.
+
+**Goal:** Full production deployment with finite-scope support, multi-scope hierarchies, Stage 4-5 autonomy, and all production hardening features.
+
+**Sections to add:**
+
+| Section | What You Get |
+|---------|-------------|
+| 3.5 (child scope contract, trust calibration) | Multi-scope hierarchies |
+| 4.1 (intra-tactic signal divergence) | Signal divergence diagnosis |
+| 6.3 (Stage 4-5 rows) | Full autonomy model |
+| 7.2 (conversion funnel, decision batching, WMBT confirmation) | Advanced orchestration |
+| 7.4 (milestone signals) | External event tracking |
+| 7.10 | Scope conclusion protocol |
+| 7.13.5 | Cascading failure propagation (multi-scope isolation, circuit breakers) |
+| 8.1.3 | Advanced semantic invariants: WMBT-kill condition coupling, cross-domain concept consistency |
+| 9.2 (Custom Review Triggers, Alternate Governor) | Advanced OD elements |
+| 16.11 | Full graduation path including finite-scope guidance |
+| 16.11.1 | Governance integrity, challenge probes |
+| 18.2.7 | Shared memory: cross-scope learning for multi-scope hierarchies |
+
+**Additional statuses:** `killed_winding_down`
+
+**Additional decision types:** None — all decision types are available at Tier 2.
+
+#### Feature Dependency Graph
+
+Features can be adopted independently within their tier, with the following dependencies. Note: these tiers describe implementation mode (how you build/operate), not feature complexity — see the two-dimension model above.
+
+```
+Tier 0 — File-based, no code:
+  Bootstrap file (00-BOOTSTRAP.md)
+      ↓
+  Operating Document (Section 9, 21)
+      ↓
+  Domain Models (Section 13)
+      ↓
+  Decision Log (append-only markdown)
+      ↓
+  Session Logs (episodic memory)
+      ↓
+  Health Computation (in-conversation, Section 20)
+
+  Note: Tier 0 requires no code. All GOSTA mechanisms operate
+  through file-based state and conversational AI. See the
+  GOSTA-Cowork Protocol companion document for full specification.
+  Feature complexity varies independently — a Tier 0 scope may use
+  [CORE]-only features or add [ROBUST] features like deliberation.
+
+Tier 1 — Minimum viable coded implementation (build in Section 16 phase order):
+  Phase 0: Operating Document (Section 9, 21)
+      ↓
+  Phase 1: Attribution (Section 17.1-17.2)
+      ↓
+  Phase 2: Signal Emission (Section 7.4, 17.2.2)
+      ↓
+  Phase 3: Schema Validation (Section 14.3.1)
+      ↓
+  Phase 4: Orchestrator (Section 7.1-7.6, 20)
+      ↓
+  Phase 5: Domain Knowledge Store (Section 13, 17.2.3)
+      ↓
+  Phase 6: Approval UI + Governance Loop (Section 6, 16.9)
+
+Tier 2 — Robust operations (requires Tier 1 running):
+  rebalance ──────────→ requires ALLOCATION_WEIGHT in tactic template
+  pause/resume ────────→ requires status vocabulary table (Section 4.3)
+  exhaustion protocol ─→ requires completed status (Section 7.8)
+  safe defaults ───────→ requires domain model anti-patterns (Section 13.6)
+  A/B staggered start ─→ requires base A/B testing (Section 4.2)
+  autonomy safeguards ─→ requires Stage 3 graduation (Section 6.3, 6.7)
+  conditional grants ──→ requires autonomy safeguards + OD condition fields
+  failure resilience ──→ requires agent failure protocol (Section 7.7)
+  recovery verification → requires failure resilience (Section 7.13.1)
+  constraint propagation → requires failure resilience + OD structural integrity
+  Gov decision validation → requires health computation + OD structural integrity
+  environmental watch list → requires signal store (Section 7.4) + OD watch list entries
+  goal health computation → requires environmental signals (Section 7.14) + objective progress (Section 20.9)
+  cadence evaluation ──→ requires signal store + review rhythm (Section 6.4)
+  computation trace ───→ requires health computation (Section 20)
+  semantic coherence ──→ requires schema validation (Section 14.3.1) + domain models (Section 13)
+  full grounding (§14) ─→ requires schema validation (§14.3.1, Phase 3) + domain models (§13, Phase 5) + signal store
+    §14.3.1 Schema Validation ─→ Phase 3 (Tier 1)
+    §14.3.2 Domain Knowledge ──→ Phase 5 (Tier 1)
+    §14.3.3 Data Grounding ────→ signal store (Phase 2)
+    §14.3.4 Attribution ────────→ signal store (Phase 1)
+    §14.3.5 Synthesis Verif ───→ deliberation (§7.1 Deliberation Components)
+    §14.3.6 Capability Valid ──→ standalone (no dependencies)
+    §14.3.7 Reasoning Depth ───→ domain models (§13) + health computation (§20)
+    §14.3.8 Finding Classif ───→ health computation (§20) + signal store
+    §14.3.9 Sycophancy Det ────→ health computation (§20) + deliberation (optional)
+  decision traceability → requires decision log (Section 17.2.1) + Stage 3+ autonomy (Section 6.3)
+  OD state versioning ──→ requires decision traceability (Section 8.2) + decision log (Section 17.2.1)
+  causal context (kill) → requires signal store (Section 7.4) + environmental watch list (Section 7.14)
+
+Tier 3 — Production-hardened (requires Tier 2 running):
+  milestone signals ───→ requires signal store extension (Section 17.2.2)
+  scope conclusion ────→ requires structural memory transfer (Section 18)
+  child scopes ────────→ requires scope conclusion + signal contract
+  wind-down ───────────→ requires killed_winding_down status
+  alternate Governor ──→ standalone (no dependencies beyond Tier 1)
+  challenge probes ────→ requires health computation (Section 20)
+  conversion funnels ──→ requires tactic health reports (Section 17.2.5)
+  governance integrity → requires challenge probes
+  finite-scope grad ───→ requires graduation path (Section 16.11)
+  shared memory ─────→ requires multi-scope hierarchies (Section 18.2.7)
+  cascading failure ──→ requires multi-scope hierarchies + failure resilience
+  advanced invariants ─→ requires semantic coherence (Section 8.1.2) + multi-domain (Section 13.7)
+```
+
+#### Selection Guide
+
+**Step 1 — Choose your implementation mode (tier):**
+
+| If your situation is... | Implementation Mode |
+|--------------------------|-----|
+| Exploratory, first GOSTA use, finite scope, or no engineering resources | Tier 0 (Cowork Protocol) |
+| First build, single scope, content/marketing domain, Stage 1-2 | Tier 1 |
+| Multiple concurrent scopes, needs automation, sub-daily cadences | Tier 2 |
+| Multi-scope hierarchies, Stage 4-5 autonomy, production hardening | Tier 3 |
+
+**Step 2 — Choose which features you need (complexity):**
+
+| If your scope needs... | Read sections tagged |
+|--------------------------|-----|
+| Basic GOSTA (single domain, no A/B, no deliberation) | `[CORE]` only |
+| A/B testing, multi-domain grounding, deliberation, domain model stacking, environmental monitoring, goal health computation, semantic coherence validation, Stage 3 autonomy safeguards | `[CORE]` + `[ROBUST]` |
+| Finite scopes with phase gates, alternate Governor, Stage 3+ autonomy | `[CORE]` + `[ROBUST]` + `[ADVANCED]` |
+
+These choices are independent. A Tier 0 user running deliberation reads `[CORE]` + `[ROBUST]`. A Tier 1 builder with a simple scope reads `[CORE]` only.
+
+---
+
+## 1. Design Principles
+
+This framework is a hierarchical control system that serves two purposes simultaneously: it is the governance instrument through which the Governor steers the organization, and it is the orchestration graph through which agentic workers execute. These are not separate systems. They are the same hierarchy, read differently depending on the reader.
+
+The architecture applies equally to complex strategic programs and simple operational goals. The same five layers, the same feedback loops, and the same guardrail mechanics work whether the goal is "establish global market leadership in cybersecurity" or "grow our social media following." Complexity is handled by depth (more objectives, more strategies, more tactics), not by changing the structure.
+
+Five principles govern the design:
+
+**Bidirectional information flow.** Guardrails and constraints flow downward from goals through objectives, strategies, tactics, and actions. Execution data, A/B test results, and feedback flow upward from actions through tactics, strategies, and objectives into goals. Every layer both receives instructions and emits signals.
+
+**Separation of reasoning from experimentation.** Strategies express the reasoning behind an approach — why this path and not others. Tactics express the testable implementation of that reasoning — the specific experiment being run. This separation allows tactics to be killed without losing the strategic reasoning that produced them, and allows strategic reasoning to be evaluated across multiple tactical implementations rather than through a single bet.
+
+**Hypothesis-driven execution.** Every tactic is a bet with a testable hypothesis, measurable success criteria, and a kill condition. Workers do not blindly execute plans; they execute experiments within guardrails, and the system learns from the results.
+
+**Separation of intent from method.** Upper layers (goals, objectives) express what and why. Middle layers (strategies) express the approach logic. Lower layers (tactics, actions) express how. This separation is what makes agentic execution possible: an agent can be given a strategy and its guardrails, then autonomously determine or optimize the tactics and actions to implement it.
+
+**Progressive autonomy with bounded risk.** Each layer defines the decision space for the layer below it. Goals bound objectives. Objectives bound strategies. Strategies bound tactics. Tactics bound actions. Increased autonomy always comes with proportional constraints.
+
+---
+
+## 2. Architecture Overview
+
+### 2.1 The Five Layers
+
+| Layer | Question | Input | Output | Owner |
+|-------|----------|-------|--------|-------|
+| Goal | Where are we going? | Environment, vision | Objectives | Governor |
+| Objective | What result, by when? | Goals | Strategies | Governor |
+| Strategy | Why this approach? | Objectives | Tactics | Governor |
+| Tactic | How specifically are we testing this? | Strategies | Actions | Tactic Lead |
+| Action | Who does what, by when? | Tactics | Signals | Assignee |
+
+Review cadences and time horizons are not layer properties — they are scope properties. A goal can span a quarter or a decade. The Governor defines the review rhythm appropriate to the scope (see Section 6.4).
+
+### 2.2 Dual Reading: Human Governance vs. Agentic Orchestration
+
+| Layer | Governor Reads As | Agent Reads As | Information Direction |
+|-------|-------------|----------------|---------------------|
+| Goal | My strategic mandate | System-level constraint | Guardrails ↓ |
+| Objective | My measurable targets | Success function to optimize | Targets ↓ / Metrics ↑ |
+| Strategy | My approach logic | Approach constraint and reasoning to apply | Reasoning ↓ / Validation ↑ |
+| Tactic | My portfolio of bets | Hypothesis to test via A/B | Hypotheses ↓ / Results ↑ |
+| Action | My team's task list | Executable instruction set | Tasks ↓ / Signals ↑ |
+
+### 2.3 The Control Loop
+
+**Downward flow (Command):** Goals define guardrails → Objectives define measurable targets within those guardrails → Strategies define approach logic constrained by objectives → Tactics define testable implementations constrained by strategies → Actions define tasks constrained by tactics.
+
+**Upward flow (Feedback):** Actions emit execution data (completion, duration, blockers) → Tactics aggregate action data and A/B test results into hypothesis validation signals → Strategies aggregate tactic signals into approach validation → Objectives aggregate strategy signals into metric progress → Goals receive objective-level signals that may trigger strategic reassessment. (For the formal systems-theoretic vocabulary behind these flows — including the distinction between balancing and reinforcing feedback loops — see Section 15.2.)
+
+**Lateral flow (Coordination):** Tactics within the same strategy may share dependencies. Strategies within the same objective may compete for resources. Actions across tactics may require sequencing. These are tracked explicitly through dependency declarations.
+
+### 2.4 The Layer Transformation Model
+
+Each layer is a transformation function with defined inputs and outputs. This model makes the boundaries between layers concrete rather than subjective.
+
+| Layer | Receives From Above | Transforms Into | Transformation Type |
+|-------|-------------------|----------------|-------------------|
+| Goal | Environment, Governor's vision | Guardrails + direction | Vision → Constraint |
+| Objective | Goals + guardrails | Measurable targets with deadlines | Direction → Measurement |
+| Strategy | Objectives + metrics | Approach logic with reasoning | Measurement → Reasoning |
+| Tactic | Strategies + approach logic | Testable experiments with hypotheses | Reasoning → Experimentation |
+| Action | Tactics + experiment specs | Executable tasks with deliverables | Experimentation → Execution |
+
+The boundary between any two layers is defined by the transformation, not by the content. If you are selecting and reasoning about approaches, you are at the Strategy layer. If you are specifying a testable implementation, you are at the Tactic layer. The same concept (e.g., "partnerships") might appear at either layer depending on what transformation is being performed: "We will grow through partnerships because our product is complementary to X" is Strategy. "Test co-marketing campaign with Partner A, measuring joint lead generation at X conversion rate over 8 weeks" is Tactic.
+
+---
+
+## 3. Layer Definitions
+
+### 3.1 Goal
+
+**Definition:** A broad, enduring statement of strategic intent that defines a desired future state for the organization within a specific domain. Goals are directional and domain-scoped. They answer: *"What do we ultimately want to achieve or become?"*
+
+**Structural Rules:**
+
+- Goals describe destinations, never methods.
+- Each goal occupies a distinct domain. No two goals compete for the same resources or metrics.
+- Goals do not contain timelines, numbers, or deliverables.
+- An organization should maintain 4–8 goals. A single-purpose team or project may have just 1–2.
+- Goals are the source of guardrails: each goal implies boundaries that downstream layers must not violate.
+
+**Guardrail Function:** Each goal should have an explicit set of constraints that define what is out of scope or unacceptable in pursuit of that goal. These constraints propagate downward through all layers. An agentic worker optimizing toward an objective must respect the guardrails inherited from the parent goal.
+
+**Litmus Test:** *If you can declare it "done" on a specific date, it is an objective. If it prescribes a method, it contains an embedded strategy. If it contains a number, it contains an embedded objective. Strip all three.*
+
+**Example — Complex:** "Establish global market leadership in DDoS testing. Guardrails: No market entry requiring physical infrastructure. No pricing below cost-of-delivery."
+
+**Example — Simple:** "Build a recognized and trusted brand presence online. Guardrails: No purchased followers or engagement bots. No off-brand content for virality. Brand voice must remain professional."
+
+**Goal Status Vocabulary** `[ROBUST]` *(all entity status vocabularies are indexed in Appendix B.1)*:
+
+| Status | Definition | Transition From | Transition Trigger |
+|--------|-----------|----------------|-------------------|
+| `active` | Goal is being pursued; objectives are assigned | (initial state) | Goal created and approved |
+| `healthy` | Goal health computation (§20.12) shows aligned or advancing | `active`, `drifting` | Goal health assessment at goal review |
+| `drifting` | Environmental alignment or objective portfolio showing stress | `active`, `healthy` | Goal health assessment shows misalignment or multiple at-risk objectives |
+| `achieved` | All objectives under this goal have been achieved | `active`, `healthy` | All child objectives reach `achieved` status (terminal state for current planning cycle) |
+| `partially_achieved` | Some objectives achieved, others partially met or failed; overall goal direction advanced but not fully realized | `active`, `healthy`, `drifting` | Scope conclusion or goal review where objective portfolio shows mixed terminal states (terminal state) |
+| `suspended` | Goal deprioritized by Governor; no active objectives | `active`, `healthy`, `drifting` | Governor decision to suspend; all objectives paused or concluded |
+| `retired` | Goal is no longer relevant to the organization's direction | any non-terminal | Governor decision at goal review (terminal state) |
+
+Tier note: Goal status is assessed at goal reviews. At CORE complexity, goals are tracked informally (active or not). The formal status vocabulary above applies at ROBUST complexity where goal health computation (§20.12) is implemented.
+
+### 3.2 Objective
+
+**Definition:** A specific, measurable, time-bound target that operationalizes a goal. Objectives answer: *"What concrete result must we deliver, and by when, to make progress toward the goal?"*
+
+**Structural Rules:**
+
+- Every objective contains a metric or deliverable AND a deadline. Missing either disqualifies it.
+- Objectives are falsifiable: at deadline, a third party can audit pass/fail.
+- Each objective maps to exactly one goal.
+- Objectives do not prescribe method or approach.
+- 2–5 objectives per goal per planning cycle.
+
+**Feedback Function:** Objectives are the metric aggregation layer. They receive signals from strategies (which aggregate from tactics), and translate them into quantitative progress. When metrics stall despite active strategies and tactics, the signal is that the approach needs restructuring, not that the team needs to work harder.
+
+**For Agentic Workers:** An objective is a success function. The agent knows what "done" looks like, what the threshold values are, and what guardrails it inherits from the parent goal.
+
+**Litmus Test:** *Can you write a dashboard widget that evaluates this objective's status with a pass/fail? If not, sharpen the metric.*
+
+**Example — Complex:** "Achieve revenue of Y K USD by Q4 2025."
+
+**Example — Simple:** "Reach 5,000 followers on X/Twitter by Q3 2026."
+
+**Objective Status Vocabulary:**
+
+| Status | Definition | Transition From | Transition Trigger |
+|--------|-----------|----------------|-------------------|
+| `active` | Objective is being pursued; strategies are executing | (initial state) | Objective created and approved |
+| `on_track` | Metric progress is trending toward threshold by deadline | `active`, `at_risk` | Metric trend analysis at strategy review shows projected achievement |
+| `at_risk` | Metric progress is trending below projected threshold | `active`, `on_track` | Metric trend analysis shows projected miss; or 75% deadline warning (§7.9) |
+| `achieved` | Success threshold met or exceeded by deadline | `active`, `on_track`, `at_risk` | Metric crosses success threshold (terminal state) |
+| `failed` | Deadline passed without achieving success threshold | `active`, `on_track`, `at_risk` | Deadline expires with metric below threshold (terminal state) |
+| `revised` | Objective target, metric, or deadline materially changed | `active`, `on_track`, `at_risk` | Governor issues `revise_objective` decision (§4.3). Status returns to `active` after revision is applied |
+| `partially_met` | Scope concluded with metric between baseline and threshold | `active`, `on_track`, `at_risk` | Scope conclusion (§7.10) with partial achievement (terminal state) |
+
+Tier note: At Tier 0–1, objective status is assessed by the AI at each strategy review and recorded in the health report. At Tier 2+, objective status is computed automatically from metric data and displayed in the Governor dashboard.
+
+### 3.3 Strategy
+
+**Definition:** A named, owned approach that connects an objective to the tactics that will achieve it. A strategy is the reasoning layer — it captures *why* this approach and not alternatives, what competitive or structural logic justifies the bet, and what must be true for the approach to work. It answers: *"Why are we taking this path to the objective?"*
+
+**Input:** Objectives (measurable targets with deadlines).
+
+**Output:** Tactics (testable implementations of the strategic reasoning).
+
+**Content:** The approach rationale, competitive logic, what-must-be-true assumptions, resource thesis, and what the strategy deliberately does not do.
+
+**Structural Rules:**
+
+- Every strategy has: an owner, a rationale (why this approach), what-must-be-true conditions, and a strategy-level kill signal.
+- Each strategy maps to exactly one objective.
+- 1–3 strategies per objective. More than 3 dilutes focus beyond productive parallel exploration.
+- Strategies do not specify implementation details — those belong at the Tactic layer.
+- Strategies are more persistent than tactics. A strategy survives tactic failures unless the reasoning itself is disproven.
+
+**What-Must-Be-True:** Every strategy rests on assumptions. These are not hypotheses (those belong to tactics) — they are structural preconditions that must hold for any tactic under this strategy to succeed. If a what-must-be-true condition is falsified, the entire strategy is invalidated regardless of tactic performance.
+
+**Strategy-Level Kill Signal:** A strategy is killed when: (a) a what-must-be-true condition is definitively falsified, or (b) multiple tactics implementing the same strategic reasoning have all failed, suggesting the reasoning itself — not just the implementations — is wrong. Strategy kills are lower-cadence decisions than tactic kills — they require more evidence and longer observation windows.
+
+**For Agentic Workers:** A strategy is an approach constraint. The agent knows what approach to take and why, what assumptions underpin it, and what is out of scope. The agent has autonomy in choosing how to implement the approach via tactics, but cannot violate the strategic reasoning or pursue approaches the strategy explicitly excludes.
+
+**Litmus Test:** *Can you explain why this approach and not three alternative approaches? Can you name what must be true for it to work? Can you identify what you're deliberately not doing? Yes to all three = well-formed strategy.*
+
+**Example — Complex:** "AI-First Product Differentiation — Compete by integrating ML capabilities into the core platform, leveraging our data pipeline advantage that competitors without real-time telemetry data cannot replicate. What must be true: Our data volume is sufficient for model training. ML predictions must outperform rule-based detection by a measurable margin. Engineering team can deliver ML integration within existing architecture. Not doing: We are not competing on price, breadth of features, or geographic coverage."
+
+**Example — Simple:** "Thought Leadership Positioning — Build audience by leveraging founder's domain expertise in EU cybersecurity governance. Credibility compounds over time while paid promotion doesn't. What must be true: Founder's expertise is differentiated enough to attract organic attention. Target audience (EU security decision-makers) is reachable on the chosen platform. Not doing: We are not pursuing paid growth, viral content, or broad-audience appeal."
+
+### 3.4 Tactic
+
+**Definition:** A named, owned, time-boxed effort that tests a specific implementation of a strategy. A tactic is the unit of experimentation. It answers: *"How specifically are we implementing this strategy, and how will we test whether it works?"*
+
+**Input:** Strategies (approach reasoning and constraints).
+
+**Output:** Actions (executable tasks with deliverables).
+
+**Structural Rules:**
+
+- Every tactic has: an owner, a scope, a timeline, a hypothesis, success metrics, and a kill condition.
+- Large enough to decompose into 3–10 actions, small enough to be owned by one person or team.
+- Multiple tactics can serve the same strategy (portfolio of experiments testing the same approach logic in different ways).
+- 1–5 tactics per strategy.
+- Each tactic maps to exactly one strategy.
+
+**Hypothesis Function:** A tactic's hypothesis is a testable prediction: "If we do X, we expect Y." This is not the same as the strategy's rationale. The strategy says "we're competing on thought leadership because our expertise compounds." The tactic says "If we publish 3 expert posts/week, follower growth will exceed 15% MoM." The strategy could be right even if this specific tactic fails — maybe threads work better than posts, or LinkedIn works better than Twitter.
+
+**A/B Testing Function:** When multiple tactics serve the same strategy, they are competing implementations of the same strategic reasoning. The system runs them in parallel, compares results at each review, and routes resources toward the stronger implementation. This is the primary learning mechanism at the tactic level. A/B testing can also occur at the strategy level — two strategies under the same objective represent competing approaches, not competing implementations.
+
+**Kill Condition:** Every tactic defines upfront what failure looks like. For operational scopes: "If [metric] has not reached [threshold] by [date], this tactic is killed or pivoted." For analytical scopes: "If [observable condition], then kill" — where the condition is a structural test verifiable by the Governor (e.g., "if cross-domain tension count = 0 after 2 analysis cycles, the multi-domain approach is not producing differential insight — simplify"). This prevents planning inertia. Tactic kills happen at the tactic review cadence defined in the operating document.
+
+**For Agentic Workers:** A tactic is an experiment specification. An agent with tactic-level autonomy can generate and modify its own actions to test the hypothesis, within the constraints inherited from the parent strategy, objective, and goal.
+
+**Litmus Test:** *Can you name the owner? State the hypothesis? Define the kill condition? Decompose into 3+ actions? Trace it to a specific strategy? Yes to all five = well-formed tactic.*
+
+**Example — Complex:** "ML-Based Predictive Detection Pilot — Evaluate and integrate ML-based predictive models into the DDoS detection pipeline. Owner: CInO. Hypothesis: ML integration reduces false-positive rates by 30% compared to rule-based baseline. Kill condition: If prototype shows no improvement over baseline by end of 8-week pilot, discontinue this tactic. Parent strategy: AI-First Product Differentiation."
+
+**Example — Simple:** "Expert Content Series — Publish 3 posts/week combining industry commentary, original insights, and community engagement. Owner: Marketing Lead. Hypothesis: Consistent expert content will drive organic follower growth at 15%+ month-over-month. Kill condition: If follower growth is below 5% MoM after 8 weeks, pivot. Parent strategy: Thought Leadership Positioning."
+
+### 3.5 Action `[ADVANCED: child scope contract and trust calibration below]`
+
+**Definition:** A discrete, assignable, time-bound task that implements part of a tactic. Actions are the atomic unit of execution and the terminal nodes of the hierarchy. They answer: *"Who does what, by when, and what is the deliverable?"*
+
+**Structural Rules:**
+
+- Every action has exactly one assignee, one deliverable, and one deadline.
+- Actions are binary: done or not done.
+- Completable within a single review cycle of the parent tactic.
+- 3–10 actions per tactic.
+
+**Signal Function:** Actions are the data-generating layer. Every completed action produces a signal: completion time, output quality, blockers encountered, resources consumed. These signals aggregate upward into tactic-level health metrics, which aggregate into strategy validation, which aggregates into objective progress.
+
+**For Agentic Workers:** An action is an executable instruction. The agent knows exactly what to produce, in what format, by when, and within what constraints. Minimal autonomy. Maximum specificity.
+
+**Complex Actions as Scope Delegation:** When an action is too complex to be atomic — it requires its own decomposition, multiple assignees, or multi-week coordination — it is not an action. It is a scope. The correct response is to create a new operating document for that scope, assign a child Governor (typically the tactic owner), and let a separate GOSTA instance govern its execution. The parent tactic treats this as any other action: it expects a signal back. The internal decomposition of the child scope — its own goals, strategies, tactics, and actions — is not the parent instance's concern. The action's deliverable in the parent operating document is the child operating document itself plus the outcome signal upon completion.
+
+**Child Scope Signal Contract:** A delegated scope is not a fire-and-forget action. The child scope's orchestrator must emit signals back to the parent at a defined cadence. This contract has two parts:
+
+*Periodic progress signal* — emitted at the parent tactic's review cadence (typically weekly or monthly, matching the parent's cycle). Contains:
+- `status`: on_track / at_risk / blocked / completed / failed
+- `progress`: percentage or milestone against the child scope's primary objective
+- `estimated_completion`: current projected date (may shift from original)
+- `blockers`: description of any blockers that the parent scope might be able to resolve (resource, dependency, decision)
+- `risk_summary`: if at_risk, what specifically is at risk and why
+- `governance_stage`: 1–5 (the child scope's current graduation stage per Section 16.11)
+- `last_governor_review`: date of the most recent Governor decision in the child scope
+
+The `governance_stage` and `last_governor_review` fields communicate the child scope's governance posture to the parent. A Stage 1 child where a human reviews every output produces higher-confidence signals than a Stage 5 child running autonomously. The parent Governor can use these fields to calibrate trust in the child's self-reported status — for example, a Stage 5 child with `last_governor_review: 45 days ago` warrants more scrutiny than a Stage 2 child reviewed yesterday.
+
+**Trust calibration guideline:** Stage 1-2 child signals are high-confidence (human-reviewed every cycle). Stage 3 signals are moderate-confidence (human-reviewed by exception). Stage 4-5 signals with `last_governor_review` older than 2 of the *child scope's own* strategy review cadences warrant independent verification before the parent scope relies on them for critical decisions (e.g., a kill/pivot decision on the parent tactic based solely on the child's self-reported status). **Verification protocol for stale signals:** when a child signal exceeds the staleness threshold, the parent orchestrator (a) flags the child's contribution as `trust: unverified` in the parent's health report, (b) emits a `verification_request` signal to the child scope requesting a current status update, and (c) presents the parent Governor with the stale data clearly marked, allowing the Governor to either accept the stale signal at their own judgment, request a child scope Governor review before proceeding, or exclude the child signal from the parent's health computation for this cycle. The parent orchestrator never silently uses stale child data in critical recommendations.
+
+**Evaluation order for parent-child dependencies:** Parent health computation uses the child's most recent emitted signal as an immutable input — it does not re-evaluate child scope internals. If the parent's context changes materially (tactic killed, resource reallocation, guardrail revision), the parent Governor must explicitly assess child scope viability at the next review. Child scope signals are append-only; changes to parent context do not retroactively invalidate already-emitted child signals. This one-directional dependency (child signals → parent health, not parent context → child re-evaluation) prevents circular computation loops.
+
+*Completion signal* — emitted once when the child scope concludes (success or failure). Contains the standard action signal fields (Section 7.4: status, completion_time, deliverable_reference) plus:
+- `outcome_type`: delivered / partially_delivered / failed_and_killed / pivoted
+- `objective_result`: did the child scope meet its primary objective's success threshold?
+- `lessons`: summary of what was learned (for the parent tactic's health computation and for episodic memory)
+
+The parent orchestrator treats the periodic signal like a dependency status check — it doesn't act on the child scope's internals, but it uses the status and risk information to assess whether the parent tactic's timeline and hypothesis are still viable. If the child scope signals `failed_and_killed`, the parent tactic receives this as an action failure and the parent Governor decides whether to respawn the scope with a different approach, pivot the parent tactic, or kill it.
+
+The child scope's Governor makes all decisions within the child scope. The parent Governor only intervenes if the child scope's failure threatens the parent tactic's hypothesis — and even then, the intervention is at the parent level (kill/pivot the parent tactic), not inside the child scope.
+
+**Child scope graduation** `[ADVANCED]`: A child scope's initial graduation stage defaults to Stage 1 regardless of parent stage — each scope earns its own autonomy independently. The parent Governor may override the default and set the child at a higher initial stage if prior evidence justifies it (e.g., a sibling scope in the same domain previously graduated to Stage 2, and the evidence transfers per §16.11 short-scope considerations). The initial stage is set at creation and typically remains fixed for the scope's duration — short-lived scopes (fewer than 2 strategy review cycles) rarely have enough signal history to justify graduation. For child scopes that outlast 2 strategy review cycles, standard graduation criteria (§6.3, §16.11) apply independently of the parent scope's stage. A child scope can graduate even if the parent has not, and vice versa.
+
+**Litmus Test:** *Could you hand this to a worker (human or AI) with no additional context and they would know exactly what to produce? If not, add specificity. If the answer is "this would need its own project plan," it's a scope, not an action — create a child operating document.*
+
+**Dependency Types:** Actions frequently depend on other actions or external inputs. Not all dependencies behave the same way, and the orchestrator must handle them differently:
+
+- **Execution dependency:** Blocked on another action's completion. The upstream action has an assignee and a deadline. If the deadline is missed, the orchestrator escalates. Timeline is predictable within normal variance. *Example: "Format observation into post" depends on "Write raw observation note."*
+
+- **External dependency:** Blocked on an external system, event, or third party. Partially predictable. The orchestrator monitors the external condition and proceeds when it resolves. *Example: "Analyze API response data" depends on "Platform releases updated API endpoint."*
+
+- **Human creative dependency** (canonical name: `human_creative_dependency`; signal metric: `human_creative_input_rate` per §7.4; template field: `HUMAN CREATIVE DEPENDENCIES` per §10)**:** Blocked on human-originated input that cannot be scheduled, rushed, or escalated. The input arises from human judgment, expertise, or experience on an unpredictable timeline. The orchestrator cannot treat a missed deadline as a blocker to escalate — "Governor hasn't had an original insight this week" is a reality of creative work, not a process failure. *Example: "Write original observation on contract risk pattern" — the Governor will write this when they observe something worth writing about, not on a schedule.*
+
+Human creative dependencies matter for tactic health computation. When a tactic contains a mix of agent-executable actions and human-creative-dependent actions, the orchestrator must separate **input availability** (how much raw material the human provided) from **tactic effectiveness** (how well the tactic performed given the input it received). If a tactic expected 5 original observations but received 3, and all 3 performed well, the hypothesis is holding. The tactic is input-constrained, not failing. Conflating the two produces a false weakening signal that could trigger an incorrect kill decision.
+
+Every action with a human creative dependency must be tagged as such. The orchestrator factors these out when computing tactic health, and reports input availability as a separate signal to the Governor. This lets the Governor decide whether to increase their input rate, adjust the tactic's input expectations, or restructure the tactic to reduce its dependence on unpredictable human input.
+
+### 3.6 Scope Types `[CORE]`
+
+GOSTA operating documents govern one of two scope types. The five-layer hierarchy, guardrail inheritance, and feedback loops are identical in both types. The difference is in cycle cadence and termination condition.
+
+#### Ongoing Operational Scope
+
+The default scope type. A continuous operation with recurring cycles and no pre-defined end date.
+
+**Characteristics:**
+- Review cadences are calendar-based (weekly tactic review, biweekly strategy review, monthly goal review — or whatever the OD declares).
+- Kill conditions reference time-series metrics with thresholds ("if metric hasn't reached X by date Y").
+- The scope runs until the Governor issues a `conclude_scope` decision (§7.10).
+- Success is measured by sustained progress toward objectives.
+
+**Cycle pattern:** Plan → Execute → Signal → Review → Decide → Repeat.
+
+**Examples:** Content publication operations, sales pipeline management, product iteration, SaaS growth, customer development programs.
+
+#### Finite Analytical Scope
+
+A bounded project with a defined deliverable and end state. The scope terminates when the deliverable is produced and accepted.
+
+**Characteristics:**
+- Review cadence is per-phase-gate, not calendar-based.
+- Kill conditions are about approach viability ("if the scoring framework doesn't differentiate features"), not time-series metrics.
+- Phases progress linearly toward the deliverable. Each phase has entry criteria and exit criteria.
+- The scope terminates with a `accept_deliverable` decision.
+- Success is measured by deliverable quality and the soundness of the reasoning chain that produced it.
+
+**Phase structure:** Each phase declares:
+- **Entry criteria:** What must be true to start this phase. Evaluated before the phase begins.
+- **Exit criteria:** What must be true to advance to the next phase. Evaluated at the phase gate. Each exit criterion must be specific enough that a third party could evaluate it (same standard as kill conditions — Section 21.8).
+- **Actions:** The tasks that produce the phase's outputs.
+
+**Phase gate assessment:** At each phase gate, the orchestrator evaluates exit criteria and produces one of three recommendations:
+- `advance` — All exit criteria met. Proceed to next phase.
+- `iterate` — Some exit criteria partially met. Repeat or revise within this phase.
+- `restructure` — Fundamental approach issue. Escalate to Governor for strategy-level decision.
+
+**Phase Gate Decision Template:**
+
+The phase gate assessment must include sufficient information for the Governor to make an informed decision, not just a recommendation label. Minimum contents:
+
+1. **Exit Criteria Status:** Each criterion individually assessed as met/partially_met/not_met with evidence.
+2. **Key Findings:** 3-5 findings from this phase that affect downstream phases.
+3. **Decision Options:** What "advance," "iterate," and "restructure" concretely mean for this specific gate.
+4. **Tensions:** Any competing interpretations between domain models or hierarchy layers (see §7.5 multi-domain assessment, Cowork Protocol Step 3b).
+5. **What Changes If We Iterate:** Specific scope of rework, estimated additional time, what might improve.
+
+Without this structure, phase gates become rubber stamps — the Governor says "proceed" because the gate presentation doesn't surface anything worth deliberating.
+
+**Mapping to the five-layer hierarchy:** Phases are an execution-scheduling concept, not a new layer. They cross-cut the hierarchy: a phase may correspond to one tactic cycle, span multiple tactic cycles, or represent a discrete step within a single tactic. Goals, objectives, strategies, and tactics operate identically in finite and ongoing scopes. The difference is that finite scopes replace calendar-based review cadences with phase gates.
+
+**OD extension for finite scopes:** The operating document for a finite scope includes a Phases section (after Tactics, before Review Cadences) that defines each phase with entry criteria, exit criteria, and actions. The Review Cadences section declares "Review at each phase gate" rather than calendar frequencies.
+
+**Decision types specific to finite scopes:** `phase_advance`, `iterate`, `restructure`, `accept_deliverable`. These are additions to — not replacements for — the standard decision vocabulary (kill, pivot, persevere, etc.). A tactic within a finite scope can still be killed if its kill condition is met. Note: the phase gate assessment (above) uses `advance` as the recommendation label; `phase_advance` is the canonical decision type name logged in the decision log.
+
+**Analytical scope adaptations:** Finite Analytical Scopes differ from operational scopes in five ways that implementations must account for:
+1. **Guardrails are quality criteria**, not metric boundaries — use the Quality Criterion guardrail type (§5.1), checked at deliverable completion.
+2. **Signals may be compound and high-volume**, requiring triage — a single web search result contains multiple claims. Implementations must define signal granularity and triage (§7.4).
+3. **Kill conditions are qualitative** — "if [observable condition]" rather than "if [metric] hasn't reached [value] by [date]". The observable condition must be independently verifiable by the Governor.
+4. **Health computation uses quality assessment**, not metric tracking — tactic health is evaluated by structural criteria (domain coverage, source diversity, reasoning chain integrity) rather than time-series metrics.
+5. **The deliverable's value is in structured reasoning**, not operational outcomes — success is measured by analytical rigor and multi-domain tension surfacing, not by whether metrics moved.
+
+**Tension semantics by scope type:** The tension mechanism (§7.5 multi-domain assessment, Cowork Protocol Step 3b) operates identically in both scope types but carries different semantics:
+- In **operational scopes**, a "blocking tension" means halt execution — the system cannot proceed without Governor intervention.
+- In **analytical scopes**, a "blocking tension" means the analysis cannot produce a defensible conclusion without a framing decision from the Governor (e.g., "is this analysis weighted toward military outcomes or economic outcomes?").
+
+Both require Governor input but the urgency and consequence differ. Implementations should not conflate the two — over-halting on analytical tensions treats framing decisions as operational blocks, while under-halting on operational tensions treats real blocks as mere questions.
+
+**Intra-domain tensions:** The tension model is not limited to cross-domain disagreement. A single domain model's concepts may point to contradictory conclusions from the same evidence — e.g., a Military-Security domain where air superiority and Hormuz closure point in opposite strategic directions. Intra-domain tensions use the same BLOCKING/MATERIAL/INFORMATIONAL classification. During synthesis, the orchestrator checks whether any single domain's assessment contains opposing conclusions. Intra-domain tensions are analytically valuable — they reveal that a domain itself is internally contradictory, which is a different insight from two domains disagreeing. Simulation testing confirmed that 1 high-quality domain can produce 3 intra-domain tensions, comparable to 3 domains producing 4 cross-domain tensions. The marginal value of additional domains is in tension *diversity* (cross-domain vs. intra-domain perspectives), not tension *count*.
+
+**Question-reframing tension:** A distinct subtype observed in analytical scopes where the user's question decomposes into sub-questions with different answers. Example: "Is quantum computing ready for enterprise?" → "Ready to use? Mostly no (3-5 years). Ready to defend against? Yes, start cryptographic migration now." This is not disagreement between domains — it is the multi-domain analysis revealing that the question itself contains multiple questions. Question-reframing tensions are often the highest-value insight for users who lack domain expertise, because they restructure the user's understanding of what they're actually asking.
+
+**Examples:** Product roadmap creation, competitive assessment, market analysis, architectural design, hiring sprint, event planning, any project with a defined deliverable.
+
+#### Analytical Scope Extensions `[ROBUST]`
+
+**Tactic-level dependency chains.** In analytical scopes, tactics often have sequential dependencies: TAC-2 (synthesis) requires TAC-1 (data gathering) to complete. Unlike action-level preconditions (§7.2 Step 4), tactic-level dependencies are structural — TAC-2 cannot begin until TAC-1 reaches a terminal or gate state. The operating document declares tactic dependencies in the strategy section: `TAC-2: depends_on: TAC-1 (exit_criteria: [condition])`. The orchestrator evaluates tactic dependency conditions at each tactic review. If TAC-1 fails or is killed, the orchestrator assesses TAC-2's viability: (a) if TAC-2's hypothesis is invalidated by TAC-1's failure, recommend killing TAC-2; (b) if TAC-2 can proceed with partial input from TAC-1, note the degraded input quality in TAC-2's health report; (c) if TAC-2 requires complete TAC-1 output, TAC-2 remains `pending` until TAC-1 is resolved. Cascading failure through a tactic dependency chain does not auto-kill — each tactic's viability is assessed independently.
+
+**First-use guardrail calibration.** §5.3 guardrail calibration assumes a measurable baseline exists. For novel guardrails with no prior measurement (e.g., "conceptual overlap between domain assessments must not exceed 80%"), no baseline exists at scope creation. In these cases, the Governor declares the guardrail as `calibration: first_use` in the operating document. A first-use guardrail operates in observation mode during its first full assessment cycle: the measurement is taken and recorded as the initial baseline, but violations are not enforced — they are logged as `first_use_observation: {guardrail_id, measured_value, declared_threshold}`. At the next review, the Governor reviews the observation and either (a) confirms the threshold is appropriately calibrated relative to the observed baseline, (b) adjusts the threshold based on the observation (per §5.3 calibration rules), or (c) declares the guardrail non-measurable and replaces it with a qualitative Governor judgment check. After the first assessment cycle, the guardrail transitions to normal enforcement. This prevents first-use guardrails from triggering false violations on Day 0.
+
+**Qualitative kill condition validation.** §21.8 validates that kill conditions are evaluable — but the validation is written for metric-based kills ("if [metric] hasn't reached [value] by [date]"). Analytical scopes use qualitative kill conditions ("if 0 tensions after all domains assessed"). For qualitative kill conditions, the OD authoring validation (§21.8) checks: (a) the condition references an observable state, not an opinion ("0 tensions surfaced" is observable; "analysis is uninteresting" is not), (b) the condition specifies the observation point (when is it evaluated — after a specific phase, at a specific gate), and (c) the condition's outcome is binary (met or not met at the observation point). Qualitative kill conditions that fail any of these three checks are flagged at authoring time for rewriting.
+
+**Sequential isolation (Independence Levels).** In multi-domain analytical scopes, the order and isolation rules for domain assessments affect output quality. The operating document may declare an `independence_level` for multi-domain assessment:
+
+- **Level 1 — Full isolation:** Each domain assessment is produced independently with no access to other domains' outputs. Assessments are synthesized only after all domains complete. Maximizes independence; risks missing cross-domain connections.
+- **Level 2 — Sequential isolation (no back-revision):** Domains are assessed in a declared sequence. Each domain assessment may read (but not modify) prior domains' outputs. Balances independence with cross-domain awareness.
+- **Level 3 — Iterative synthesis:** Domains are assessed, then each domain reviews the synthesis and may revise its own assessment. Maximizes cross-domain coherence; risks conformity and loss of independent perspective.
+
+Default if undeclared: Level 2. The independence level is declared in the strategy section alongside the domain assessment sequence. The orchestrator enforces the declared level: at Level 1, it does not provide prior assessments to subsequent domains; at Level 2, it provides read-only access; at Level 3, it runs a revision pass after initial synthesis. The Governor chooses the level based on the analytical goal — forensic analysis benefits from Level 1, strategic synthesis benefits from Level 3.
+
+---
+
+## 4. Feedback Loops and A/B Testing
+
+### 4.1 Feedback Loop Architecture `[ADVANCED: intra-tactic signal divergence]`
+
+| Layer | Emits (Upward) | Receives (Downward) | Feedback Trigger |
+|-------|---------------|--------------------|-----------------:|
+| Action | Completion data, blockers, time-to-complete, output quality | Task assignment, constraints, acceptance criteria | On completion or missed deadline |
+| Tactic | Hypothesis status, A/B results, metric delta, resource burn | Strategy constraints, guardrails, resource allocation, kill thresholds | Scheduled tactic review or metric threshold breach |
+| Strategy | Approach validation status, tactic portfolio health, what-must-be-true assessment | Objective targets, guardrails, resource ceiling | Scheduled strategy review or what-must-be-true falsification |
+| Objective | Metric progress, strategy portfolio health, trend direction | Goal guardrails, priority weighting, resource ceiling | Scheduled objective review or significant deviation |
+| Goal | Strategic health assessment (§20.12) | Environmental signals (§7.14), market shifts, Governor-reported constraints | Scheduled goal review, material external change, or critical environmental signal (§7.14.2) |
+
+**Intra-tactic signal divergence.** When a tactic's leading indicators diverge directionally (one improving, one declining or flat), the orchestrator must diagnose the divergence before it corrupts the hypothesis status computation. Common causes: audience quality shifting (volume metric up, conversion metric flat), lag effects (leading indicator responded, lagging indicator hasn't yet), or approach drift (execution changed while targets stayed constant). The diagnosis is included in the tactic health report as a `signal_divergence` field with the diverging metrics and hypothesized cause. The hypothesis status should reflect the most diagnostic metric — not the most favorable one. **Selection rule:** the most diagnostic metric is the one with the fewest conversion stages between it and the objective's success metric (e.g., if the objective measures "signed offers" and the tactic tracks "applications submitted" and "interviews scheduled," then "interviews scheduled" is more diagnostic because it's one stage from the objective vs. two). If multiple metrics are equidistant from the objective metric, select the one with the longest consistent trend — the most consecutive review cycles moving in the same direction. If still tied, the orchestrator reports both and flags the tie for Governor resolution. **Composite objective metrics:** when the objective metric is a composite (e.g., revenue = sum of product lines), count conversion stages to the nearest component of the composite, not the composite itself. If conversion paths branch or merge, use the shortest path to any contributing component.
+
+### 4.2 A/B Testing at Two Levels `[ROBUST; staggered-start A/B is ADVANCED]`
+
+A/B testing is the mechanism by which the system learns which approaches work. It operates at two distinct levels, and the distinction matters because they test different things.
+
+**Tactic-level A/B testing:** Two or more tactics under the same strategy test different implementations of the same strategic reasoning. They share the same approach logic but differ in execution. Example: Strategy is "Thought Leadership Positioning." Tactic A is "Expert Content Series (3 posts/week)." Tactic B is "Deep-Dive Thread Series (2 threads/week)." Both implement thought leadership; they test which format works better. When Tactic A wins, you've learned something about implementation.
+
+**Strategy-level A/B testing:** Two strategies under the same objective test fundamentally different approaches. They share the same measurable target but differ in reasoning. Example: Objective is "Reach 5,000 followers by Q3 2026." Strategy A is "Thought Leadership Positioning" (compete on expertise). Strategy B is "Community-First Network Building" (compete on relationships). When Strategy A wins, you've learned something about which approach logic is correct for this market.
+
+**Competing vs. complementary strategies.** Not all multi-strategy objectives pit strategies against each other. Some strategies serve different functions that both contribute to the objective — one builds capability, the other builds motivation; one generates leads, the other qualifies them. The Governor declares each strategy pair as `relationship: competing` or `relationship: complementary` in the operating document. **Competing strategies** are evaluated via A/B comparison on shared metrics — the framework selects a winner. **Complementary strategies** are evaluated for their combined contribution to the objective — the health computation assesses whether each strategy is fulfilling its designated function, not whether it outperforms its sibling. Complementary strategies are not compared head-to-head on shared metrics; instead, each is assessed against its own WMBT conditions and function-specific success criteria (declared in the strategy's RATIONALE field in the strategy template, §9.1 — the rationale states what function this strategy serves, and the WMBT conditions define success for that function). The A/B divergence early kill trigger (§20.3, trigger #3) does not apply to complementary strategy pairs. Default if undeclared: `competing`.
+
+**Decision Rules — Tactic Level (at tactic review cadence):**
+
+- **Clear winner among tactics:** Shift resources to winning tactic. Kill or mothball the other.
+- **Inconclusive:** Continue both with refined metrics. Set a hard deadline for conclusive data.
+- **All tactics failing under one strategy:** Escalate to strategy review. The implementation space may be exhausted, or the strategic reasoning may be wrong.
+- **Both succeeding:** Run both if resources allow, or consolidate.
+
+**Decision Rules — Strategy Level (at strategy review cadence):**
+
+- **Clear winner among strategies:** Shift resources to winning strategy and its tactics. Wind down losing strategy's tactics.
+- **Inconclusive:** Continue both. Ensure each has at least one well-resourced tactic producing signal.
+- **All strategies failing under one objective:** Escalate to objective review. The objective may be unreachable, the market may have shifted, or the goal may need reassessment.
+- **Both succeeding:** Maintain both if resources allow. Different strategies may serve different segments or conditions. If the strategies are declared `complementary`, both succeeding is the expected outcome — assess whether the combined contribution meets the objective trajectory.
+
+**Sequential A/B Testing:**
+
+Not all A/B tests can run in parallel. When two strategies impose contradictory guardrails (e.g., Strategy A requires minimum 30% markup, Strategy B requires maximum 20% markup), they cannot execute simultaneously — one strategy's guardrails would block the other's actions. In these cases, strategies run sequentially: the first strategy runs for a defined period, then the second runs for the same period, and results are compared afterward.
+
+Sequential A/B testing requires an **activation schedule** in the operating document that specifies which strategy runs during which period. The orchestrator checks this schedule at each action cycle and only generates work plans for the currently active strategy. The activation schedule is part of the strategy specification (see Section 9.1).
+
+**Tier 0 A/B adaptation:** At Tier 0 (stateless file-based execution), all A/B testing is sequential by default — parallel A/B requires automated metric collection that doesn't exist at Tier 0. Run Variant A for N cycles, then Variant B for N cycles, and compare manually using health reports. The AI tracks results in the signal log. Statistical rigor is reduced but the hypothesis-testing discipline is preserved. The Governor may declare parallel A/B at Tier 0 for tactics that produce independently measurable signals (e.g., different content formats where engagement can be tracked per-format), but this requires manual data separation.
+
+Sequential A/B introduces two additional considerations:
+- **Temporal confounds:** Results from different time periods may reflect environmental changes, not strategy differences. The operating document should note known temporal factors (seasonality, market events) and the Governor should account for them when comparing results.
+- **Cold start on transition:** When Strategy B activates after Strategy A, the system state reflects Strategy A's execution (inventory levels, pricing history, audience composition). Strategy B starts from this inherited state, not from a clean baseline. The operating document should define how the transition is handled — gradual ramp, clean reset, or inherited state with a noted adjustment period.
+
+**Activation schedule authority:** Activation schedules are binding by default. This rigidity is the point — it preserves A/B comparison validity by preventing the system from abandoning a test when early results look unfavorable. However, the Governor may override an activation schedule at a strategy review when evidence strongly supports the override. Two conditions must be met: (1) the override rationale is logged in the decision log with an explicit acknowledgment that A/B comparison validity is compromised or voided, and (2) any subsequent comparison between the strategies must document the schedule deviation as a confound. **Operationally:** if the override voids the comparison, the orchestrator marks the A/B test as `status: voided_by_override` and stops reporting comparative metrics — both strategies are evaluated independently from the override date forward. If the override only compromises (does not void) the comparison, the orchestrator continues reporting but flags all subsequent comparisons with `confound: schedule_override`. This makes overrides possible but costly — the Governor must consciously trade experimental rigor for operational pragmatism, not casually skip an inconvenient test.
+
+**Constraints:**
+
+- Never test more than 3 parallel strategies per objective (resource dilution).
+- Never test more than 3 parallel tactics per strategy (same reason).
+- Every test must have a defined threshold or time window for significance.
+- A/B tests must not violate goal-level guardrails, even if early results look promising.
+- Sequential A/B tests must define equal or comparable run periods for each variant.
+
+**A/B Variant Status Vocabulary** `[ROBUST]`**:**
+
+| Status | Definition | Transition From | Transition Trigger |
+|--------|-----------|----------------|-------------------|
+| `proposed` | Variant defined in OD but not yet active | (initial state) | Variant specified during authoring |
+| `bootstrapping` | Variant active but in bootstrap period; not yet producing comparable data | `proposed` | Variant activation (or activation schedule start) |
+| `active` | Variant executing and producing comparable metrics | `bootstrapping` | Bootstrap period complete |
+| `leading` | Variant outperforming comparison variant(s) on shared metric | `active` | A/B comparison at review shows statistically or practically significant advantage |
+| `trailing` | Variant underperforming comparison variant(s) | `active` | A/B comparison shows disadvantage |
+| `inconclusive` | Insufficient data or no significant difference between variants | `active` | A/B comparison shows no clear winner |
+| `winner` | Variant declared winner of A/B test | `leading`, `active`, `voided` | Governor declares winner at review. From `voided`: requires explicit `winner_despite_void` override with rationale (terminal for A/B comparison) |
+| `killed` | Variant terminated (losing A/B, or kill condition met independently) | any non-terminal | Governor kill decision or kill condition met (terminal state) |
+| `voided` | A/B comparison invalidated (schedule override, confound) | any non-terminal | A/B test marked `status: voided_by_override` per §4.2. Not fully terminal: Governor may still declare `winner` via explicit override, or variant continues as independent (non-compared) entity |
+
+The `leading`/`trailing`/`inconclusive` statuses are reassessed at each review — they are not sticky. A variant that was `leading` last cycle may be `trailing` this cycle. Only `winner`, `killed`, and `voided` are terminal.
+
+**Staggered-start parallel A/B testing.** Not all parallel A/B tests start simultaneously. When one variant's bootstrap takes longer (e.g., due to a human creative dependency), the effective measurement periods differ. When parallel A/B variants have bootstrap completion dates that differ by more than one review cycle, the orchestrator presents both the absolute comparison (total metric values) and the time-normalized comparison (metric per effective week since bootstrap completion). The Governor decides which comparison applies. The absolute comparison favors the faster-starting variant; the time-normalized comparison adjusts for the head start. Both are reported to ensure the Governor sees the complete picture.
+
+**Winner declaration with active confounds.** When A/B comparison data carries a confound flag (`confound: allocation_change`, `confound: pause_inequality`, `confound: schedule_override`), the Governor may still declare a winner, but the declaration must acknowledge the confound. The decision entry includes: `winner_declaration: {variant: [ID], confound_acknowledged: [confound type], governor_rationale: [why winner is valid despite confound]}`. The orchestrator flags but does not block confounded winner declarations — the Governor's judgment on whether the confound materially affects the comparison is a non-delegable decision. However, if the A/B test was `voided` (not merely confounded), winner declaration requires explicit Governor override logged as `winner_despite_void: {rationale: [reason]}`. This distinguishes between 'comparison is imperfect but usable' (confounded) and 'comparison is invalid' (voided).
+
+### 4.3 The Kill / Pivot / Persevere Decision
+
+At every review cycle, one of several decisions is made — at both the strategy and tactic levels, but with different cadences and different criteria.
+
+**Tier 0 note:** At Tier 0, kill/pivot/persevere decisions are made by the Governor in conversation, not by automated threshold evaluation. The AI computes health from signal files (Cowork Protocol §7), presents the evidence and a recommendation, and the Governor decides. Kill conditions are still pre-committed in the OD — but "kill condition met" means the AI has reviewed signal data, compared it against the threshold, and reported the result. The Governor may still override (e.g., extending a tactic that technically hit its kill threshold but has a credible explanation for the miss). The decision logic below applies identically; only the execution mechanism differs.
+
+**At the Tactic level:**
+
+**Kill:** The hypothesis is disproven or the kill condition is met. The tactic is shut down. Resources are reallocated to other tactics under the same strategy — or to new tactics if the strategy still holds. This is a healthy outcome, not a failure. (Kill decisions are structurally resisted by loss aversion — see Section 15.5. Pre-committed kill conditions exist to compensate.)
+
+**Pivot:** The hypothesis shows partial signal but needs restructuring. The approach changes materially. New actions are generated. The tactic gets a new review date and revised kill condition. (For the vocabulary of specific improvement interventions available when pivoting — refactoring, optimization, friction removal, cessation — see Section 15.4.)
+
+**Pivot checklist** — when a tactic pivot is decided, the following fields in the operating document MUST be updated:
+
+1. **Approach:** Update to describe the new approach. Record what changed and why in the decision log.
+2. **Action plan:** Orchestrator generates new actions aligned with the revised approach. Incomplete actions from the pre-pivot approach are marked cancelled unless the Governor explicitly carries them forward.
+3. **Kill condition deadline:** Governor decides — reset (restart the clock from pivot date), extend (add time to original deadline), or keep (original deadline unchanged). Default: extend by one review cycle.
+4. **Kill condition threshold:** Revise if the pivot changes what "failure" looks like. If unchanged, carry forward.
+5. **Bootstrap status:** If the tactic had completed bootstrap before the pivot, do NOT re-bootstrap — the pre-pivot data is still valid baseline; the `bootstrap_cycles` counter retains its completed value and kill condition assessment remains active. If the tactic was mid-bootstrap, the Governor decides: (a) restart — reset `bootstrap_cycles` counter to 0 and re-enter bootstrap mode, or (b) continue — retain current counter value and resume bootstrap from where it was. Default if not specified: continue (preserves data already collected).
+6. **Review date:** Set the next review date. Minimum: one full cycle from pivot date to allow the new approach to produce signals.
+
+**Persevere:** The hypothesis is holding. Metrics trend toward success criteria. Continue. May increase resource allocation if signal is strong.
+
+**Replace (input-quality failures):** When a guardrail violation or quality failure is attributable to an *input component* (domain model, data source, reference material, or configuration) rather than *execution quality*, the correct response is not kill/pivot/persevere — it is to replace the failing input and re-execute only the affected portion. The tactic's hypothesis may be sound; the input was not. Replace follows this protocol: (1) identify which input component caused the failure, (2) select or create a replacement (e.g., substitute a pre-built domain model for a low-quality user-created one), (3) re-execute only the scope affected by that input (e.g., re-run one domain's assessment, not the entire analysis), (4) re-synthesize with the replacement output. Replace preserves work from unaffected components. In a product context, the user is charged only for the re-executed portion, not the full analysis. Replace is available at any graduation stage — it is a corrective action, not an autonomy decision.
+
+**At the Strategy level:**
+
+**Kill:** A what-must-be-true condition has been definitively falsified, OR multiple tactics under this strategy have all failed despite adequate resourcing and execution. The strategic reasoning itself is disproven. All tactics under this strategy are wound down. Resources are reallocated to alternative strategies under the same objective, or to new strategies if none exist. **Abstraction level check before kill:** if the falsified WMBT names a specific tactic approach (e.g., "players accept F2P"), verify it's at the right abstraction level (Section 21.5, WMBT abstraction level check). A WMBT that tests the implementation, not the reasoning, should be rewritten via `wmbt_refinement` rather than triggering a strategy kill.
+
+**Strategy kill trigger clarity.** A strategy kill occurs when either: (a) all tactics under the strategy have been killed or exhausted with no remaining tactic candidates, (b) a what-must-be-true condition is falsified by signal evidence at a strategy review, or (c) the strategy's own kill signal (declared in the OD) is triggered. Condition (a) is the most common — it emerges naturally from tactic-level failures. *Relationship to Tactic Exhaustion Protocol (§7.8):* When all tactics reach terminal state, condition (a) does not fire automatically — the Tactic Exhaustion Protocol activates first, giving the Governor a structured decision point to determine whether remaining tactic candidates exist (reactivate a completed tactic, define an ad-hoc replacement) or whether the implementation space is genuinely consumed (mark strategy as exhausted and escalate). Condition (a) is met only when the Governor concludes, via §7.8, that no viable tactic candidates remain. A Governor who continues generating replacement tactics is asserting — correctly or not — that the strategic reasoning still holds and untested implementation paths exist; the what-must-be-true conditions (condition b) serve as the structural check against keeping a strategically invalidated strategy alive through indefinite tactic replacement. Condition (b) requires the orchestrator to explicitly evaluate each WMBT at every strategy review and log the assessment (holding / weakening / falsified) in the health report. Condition (c) is evaluated at strategy reviews against the declared kill signal in the OD. If none of these conditions are met, the strategy perseveres regardless of how poorly its tactics are performing mid-cycle — the review cadence is the decision point, not continuous monitoring. The orchestrator must present strategy kill recommendations to the Governor at the strategy review with full WMBT assessment evidence; it must not silently continue a strategy whose WMBTs are falsified simply because tactics still exist.
+
+**Upward cascade from child scope kills** `[ADVANCED]`. When a child scope (§3.5) autonomously kills one of its own tactics or strategies, the parent scope receives a signal — but the parent must not automatically cascade that kill upward. The parent orchestrator treats a child scope's internal kill as a `status: at_risk` signal on the parent tactic that owns the child scope, not as a kill trigger on the parent tactic itself. The parent Governor evaluates the impact at the next parent-level review: (a) if the child scope's remaining capacity can still deliver the parent tactic's expected outcome, the parent tactic perseveres; (b) if the child kill materially undermines the parent tactic's hypothesis, the parent Governor decides kill/pivot/persevere on the parent tactic; (c) if the child scope has been fully killed or concluded with `failed_and_killed`, the parent tactic receives this as an action failure (§3.5 completion signal) and the parent's normal failure protocol applies. The key constraint: no child scope event — regardless of severity — triggers an automatic kill, pivot, or status change on the parent tactic. All parent-level decisions remain with the parent Governor. This prevents a deeply nested autonomous child from inadvertently terminating a parent strategy through uncontrolled upward cascade.
+
+**Strategy kill with active child scopes** `[ADVANCED]`. When a strategy being killed has tactics that spawned child scopes (§3.5), the strategy kill cascades to child scope disposition. Each child scope is assessed: (a) if the child scope's work is rendered irrelevant by the strategy kill (its deliverable no longer serves any active strategy), conclude the child scope per §7.10; (b) if the child scope's work is transferable to another strategy (its deliverable serves a broader objective), the Governor may reassign the child scope's parent tactic to the receiving strategy; (c) if the child scope is autonomous and self-sustaining, convert to independent scope per §7.10. The strategy kill is not complete until all child scope dispositions are resolved or the Governor explicitly defers them.
+
+**Pivot:** The core reasoning holds but a key assumption needs revision. The strategy is reformulated with updated what-must-be-true conditions and new tactics are generated. This is rarer than tactic-level pivots — strategy pivots represent genuine changes in approach logic, not just execution adjustments.
+
+**Persevere:** The strategic reasoning is validated by tactic results. What-must-be-true conditions remain intact. Continue. May expand the tactic portfolio or increase investment.
+
+**WMBT Refinement:** When a what-must-be-true condition is not falsified but found to be imprecisely scoped — too broad, too narrow, or ambiguous in a way that makes assessment unreliable — the Governor may refine it without killing or pivoting the strategy. This is distinct from a pivot (the strategic reasoning isn't changing) and distinct from persevere (the WMBT wording is changing). Refinement is logged in the decision log as `decision_type: wmbt_refinement` with: the old WMBT wording, the new WMBT wording, and the evidence that prompted the change. After refinement, dependent tactics are re-assessed against the updated WMBT — a tactic that was `at_risk` under the old wording may be `holding` under the refined wording (or vice versa). WMBT refinement does not reset review cadence or bootstrap periods.
+
+**Refinement loop guard.** A WMBT may be refined at most twice without triggering a strategy-level reassessment. If a third refinement is proposed for the same WMBT, the orchestrator flags it as `wmbt_instability` and surfaces it to the Governor: 'WMBT [X] has been refined [N] times. Repeated refinement suggests the underlying assumption is either untestable or fundamentally unclear. Options: (a) kill the strategy — the strategic reasoning cannot be validated, (b) replace the WMBT entirely with a differently scoped assumption, (c) proceed with the third refinement with documented acceptance of instability.' The refinement count is tracked per WMBT in the decision log. The count resets if the WMBT is replaced entirely (option b).
+
+**Kill-vs-Pivot Decision Criteria:** Simulation testing across 15 scenarios revealed a systematic pivot bias — Governors (both human and AI) chose pivot 4.3× more often than kill (376 pivots vs 88 kills across 1,107 decisions). This is consistent with loss aversion (Section 15.5) but creates a pathology: repeatedly pivoting a tactic that has met its kill condition delays resource reallocation and prevents the next tactic from being tested.
+
+To counteract this bias, apply these criteria in precedence order (first matching row wins):
+
+| Precedence | Condition | Decision |
+|------------|-----------|----------|
+| 1 | Tactic has been pivoted 2+ times with no measurable improvement after each pivot | **Kill** — repeated pivots without improvement indicate the hypothesis is wrong, not the execution |
+| 2 | Kill condition formally met AND bootstrap complete | **Kill** — unless the Governor can articulate a specific, testable reason the kill condition is misleading (e.g., metric corrupted by external event, sample size insufficient) |
+| 3 | Kill condition approaching but not met, AND hypothesis shows partial positive signal | **Pivot** — restructure approach, generate new actions, set new kill date |
+| Kill condition met BUT Governor overrides with pivot | Log as `pivot_override` — this must be explicitly justified and tracked. At scope conclusion or subsequent review, classify the override outcome as: **justified** (override improved outcome vs. AI recommendation — the pivot produced measurable value the kill would have forfeited), **moot** (override had no material impact — outcome would have been similar either way; logged as learning, no escalation), or **unjustified** (override worsened outcome — metrics declined further or resources were consumed without return). Only **unjustified** triggers escalation to kill at the next review. **Moot** is not a failure — it means the Governor's instinct was not wrong but not necessary. If a subsequent review cannot yet classify the outcome (data insufficient), maintain the override as `pending_assessment` and reassess at the next review. |
+
+**Simultaneous sibling decisions.** When two or more tactics under the same strategy have pending kill/pivot/persevere recommendations at the same tactic review, the orchestrator processes them in precedence order: kills first (to free resources before allocation decisions), then pivots, then persevere. If a kill frees resources that change the recommendation for a sibling tactic (e.g., a tactic recommended for kill becomes viable with the freed resources), the orchestrator re-evaluates the sibling after applying the kill. This prevents race conditions where two conflicting recommendations are presented to the Governor simultaneously without accounting for resource interdependence.
+
+**The escalation chain:** Action fails → replace action. Tactic fails → kill tactic, try new tactic under same strategy. All tactics under a strategy fail → kill strategy, try new strategy under same objective. All strategies under an objective fail → question the objective. Objectives consistently miss → question the goal. **Alternative escalation path** `[ROBUST]` — Objective failure is not always caused by strategy failure. When strategies show positive signal on controllable metrics but the objective fails on total metric (because uncontrollable factors overwhelm internal progress, or the target was unrealistic, or the baseline was incorrect), the escalation should route to `revise_objective` (metric decomposition, target recalibration, baseline correction — see §20.7, controllable vs. uncontrollable metric decomposition) rather than strategy kill. The diagnostic: "Are strategies producing the expected effects on the factors they control?" If yes → revise the objective's metric design. If no → the standard escalation chain applies (kill strategy, question objective).
+
+**Revise Objective:** A first-class decision type available at the strategy review (not the tactic review). When accumulated evidence demonstrates that the current objective's target, metric, or deadline is materially wrong — too aggressive, too conservative, or tracking the wrong thing — the Governor issues a `revise_objective` decision with structured revision fields specifying which aspect is revised: target value (using the objective's metric name), deadline, metric definition, or objective statement. This is distinct from persevere: persevere keeps the objective intact and continues; `revise_objective` changes the objective itself. Pre-conditions: at least one full strategy cycle must have completed, and evidence must be specific and directional ("follower acquisition cost 3× projected — target of 3,000 followers in 90 days requires recalibration"). The AI must not issue `revise_objective` to escape kill conditions — the revision must address the objective's accuracy, not the tactic's performance. **Guardrail-timeline conflicts:** when a guardrail ("no pressure that causes aversion") is in tension with objective timeline pressure, `revise_objective` is the correct resolution mechanism — the Governor revises the timeline or target rather than violating the guardrail. Guardrails never relax (Rule 6, Section 8); the objective adjusts.
+
+**Revise vs. kill precedence.** When both `revise_objective` and strategy kill are under consideration at the same strategy review (the objective metric is failing AND a strategy's WMBTs are falsified), the diagnostic in the alternative escalation path above determines precedence: if strategies are producing expected effects on controllable factors but the total metric fails, `revise_objective` takes precedence — killing a working strategy because the objective was miscalibrated wastes proven capability. If strategies are NOT producing expected effects, strategy kill takes precedence — revising the objective to match a failing strategy's output is rationalization, not recalibration. Both decisions are logged with their causal relationship: 'revise_objective issued because strategy assessment showed [X]' or 'strategy kill issued because controllable metric assessment showed [Y]; objective revision deferred pending new strategy performance.'
+
+**Rebalance** `[ROBUST]`**:** An intra-strategy resource allocation adjustment, distinct from kill/pivot/persevere. The Governor shifts resources between active tactics without changing any tactic's hypothesis, approach, or kill conditions. Rebalancing is available at any tactic review and does not require a kill or pivot trigger. The orchestrator adjusts action volume and sequencing to reflect the new allocation. Rebalance decisions are logged in the decision log with the new allocation ratios and the rationale. Each tactic carries an `ALLOCATION_WEIGHT` field (0.0–1.0, relative share of strategy resources, default: equal distribution among active tactics) that is updated when the Governor rebalances. **Constraint:** the sum of ALLOCATION_WEIGHT across all active (non-paused, non-terminal) tactics in a strategy must equal 1.0. If a Governor rebalance would produce a sum ≠ 1.0, the orchestrator normalizes the weights proportionally and returns the normalized values for Governor confirmation. To reduce a tactic to zero allocation, use `pause` — not rebalance to 0.
+
+**Portfolio Rebalance (cross-strategy)** `[ROBUST]` — Canonical decision type name: `portfolio_rebalance`. Prose variants "portfolio rebalancing" and "objective rebalancing" in this document refer to this same mechanism. Distinct from intra-strategy `rebalance`. Available at the strategy review when the Governor needs to shift resources (Governor-hours, budget, attention) between strategies without killing or pivoting any strategy. **Scope:** portfolio_rebalance operates at two levels: (a) intra-objective — shifting resources between strategies under the same objective (the common case), and (b) cross-goal — shifting resources between strategies under different objectives or different goals (requires explicit Governor justification logged as `rebalance_scope: cross_goal` with the source strategy, target strategy, and the Governor's reasoning for why the cross-goal trade-off is warranted). Cross-goal rebalance is a non-delegable Governor decision at all stages. The orchestrator surfaces cross-goal rebalance opportunities when a strategy under one goal is over-resourced relative to its remaining work while a strategy under another goal is resource-constrained, but never executes cross-goal rebalance autonomously. Use cases: one strategy is succeeding and deserves increased investment; one strategy has a temporary resource dependency resolved; the Governor's capacity ceiling (Section 7.2, Step 4b) forces prioritization across strategies. The Governor issues a `portfolio_rebalance` decision specifying the new resource distribution across active strategies. Each strategy carries a `STRATEGY_ALLOCATION_WEIGHT` field (0.0–1.0, relative share of objective resources, default: equal distribution among active strategies). Constraint: sum across active (non-paused, non-terminal) strategies under an objective must equal 1.0. If a Governor decision produces a sum ≠ 1.0, the orchestrator normalizes proportionally and returns normalized values for confirmation. `STRATEGY_ALLOCATION_WEIGHT` propagates to tactic-level resource planning: a strategy with weight 0.6 gets 60% of the objective's action budget, distributed among its tactics by their `ALLOCATION_WEIGHT`. Portfolio rebalance is a non-delegable decision (Governor only) at all graduation stages — the AI may recommend but cannot execute. Logged in the decision log as `decision_type: portfolio_rebalance` with old weights, new weights, and rationale.
+
+**Pause** `[ROBUST]`**:** The Governor suspends a strategy (or tactic) without killing it. All active tactics under a paused strategy are suspended — actions stop, no new work plans are generated, no health computation runs. The strategy retains its specification, what-must-be-true conditions, and execution history. Paused strategies do not consume resources, do not trigger reviews, and do not count toward the "max 3 strategies per objective" constraint (Section 3.3). The Governor may unpause at any strategy review by issuing a `resume` decision. On resume: if a tactic had completed bootstrap before being paused, it does **not** re-enter bootstrap — it continues in normal evaluation mode, and its first post-resume health report is flagged as `context_gap: paused_N_cycles` so the Governor can calibrate trust in early signals. If a tactic was paused during bootstrap, it resumes where it left off (remaining bootstrap cycles complete before kill condition assessment begins). Paused tactics excluded from exhaustion detection. **All-paused state:** when all tactics under a strategy are paused (none active, none in terminal states), the exhaustion protocol does NOT trigger. Instead, the strategy's health report shows `status: all_tactics_paused` and the orchestrator presents the Governor with three options at the next scheduled strategy review: (1) resume one or more tactics, (2) pause the strategy itself, or (3) kill the strategy. The system does not auto-resolve this state — it queues the decision and continues executing other strategies normally. If the Governor does not resolve the all-paused state within one strategy review cadence, escalate per Section 7.7. The default fallback if Governor remains unavailable past escalation threshold is to pause the strategy itself, preventing indefinite queuing. Pausing is a resource decision, not a strategic judgment — the Governor is saying "not now" rather than "not ever." Individual tactics may also be paused independently within an active strategy.
+
+**Wind-down scope for kills.** When killing a tactic that has in-flight commitments to external parties (candidates in an interview pipeline, customers with pending orders, partners under contract), the Governor defines a wind-down scope at kill time. In-flight commitments are transferred to the closest active tactic under the same strategy, or to a strategy-level wind-down queue if no active tactic exists. Wind-down actions execute under the killed tactic's guardrails until all commitments are fulfilled or explicitly released by the Governor. If a commitment cannot be fulfilled within guardrails (e.g., resource limit exceeded), escalate to Governor with options: relax the guardrail temporarily for wind-down, release the commitment, or transfer the commitment to an active tactic with compatible guardrails. If the Governor does not respond within one review cadence and an external deadline is imminent, escalate to alternate Governor (if designated). If no alternate exists or they also don't respond, the safe default for wind-down is `release` — notify the external party that the commitment cannot be fulfilled, and log the release as an episodic learning event. The tactic's status transitions from `active` → `killed_winding_down` → `killed` once wind-down completes. Wind-down actions emit signals attributed to the killed tactic (for accurate cost accounting) but do not affect the tactic's hypothesis status (the kill decision is already made). If no external commitments exist, the tactic transitions directly from `active` to `killed`.
+
+**External dependency pre-kill viability check** `[ROBUST]` — The wind-down protocol above handles commitments *after* a kill decision is made. But some tactics have external dependencies that make killing them significantly more costly or complex than the standard wind-down assumes — vendor contracts with termination penalties, regulatory commitments with compliance deadlines, partner integrations with SLA obligations. The orchestrator must assess external dependency viability *before* presenting a kill recommendation to the Governor. The pre-kill check protocol: (1) **Dependency inventory:** At tactic creation, the OD records external dependencies in a `dependencies: [{entity: [name], type: contract|partner|regulatory|infrastructure, exit_cost: low|medium|high, exit_notice: [duration]}]` field. If no dependencies are declared, the field defaults to empty (standard kill applies). (2) **Pre-kill assessment:** When the orchestrator generates a kill recommendation for a tactic with non-empty dependencies, it includes a dependency impact assessment: estimated exit cost, notice period required, and whether the dependency can be transferred to another active tactic. (3) **Governor decision enrichment:** The kill recommendation presented to the Governor includes: standard health evidence, the dependency impact assessment, and a recommendation for each dependency (terminate, transfer, or renegotiate). (4) **Kill timing:** If the Governor approves the kill but a dependency requires a notice period, the tactic transitions to `killed_winding_down` with a wind-down deadline matching the longest dependency notice period. If no dependencies constrain timing, standard immediate kill applies. The dependency inventory is an authoring-time obligation — the orchestrator flags tactics that reference external parties in their actions but have empty dependency fields: "Tactic [X] references [external party] in actions but declares no external dependencies. Should dependencies be recorded?"
+
+**Resolve Conflict** `[ROBUST]`**:** A decision type used when cross-domain signal conflicts (Section 4.5) require Governor resolution. When the orchestrator detects conflicting guidance from different domain models (e.g., speed model says "ship now" while quality model says "delay for testing"), it assigns a conflict ID and surfaces the conflict with both domain model perspectives. The Governor issues a `resolve_conflict` decision specifying: which domain model's guidance takes precedence for this specific conflict, and any guardrail adjustments needed to prevent recurrence. Logged in the decision log as `decision_type: resolve_conflict` with `target_id: [conflict_id]`. This is distinct from strategy-level decisions — it resolves inter-model tension, not strategy health.
+
+**Decision Reversal** `[ADVANCED]` — At Stage 3+, the orchestrator makes autonomous decisions (kills, pivots, rebalances). Occasionally, new evidence arrives after an autonomous decision is executed that contradicts the decision's basis. The `decision_reversal` mechanism allows the Governor (or, at Stage 4-5, the orchestrator itself under strict conditions) to reverse a completed autonomous decision.
+
+Reversal eligibility:
+1. **Kill reversal:** A killed tactic may be reversed (reactivated) only if: (a) the kill was autonomous (`decision_source: orchestrator_autonomous`), (b) fewer than 2 review cycles have elapsed since the kill, (c) the tactic's resources have not been fully reallocated to other tactics, and (d) new evidence contradicts the kill condition that triggered the decision. If the tactic had in-flight wind-down commitments, reversal cancels the wind-down and restores the tactic to `active` status. If wind-down is already complete, reversal creates a new tactic instance (not resurrection — new bootstrap, new kill deadline, old decision log carried forward as context).
+2. **Pivot reversal:** A pivoted tactic may revert to its pre-pivot specification only if: (a) the pivot was autonomous, (b) fewer than 1 review cycle has elapsed, and (c) the pre-pivot specification is still available in the decision log. Post-pivot actions already executed are logged as cancelled.
+3. **Rebalance reversal:** Allocation weights may be restored to pre-rebalance values at any time. No eligibility window required.
+
+Authorization:
+- At Stage 3: only the Governor may issue `decision_reversal`.
+- At Stage 4-5: the orchestrator may reverse its own autonomous decisions if the reversal meets all eligibility criteria AND the new evidence has confidence ≥0.8 (per the confidence computation in §16.11.1). Otherwise, escalate to Governor.
+- Kill reversals are always escalated to the Governor regardless of stage — reactivating a killed entity is structurally equivalent to creating a new tactic, which is a higher-stakes decision than the original kill.
+- Governor-issued decisions: The Governor may reverse their own prior decisions (kills, pivots, rebalances) at any time without eligibility window constraints. Governor reversal requires only: new evidence and logged justification. The confidence threshold (≥0.8) does not apply to Governor reversals — the Governor exercises judgment directly. Governor reversals are logged with `decision_source: governor` and `reversal_type: governor_override`.
+
+Logging: `decision_type: decision_reversal`, with fields: `original_decision_id`, `reversal_reason`, `new_evidence_summary`, `decision_source`. The reversal and the original decision are cross-linked in the decision log for audit trail.
+
+Anti-abuse: if 3+ reversals occur within a single strategy cycle for the same tactic, the orchestrator flags a stability warning and pauses the tactic (status transitions to `paused` per §4.3). The orchestrator generates a diagnostic report: (a) timeline of all reversals with triggering evidence, (b) analysis of kill/pivot condition clarity. Presented to Governor with options: (1) revise kill condition for specificity, (2) revise pivot criteria to reduce ambiguity, (3) increase the Signal Sufficiency Gate window for this tactic. Tactic resumes when Governor issues a decision with updated specification. If Governor does not respond within 1 strategy review cadence, escalate per §7.7.
+
+**Complete tactic/strategy status vocabulary** *(see Appendix B.1 for all entity status vocabularies, B.2 for all decision types)*:
+
+| Status | Meaning | Structural memory vector |
+|--------|---------|------------------------|
+| `active` | Executing normally | — |
+| `paused` | Suspended, retains state | — |
+| `killed` | Hypothesis disproven or kill condition met | Vector 1 (failure learning) |
+| `killed_winding_down` | Kill decided, external commitments being fulfilled | Vector 1 (failure learning) |
+| `exhausted` | Implementation space consumed without full objective contribution | Vector 1 (limitation learning) |
+| `completed` | Achieved intended contribution, work is done | Vector 2 (success learning) |
+
+### 4.4 Signal Adjustment for Mixed-Dependency Tactics `[ROBUST]`
+
+Some tactics contain a mix of fully executable actions (an agent or worker can complete them on schedule) and human-creative-dependent actions (blocked on unpredictable human input — see Section 3.5, Dependency Types). When the orchestrator computes tactic health for these tactics, it must decompose the signal into two independent components:
+
+**Tactic effectiveness:** How well did the tactic perform given the input it actually received? This is the hypothesis-relevant signal. If 3 out of 5 planned original observations were provided, and those 3 generated strong engagement, the hypothesis is holding. The tactic is working — it just didn't get all the fuel it expected.
+
+**Input availability:** How much of the planned human-creative input was actually provided? This is a resource signal, not a hypothesis signal. It tells the Governor whether their own input rate is constraining the tactic's potential, but it says nothing about whether the tactic's approach is correct.
+
+**Why this separation matters:** Without it, the orchestrator conflates a resource constraint with an execution failure. A tactic that calls for 30% original observations but receives only 10% (because the Governor was busy with other priorities) will show weaker overall metrics. If the orchestrator treats this as a weakening hypothesis, it may recommend a kill or pivot. That decision would be wrong — the hypothesis was never properly tested because the inputs weren't provided. Killing the tactic wastes the learning opportunity.
+
+**How the orchestrator handles this:**
+
+- Actions tagged with human creative dependencies are factored out of the denominator when computing completion rates and output volume metrics.
+- Effectiveness metrics (engagement per post, conversion per action, quality per output) are computed only over actions that actually received their required inputs and were executed.
+- Input availability is reported as a separate metric in the tactic health signal: "Tactic received 60% of planned human-creative input. Effectiveness metrics computed over the 60% that was executed."
+- The Governor reviews both signals. If effectiveness is strong but input availability is low, the decision is to increase input rate or restructure the tactic to reduce its dependence on unpredictable input — not to kill the tactic.
+
+This adjustment applies to any domain where tactics depend on unpredictable human expertise: R&D (researcher insights), consulting (client-specific observations), editorial (original analysis), product design (creative direction). The pattern is general: separate what the system can control from what it can't, and don't let uncontrollable variance corrupt the hypothesis signal.
+
+### 4.5 Cross-Domain Signal Resolution `[ROBUST]`
+
+When an operating document spans multiple business domains — marketing and sales, or value creation and value delivery, or any combination — signals from different domains can conflict. Marketing signals say attention is high. Sales signals say conversion is low. Delivery signals say onboarding friction is rising. Finance signals say customer acquisition cost exceeds the acceptable threshold. Each signal is valid within its domain. Together they present a contradiction that no single domain can resolve.
+
+**Why this happens:** Each domain model defines its own vocabulary, its own quality principles, and its own success criteria. A marketing tactic can succeed by its own metrics (high engagement, growing audience) while simultaneously producing outcomes that fail by sales metrics (unqualified leads, low conversion) or finance metrics (acquisition cost above threshold). The domains don't inherently know about each other. Domain model stacking (Section 13.7) merges their vocabularies and anti-patterns, but it doesn't merge their signals — signals are generated by tactics and flow upward through the hierarchy, not laterally across domains.
+
+**The resolution mechanism is the hierarchy itself.** Cross-domain conflicts are resolved at the lowest shared ancestor in the goal-objective-strategy-tactic tree. This is not a separate arbitration layer — it is what the hierarchy is for.
+
+**Resolution by level:**
+
+**Same strategy, different domain signals.** If a strategy's tactics span multiple domains (e.g., a go-to-market strategy with marketing tactics and sales tactics), conflicting signals converge at the strategy level. The orchestrator presents both signals in the strategy health report. The Governor resolves at the tactic or strategy review: is the marketing signal misleading (vanity metric), or is the sales process broken (execution failure), or is the strategy's reasoning flawed (the approach attracts the wrong audience)? The strategy's what-must-be-true conditions should include cross-domain assumptions — "the audience we attract through content must convert at X% through the sales process." If they don't, this is an authoring gap.
+
+**Same objective, different strategy signals.** If two strategies under the same objective produce contradictory domain signals, the conflict converges at the objective level. The orchestrator's strategy-level health report compares strategy performance. The Governor decides: which strategy's signal is more aligned with the objective's metric? A strategy that drives attention without conversion is failing the objective, regardless of its marketing metrics.
+
+**Different objectives, same goal.** If signals conflict across objectives under the same goal, resolution happens at the goal level — the goal review or an ad hoc Governor assessment. This is the highest-stakes resolution: it may require reweighting objectives, revising strategies, or acknowledging that the goal has internal tensions that need structural resolution.
+
+**Different goals.** If signals conflict across goals, the Governor resolves through resource allocation and priority decisions. This is governance, not architecture. The framework surfaces the conflict — it doesn't resolve it. Only the Governor can decide whether brand authority (Goal 1) takes precedence over revenue growth (Goal 2) when they produce contradictory signals.
+
+**What the orchestrator must do:**
+
+The orchestrator's role in cross-domain conflicts is to **surface, not resolve.** Specifically:
+
+1. **Detect.** When signals from tactics under different domain models are directionally opposed (one improving, one degrading) and they share a parent strategy or objective, flag the contradiction in the health report.
+
+2. **Contextualize.** Present both signals with their domain context. "Marketing tactic A1 shows 4.2% engagement rate (above 3% target). Sales tactic B1 shows 1.8% conversion rate (below 3% target). Both serve Objective 1. Contradiction: high attention is not converting."
+
+3. **Hypothesize.** If domain models provide relevant concepts, surface them. "The marketing domain model's 'Level of Awareness' concept suggests the audience may be at the wrong awareness stage for the sales tactic's approach. The sales domain model's 'Barriers to Purchase' concept may explain the gap."
+
+4. **Escalate.** Present the contradiction and hypotheses to the Governor for resolution. The orchestrator does not choose which domain signal to prioritize — that is a governance decision.
+
+5. **Deliberation (optional).** When a cross-domain conflict involves 3+ domain models and the decision is high-stakes or irreversible, the orchestrator may invoke the Deliberation Protocol instead of escalating the conflict inline. This replaces steps 2-4 with a structured multi-agent debate: each domain model is assigned a Domain Agent that produces a position paper, a Coordinator identifies disagreements and formulates targeted prompts, agents respond in subsequent rounds, and the Coordinator produces a Synthesis Report with consensus recommendations and documented dissents. The Governor receives the Synthesis Report instead of the orchestrator's inline conflict summary. See §7.1 (Deliberation Components), §7.2 (Strategy Cycle STEP 3 escalation check), and §14.7 (three-tier escalation model) for trigger conditions. Deliberation is never required — it is an option the orchestrator or Governor may invoke when the stakes justify the coordination cost.
+
+**What the Governor must do:**
+
+The Governor resolves cross-domain conflicts by asking: **which signal is closer to the objective's actual success metric?** If the objective is revenue, and marketing signals are strong but sales signals are weak, the sales signal is more diagnostic — it's closer to the thing being measured. Marketing success that doesn't convert is a vanity signal relative to a revenue objective.
+
+This doesn't mean marketing signals are wrong — they may reveal that the sales process is the bottleneck, not the marketing approach. The Governor's job is to diagnose where in the cross-domain chain the breakdown occurs and direct the response to the right layer.
+
+**Authoring implication:** When writing an operating document that spans multiple domains, the Governor should include cross-domain assumptions in strategy-level what-must-be-true conditions. "For this marketing strategy to serve a revenue objective, it must be true that the audience attracted by this content converts at a rate of X% through the sales process." This makes the cross-domain dependency explicit and testable, rather than an implicit assumption that only surfaces when signals contradict.
+
+**Cross-goal interference** `[ROBUST]` — The resolution mechanism above detects *signal conflicts* — contradictory signals within the hierarchy. A distinct category is *side-effect interference*: actions under one goal produce consequences that degrade metrics under another goal, without any signal contradiction. Construction noise (Goal 1: infrastructure) erodes community trust (Goal 2: preparedness) — but the infrastructure signals are positive and the preparedness signals decline independently, with no apparent contradiction at the signal level. The orchestrator should monitor for cross-goal interference by correlating metric changes across goals with activity timelines: when a Goal Y metric deteriorates in geographic, temporal, or causal proximity to Goal X activities, flag as potential cross-goal interference in the health report. The Governor investigates causality. If confirmed, the Governor may add a cross-goal guardrail constraining how Goal X activities are conducted in Goal Y-sensitive contexts (e.g., "construction in residential zones must include community liaison activities"). Cross-goal interference is not detectable by the hierarchy's standard signal-conflict mechanism — it requires correlation analysis across goals, which the orchestrator performs at the goal review cadence.
+
+**Canonical conflict ID schema:** Every cross-domain conflict receives a stable, globally unique identifier at the moment of detection: `XD-{year}-{NNN}` where `NNN` is a zero-padded three-digit sequence number within the run (e.g., `XD-2026-001`, `XD-2026-002`). This ID is:
+
+- Assigned by the detection system, not inferred by the AI
+- Included verbatim in all Governor prompts that reference the conflict
+- Used by the Governor to reference the conflict in its `resolve_conflict` decision (`target_id: "XD-2026-001"`)
+- Required for resolution tracking — a resolution that does not cite the canonical ID cannot be matched to its conflict and is discarded
+
+The ID is stable for the life of the scope: the same conflict keeps the same ID even if it is referenced in multiple subsequent reviews. The sequence counter is stored in the Signal Store as a monotonically increasing integer scoped to the current year. The orchestrator increments the counter at each new conflict detection. Resolved conflicts retain their ID in the decision log (for audit trail) and are marked `status: resolved` in the Signal Store; they are excluded from active conflict reports but remain queryable. The counter does not reset when conflicts are resolved — it only resets at the start of a new calendar year.
+
+---
+
+## 5. Guardrail Architecture
+
+Guardrails are the constraint mechanism that makes autonomous execution safe. They propagate downward: every layer inherits the constraints of all layers above it, plus adds its own.
+
+### 5.1 Guardrail Types
+
+| Type | Defined At | Applies To | Example |
+|------|-----------|------------|---------|
+| Domain Constraint | Goal level | All downstream | "No purchased followers or engagement bots" |
+| Metric Boundary | Objective level | Strategies, tactics, actions | "Cost per acquired follower must not exceed €0.50" |
+| Approach Boundary | Strategy level | Tactics, actions | "No paid promotion — organic only. No broad-audience content." |
+| Operational Limit | Tactic level | Actions | "Max 5 hours/week allocated. All content reviewed before publishing." |
+| Execution Rule | Action level | The action itself | "Post must be reviewed before publishing. No political content." |
+| Quality Criterion | Objective or Strategy level | Deliverables, assessments | "Each conclusion must reference ≥3 domains." "No assessment without source tier attribution." (Analytical scopes — checked at deliverable completion, not per-action.) |
+
+**Constraint severity** `[ROBUST]` — Each guardrail carries a `severity` field: `hard` or `soft`. This distinction, informed by Agent Behavioral Contracts (ABC) research, determines violation response:
+
+- **Hard constraints** (`severity: hard`): Zero-tolerance. A violation means the action or tactic must halt immediately — the agent cannot continue, auto-recover, or work around it. Escalation to the Governor (or the layer that defined the guardrail) is mandatory before execution resumes. Examples: "No racial profiling," "No ship without soak test," "All interventions legal and proportionate." Hard constraints encode values and safety requirements where any violation is unacceptable regardless of context.
+- **Soft constraints** (`severity: soft`): Recoverable. A violation signals a boundary breach that the system can potentially recover from without halting. The orchestrator applies the guardrail's `recovery` specification (see below) and continues execution. Escalation to the Governor occurs at the next scheduled review, not immediately. Examples: "Max 5 hours/week allocated" (recovery: defer excess to next cycle), "Cost per follower ≤ €0.50" (recovery: pause high-cost actions, shift to lower-cost alternatives). Soft constraints encode operational limits where temporary overruns are manageable.
+
+**Default:** If no severity is specified, the guardrail is `hard`. This is the safe default — treating all constraints as zero-tolerance until the Governor explicitly marks some as recoverable.
+
+**Guardrail reclassification** `[ROBUST]` — During execution, the Governor may reclassify a guardrail's severity (soft→hard or hard→soft) when operational evidence reveals the original classification was incorrect. Reclassification follows a protocol: (1) the Governor issues a `guardrail_reclassify` decision with `{guardrail_id, old_severity, new_severity, rationale, effective_date}`; (2) the orchestrator validates the reclassification against the guardrail chain — a hard→soft reclassification is always permitted (relaxation), but a soft→hard reclassification must not retroactively invalidate already-applied recoveries (the recovery remains logged; future violations use the new severity); (3) the reclassification is logged in the decision log and applied to the OD immediately; (4) if the guardrail is currently in recovery state (soft violation, recovery applied), and it is reclassified to hard, the recovery is not unwound — but the orchestrator flags: "Guardrail [X] reclassified to hard while recovery [Y] is active. Governor: confirm whether recovery should continue or halt." Reclassification is a non-delegable decision (Governor only). The orchestrator may recommend reclassification in a status report but cannot execute it autonomously.
+
+**Evaluation mode** `[CORE]` — Each guardrail carries an `evaluation` field: `mechanical` or `interpretive`. This classification determines how the guardrail is evaluated, not how severely violations are treated (which is the `severity` field's role).
+
+- **Mechanical** (`evaluation: mechanical`): The guardrail has a numeric or binary threshold that can be checked by direct comparison. No AI interpretation is needed. Examples: "budget > €50K", "timeline > 6 months", "API error rate > 5%", "damage rate > 4%". Mechanical guardrails are always `confirmed` in epistemic classification (§14.3.8) — their evaluation logic is deterministic. Note: the `confirmed` classification applies to the evaluation (the threshold comparison), not to the input data. When the signals feeding a mechanical guardrail carry provenance flags (`[STALE]`, `[PROVENANCE-INCOMPLETE]` per §14.3.3), the health report must surface these flags alongside the guardrail result so the Governor can assess input data reliability independently of the deterministic evaluation.
+- **Interpretive** (`evaluation: interpretive`): The guardrail requires judgment to evaluate. The constraint involves qualitative criteria, contextual assessment, or multi-factor analysis. Examples: "must not create vendor lock-in", "solution must be maintainable", "approach must be compliant with spirit of regulation", "no displacement to adjacent neighborhoods." Interpretive guardrails may produce ambiguous results and may carry any epistemic classification.
+
+**Default:** If no evaluation mode is specified, the guardrail is `interpretive`. This is the safe default — interpretive evaluation is more thorough and catches edge cases that mechanical evaluation would miss. However, Governors should classify clear numeric thresholds as `mechanical` to improve evaluation consistency and reduce unnecessary AI reasoning overhead.
+
+**Graduation interaction:** At Stage 1-2, all violations (hard and soft) are escalated to the Governor. At Stage 3+, soft constraint violations with defined recovery specifications may be auto-recovered by the orchestrator without Governor intervention — the violation is logged, the recovery is applied, and the Governor sees it in the next status report. Hard constraint violations always escalate regardless of graduation stage.
+
+**Autonomous action loop guard** `[ROBUST]` — At Stage 3+, the orchestrator may execute multiple autonomous actions within a single cycle: auto-recovering a soft constraint, autonomously killing a tactic whose kill condition is met, adjusting allocation weights after a kill. When one autonomous action's effects trigger the conditions for another autonomous action within the same cycle, the orchestrator applies a **loop depth limit of 2**: the first autonomous action executes normally; if its effects trigger a second autonomous action (e.g., recovery triggers a near-violation on a different guardrail, which triggers a tactic parameter adjustment), that second action also executes. If the second action's effects would trigger a third autonomous action, the orchestrator halts the chain, logs `autonomous_action_chain: {depth: 2, halted_action: [description], trigger_chain: [action_1 → effect → action_2 → effect → action_3_blocked]}`, and escalates to the Governor: "Autonomous action chain reached depth limit. Actions [1] and [2] were executed. Action [3] requires Governor approval to proceed." This prevents unbounded escalation loops (recovery → new violation → recovery → new violation) while allowing common two-step sequences (kill tactic → reallocate resources) to proceed without Governor intervention. The Governor may adjust the loop depth limit per scope in the operating document if domain conditions warrant deeper chains — but the default of 2 is conservative by design.
+
+**Guardrail interpretation: spirit vs. letter** `[ROBUST]` — Guardrail enforcement is normally binary: violated or not violated. But situations arise where the letter of a guardrail is met but the spirit is violated (e.g., "no displacement to adjacent neighborhoods" when crime displaces to adjacent streets within the same neighborhood). When the orchestrator detects an outcome that may violate the intent but not the literal wording of a guardrail, it emits a `guardrail_interpretation` signal rather than a definitive violation. This signal surfaces the ambiguity to the Governor with: the guardrail text, the observed outcome, the potential spirit violation, and a recommendation to tighten the guardrail language if the spirit interpretation is correct. The Governor resolves the interpretation: (a) confirm it's within bounds (letter and spirit both met), (b) declare a spirit violation and tighten the guardrail wording to close the gap (e.g., revise "adjacent neighborhoods" to "adjacent streets or neighborhoods"), or (c) flag as acceptable edge case and document the interpretation for future reference. Guardrail interpretations are logged in the decision log so the precedent is available for future similar situations.
+
+**Cross-strategy guardrails.** Some guardrails constrain the distribution of outcomes across strategies rather than the behavior of a single strategy — for example, "maximum 2 of 3 hires from referrals" or "no more than 60% of revenue from a single channel." These distribution-constrained guardrails are defined at the objective level and evaluated by the orchestrator at strategy review using cross-strategy signal aggregation. They cannot be evaluated within a single tactic's or strategy's guardrail chain because no single strategy has visibility into the other strategies' outcomes. The orchestrator flags distribution guardrails that are approaching their limits proactively, giving the Governor time to adjust strategy resource allocation before a violation occurs. **Evaluation order:** cross-strategy guardrails are evaluated BEFORE individual strategy kill/pivot/persevere decisions within the same strategy review. If a distribution guardrail is violated or approaching violation, this constrains the subsequent strategy decisions — e.g., if the referral-source guardrail is at its limit, the Governor cannot approve a "double down on referrals" persevere decision without first addressing the guardrail. The orchestrator surfaces the guardrail status alongside the strategy recommendation so the Governor sees the constraint before deciding.
+
+### 5.2 Guardrail Inheritance `[ROBUST]`
+
+- Guardrails are cumulative and never subtracted.
+- A lower layer cannot relax a guardrail defined at a higher layer.
+- A lower layer can add stricter guardrails within inherited constraints.
+- Guardrail violations trigger a response determined by the guardrail's `severity` (§5.1). Hard constraint violations trigger immediate upward escalation and halt. Soft constraint violations with recovery specs trigger auto-recovery at Stage 3+ or escalation at Stage 1-2. All violation signals include a `violation_cause` field classified by the orchestrator: `external_event` (weather, regulatory change, third-party failure — temporary, external to the system), `capacity_structural` (the system structurally cannot meet the guardrail — persistent), `execution_failure` (an agent or action failed to comply — addressable), or `unknown` (insufficient context to classify). The cause classification affects health computation: `external_event` violations with a documented recovery plan are weighted as temporary in tactic/strategy health, while `capacity_structural` violations indicate a fundamental problem requiring Governor intervention. The orchestrator classifies based on available signals — if a guardrail violation coincides with a domain model regression tolerance window (§20.3), it is classified as `external_event` by default.
+
+**Per-guardrail recovery specification** `[ROBUST]` — Soft constraints (`severity: soft`) should declare a `recovery` field specifying what the orchestrator does when the constraint is violated. Recovery specifications must be concrete and executable — not "handle appropriately" but "defer excess hours to next cycle and reduce ALLOCATION_WEIGHT by 0.1." If a soft constraint has no recovery specification, it behaves like a hard constraint (escalate immediately). Recovery specifications are validated at OD authoring time (§21.8): each must be (a) executable without Governor input — meaning the orchestrator can deploy the recovery via normal action dispatch without blocking on Governor approval; the Governor is notified but not gated, (b) within the guardrail chain (the recovery itself must not violate a higher-level guardrail), and (c) reversible — the recovery declares a reversal condition (a state that, when true, triggers undoing the recovery) or the recovery modifies only additive/idempotent state that can be decremented or cleared. Before executing any recovery, the orchestrator performs a static validation: for each hard constraint in the inherited chain, check whether the recovery action's stated effects directly contradict the hard constraint's bounds. The validation result is logged: `recovery_validation: {guardrail_id, recovery_action, hard_constraints_checked, result: safe | blocked}`. If the proposed recovery would breach a hard constraint, the recovery is not applied — instead, the violation is escalated to the Governor regardless of graduation stage, with explanation: "Soft constraint [X] breached; proposed recovery violates hard constraint [Y]. Governor decision required." The orchestrator logs every auto-recovery as `guardrail_recovery: {guardrail_id, violation_description, recovery_applied, timestamp}` in the decision log for Governor review. After applying recovery, the orchestrator tracks reversal: the recovery's reversal condition (§21.8) is re-evaluated at the next action cycle. If recovery has not been reversed within 2 action cycles (or the Governor-defined reversal timeout), the orchestrator flags it in the status report: "Recovery [X] applied [N] cycles ago; reversal condition not yet met. Governor options: (a) wait — reversal flag continues next cycle, (b) accept as permanent — update the guardrail to reflect the new operational norm, remove the flag (this is a Governor judgment that modifies the operating document; it cannot be orchestrator-decided), (c) revise recovery — provide a new reversal path." The Governor's response is logged in the decision log. This prevents indefinite accumulation of stale recovery flags in status reports.
+
+**Recovery second-order effects** `[ROBUST]` — Recovery addresses the operational violation but may not resolve downstream consequences. A noise violation recovered by rescheduling to the next day fixes the operational breach but does not undo community trust damage from the disruption. After applying recovery, the orchestrator should assess whether the violation produced second-order effects — stakeholder relationship changes, metric degradation in related scopes, or reputational impact — that persist after the operational recovery. Detection relies on `stakeholder_interaction` signals (§7.4) or correlated metric changes in sibling or parent scopes. If second-order effects are detected, surface them as a separate finding in the status report: "Recovery [X] resolved the operational violation. Residual second-order effects detected: [description]. These may require separate mitigation beyond the recovery specification." The Governor decides whether additional action is needed. Recovery specifications are not expected to anticipate all second-order effects — this is a monitoring obligation, not an authoring requirement.
+
+**Guardrail coherence checks (§8.1).** Guardrail recovery introduces new guardrails or modifies existing ones — recovery specifications, tightened thresholds, and reversal conditions all affect the guardrail state. Semantic Coherence Validation invariants R3 (guardrail logical consistency) and R4 (guardrail inheritance compatibility) should be checked after any recovery action is applied, to ensure the recovery itself does not create contradictory or inheritance-violating guardrail states. At Tier 0, the AI mentally checks: "Does this recovery create any guardrail contradictions or inheritance violations?" At Tier 1+, the R3/R4 checks fire automatically after any guardrail modification, including those triggered by recovery actions.
+
+**For Agentic Workers:** Before executing any action, an agent validates that the planned execution does not violate any inherited guardrail. The guardrail set is the union of all constraints from goal through strategy through tactic to action level. This is the fundamental safety mechanism that enables progressive autonomy.
+
+### 5.3 Guardrail Calibration `[ROBUST]`
+
+Guardrails are **deterioration-prevention thresholds**, not improvement targets. A guardrail must be set at a level that represents unacceptable deterioration from the current state — not at the level the objective aims to achieve.
+
+**Correct calibration:** If the current damage rate is 2.2%, a guardrail of "damage rate must not exceed 4%" protects against catastrophic regression while allowing normal operational variance. The *objective* drives improvement toward a target; the *guardrail* prevents things from getting dangerously worse.
+
+**Incorrect calibration:** If the current failed delivery rate is 23%, setting a guardrail at 15% (below current state) means the guardrail is already breached at Day 0. This creates constant violations that flood the signal pipeline, drown out genuine deterioration signals, and force the Governor into permanent crisis mode. The system cannot distinguish between "we haven't improved yet" (expected) and "things are getting worse" (actionable).
+
+**Calibration rules:**
+
+1. **Metric Boundary guardrails** (Objective level) must be set **above** the current baseline for metrics where higher is worse (cost, failure rate, damage rate), or **below** the current baseline for metrics where lower is worse (success rate, NPS).
+2. The gap between current state and guardrail threshold should represent the maximum acceptable deterioration — typically 50–100% above baseline for rate metrics, or 20–30% below baseline for performance metrics.
+3. When the current state improves past the guardrail threshold (e.g., damage rate drops from 2.2% to 1.5%), the Governor should tighten the guardrail at the next strategy review to maintain protective value.
+4. Near-violation thresholds should be set at 80% of the guardrail threshold to provide early warning.
+
+**Why this matters:** Simulation testing revealed that guardrails set at target levels (below current state) produce 10–15× more guardrail violation signals than correctly calibrated guardrails. The excess signal volume overwhelms event-triggered review mechanisms and degrades Governor decision quality by presenting every day as a crisis.
+
+### 5.4 Guardrail Evaluation Routing `[CORE]`
+
+Guardrails with `evaluation: mechanical` (§5.1) are evaluated deterministically: compare current metric value against threshold. If violated, trigger the specified response (halt for hard, recovery for soft) without interpretive assessment. The evaluation is arithmetic — no AI judgment is involved, and the result is always epistemically `confirmed` (§14.3.8).
+
+Guardrails with `evaluation: interpretive` are evaluated by the orchestrator using available context, domain model knowledge, and signals. Interpretive guardrails may produce ambiguous results ("near-violation" or "unclear") that warrant deeper assessment. When 2+ interpretive guardrails produce ambiguous results simultaneously, and deliberation mode is enabled, the orchestrator may escalate the guardrail cluster to deliberation for multi-agent evaluation.
+
+**Evaluation ordering:** Mechanical guardrails are evaluated BEFORE interpretive guardrails. This ordering ensures that definitive threshold violations are identified before the AI begins interpretive assessment — preventing the AI from reasoning away a clear numeric violation. A mechanical violation produces an immediate, unconditional result; the AI then evaluates interpretive guardrails in the context of any mechanical violations already identified.
+
+**Routing at each tier:**
+
+- *Tier 0 (cognitive discipline):* The AI evaluates mechanical guardrails first by direct numeric comparison, producing definitive pass/fail before interpretive evaluation begins. The AI explicitly separates the two evaluation modes in its reasoning: "Mechanical guardrail check: G-1 budget €42K vs €50K threshold → safe. G-3 timeline 5.2 months vs 6 month threshold → safe. Interpretive guardrail check: G-2 vendor lock-in assessment → [reasoning]." This separation is a cognitive protocol — the AI sequences its own evaluation process.
+- *Tier 1 (structural enforcement):* Mechanical guardrails evaluated by automated checks (threshold comparison functions) before the AI prompt is constructed. AI receives mechanical results as pre-computed facts. Interpretive guardrails remain in the AI's evaluation scope. This reduces token usage and ensures mechanical evaluation is deterministic (not influenced by AI context or conversation history).
+- *Tier 2+:* Mechanical guardrails evaluated as automated pipeline gates that run continuously (not just at review cadence). Violations trigger immediate alerts. Interpretive guardrails evaluated by agents with domain context, potentially through deliberation for high-stakes assessments.
+
+---
+
+## 6. Governor-AI Collaboration Model
+
+The Governor does not operate alone. GOSTA is a collaboration between human judgment and AI capability. The Governor provides authority, intent, and final decisions. The AI provides drafting, computation, execution, and recommendations. Neither is sufficient alone — the Governor without AI has no execution capacity, the AI without the Governor has no authority or strategic intent.
+
+### 6.1 The Governor's Role: Final Authority
+
+The Governor is the final authority on the following (see §6.3 for the full operational non-delegable list):
+
+1. **Goals** — approve, revise, retire. The AI may suggest goals based on environmental analysis, but the Governor decides which goals the system pursues.
+2. **Objectives** — approve targets, thresholds, and deadlines. The AI may propose objectives with suggested metrics based on domain models and baselines, but the Governor sets the bar.
+3. **Strategies** — approve approach logic, what-must-be-true conditions, and kill signals. The AI may draft strategies with rationale based on domain model hypothesis libraries and historical data, but the Governor decides which approaches to pursue.
+4. **Guardrails** — at every level. Non-negotiable constraints. The AI may surface potential guardrails from domain model anti-patterns, but the Governor decides which constraints are binding.
+5. **Tactic portfolio** — approve which tactics run, make kill/pivot/persevere decisions. At graduation Stage 3+ (see Section 6.3, Per-Stage Autonomy Table), the AI may generate, adjust, and kill tactics autonomously within approved strategies, with concurrent decision logging (§8.2.2) and notification to the Governor. The Governor retains final authority — including the ability to override AI tactic decisions and to regress the graduation stage if autonomous decisions prove poor.
+6. **Feedback interpretation** — decide what signals mean for strategy and goals. The AI computes health, detects patterns, and recommends decisions. The Governor decides what those signals mean and what to do about them.
+7. **Domain model changes** — approve updates to domain models. The AI may propose new anti-patterns, revised hypothesis templates, or calibrated norms through structural memory transfer (Section 19.8), but the Governor approves what enters the domain model. Agents never write to the Domain Model Store directly (Section 14.3.2).
+8. **Reference material curation** — decide what source material enters the Reference Pool (Section 17.2.4) and how it is scoped. The Governor uploads brand assets, research documents, industry reports, and other raw materials that ground executor output. Executors may discover and store reference material during action execution, but the Governor decides retention and relevance at review cadences.
+9. **Graduation stage** — advance, regress, or hold the scope's graduation stage (Section 16.11). Graduation changes the autonomy boundary — what the AI is permitted to decide without approval. The AI may recommend graduation based on readiness indicators (Section 16.11), but the Governor decides. The AI may never self-promote its own autonomy level.
+
+10. **Pre-Deliberation Review.** Before multi-agent deliberation (§14.7 Level 3), the Governor reviews and updates existing information channels to ensure agents deliberate with current data. This is a checklist, not a new input document — the Governor updates the OD, environmental watch list (§7.14), or Reference Pool (§17.2.4) as needed, then confirms readiness. Information enters deliberation through already-grounded channels with existing quality gates. See Deliberation Protocol §2.4.
+
+The cognitive architecture underlying these responsibilities — including why reviews must be externally triggered, why kill decisions face systematic resistance, and why the recommended ranges (4–8 goals, 2–5 objectives, 1–3 strategies) are calibrated to human processing capacity — is documented in Section 15.5.
+
+**Governor succession** `[ROBUST]` — When Governor authority permanently transfers to a new person (election, resignation, organizational change), the incoming Governor inherits the full operating document, decision log, domain model, and structural memory. The succession protocol:
+
+1. **Read-in:** The incoming Governor reads the full OD, decision log, and domain model. The AI presents a structured handoff summary: scope status, active strategies, recent decisions, open issues, and any pending escalations.
+2. **Acceptance or revision:** The incoming Governor may accept, revise, or reject any element of the OD. Revisions are logged as `governor_succession` decisions (not as standard edits) so the audit trail distinguishes founding decisions from succession decisions.
+3. **Graduation stage reset:** The graduation stage resets to Stage 1 unless the incoming Governor has prior GOSTA experience with this specific scope. The outgoing Governor's earned autonomy does not transfer — the incoming Governor must build their own trust in the AI's judgment. The incoming Governor may accelerate through stages faster if the existing decision log demonstrates AI competence.
+4. **Domain model preservation:** The domain model is institutional knowledge, not personal opinion. The incoming Governor may revise entries but should not discard the model wholesale. Entries marked as "Governor judgment" (e.g., Governor-added anti-patterns, quality principles) should be reviewed with particular care — they encode the outgoing Governor's domain expertise.
+5. **Logging:** The transition is logged as a `governor_succession` event with: outgoing Governor, incoming Governor, date, incoming Governor's initial review decisions (what they accepted, revised, rejected), and the new graduation stage.
+
+This is distinct from the alternate Governor mechanism (§7.7), which handles temporary unavailability. Succession is permanent and resets the trust relationship between Governor and AI.
+
+**Informed user override protocol** `[ROBUST]` — In some scopes, the Governor possesses deep domain expertise (an informed user) and may disagree with the AI's quality assessments, domain model evaluations, or analytical conclusions based on knowledge the AI cannot access or verify. The Governor may override any AI assessment with an `informed_override` decision: `{assessment_overridden: [AI's assessment], governor_assessment: [Governor's assessment], basis: [Governor's domain knowledge citation], risk_acknowledged: [what could go wrong if the Governor is wrong]}`. The `risk_acknowledged` field is mandatory — it prevents reflexive overrides by requiring the Governor to articulate the downside. Informed overrides are logged in the decision log and flagged in subsequent health reports: "Health computation uses Governor override for [X] — AI assessment was [Y], Governor assessment is [Z]." If a Governor's informed override is later contradicted by signal evidence, the orchestrator surfaces the contradiction at the next review without editorializing — the Governor decides whether to reverse the override or maintain it with updated rationale. The informed override mechanism exists because domain expertise sometimes exceeds what the AI's domain model captures — but it must leave an auditable trail so that incorrect overrides can be detected and learned from.
+
+**Governor attention capacity validation** `[ROBUST]` — The framework permits the Governor to set any review cadence (§7.2) and create any number of tactics, but does not validate whether the resulting governance workload is sustainable. A Governor with 6 tactics on a 3-day review cadence faces ~2 reviews per day, each requiring signal review, health assessment, and decision-making — potentially exceeding the Governor's available capacity. The orchestrator must estimate and surface governance workload at two points: (1) **At tactic creation:** When a new tactic is created, the orchestrator computes the projected review load: `total_reviews_per_week = sum(1 / cadence_days × 7)` across all active tactics and strategies. If the projected load exceeds a sustainability threshold (default: 5 Governor decision points per week for a part-time Governor, 15 for a full-time Governor), the orchestrator flags: "Adding this tactic will bring your review load to [N] decision points per week. Current threshold: [M]. Options: (a) proceed with awareness, (b) extend review cadences on existing tactics, (c) batch reviews (review multiple tactics in a single session)." The Governor may override — capacity is ultimately their judgment — but the flag ensures the decision is conscious. (2) **At strategy review:** The orchestrator includes a governance workload summary in the strategy review: actual decision points this cycle, average decision time per point (if tracked), and projected load for next cycle. If actual governance time consistently exceeds projected (Governor reviews take longer than expected), the orchestrator recommends cadence adjustment. The sustainability threshold is Governor-configurable in the OD (`governor_capacity: {reviews_per_week: [N], role: part_time|full_time}`). If not declared, the default (5/week) applies. This mechanism does not restrict the Governor — it prevents silent capacity overload where the Governor commits to a review cadence they cannot sustain, leading to missed reviews (§7.7 escalation) and degraded governance quality.
+
+**Governance feature implementation by tier:**
+
+- *Tier 0:* **Governor succession** is a multi-session handoff. The outgoing Governor should run a final session to generate the handoff summary (scope status, active strategies, recent decisions, open issues). The incoming Governor reads the summary + full OD in their first session. The AI presents the structured read-in conversationally and logs the succession event in the decision log. Graduation reset is applied by editing the bootstrap's `Graduation Stage` field. **Capacity validation** is a mental check: the AI computes `total_reviews_per_week` when the Governor proposes a new tactic and states the result in conversation. The Governor's capacity threshold comes from the OD field `governor_capacity` or the default (5/week). **Delegated reviewers** are recorded in the decision log with `decision_source: delegated_reviewer:[id]` — the AI flags any delegated decision that touches non-delegable items. **Informed override** is logged in the decision log during the conversation where the override occurs; the AI includes the override in subsequent health reports.
+- *Tier 1:* **Governor succession** is a system event: the outgoing Governor triggers a succession workflow that generates the handoff summary from the decision log, OD, and health report history. The incoming Governor's read-in is a structured interface (not free-text). Acceptance/revision/rejection decisions are tracked as a batch with `event_type: governor_succession`. Graduation stage reset is applied programmatically. **Capacity validation** is automated: the system computes review load at tactic creation and blocks creation if load exceeds threshold (with Governor override). The strategy review dashboard includes a governance workload section with actual vs. projected decision points. **Delegated reviewers** are system users with scoped permissions — the system enforces which decision types they can make and blocks non-delegable decisions at the API level. **Informed override** requires the `risk_acknowledged` field to be non-empty before the override is accepted; the system automatically flags contradicting signals in subsequent health reports.
+- *Tier 2+:* **Governor succession** includes a transition risk assessment: the system identifies decisions the outgoing Governor made that are most likely to be revised (based on narrowest margins, most overrides) and highlights them for the incoming Governor's attention. Graduation regression from the outgoing Governor's stage to Stage 1 is monitored — if the incoming Governor accelerates through stages significantly faster or slower than the outgoing Governor, the system flags the divergence. **Capacity validation** becomes predictive: the system projects future governance load based on tactic creation trends, upcoming kill deadlines, and A/B test decision dates, warning the Governor before overload occurs rather than after. **Delegated reviewers** have audit trails with anomaly detection — if a delegated reviewer's decisions diverge systematically from the Governor's historical patterns, the system flags the divergence.
+
+**The key distinction:** The Governor's role is "final authority," not "sole author." The Governor does not need to create everything from a blank page. The AI drafts. The Governor decides.
+
+### 6.2 The AI's Role: Drafting, Execution, and Recommendation
+
+The AI operates in three modes within the GOSTA system. These are not sequential phases — they run concurrently as the system operates.
+
+**Authoring Mode** — The AI drafts operating document elements for Governor approval:
+
+- Suggests goals based on environmental signals and domain analysis
+- Proposes objectives with metrics, thresholds, and deadlines based on domain model norms and baseline data
+- Drafts strategies with rationale, what-must-be-true conditions, and kill signals, drawing from domain model hypothesis libraries
+- Generates tactics with hypotheses and kill conditions under approved strategies
+- Produces initial action specifications under approved tactics
+- Recommends guardrails based on domain model anti-patterns and quality principles
+- Identifies gaps in the operating document (missing baselines, undefined kill conditions, absent guardrails)
+- Proposes revisions based on accumulated signal data ("Objective 1's threshold appears miscalibrated — actual baseline growth is 2x faster than assumed. Suggest revising from 5,000 to 8,000.")
+
+All authoring output is a draft until the Governor approves. The AI presents drafts with reasoning — why this strategy, why this threshold, what evidence supports this recommendation. The Governor reviews, modifies, and approves or rejects.
+
+**Execution Mode** — The AI executes against the approved operating document:
+
+- The orchestrator runs cycles: reads the document, loads signals, computes health, generates work plans
+- Executors receive action specifications and produce deliverables within guardrails
+- Signals flow upward from every completed action
+- The orchestrator adjusts tactics and actions within approved strategy bounds without Governor involvement (see Section 6.3 for autonomy boundaries)
+
+Execution mode is where the system runs autonomously. The Governor is not in the loop for individual actions or routine tactic adjustments — the AI handles these within the constraints the Governor approved.
+
+**Governance Mode** — The AI surfaces decisions for the Governor at defined cadences:
+
+- Computes and presents health reports for tactics and strategies
+- Compares A/B test results and recommends winners
+- Detects cross-domain signal conflicts (Section 4.5) and surfaces them with diagnosis
+- Recommends kill/pivot/persevere decisions with supporting evidence
+- Flags guardrail near-violations and escalation triggers
+- Proposes operating document revisions based on what the data shows
+
+Governance mode is triggered by the review cadence (Section 6.4), not by the Governor asking. The AI proactively surfaces what needs attention. The Governor makes the decisions.
+
+### 6.3 Per-Stage Autonomy Table: What the AI Decides Alone
+
+The AI's autonomy is defined by the graduation stage (Section 16.11). Each stage specifies exactly what is autonomous, what requires Governor approval, and what is non-delegable. There is one table to consult — the stage the system is currently at. **Note:** The stage table defines baseline autonomy. Section 6.7 (Autonomy Safeguards) defines four cross-cutting constraints that may narrow this baseline based on situational factors: grounding health, decision reversibility, risk magnitude, and Governor-defined conditions.
+
+**The principle:** The AI is autonomous within the decision space the Governor has defined. It cannot expand that decision space. It can optimize, adjust, and execute within bounds. It cannot change the bounds.
+
+#### Stage 1 — Human-driven
+
+**Autonomous (no approval needed):**
+- Compute health reports and tactic metrics
+- Emit signals and store them in the Signal Store
+- Store discovered reference material in the Reference Pool during action execution
+- Archive prior deliverables to the Reference Pool for cross-cycle access
+
+**Requires Governor approval:**
+- Generate and execute actions (Governor approves work plans before execution)
+- Sequence and schedule actions (Governor approves sequencing)
+- Resolve action-level blockers (Governor decides resolution)
+- Adjust action-level parameters (Governor approves adjustments)
+
+**Non-delegable (Governor decides, regardless of stage):**
+- Create, modify, or retire goals
+- Create, modify, or retire objectives or their thresholds
+- Create, modify, or retire strategies or their what-must-be-true conditions
+- Add, modify, or remove guardrails at any level
+- Kill a strategy
+- Spend above a defined resource threshold
+- Make decisions that affect other scopes (child operating documents, adjacent scopes)
+- Override a guardrail for any reason
+- Approve domain model changes (Section 6.1 #7, Section 17.2.3)
+- Advance, regress, or hold the graduation stage (Section 16.11)
+- Resolve split deliberation outcomes (no majority recommendation) — see Deliberation Protocol §10
+
+#### Stage 2 — Orchestrator-suggested
+
+**Autonomous (no approval needed):**
+- Everything from Stage 1 Autonomous
+- Generate work plans and action specifications (presented to Governor; execution proceeds after approval)
+
+**Requires Governor approval:**
+- Approve work plans before execution proceeds
+- Resolve non-trivial action-level blockers
+- Adjust tactic-affecting parameters
+
+**Non-delegable:** Same as Stage 1.
+
+#### Stage 3 — Orchestrator-managed with exceptions
+
+**Autonomous (no approval needed):**
+- Generate and execute actions under approved tactics
+- Sequence and schedule actions within tactic timelines
+- Resolve action-level blockers within guardrails
+- Adjust action-level parameters (timing, formatting, channel optimization) based on signals
+- Emit signals, store reference material, archive deliverables
+- Generate new tactics under approved strategies (with concurrent decision logging per §8.2.2 and notification to Governor)
+- Kill underperforming tactics when kill condition is met (with notification to Governor). **Constraint:** Kill recommendations classified as `information_gap` (§14.3.8) are not eligible for autonomous execution — they must escalate to Governor for data collection decision.
+- Adjust tactic parameters based on signals
+- Pivot tactics when signal data shows a clear improvement path within the strategy's bounds
+- Accept full-consensus deliberation outcomes (all agents agree, no flags) without Governor review
+
+**Requires Governor approval:**
+- Novel situations outside established patterns
+- Guardrail near-violations
+- Tactic kill condition triggers flagged as ambiguous (where data is directionally mixed) or classified as `information_gap` (§14.3.8)
+- Strategy what-must-be-true alerts
+- Weak-consensus and split deliberation outcomes (see Deliberation Protocol §10)
+
+**Non-delegable:** Same as Stage 1.
+
+#### Stage 4 — Full tactic-level autonomy
+
+**Autonomous (no approval needed):**
+- Everything from Stage 3 Autonomous
+- Kill underperforming tactics without confirmation (notification only)
+- Adjust tactic parameters based on signals without reporting
+- Accept full and strong-consensus deliberation outcomes without Governor review
+
+**Requires Governor approval:**
+- Kill/pivot/persevere decisions surfaced at strategy review cadence
+- Strategy-level assessments and portfolio rebalancing
+- Split deliberation outcomes and persistent deliberation disagreements (3+ cycles)
+
+**Non-delegable:** Same as Stage 1.
+
+#### Stage 5 — Full autonomy within strategies
+
+**Autonomous (no approval needed):**
+- Everything from Stage 4 Autonomous
+- Full tactic lifecycle management (propose, kill, pivot) without approval
+- Tactic portfolio management within strategy bounds
+
+**Requires Governor approval:**
+- Strategy kill/pivot/persevere decisions
+- Objective rebalancing
+- Goal reassessment
+
+**Non-delegable:** Same as Stage 1.
+
+---
+
+**Delegated reviewers** `[ROBUST]` — In some domains, trusted human participants (not the Governor, not the AI) begin performing governance-like acts: a senior contributor reviewing others' work, a team lead approving routine decisions, a trusted community member enforcing norms. The framework models this through the `delegated_reviewer` concept. The Governor may formally designate one or more delegated reviewers in the operating document with: `reviewer_id`, `scope` (which tactics/strategies they may review), `authority` (which decisions they may make — always a subset of the Governor's non-autonomous decisions at the current stage), and `reporting` (how their decisions surface to the Governor — inline at next review, or immediate notification). Delegated reviewers are NOT a new governance tier — they are a structured way for the Governor to distribute review load while retaining final authority. Key constraints: (a) non-delegable decisions (§6.1) cannot be delegated to reviewers, (b) the Governor remains responsible for delegated reviewer quality — poor reviewer decisions are a Governor-level issue, (c) delegated reviewer decisions are logged in the decision log with `decision_source: delegated_reviewer:[id]` for audit trail, (d) the orchestrator treats delegated reviewer approvals identically to Governor approvals within the declared scope. If the orchestrator detects that governance-like acts are occurring informally (e.g., stakeholder interaction signals show someone approving work without formal delegation), it flags this in the status report as "informal governance detected" so the Governor can either formalize the delegation or intervene.
+
+**Reading the table:** An implementer consults the stage their system is at and builds accordingly. The non-delegable decisions (listed in full under Stage 1) are constant across all stages — they are the architectural guarantee that the Governor retains strategic authority regardless of how much tactical autonomy the AI earns. The "Requires Governor approval" items are what graduates from approval-required to autonomous as the system progresses through stages.
+
+### 6.4 Governor Review Rhythm `[ROBUST]`
+
+The review rhythm defines when the Governor engages with the system. GOSTA defines four review levels. What matters is the nesting: action reviews happen more frequently than tactic reviews, which happen more frequently than strategy reviews, which happen more frequently than goal reviews.
+
+#### 6.4.1 The Four Review Levels
+
+| Review Level | Focus | AI Prepares | Governor Decides |
+|--------------|-------|------------|-----------------|
+| Action review | Blockers and exceptions | Blockers list, proposed resolutions, escalation flags | Unblock, escalate, or defer |
+| Tactic review | Tactic health, A/B results, hypothesis status | Tactic health reports, A/B comparisons, kill/pivot/persevere recommendations with evidence | Kill / Pivot / Persevere per tactic |
+| Strategy review | Strategy validation, objective progress, portfolio rebalancing | Strategy health reports, what-must-be-true assessments, cross-domain conflict diagnosis, proposed operating document revisions | Kill / Pivot / Persevere per strategy. Approve document revisions. Reweight portfolio. |
+| Goal review | Goal relevance, strategic direction | Environmental analysis, goal-level health, proposed goals and objectives for next cycle | Revise goals, approve next-cycle operating document |
+
+#### 6.4.2 Default Review Profiles by Graduation Stage
+
+Which review levels surface to the Governor depends on the graduation stage (Section 6.3). As autonomy increases, lower-level reviews are handled autonomously and only higher-level reviews require Governor engagement. The defaults below match the autonomy granted at each stage.
+
+**Stage 1–2 (Human-driven / Orchestrator-suggested):**
+- Active Governor reviews: Action, Tactic, Strategy, Goal
+- All four review levels surface to the Governor
+- Rationale: Governor is learning the system, validating outputs, and approving before execution
+
+**Stage 3 (Orchestrator-managed with exceptions):**
+- Active Governor reviews: Tactic, Strategy, Goal
+- Action reviews: Automated by orchestrator. Governor receives a summary within the tactic review. Only exception-escalated actions (blockers, near-violations) surface independently.
+- Rationale: Actions are autonomous within established patterns; Governor reviews by exception, not by default
+
+**Stage 4 (Full tactic-level autonomy):**
+- Active Governor reviews: Strategy, Goal
+- Tactic reviews: AI-computed health reports surface as input to the strategy review. Standalone tactic reviews trigger only for kill/pivot/persevere decisions requiring Governor input.
+- Rationale: Tactics are managed end-to-end by AI; Governor engages at the strategic level
+
+**Stage 5 (Full autonomy within strategies):**
+- Active Governor reviews: Strategy, Goal
+- Tactic reviews: Eliminated as a Governor touchpoint. Tactic status is included in the strategy health report.
+- Rationale: Everything within strategies is autonomous; Governor engages at strategy boundaries and above
+
+**Governor override:** The Governor can always configure *more* reviews than the default for their stage (e.g., keeping action reviews active at Stage 3 for a high-risk scope). The Governor cannot configure *fewer* reviews than the default — that would create an autonomy gap where no one is governing.
+
+#### 6.4.3 Cadence Examples
+
+**Example cadence for a typical business scope (Stage 1–2):** Action review weekly (~30 min), tactic review monthly (~60 min), strategy review quarterly (~half day), goal review annually (~full day). Total Governor time: ~3-5 hours/month for governance decisions (health review, kill/pivot/persevere, document approvals). At Stage 1-2, Governors typically spend additional time reviewing deliverables and validating output quality — estimate 5-8 hours/month total. Time decreases as graduation progresses and the Governor shifts from reviewing everything to reviewing by exception. *Tier caveat:* These estimates assume Tier 1+ implementations where a persistent orchestrator handles health computation, signal aggregation, report generation, and work plan maintenance autonomously. At Tier 0 (single conversational AI), the Governor shares more coordination burden — expect 1.5–2× the above estimates because the AI must be re-prompted for each review cycle and cannot maintain state between sessions without manual context loading. Regardless of tier, if projected governance workload exceeds sustainable capacity, §6.1 (Governor attention capacity validation) provides detection and adjustment mechanisms.
+
+**Example cadence for a 90-day hiring sprint (Stage 1–2):** Action review every 2 days, tactic review weekly, strategy review bi-weekly, goal review at sprint end.
+
+**Example cadence at Stage 4:** Strategy review every 2–4 weeks, goal review quarterly. Governor time: ~2-3 hours/month. Lower-level reviews are automated.
+
+A fast-moving scope (e.g., a 90-day hiring sprint) might compress all cadences. A slow-moving scope (e.g., multi-year market positioning) might stretch them. The Governor defines the actual cadences in the operating document.
+
+**Finite Analytical Scopes:** For Finite Analytical Scopes (§3.6), the four review levels map to phase gates rather than calendar cadences: tactic review = per-action-batch within a phase, strategy review = phase gate, goal review = final deliverable review. Calendar-based cadences are not applicable — finite scopes progress by completing phases, not by waiting for time to pass.
+
+**Key change from traditional governance:** The Governor doesn't prepare for reviews — the AI prepares. The Governor's time is spent deciding, not compiling data. Every review session starts with the AI presenting a pre-computed summary with recommendations. The Governor reviews, challenges, and decides. This is what makes GOSTA viable — the AI does the analytical work, the Governor provides the judgment.
+
+#### 6.4.4 Cadence Evaluation `[ROBUST]`
+
+Review cadences are set at authoring time and rarely revisited. This is a problem. A quarterly strategy review may be too slow for a market that shifts monthly, or too fast for a domain that moves yearly. Event-triggered reviews (§7.9) compensate for acute events, but they do not detect chronic cadence mismatch — the situation where the fixed cadence is systematically wrong for the scope's actual dynamics.
+
+**The cadence evaluation diagnostic:** At every strategy review, the orchestrator computes three indicators that surface cadence mismatch:
+
+1. **Signal-to-review ratio.** Count the signals emitted since the last review of each type, divided by the expected signal count for one review period. A ratio significantly above 1.0 (recommended threshold: >2.0) indicates the scope is producing signals faster than the review cadence can process them — decisions are delayed because evidence accumulates between reviews. A ratio significantly below 0.5 indicates the cadence is faster than the scope's signal generation — reviews have insufficient new data to evaluate.
+
+2. **Event-triggered review frequency.** Count the event-triggered reviews (§7.9) that fired since the last scheduled review. If event-triggered reviews routinely outnumber scheduled reviews (ratio >1.0 over 3 consecutive cycles), the scheduled cadence is too slow for the scope's volatility. Event-triggered reviews are designed as supplements, not replacements — if they become the primary review mechanism, the base cadence is miscalibrated.
+
+3. **Decision staleness.** At each review, the orchestrator checks how many queued decisions could have been made earlier if the review had occurred sooner. A decision is "stale" if the signal evidence supporting it was available for more than 50% of the review period before the review occurred. High decision staleness (>30% of decisions are stale) indicates the review cadence lags the decision-making need.
+
+**What the orchestrator does:** The cadence evaluation produces a diagnostic, not a directive. If any indicator exceeds its threshold, the orchestrator includes a cadence assessment in the strategy review report:
+
+"Cadence evaluation: signal-to-review ratio is 3.2 for tactic reviews (expected ~1.0). You received 16 signals between monthly tactic reviews — many decisions were delayed. Consider compressing tactic review cadence to bi-weekly."
+
+Or: "Cadence evaluation: signal-to-review ratio is 0.3 for strategy reviews. Only 2 new signals arrived between quarterly reviews. The environment is stable — consider extending strategy review cadence to semi-annual."
+
+**The Governor decides.** Cadence changes are non-delegable — they alter the governance rhythm itself. The orchestrator recommends; the Governor adjusts (or explicitly maintains the current cadence with acknowledgment).
+
+**Implementation by tier:**
+
+- *Tier 0:* The AI performs the cadence evaluation mentally at each strategy review. It counts signals since last review, notes how many event-triggered reviews occurred, and surfaces the assessment conversationally. This adds ~2 minutes to the strategy review.
+- *Tier 1:* Automated computation. The system tracks signal counts, event-triggered review counts, and decision queue timestamps. Cadence evaluation is a standard section of the strategy health report.
+- *Tier 2+:* The system maintains cadence trend data across multiple review cycles. It detects seasonal cadence patterns (e.g., "tactic reviews need weekly cadence during product launch, monthly otherwise") and recommends dynamic cadence schedules tied to scope phase or environmental indicators.
+
+### 6.5 Agency and Autonomy: Diagnostic Separation `[ROBUST]`
+
+The system's **capability** (what it *can* do) and its **autonomy** (what it is *permitted* to do) are independent dimensions. A highly capable system can be deliberately constrained to Stage 1. A limited system can be granted Stage 5 autonomy. These require independent assessment and produce different diagnostic signals.
+
+**Capability profile** (assessed, not granted): Model quality, tool access, domain model maturity, reference pool depth. This describes the system's current execution ceiling — the best output it can produce given its resources. The capability profile is updated when tools, models, or domain models change. It is not part of the graduation path; it is a separate assessment. **Cross-domain synthesis** is a key capability indicator for scopes with stacked domain models (§13.7): an orchestrator that can detect cross-domain conflicts but only present each domain's signals independently operates at baseline capability; an orchestrator that proposes integrated resolutions spanning multiple domain models demonstrates advanced capability. Cross-domain synthesis ability should be considered as evidence in graduation readiness assessments — an orchestrator that cannot synthesize across domains should not graduate to Stage 2+ in multi-domain scopes, even if it performs well within individual domains.
+
+**Autonomy profile** (granted by Governor): The graduation stage and its associated decision boundaries (Section 6.3). This describes what the system is permitted to do without approval. The autonomy profile is granted by the Governor based on demonstrated performance at the current stage.
+
+**Why this separation matters:** When a tactic underperforms, the Governor needs to know whether the problem is:
+
+- **Capability failure** — the executor produced poor-quality output despite the orchestrator making correct decisions. Fix: improve domain models, upgrade tools, enrich reference materials, use a better model.
+- **Autonomy failure** — the orchestrator made poor decisions with the freedom it has (chose wrong actions, pivoted when it should have killed, missed a guardrail violation). Fix: regress graduation stage, tighten guardrails, add constraints.
+- **Mixed / unclear** — both factors may contribute. Requires Governor investigation with raw signal data.
+
+Without this separation, both failure modes appear identical in health reports: "tactic underperforming." The Governor applies the wrong fix — restricting autonomy when the real problem is capability, or expanding capability when the real problem is poor decisions.
+
+**Health report integration:** The orchestrator includes a diagnostic classification in each tactic health report (Section 7.2, Step 2 — Compute Tactic Health). This classification is advisory — the Governor makes the final determination. The classification follows the same pattern as the input availability / tactic effectiveness separation (Section 4.4): separate what the system controls from what it doesn't, and don't let one corrupt the diagnosis of the other.
+
+**Stage sensitivity:** The diagnostic classification is informational at Stages 1-2, where the Governor endorses all orchestrator decisions — `autonomy_issue` is rarely the correct classification at these stages because the Governor approved the decisions that led to the outcome. The classification becomes operationally significant at Stage 3+, where the orchestrator makes autonomous decisions that could be the source of underperformance. At Stage 3+, a `capability_issue` diagnosis suggests improving domain models or tools; an `autonomy_issue` diagnosis suggests regressing the graduation stage or tightening guardrails.
+
+### 6.6 Simulation Test Harness (Non-Production) `[ROBUST]`
+
+For framework validation experiments and simulation environments, an AI agent can simulate Governor decisions to test whether GOSTA's reporting mechanisms produce sufficient decision-quality information. This is a **test harness**, not a governance mode.
+
+**Important:** The test harness is non-production infrastructure. It does not represent a governance mode for operational scopes. The non-delegable decisions (Section 6.3) are non-delegable in all production contexts, regardless of graduation stage. Scopes requiring fully autonomous strategic decisions at sub-human-latency are outside GOSTA's design boundary.
+
+**Information barrier requirement:** The simulated Governor operates under the same information constraints as a human Governor — it sees only health reports, A/B comparisons, recommendations, and the operating document. It does not access raw signals, simulation mechanics, or implementation details.
+
+**When to use:** Framework validation only. Simulation environments for testing and calibration. Never for production scopes with real-world consequences.
+
+**Attribution:** All decisions made by the simulated Governor are recorded in the Decision Log with `source: test_harness` attribution, distinguishing them from human Governor decisions.
+
+### 6.7 Autonomy Safeguards
+
+The per-stage autonomy table (§6.3) defines what the AI decides alone at each graduation stage. But stages are static boundaries — they don't account for situational factors that should constrain or modify autonomous behavior. A Stage 4 system making an irreversible decision during a grounding outage is a different risk profile from a Stage 4 system making a reversible decision with full grounding health.
+
+This section defines four cross-cutting safeguards that modify how stages operate. They are not separate from the stage system — they are constraints *on* the stage system. A safeguard never grants more autonomy than the current stage permits; it can only narrow it.
+
+#### 6.7.1 Degraded-Mode Autonomy
+
+**The problem:** Graduation to Stage N is earned based on demonstrated performance with functioning grounding components. If grounding degrades after graduation — data source goes offline, domain model flagged stale, temporal validity checks disabled — the system continues operating at Stage N autonomy without the quality checks that justified that autonomy. The autonomy grant assumed working grounding; the grounding assumption is now violated.
+
+**The mechanism:** When grounding health falls below a defined threshold, the system automatically constrains to the previous stage's approval requirements until grounding is restored or the Governor explicitly confirms the current stage.
+
+**What constitutes grounding degradation:**
+
+| Grounding Component | Degraded When | Impact on Autonomous Decisions |
+|---------------------|--------------|-------------------------------|
+| Schema Validation (§14.3.1) | Structural integrity check skipped or producing errors | OD modifications may be structurally invalid. Tactic creation/kill decisions lack structural validation. |
+| Domain Knowledge Store (§14.3.2) | Domain model flagged stale (no review for 2× review cadence) or retrieval faithfulness concerns raised in meta-memory audit | Recommendations based on outdated or misrepresented domain knowledge. |
+| Data Grounding (§14.3.3) | Primary data source offline, or >50% of active signals flagged `[PROVENANCE-INCOMPLETE]` or `[STALE]` | Health computation operates on fabricated or expired data. Kill/persevere decisions unreliable. |
+| Capability Validation (§14.3.6) | Capability registry outdated (tools changed, platform access revoked) or bootstrap "Execution Capabilities" not refreshed for 3+ sessions | System proposes actions it cannot execute. |
+| Synthesis Verification (§14.3.5) | Coordinator verification skipped in recent deliberation | Deliberation outcomes may misrepresent agent positions. |
+
+**Degraded-mode autonomy by tier:**
+
+- *Tier 0:* The AI self-checks grounding status at session start as part of context loading (§18.4). If any grounding component is degraded, the AI announces the constraint: "Data source X has been offline since [date]. Operating at Stage [N-1] approval requirements until resolved or Governor overrides." The Governor can either fix the issue, explicitly accept the risk and confirm the current stage, or agree to the constrained mode. The AI logs the grounding status and Governor's decision.
+- *Tier 1:* Automated grounding health check runs at each cycle start. If degradation detected, the system automatically routes decisions that would normally be autonomous to the approval queue. Governor is notified with: which component is degraded, since when, which decisions are now requiring approval, and what's needed to restore full autonomy. The constraint is logged as `autonomy_modifier: degraded_mode` on affected decisions.
+- *Tier 2+:* Predictive degradation detection. The system monitors leading indicators — data source response time increasing, domain model approaching staleness threshold, signal provenance completeness trending downward — and pre-warns: "Data grounding may degrade within 2 cycles. If degradation occurs, Stage 4 tactic kills will require approval." This gives the Governor time to intervene before autonomy narrows.
+
+**Restoration:** When the grounding issue is resolved, the system returns to normal stage behavior. No re-graduation required — degraded-mode is a temporary constraint, not a stage regression. However, if the system operated in degraded mode for more than N review cycles (recommended: same N as the governance integrity warning in §16.11.1), the Governor should verify that no autonomous decisions during the degraded period need revisiting.
+
+**Relationship to stage regression (§16.11):** Degraded-mode is automatic and temporary — it constrains the current stage without changing it. Stage regression is a Governor decision and changes the stage itself. If grounding degradation is chronic (the same component degrades repeatedly), the Governor should consider whether the system's infrastructure supports the current stage at all, and may choose to formally regress.
+
+**Relationship to signal pipeline failure (§7.13.1):** This mechanism constrains autonomy when *grounding components* degrade (the reasoning layer). §7.13.1 constrains autonomy when the *signal pipeline* degrades (the data input layer). Both can fire simultaneously — grounding can be healthy while the pipeline is down (correct reasoning, no new data) or grounding can be degraded while the pipeline is active (new data, incorrect interpretation). The most restrictive constraint wins. Recovery from either is verified independently per §7.13.2.
+
+#### 6.7.2 Decision Reversibility
+
+**The problem:** The per-stage autonomy table treats all decisions of a given type equally. At Stage 3, the orchestrator can kill underperforming tactics autonomously (with notification). But killing a tactic whose only dependency is internal content (reversible — restart it next cycle) and killing a tactic whose external partnership terminates upon cancellation (irreversible — the partnership cannot be restarted) carry fundamentally different risk profiles. Autonomy literature (Sheridan & Verplank, ALFUS) consistently identifies reversibility as a primary factor in appropriate autonomy levels.
+
+**The mechanism:** The orchestrator assesses reversibility before executing any autonomous decision. Irreversible decisions at Stage 3+ require Governor approval even if the decision type would normally be autonomous at that stage.
+
+**Reversibility classification:**
+
+| Classification | Definition | Examples |
+|---------------|-----------|---------|
+| Fully reversible | Decision can be undone with no lasting consequences. The system returns to its pre-decision state. | Pausing a content schedule. Adjusting action-level parameters. Resequencing actions within a tactic. |
+| Partially reversible | Decision can be partially undone, but some consequences persist. The system cannot fully return to its pre-decision state. | Killing a tactic mid-bootstrap (data collected so far is retained, but bootstrap restarts from zero if tactic is recreated). Pivoting a tactic (original approach abandoned, new approach starts fresh). |
+| Irreversible | Decision cannot be undone. Consequences are permanent within the scope's timeframe. | Killing a tactic with external commitments that terminate on cancellation. Publishing content (cannot be unpublished from all distribution points). Sending communications to external stakeholders. Spending committed budget that cannot be reclaimed. |
+
+**Reversibility constraint by stage:**
+
+| Stage | Fully Reversible | Partially Reversible | Irreversible |
+|-------|-----------------|---------------------|-------------|
+| 1-2 | Governor approves (stage default) | Governor approves (stage default) | Governor approves (stage default) |
+| 3 | Autonomous (stage default) | Autonomous with notification + reversibility note | Governor approval required |
+| 4 | Autonomous (stage default) | Autonomous with notification | Governor approval required |
+| 5 | Autonomous (stage default) | Autonomous (stage default) | Governor approval + 1-cycle delay (unless time-critical, in which case Governor approval without delay) |
+
+**Implementation by tier:**
+
+- *Tier 0:* The AI explicitly states reversibility assessment before executing autonomous decisions: "Killing TAC-3. Reversibility: partially reversible — bootstrap data retained but external content calendar commitments will lapse. Proceeding autonomously with notification." For irreversible decisions: "Killing TAC-3 would terminate the agency partnership (irreversible). Requesting Governor approval before proceeding."
+- *Tier 1:* Each decision carries a `reversibility` field: `fully_reversible | partially_reversible | irreversible`. The orchestrator assesses reversibility from the tactic specification's dependency fields (§10) — tactics with `dependency_type: external` or actions with external commitments are candidates for irreversible classification. Irreversible decisions are routed to the approval queue regardless of stage.
+- *Tier 2+:* The system learns from historical reversibility assessments. It tracks cases where the orchestrator's reversibility classification proved wrong in retrospect — a decision classified as `partially_reversible` that turned out to be irreversible (external dependency was missed), or vice versa. Over time, this produces reversibility heuristics per tactic type: "Tactics with `dependency_type: external` and partner SLA terms have been misclassified as partially_reversible 3 times — auto-classify as irreversible when these factors are present." The system also tracks Governor overrides of reversibility-based escalations: if the Governor consistently approves irreversible decisions without modification for a specific tactic type, the system can recommend reclassifying that tactic type's default reversibility.
+
+**The orchestrator does not decide reversibility alone.** The tactic specification should declare known irreversibility factors at creation time — "this tactic involves an external partnership that terminates on tactic kill" or "this tactic's actions include sending emails to a customer list." The orchestrator's runtime assessment checks these declarations. If a tactic has no irreversibility declaration, the orchestrator defaults to `partially_reversible` for kills and pivots, `fully_reversible` for parameter adjustments.
+
+#### 6.7.3 Risk-Magnitude Thresholds
+
+**The problem:** The non-delegable list (§6.3) includes "Spend above a defined resource threshold" as a single item. But risk magnitude extends beyond budget — a decision's risk is a function of its resource cost, timeline impact, stakeholder visibility, and external commitment scope. A Stage 4 orchestrator autonomously killing a $500 experimental tactic and autonomously killing a $50,000 flagship tactic face the same autonomy rules if neither crosses the single spend threshold.
+
+**The mechanism:** The Governor defines magnitude thresholds in the operating document. Autonomous decisions exceeding any threshold require Governor approval, regardless of the current stage's default autonomy for that decision type. This generalizes the existing spend threshold into a multi-dimensional risk gate.
+
+**Threshold dimensions:**
+
+| Dimension | What It Measures | Example Threshold |
+|-----------|-----------------|-------------------|
+| Resource cost | Budget or effort consumed by the decision | "Decisions affecting >$5,000 committed spend require approval" |
+| Timeline impact | How much the decision shifts scope-level timelines | "Decisions that delay an objective deadline by >2 weeks require approval" |
+| Stakeholder visibility | Whether the decision is visible to external stakeholders | "Decisions visible to customers, partners, or public audiences require approval" |
+| External commitment | Whether the decision creates or terminates commitments with parties outside the scope | "Decisions that create new external commitments or terminate existing ones require approval" |
+
+**How thresholds interact with stages:** Thresholds are additive constraints on the stage system — they never grant autonomy, only restrict it. At Stage 1-2, all decisions already require approval, so thresholds have no effect. At Stage 3+, thresholds catch high-magnitude decisions that the stage system would otherwise allow autonomously.
+
+**Threshold definition:** Thresholds are declared in the operating document's guardrail section as `autonomy_threshold` entries. They are Governor-defined and Governor-modifiable (following standard OD change rules). The framework provides the dimensions above as a menu; the Governor selects which dimensions matter for the scope and sets values.
+
+- *Tier 0:* The AI checks thresholds before executing autonomous decisions. If any threshold is exceeded, the AI presents the decision for Governor approval with the threshold that triggered escalation: "TAC-3 kill would terminate the agency contract ($12,000 committed). Exceeds resource cost threshold ($5,000). Requesting approval."
+- *Tier 1:* Threshold checks are automated. Decisions exceeding thresholds are routed to the approval queue with threshold metadata: `escalation_reason: resource_cost_threshold, threshold: 5000, actual: 12000`.
+- *Tier 2+:* The system dynamically calibrates threshold recommendations based on decision outcome history. It tracks: (a) how often each threshold triggers escalation, (b) whether the Governor approves or modifies the escalated decision, and (c) whether autonomous decisions that fell just below a threshold later proved problematic. This produces calibration recommendations at strategy review: "Resource cost threshold is $5,000. In the last 10 cycles, 8 decisions were escalated; Governor approved all 8 without modification. Recommend raising threshold to $10,000." Or conversely: "Two autonomous decisions at $4,500 (below threshold) resulted in Governor expressing concern at review. Recommend lowering threshold to $3,000." The Governor decides whether to accept calibration recommendations — the system never auto-adjusts thresholds.
+
+**Relationship to reversibility (§6.7.2):** Reversibility and magnitude thresholds are independent safeguards. A decision can be irreversible but low-magnitude (killing a free-tier tactic with no external dependencies — irreversible but low cost). A decision can be reversible but high-magnitude (committing $50,000 to a new tactic that can be cancelled — reversible but high cost). Both safeguards apply; either can trigger escalation independently.
+
+**Default thresholds:** The framework does not prescribe default values — risk tolerance is domain-specific. A startup scope might set resource_cost at $1,000; an enterprise scope at $100,000. The Governor must set at least one threshold at OD creation. If no thresholds are set, the AI flags this during OD structural integrity checks (§14.3.1) as a gap: "No autonomy magnitude thresholds defined. At Stage 3+, autonomous decisions will have no magnitude constraint beyond the non-delegable list."
+
+#### 6.7.4 Conditional Autonomy Grants `[ROBUST]`
+
+**The problem:** Stage transitions are permanent until the Governor regresses them. But some autonomy should be time-bounded or condition-bounded: "Autonomous for SEO tactics until the Google algorithm update lands, then revert to Stage 2 for SEO decisions until we understand the impact." GOSTA's current regression mechanism is reactive — the Governor regresses after observing problems. There is no mechanism for preemptive autonomy narrowing tied to anticipated environmental changes.
+
+**The mechanism:** The Governor can attach conditions to autonomy grants. When a condition fires, the system automatically narrows autonomy for the specified scope. Conditions are declared in the operating document and checked at each cycle start.
+
+**Condition types:**
+
+| Type | Definition | Example |
+|------|-----------|---------|
+| Time-bounded | Autonomy grant expires at a specified date/event | "Stage 3 autonomy for TAC-1 through TAC-5 expires on April 30. Reverts to Stage 2 approval requirements after that date." |
+| Event-triggered | Autonomy narrows when a specified external event occurs | "If Google releases an algorithm update, revert all SEO tactic decisions to Stage 2 until Governor reviews impact." |
+| Metric-triggered | Autonomy narrows when a metric crosses a threshold | "If customer churn exceeds 5% in any review cycle, all retention tactic decisions revert to Stage 2." |
+| Scope-bounded | Autonomy applies only to a subset of the scope's tactics/strategies | "Stage 4 for content tactics only. All other tactics remain at Stage 3." |
+
+**Condition lifecycle:**
+
+1. **Declaration:** Governor declares conditions in the operating document as `autonomy_condition` entries alongside the scope's graduation stage. Each condition specifies: trigger (what fires it), scope (which decisions are affected), reversion (what stage/approval level to revert to), and expiry (when the condition itself becomes irrelevant and can be removed).
+2. **Monitoring:** The orchestrator checks conditions at each cycle start. Time-bounded conditions are checked against the current date. Event-triggered conditions are checked against incoming signals and Governor reports. Metric-triggered conditions are checked against the latest health computation.
+3. **Firing:** When a condition fires, the system narrows autonomy for the specified decisions and notifies the Governor: "Condition [X] fired. SEO tactic decisions now require Stage 2 approval. Condition was declared on [date] by Governor."
+4. **Resolution:** The Governor resolves a fired condition by either: removing it (autonomy returns to normal stage), modifying it (adjusting the reversion level or scope), or converting it to a permanent stage regression if the underlying concern is long-term.
+
+**Conditional autonomy by tier:**
+
+- *Tier 0:* The AI reads conditions from the OD at session start. If any condition has fired or is approaching (time-bounded within 1 review cycle, metric within 20% of trigger threshold), the AI announces it: "Condition: 'SEO algorithm update' — not yet fired. Google has not announced an update. Monitoring." Or: "Condition: 'April 30 deadline' — fires in 3 days. After that date, TAC-1 through TAC-5 decisions will require approval." When a condition fires, the AI applies the reversion and logs it in the session log.
+- *Tier 1:* Conditions are checked programmatically at each cycle start. Event-triggered conditions are matched against the signal stream — a `market_event` signal matching the condition's event description fires the condition automatically. The system routes affected decisions to the approval queue and notifies the Governor.
+- *Tier 2+:* The system proposes conditions proactively based on environmental monitoring and historical patterns. When external volatility indicators exceed historical norms (e.g., market volatility index spikes, competitor launches detected, regulatory changes announced), the system recommends attaching conditions to high-exposure tactics: "External market volatility has exceeded the 90th percentile for 2 consecutive cycles. Recommend attaching a metric-triggered condition to TAC-7 and TAC-9 (highest external dependency): revert to Stage 2 if portfolio health drops below 50." The system also tracks condition effectiveness over time: how often conditions fire, whether the reversion prevented a bad autonomous decision, and whether conditions expire without ever firing (indicating the Governor may be over-specifying conditions). This produces condition hygiene recommendations at strategy review.
+
+**Interaction with other safeguards:** Conditional grants stack with degraded-mode autonomy (§6.7.1), reversibility (§6.7.2), and magnitude thresholds (§6.7.3). A decision may be constrained by multiple safeguards simultaneously. The most restrictive constraint wins — if the stage says autonomous, but the condition says approval-required, and the degraded-mode says approval-required, the decision requires approval.
+
+**Design boundary:** Conditions do not grant autonomy above the current stage. A condition cannot say "Stage 5 for content tactics" if the scope is at Stage 3. Conditions can only narrow the current stage's autonomy, never widen it. Widening requires formal graduation (§16.11).
+
+---
+
+## 7. Agentic Execution Architecture
+
+This section specifies what a GOSTA implementation actually is — not abstractly, but concretely. A GOSTA implementation is an autonomous agent system that reads the operating document as its instruction set and operates a continuous cycle of plan, execute, measure, recommend, and govern. It is not a dashboard. It is not a project management tool. It is not a form-filling application. It is a reasoning system that acts.
+
+### 7.1 System Components
+
+A running GOSTA implementation consists of five components:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                   OPERATING DOCUMENT                     │
+│  (The Governor's approved strategic logic — the input)   │
+└──────────────────────┬──────────────────────────────────┘
+                       │ reads
+                       ▼
+┌─────────────────────────────────────────────────────────┐
+│                    ORCHESTRATOR                           │
+│  (Reasoning agent — plans, measures, recommends)         │
+│                                                          │
+│  Reads: operating document, signals, health history,     │
+│         domain models, reference materials,              │
+│         memory summaries                                 │
+│  Writes: work plans, health reports, episode summaries,  │
+│          recommendations, operating document drafts      │
+└──────┬──────────────────────────────┬───────────────────┘
+       │ dispatches actions           │ surfaces decisions
+       ▼                              ▼
+┌──────────────┐            ┌────────────────────┐
+│  EXECUTORS   │            │  GOVERNOR INTERFACE │
+│  (Action     │            │  (Review sessions,  │
+│   agents)    │            │   approvals,        │
+│              │            │   decisions)         │
+│  Receives:   │            │                     │
+│  action spec │            │  AI presents:       │
+│  Produces:   │            │  health reports,    │
+│  deliverable │            │  recommendations,   │
+│  + signal    │            │  draft revisions    │
+└──────┬───────┘            │                     │
+       │ emits signals      │  Governor returns:  │
+       ▼                    │  approvals, kills,  │
+┌──────────────┐            │  pivots, revisions  │
+│  DATA STORES │            └────────────────────┘
+│  (Signals,   │
+│   health     │
+│   reports,   │
+│   memory)    │
+└──────────────┘
+```
+
+**Operating Document:** The Governor's approved strategic logic. Contains goals, objectives, strategies, tactics, and initial actions with guardrails at every level. This is a document (not a database) — a reasoning agent reads it holistically and preserves its nuance, intent, and context. One document per scope. Version-controlled.
+
+**Orchestrator:** The central reasoning agent. It reads the operating document and all data stores on every cycle, reasons about the current state, and produces outputs: work plans for executors, health reports for the Governor, recommendations for decisions, and drafts for operating document revisions. The orchestrator does not execute actions — it plans and evaluates. Section 7.2 specifies its execution loop.
+
+**Executors:** Action-level agents that receive task specifications from the orchestrator and produce deliverables. An executor knows what to produce, in what format, by when, and within what constraints. After execution, it emits a signal with completion data. Executors are stateless — they receive their full context from the orchestrator and retain nothing between actions.
+
+**Governor Interface:** The mechanism through which the AI surfaces decisions and the Governor responds. This is not a specific UI — it could be a dashboard, a document with comments, a chat interface, an email digest, or any medium where the AI can present structured recommendations and the Governor can approve, modify, or reject. The interface must support the three modes: authoring (drafts for approval), execution (status visibility), and governance (decision presentation).
+
+**Data Stores:** External durable persistence for signals, health reports, domain models, reference materials, and operating document history. Specified in Section 17. The orchestrator reads from and writes to these stores on every cycle.
+
+#### Deliberation Components (Optional)
+
+When cross-domain evaluation requires structured multi-agent debate (see §14.7 and the Deliberation Protocol), two additional component types activate:
+
+**Coordinator:** A synthesis agent that manages a deliberation round. The Coordinator reads all Domain Agent outputs, identifies disagreements, formulates targeted prompts, and produces synthesis reports. The Coordinator has NO domain model of its own — it synthesizes, it does not advocate. In simple implementations, the Orchestrator plays the Coordinator role. In complex implementations, the Coordinator is a separate agent invoked by the Orchestrator when deliberation is triggered.
+
+**Domain Agents:** Temporary agents, one per domain model, that produce position papers and response papers from their assigned domain's perspective. Domain Agents operate in isolation — they never communicate directly with each other. All inter-agent information flows through the Coordinator. Domain Agents are stateless within a deliberation round (they receive their full context from the Coordinator's prompt) but their outputs persist as artifacts for the Governor and for subsequent rounds. After the deliberation concludes, Domain Agents are discarded — they are not persistent system components.
+
+The Deliberation Protocol (a separate document) specifies the round structure, artifact templates, disagreement classification, groupthink detection, and Governor interaction patterns. The framework's default mode is single-orchestrator (the five components above). Deliberation activates only when the conditions in §14.7 are met.
+
+### 7.2 The Orchestrator Execution Loop `[ADVANCED: conversion funnel tracking, decision batching, WMBT confirmation]`
+
+The orchestrator operates in cycles. Each cycle follows a defined sequence. This is not abstract — this is what the orchestrator does.
+
+**Tier 0 note:** At Tier 0, the "orchestrator" is the AI in conversation. The three cycles below still apply — the AI executes them conversationally within each session, using markdown files as state. The GOSTA-Cowork Protocol is the complete Tier 0 specification of these cycles: session lifecycle (§5), signal emission (§6), health computation (§7), and review cadences (§10). The language below describes cycle mechanics in implementation-neutral terms, but examples like "LOAD from Signal Store" translate to "read the signals/ directory" at Tier 0, and "orchestrator computes health" translates to "AI reads signals and applies the health computation formulas from the Cowork Protocol." The Governor reviews everything in conversation rather than through a dashboard.
+
+**Cadence note:** The three cycles below correspond to the three review levels: action review, tactic review, and strategy review (see Section 6.4). The labels "weekly," "monthly," and "quarterly" are illustrative defaults for a typical business scope. The Governor defines the actual cadences in the operating document. A 90-day hiring sprint might run action cycles daily, tactic cycles weekly, and strategy cycles bi-weekly. What matters is the nesting: action cycles run inside tactic cycles, which run inside strategy cycles.
+
+**Bootstrap mode:** When a tactic first activates, it has no signal history and no metrics. The orchestrator operates in **bootstrap mode** for the tactic's first N action cycles (defined by the `bootstrap_cycles` field in the Tactic Specification Template, Section 10). During bootstrap mode:
+- The orchestrator executes seed actions from the tactic specification without waiting for signal-driven optimization.
+- Kill condition assessment is suspended — the tactic cannot be killed for insufficient metrics when insufficient time has passed to generate metrics. However, guardrail violations are still enforced immediately.
+- The orchestrator logs that bootstrap mode is active and reports the remaining bootstrap cycles in status reports.
+- After bootstrap mode ends, the orchestrator transitions to normal signal-driven operation and kill condition assessment begins.
+Bootstrap mode prevents premature kills during the cold start period when no data exists. The Governor can override bootstrap mode and trigger early assessment if warranted.
+
+**Kill during bootstrap exception.** Although kill condition assessment is suspended during bootstrap, a tactic may still be killed during bootstrap for exactly two reasons: (1) a hard guardrail violation (§5.1) — guardrails are enforced immediately regardless of bootstrap status, and (2) a Governor explicit kill order — the Governor retains authority to kill any tactic at any time. In both cases, the kill is logged with `kill_context: during_bootstrap` and the structural memory transfer notes that the tactic's hypothesis was never tested (insufficient data for hypothesis evaluation).
+
+**Bootstrap calibration for compressed timelines.** The default bootstrap period (typically 2-3 cycles; template default is 3) is calibrated for scopes with multi-month timelines. For scopes with compressed timelines (e.g., a 90-day sprint where 2 bootstrap cycles consume 20%+ of the timeline), the Governor may reduce bootstrap to 1 cycle for tactics with strong priors. A prior qualifies as "strong" when at least one of: (a) the hypothesis appears in the domain model's validated hypothesis library with prior successful application, (b) the tactic design is drawn directly from a previous scope's structural memory transfer with confirmed outcomes, or (c) the Governor attests to established domain norms based on direct experience and documents the basis in the decision log. *Note on path (c): the attestation path requires the Governor to document their basis in the decision log, making it auditable; however, the soundness of the Governor's domain judgment is inherently their responsibility and outside spec control. Paths (a) and (b) are system-verifiable; path (c) is a documented Governor assertion.* The trade-off is earlier data availability and decision-making at the cost of less noise-smoothing in early metrics. The `bootstrap_cycles` field in the tactic specification accommodates this — the Governor sets it at scope creation based on timeline pressure and prior confidence.
+
+#### Action Cycle (Execution + Reporting)
+
+```
+TRIGGER: Scheduled (at action review cadence) or event-driven
+  (action completion, blocker escalation, guardrail near-violation)
+
+STEP 1 — LOAD CONTEXT
+  Read: operating document summary (Section 18.4)
+  Read: all signals since last cycle (from Signal Store)
+  Read: latest tactic episode summaries (from Health Report Store)
+  Read: domain model summaries (from Domain Model Store)
+  Read: last 5 decision log entries
+
+STEP 2 — CHECK ACTIVATION SCHEDULE
+  If any strategies have activation schedules (sequential A/B):
+    - Determine which strategy is currently active based on schedule
+    - Skip work plan generation for inactive strategies
+    - On strategy transition day: log the transition, snapshot current
+      state as the outgoing strategy's final metrics, note inherited
+      state for the incoming strategy
+
+STEP 3 — ASSESS CURRENT STATE
+  For each active tactic:
+    - Count actions completed vs. planned
+    - Compute metric values from signals
+    - Compare current metrics to kill condition thresholds
+    - Separate tactic effectiveness from input availability
+      (Section 4.4) for mixed-dependency tactics
+    - Flag any guardrail violations or near-violations
+      (near-violation = within 80% of guardrail threshold, §5.3).
+      Near-violations are surfaced in the status report as informational
+      warnings; they do NOT automatically trigger event-triggered reviews
+      (§7.9). Actual violations (100% threshold breach) do trigger
+      event-triggered review per §7.9 rules.
+    - Flag any cross-domain signal conflicts (Section 4.5)
+    - Process guardrail violations [ROBUST]: for each flagged violation:
+      (a) Determine severity from guardrail spec (hard | soft, §5.1).
+      (b) If hard: escalate immediately, halt violating action, trigger
+          event-triggered review (§7.9).
+      (c) If soft AND Stage 1-2: escalate to Governor (no auto-recovery
+          at these stages; recovery specs are forward commitments for
+          Stage 3+, per §21.8).
+      (d) If soft AND Stage 3+ AND has recovery spec: validate recovery
+          against inherited hard constraints (§5.2 static validation).
+          If result = safe: apply recovery via normal action dispatch,
+          log as guardrail_recovery: {guardrail_id, violation_description,
+          recovery_applied, timestamp} in decision log. Begin reversal
+          tracking (§5.2). Governor notified in next status report but
+          NOT gated. If result = blocked: escalate to Governor with
+          explanation "Soft constraint [X] breached; recovery violates
+          hard constraint [Y]." If Governor is unavailable per §7.7
+          escalation protocol, safe default = treat as hard constraint
+          (halt violating action, preserve state, resume when Governor
+          responds). Rationale: a blocked recovery means the recovery
+          path itself conflicts with a hard constraint — the only safe
+          action is to stop and wait.
+      (e) If soft AND no recovery spec: treat as hard (escalate
+          immediately). This condition should have been caught at OD
+          validation (§21.8) but is handled defensively at runtime.
+    - Evaluate event-triggered review conditions (Section 7.9):
+      if a trigger condition is met, escalate to the appropriate
+      review cycle (tactic or strategy) before proceeding to Step 4
+  For each active A/B test:
+    - Compare variant metrics on shared measurement
+    - Assess statistical significance (or practical significance
+      for small sample sizes)
+
+STEP 4 — GENERATE WORK PLAN
+  For each active tactic:
+    - Determine which actions are due this cycle
+    - Generate action specifications for new actions needed
+    - Sequence actions respecting dependencies
+    - Check action preconditions [ROBUST]: for each action with
+      declared preconditions (§21.7), evaluate each condition
+      against current state. If any precondition is false, exclude
+      the action from this cycle's work plan and log as
+      precondition_not_met: {action_id, precondition, current_value}
+      in the decision log. Deferred actions are re-evaluated next cycle.
+      Precondition deferral timeout [ROBUST]: if an action's precondition
+      remains unmet for 3 consecutive action cycles (or a Governor-defined
+      timeout), escalate to Governor: "Action [X] deferred [N] cycles
+      due to unmet precondition [Y]. Governor decision: wait, cancel,
+      or substitute." The Governor's response is logged in the decision
+      log. If the Governor chooses "wait," the timeout counter resets
+      and the escalation will not repeat until another 3 cycles pass.
+      If the Governor does not respond, apply the Governor non-response
+      protocol (§7.7). Default timeout: 3 cycles.
+      Precondition override [ROBUST]: the Governor may override a
+      precondition deferral by issuing a precondition_override decision
+      with justification (e.g., "install sensor and pump in parallel,
+      test together"). The override is logged in the decision log as
+      decision_type: precondition_override with {action_id, precondition,
+      justification, governor_id}. The action proceeds immediately.
+      At scope conclusion or when the action completes, the orchestrator
+      re-evaluates whether the overridden precondition was met by then
+      and logs the outcome: override_validated (precondition became true
+      before or during execution) or override_risk_accepted (precondition
+      never became true; Governor accepted the consequence). Override
+      outcomes feed structural memory for future precondition calibration.
+      Mid-execution precondition failure [ADVANCED]: if a precondition
+      becomes false after dispatch but before completion (e.g., an
+      external API becomes unavailable), the executor emits a blocker
+      signal. The orchestrator surfaces it in the next action cycle
+      status report and the Governor decides: wait for restoration,
+      cancel the action, or substitute an alternative.
+    - Assign to executors (or flag human creative dependencies)
+    - Validate each action against inherited guardrail chain
+    - Select relevant reference materials from Reference Pool
+      (by tactic/strategy scope and action type) and attach
+      to each action specification
+  STEP 4b — CHECK RESOURCE CEILING [ROBUST]
+    If the Governor has declared a capacity constraint (e.g.,
+    "10 hrs/week available for review and input"), sum the
+    estimated Governor-hours across ALL tactics in this cycle's
+    work plan. If total exceeds the declared ceiling:
+      - Rank work items by urgency (guardrail-related first,
+        then kill-deadline-proximate, then highest ALLOCATION_WEIGHT)
+      - Trim the plan to fit within the ceiling
+      - Log trimmed items as `deferred_capacity` with reason
+      - Surface the capacity shortfall in the status report:
+        "[N] items deferred — Governor capacity [X hrs] exceeded
+        by [Y hrs]. Deferred items will queue for next cycle."
+    If no capacity constraint is declared, skip this step.
+    Note: capacity constraints are declared in the operating
+    document's Governor profile section and propagate to all
+    scopes the Governor oversees. In multi-scope configurations,
+    the orchestrator sums across scopes before checking.
+
+  Output: work plan (list of action specifications for this cycle,
+    each with attached reference material pointers)
+
+STEP 5 — GENERATE STATUS REPORT
+  Summarize: what happened since last cycle, what's on track,
+    what's at risk, what needs Governor attention
+  Flag: any items requiring Governor decision before next cycle
+    (blockers, escalations, near-violations)
+  Output: action cycle status report for Governor interface
+
+STEP 6 — DISPATCH AND WRITE
+  Dispatch: action specifications to executors
+  Write: episode summaries for each tactic to Health Report Store
+  Write: status report to Governor interface
+  Write: any flagged items to escalation queue
+```
+
+#### Tactic Cycle (Health Computation + Tactic Decisions)
+
+```
+TRIGGER: Scheduled (at tactic review cadence) or tactic kill condition threshold reached
+
+STEP 1 — LOAD CONTEXT
+  Read: everything from action cycle, PLUS:
+  Read: full health reports for all active tactics (last 3-4 cycles)
+  Read: full kill condition definitions for each tactic
+  Read: A/B test definitions and decision rules
+
+STEP 2 — COMPUTE TACTIC HEALTH
+  For each active tactic:
+    - Aggregate signal data since last tactic review
+    - Compute hypothesis status: holding / weakening / disproven
+    - Evaluate kill condition: met / approaching / clear
+    - Compute trend: improving / flat / declining
+    - For A/B pairs: compare variants on shared metric
+    - For mixed-dependency tactics: separate effectiveness from
+      input availability (Section 4.4)
+    - Classify underperformance source (Section 6.5):
+      capability_issue / autonomy_issue / mixed / not_applicable
+      (only when hypothesis status is weakening or disproven)
+    - Detect intra-tactic signal divergence (Section 4.1):
+      if leading indicators diverge directionally, diagnose cause
+      and populate signal_divergence field in health report
+    - [ADVANCED] If objective metric requires multi-stage conversion
+      beyond tactic's direct output: track and report conversion funnel
+      stages as context (informational, does not change hypothesis
+      status). Flag funnel bottlenecks separately from tactic health.
+  Output: tactic health report per tactic (including diagnostic
+    classification when underperforming, signal divergence when
+    detected, and conversion funnel context when applicable)
+
+STEP 3 — GENERATE RECOMMENDATIONS
+  For each tactic:
+    - Recommend: kill / pivot / persevere
+    - Provide evidence: which signals, which trends, which
+      comparisons support this recommendation
+    - If pivot: suggest specific changes (drawn from domain model
+      hypothesis library if available)
+    - If kill: identify resource reallocation options
+  For the tactic portfolio as a whole:
+    - Identify any strategies with all tactics failing
+    - Flag for potential strategy-level escalation at next strategy review
+  Output: recommendation report for Governor
+
+STEP 4 — DRAFT OPERATING DOCUMENT UPDATES
+  Based on recommendations:
+    - Draft tactic status updates for the operating document
+    - Draft new tactic specifications if pivoting
+    - Draft decision log entries for each recommendation
+    - Draft revised kill conditions if data suggests recalibration
+  Output: proposed operating document revision (track changes)
+
+STEP 5 — DECIDE AND PRESENT [stage-conditional]
+
+  Stage 1-2:
+    Present ALL recommendations to Governor via interface:
+      - Tactic health reports
+      - Recommendations with evidence
+      - Proposed operating document changes
+      - Any cross-domain conflicts requiring interpretation
+    WAIT for Governor decisions on all items.
+
+  Stage 3:
+    Auto-execute tactic-level decisions where the recommendation is
+    unambiguous AND non-escalating:
+      - Kill: auto-execute if kill condition is formally met (status =
+        "met" per §20.3) AND no pivot_override history exists for this
+        tactic AND kill_requires ≠ governor_approval (§10). Tactics
+        with kill_requires: governor_approval are ALWAYS escalated to
+        Governor regardless of stage. Log as decision_source:
+        orchestrator_autonomous.
+      - Pivot: auto-execute if the pivot stays within the approved
+        strategy scope (same strategy, same objective). Log as
+        decision_source: orchestrator_autonomous.
+      - Persevere: auto-execute (no approval needed). Log.
+      - Rebalance (intra-strategy ALLOCATION_WEIGHT): auto-execute
+        based on signal evidence. Log.
+    Present to Governor only:
+      - Recommendations the orchestrator cannot auto-execute (ambiguous
+        kill conditions, strategy-level escalations, cross-domain
+        conflicts, guardrail tightening requests)
+      - Summary report of all autonomous decisions since last review (logged concurrently per §8.2.2)
+    WAIT for Governor decisions on presented items only.
+
+  Stage 4-5:
+    Auto-execute ALL tactic-level decisions:
+      - Kills, pivots, persevere, rebalance — all autonomous within
+        approved strategy scope. Exception: tactics with kill_requires:
+        governor_approval (§10) are escalated to Governor for kill
+        decisions even at Stage 4-5. Log as decision_source:
+        orchestrator_autonomous.
+      - Generate new tactics within approved strategies (Stage 4+).
+    Present to Governor only:
+      - Strategy-level assessments and recommendations
+      - Non-delegable decisions (§6.1): strategy kill/pivot, objective
+        revision, guardrail changes, graduation proposals
+      - Summary report of all autonomous decisions (logged concurrently per §8.2.2)
+    WAIT for Governor decisions on presented items only.
+
+STEP 6 — APPLY DECISIONS
+  For each decision (whether Governor-issued or orchestrator-autonomous):
+    - Apply kills (wind down tactic, stop actions)
+    - Apply pivots (update tactic spec, generate new actions)
+    - Apply persevere decisions (continue, possibly adjust resources)
+    - Update operating document with changes
+    - Write decision log entries with decision_source field:
+      governor | orchestrator_autonomous
+    - Update episode summaries and health reports
+  After applying kills:
+    - If no pending tactics remain under the active strategy,
+      trigger the Tactic Exhaustion Protocol (Section 7.8)
+```
+
+#### Strategy Cycle (Strategy Assessment + Portfolio Rebalancing)
+
+```
+TRIGGER: Scheduled (at strategy review cadence)
+
+STEP 1 — LOAD CONTEXT
+  Read: everything from tactic cycle, PLUS:
+  Read: full strategy specifications and what-must-be-true conditions
+  Read: all tactic health reports since last strategy review
+  Read: strategy-level A/B test definitions
+  Read: domain model sections relevant to strategy assessment
+  Read: previous strategy episode summaries (last 2-3 strategy cycles)
+  [ROBUST] Read: environmental watch list (§7.14) and any environmental
+  signals emitted since last strategy review
+
+STEP 1b — ENVIRONMENTAL WATCH LIST CHECK [ROBUST] (§7.14)
+  For each entry on the environmental watch list whose check_cadence
+  aligns with strategy review:
+    - Check current state of the monitored condition
+    - Compare against change_threshold
+    - If threshold exceeded: emit environmental signal with appropriate
+      severity (informational / significant / critical)
+    - If severity = critical: flag for immediate attention in STEP 3
+  This step makes environmental monitoring a scheduled part of the
+  strategy cycle rather than relying solely on event-triggered detection.
+
+STEP 2 — COMPUTE STRATEGY HEALTH
+  [ROBUST] Skip paused strategies (Section 4.3) — no health computation,
+  no review. List paused strategies in the status summary for Governor
+  awareness.
+  For each active strategy:
+    - Assess each what-must-be-true condition: assumed / holding / at risk / falsified / confirmed
+      [ADVANCED] (When a condition transitions to "confirmed" — strong
+      supporting evidence, no contradictory signals — surface this as a
+      positive event in the strategy health report. Confirmation events
+      reinforce Governor engagement and validate strategic reasoning.)
+    - Aggregate tactic portfolio health: how many active, killed, [ROBUST: completed, paused,] succeeding
+    - Evaluate strategy-level kill signal conditions
+    - For strategy-level A/B tests: compare approaches on shared metric
+    - Assess resource allocation efficiency across tactics
+  For each objective:
+    - Compute metric progress toward threshold
+    - Evaluate trend: on track / at risk / off track
+  Output: strategy health reports, objective progress reports
+
+  Guardrail evaluation ordering (§5.4): Check mechanical guardrails
+  first (deterministic threshold comparison). Then evaluate interpretive
+  guardrails. Mechanical violations are unconditional — they produce halt
+  or recovery regardless of other context. Interpretive violations may
+  require contextual judgment and carry epistemic classification (§14.3.8).
+
+STEP 2b — SEMANTIC COHERENCE CHECK (§8.1)
+  Tier note: Core invariants (C1-C3) apply at all tiers including Tier 1.
+  Cross-entity invariants (R1-R4) and reconciliation require [ROBUST].
+  Advanced invariants (A1-A2) require [ADVANCED].
+  Run semantic coherence validation against current OD state:
+    - Core invariants (C1-C3): kill condition evaluability, allocation
+      arithmetic, temporal ordering. C1 failures are blocking — flag
+      for immediate attention in STEP 3.
+    - Cross-entity invariants (R1-R4): hypothesis-domain coherence,
+      WMBT-objective alignment, guardrail consistency, guardrail
+      inheritance compatibility. Flags are informational.
+    - [ADVANCED] Advanced invariants (A1-A2): WMBT-kill condition
+      coupling, cross-domain concept consistency.
+  Run reconciliation check (§8.2.3):
+    - Forward: decisions since last strategy review → verify state reflects them
+    - Reverse: current state → verify each element has authorization
+    - Parameter drift: compare decision parameters vs current values
+  Include coherence and reconciliation results in strategy health reports.
+  Coherence flags inform STEP 3 recommendations (e.g., a strategy with
+  a falsified WMBT AND a drifted parameter may warrant a stronger kill
+  recommendation than either issue alone).
+  Implementation by tier:
+    - Tier 0: The AI runs coherence checks mentally during the strategy
+      review conversation. C1-C3 are checked for all systems. R1-R4 and
+      reconciliation are checked if the system has adopted [ROBUST]
+      features. Results are reported conversationally alongside health
+      reports. This adds ~5 minutes to the strategy review.
+    - Tier 1: Automated coherence checks run as part of the health
+      computation pipeline. C1-C3 are deterministic code checks. R1-R4
+      produce structured flags in the health report. Reconciliation
+      queries the decision log and OD store programmatically.
+    - Tier 2+: Coherence checks run continuously (not just at strategy
+      review). Drift detection triggers mid-cycle alerts. Historical
+      coherence patterns feed back into domain model calibration.
+
+STEP 3 — GENERATE STRATEGIC RECOMMENDATIONS
+  For each strategy:
+    - Recommend: kill / pivot / persevere
+    - If a what-must-be-true is falsified: recommend kill with evidence
+    - If all tactics failed: recommend kill or fundamental pivot
+    - If strategy is succeeding: recommend expansion or new tactics
+  For the portfolio as a whole:
+    - Recommend resource reallocation across strategies
+    - Propose new strategies if killed strategies leave gaps
+    - Propose objective threshold revisions if data warrants
+
+  DELIBERATION ESCALATION CHECK:
+    If the recommendation touches 3+ domain models AND any of:
+      (a) multi-domain consultation (§14.7) produced materially different
+          per-domain recommendations, OR
+      (b) Governor has flagged this decision type as deliberation-required
+          in the operating document, OR
+      (c) the decision is high-stakes (strategy kill, objective revision,
+          resource reallocation across strategies)
+    THEN: invoke the Deliberation Protocol instead of producing an
+    inline recommendation. The orchestrator plays the Coordinator role
+    (or dispatches to a separate Coordinator agent). Domain Agents are
+    spawned per §7.1 Deliberation Components. The Synthesis Report
+    replaces the orchestrator's inline recommendation for this decision.
+    If none of these conditions are met, the orchestrator produces its
+    recommendation inline as normal (single-agent default).
+
+  Output: strategic recommendation report (or Deliberation Synthesis Report)
+
+STEP 4 — DRAFT COMPREHENSIVE OPERATING DOCUMENT REVISION
+  Based on recommendations:
+    - Draft strategy status updates
+    - Draft new strategy proposals if pivoting (with rationale,
+      what-must-be-true, kill signals — drawn from domain models)
+    - Draft revised objective thresholds if recalibrating
+    - Draft new tactic proposals under new or expanded strategies
+    - Update baselines with current actual values
+    - Draft decision log entries for all recommendations
+  Output: proposed operating document revision (full strategy cycle update)
+
+STEP 5 — STRUCTURAL MEMORY TRANSFER (three vectors, Section 18.2.3)
+  Vector 1 — Internal failure learning:
+    - Review killed tactics and disproven strategies from this cycle
+    - Identify recurring failure patterns across kills
+    - Draft new anti-patterns, mark disproven hypothesis templates,
+      calibrate failure norms
+  Vector 2 — Internal success learning:
+    - Review successful tactics (hypothesis holding/exceeded) and
+      A/B test winners from this cycle
+    - Identify validated approaches that should be promoted from
+      theoretical to proven
+    - Draft validated hypothesis templates with performance evidence,
+      refine quality principles based on what "good" looked like,
+      calibrate success norms
+  Vector 3 — External knowledge acquisition:
+    - Review knowledge_flag signals emitted by executors during
+      action execution (new research, industry changes, competitor
+      approaches discovered during work)
+    - Review quality principle violations that don't match known
+      anti-patterns (signals domain model incompleteness)
+    - Incorporate any Governor-provided reference material
+      (from Reference Pool — items with source: governor_upload
+      added since last strategy review)
+    - Draft new core concepts, untested hypothesis templates
+      (sourced externally), updated quality principles
+  Produce domain model change proposals for all three vectors per
+  the schema in Section 17.2.3 (evolution protocol): each proposal
+  specifies the component, action, content, evidence, and which
+  vector sourced it.
+  Output: domain model change proposals (status: proposed)
+
+STEP 6 — PRESENT TO GOVERNOR
+  Surface via Governor interface:
+    - Strategy health reports
+    - Objective progress reports
+    - Strategic recommendations with evidence
+    - Proposed operating document revision
+    - Domain model change proposals with evidence (MANDATORY: all proposals
+      with status "proposed" from any prior cycle that have not yet been
+      approved or rejected MUST be included — the Governor cannot decide
+      on proposals it has never seen)
+    - [ROBUST] Cross-domain conflict diagnosis, with canonical IDs
+      (XD-{year}-{NNN}) for all unresolved conflicts (MANDATORY: all
+      unresolved conflicts must be listed by canonical ID so the
+      Governor can cite them in resolve_conflict decisions)
+  Governor response MUST include a "domain_model_decisions" array with an
+  entry (approved: true/false) for every pending proposal presented.
+  [ADVANCED] Decision batching guidance: present decisions in groups for Governor
+    processing — (1) strategy kill/pivot/persevere/pause decisions first,
+    (2) operating document revisions second, (3) domain model change
+    proposals third. Domain model proposals may optionally be deferred
+    to a separate short session within the same review cadence if the
+    Governor's decision fatigue risk is high (many proposals + many
+    strategy decisions in the same review). *Note: "may optionally
+    defer" is the Governor's call — the system provides the grouped
+    presentation and signals the volume, but the Governor decides
+    when to stop reviewing and defer the remainder. This is a
+    Governor judgment that the spec intentionally does not automate.*
+  WAIT for Governor decisions
+
+STEP 7 — APPLY GOVERNOR DECISIONS
+  Apply all approved changes to operating document and data stores.
+  For approved domain model change proposals: create new domain model
+  version with changes applied, increment version number, link to
+  predecessor version (Section 17.2.3). Multiple approved proposals
+  may be batched into a single version increment.
+  Update version history. Write decision log entries.
+```
+
+#### Execution Loop ROBUST Feature Implementation by Tier
+
+Several ROBUST features within the execution loops (§7.2 Steps 4a, 4b, Tactic Cycle, Strategy Cycle) lack tier-specific implementation guidance. This section consolidates it.
+
+**Precondition validation, deferral, and override (Step 4a):**
+
+- *Tier 0:* The AI evaluates preconditions conversationally before proposing actions. "TAC-2 requires TAC-1 output — TAC-1 is still in bootstrap. Deferring TAC-2 actions this cycle." The AI tracks deferral count in the bootstrap's "Tier 0 State Persistence" section. After 3 cycles, the AI raises the escalation: "TAC-2 has been deferred 3 cycles. Options: wait, cancel, or substitute." Governor override is logged in the decision log during conversation.
+- *Tier 1:* Preconditions are declared in the tactic spec as structured conditions (`precondition: {type: tactic_complete | metric_threshold | external_state, target: [id], value: [condition]}`). The orchestrator evaluates preconditions programmatically before generating the work plan. Deferred actions are tracked in a `precondition_deferral` table with `{action_id, precondition_id, cycles_deferred, first_deferred_date}`. Timeout escalation is triggered by a scheduler query. Override decisions are applied through the standard decision API with `decision_type: precondition_override`.
+- *Tier 2+:* Precondition evaluation includes predictive estimation: "TAC-1 is projected to complete in 2 cycles based on current progress — TAC-2 deferral is likely to resolve naturally." The system also tracks precondition override outcomes across the scope's history: "Of 8 precondition overrides in this scope, 5 were validated and 3 required risk acceptance. Current override pattern is [conservative | aggressive]."
+
+**Resource ceiling and capacity management (Step 4b):**
+
+- *Tier 0:* The AI estimates Governor-hours for each work item and sums them in conversation. If the total exceeds the declared ceiling, the AI proposes a trimmed plan with priority ranking. The Governor approves the trimmed plan or adjusts.
+- *Tier 1:* Each action spec includes an `estimated_governor_hours` field. The work plan generator sums across all tactics and checks against the OD's `governor_capacity` field. Over-ceiling items are auto-deferred by priority rank, with the deferred list included in the status report. In multi-scope deployments, the governor capacity check sums across all scopes before evaluating.
+- *Tier 2+:* Capacity management becomes predictive. The system projects Governor workload for the next 2-3 cycles based on upcoming reviews, kill deadlines, and A/B decision dates. If a workload spike is projected (e.g., 3 kill deadlines converging in the same week), the system recommends preemptive action: "Recommend moving TAC-5 tactic review to next week to avoid 4 concurrent decision points."
+
+**Allocation rebalancing (§4.3):**
+
+- *Tier 0:* The AI proposes rebalanced weights in conversation after a kill or pivot. The Governor approves. The AI updates the OD with new weights summing to 1.0.
+- *Tier 1:* Rebalancing is triggered programmatically when a tactic enters a terminal state. The system computes the rebalanced weights (redistributing the killed tactic's weight proportionally to surviving tactics) and presents as a draft decision for Governor approval. Renormalization is a mathematical operation, not AI reasoning.
+- *Tier 2+:* Rebalancing includes impact simulation: "Redistributing TAC-3's 0.3 weight to TAC-1 (0.15) and TAC-2 (0.15) would increase TAC-1's projected resource allocation from X to Y. Historical data suggests TAC-1's performance improves linearly with resources up to allocation 0.5." The Governor sees the projected impact before approving.
+
+### 7.3 The Executor Execution Loop
+
+Executors are simpler than the orchestrator. They receive, execute, and report.
+
+```
+TRIGGER: Action specification dispatched by orchestrator
+
+STEP 1 — LOAD CONTEXT
+  Read: action specification (deliverable, deadline, constraints)
+  Read: parent tactic hypothesis and success metrics
+  Read: parent strategy rationale summary and approach constraints
+  Read: inherited guardrail chain (full — from goal through tactic)
+  Read: relevant domain model quality principles and anti-patterns
+  Read: reference materials specified in the action specification
+    (from Reference Pool — source articles, brand guides, templates,
+    prior deliverables, or other raw materials the orchestrator
+    selected for this action)
+
+STEP 2 — VALIDATE
+  Check: does the action specification violate any inherited guardrail?
+  Check: does the executor have all inputs needed to produce the
+    deliverable?
+  If violation or missing input: ESCALATE to orchestrator. Do not execute.
+
+STEP 3 — EXECUTE
+  Produce the deliverable within constraints.
+  Apply domain model quality principles as the quality gate.
+  Check output against domain model anti-patterns.
+  Use reference materials as source/grounding for the deliverable.
+
+STEP 4 — EMIT SIGNAL
+  Write signal to Signal Store with full attribution:
+    action_id, tactic_id, strategy_id, objective_id, goal_id,
+    status (complete/blocked/failed),
+    completion_time,
+    deliverable_reference,
+    blocker_description (if any),
+    resource_consumed,
+    dependency_type,
+    quality_self_assessment (based on domain model principles)
+  If deliverable has lasting reference value:
+    Write deliverable to Reference Pool (item_type: prior_deliverable,
+    scoped to the parent tactic)
+  If external domain-relevant material was discovered during execution:
+    Write to Reference Pool (source: executor_discovery)
+    Emit knowledge_flag signal if the material suggests domain model
+    changes (Section 7.4)
+```
+
+### 7.4 Signal Specification `[ADVANCED: milestone signals]`
+
+Signals are the data that flows upward through the hierarchy. Every signal carries full attribution so any signal can be traced back to its origin.
+
+**Action signals:** status (complete/blocked/failed), completion_time, deliverable_reference, blocker_description, resource_consumed, dependency_type (execution/external/human_creative). Executors may also emit a `knowledge_flag` signal when they encounter domain-relevant external information during action execution — a new industry report, a competitor approach, a regulatory change. **Relevance criteria for knowledge flag emission:** an executor should emit a knowledge flag ONLY when the discovered material meets at least one of: (a) it contradicts an existing domain model entry (core concept, quality principle, or hypothesis), (b) it provides evidence for or against a hypothesis in the domain model's hypothesis library, (c) it describes a failure pattern or success pattern not covered by any existing anti-pattern or quality principle, or (d) it reveals an external change (regulatory, competitive, market) that materially affects a strategy's what-must-be-true conditions. If none of these apply, the executor stores the material in the Reference Pool for potential future use but does NOT emit a knowledge flag — this prevents signal noise from low-relevance discoveries. Knowledge flags are collected in the Signal Store and reviewed during structural memory transfer at the next strategy review (Section 19.8, Vector 3).
+
+**Tactic signals (computed by orchestrator):** hypothesis_status (holding/weakening/disproven), metric_current_vs_target, actions_completed_vs_planned, a_b_variant, resource_burn_rate, recommended_decision (kill/pivot/persevere), human_creative_input_rate (planned vs. received — see Section 4.4), effectiveness_adjusted (metrics computed only over actions that received required inputs).
+
+**Strategy signals (computed by orchestrator):** approach_validation_status (confirmed/uncertain/disproven), what_must_be_true_status (per condition: assumed/holding/at_risk/falsified; aggregate: all_holding/some_at_risk/any_falsified), tactic_portfolio_health (how many tactics active/killed/succeeding), resource_allocation_efficiency, recommended_decision (kill/pivot/persevere at strategy level).
+
+**Objective signals (computed by orchestrator):** metric_value, metric_trend (improving/flat/declining), strategies_active, strategies_killed, tactics_active, tactics_killed, portfolio_health_score.
+
+**Milestone signals** — emitted when an external event directly affects an objective metric, independent of any specific action currently in execution. Examples: offer acceptance or rejection, contract signing, regulatory approval, delivery confirmation. Milestone signals use the standard signal schema with the following additions: `signal_type: milestone`, `source: external_milestone`, `tactic_id: originating_tactic | null` (the tactic whose actions led to this milestone, for attribution; `null` when the event is organic — see below), `action_id: null` (no originating action), `milestone_type: [domain-specific event type]`. Milestone signals flow to the objective level for progress tracking while maintaining tactic attribution (when available) for health computation and cost accounting.
+
+**Organic / unattributed milestone signals.** When a milestone event occurs that cannot be attributed to any tactic in the current portfolio (e.g., an inbound referral from outside the tactic hierarchy, a client who found the Governor through channels not covered by any strategy), set `tactic_id: null` and `source: organic`. Organic milestones count toward objective metrics but are excluded from individual tactic health computation and A/B comparisons. In structural memory transfer, organic milestones are logged as a separate category — they indicate the objective is being served by forces outside the tactic portfolio, which is useful signal for future scope design (the Governor may want a tactic that deliberately cultivates the organic channel in the next scope). The orchestrator generates milestone signals when external events are detected or reported by the Governor. **Milestone signals for killed or killed_winding_down tactics:** these are still attributed to the originating tactic for cost accounting and contribute to objective-level progress metrics, but they do not affect the tactic's hypothesis status or the kill decision. If a pattern of positive milestone signals arrives after a kill (suggesting the kill was premature), the orchestrator logs this as an episodic learning note for future tactic design — it does not automatically resurrect the tactic.
+
+**Stakeholder interaction signals** `[ROBUST]` — emitted when interactions occur between the human participants who are the *subjects* of the objective (contributors, customers, students, community members), as distinct from the Governor↔AI axis. These signals capture dynamics the framework otherwise cannot see: contributor-to-contributor mentoring, community conflict, informal collaboration, or social dynamics that affect objective metrics but originate outside any tactic. Schema: `signal_type: stakeholder_interaction`, `interaction_type: collaboration | conflict | mentoring | disengagement | governance_act`, `participants: [list]`, `tactic_id: originating_tactic | null`, `impact_assessment: positive | negative | neutral | unknown`, `description: [free text]`. Stakeholder interaction signals are generated by the orchestrator when: (a) a Governor reports an interaction during a review, (b) an executor observes interaction evidence during action execution (e.g., a heated discussion in a forum, a contributor helping another contributor), or (c) an absence signal (see below) suggests disengagement that may be interpersonal. These signals feed into tactic health computation as contextual factors — a tactic showing declining metrics alongside `conflict` stakeholder signals has a different diagnosis than one with declining metrics and no interaction signals. At strategy review, the orchestrator presents stakeholder interaction patterns as a separate section of the health report. The Governor decides whether to act on interpersonal dynamics (which is a judgment call — the framework surfaces the signal, the Governor decides the response).
+
+**Absence signals** `[ROBUST]` — emitted by the orchestrator when an expected event fails to occur within a defined window. All other signal types are emission-based (something happens, signal fires). Absence signals invert this: the orchestrator maintains an `expected_events` register (populated from domain models, tactic hypotheses, and historical patterns) and checks at each action cycle whether expected events have occurred. If an expected event's window expires without the event occurring, the orchestrator emits an absence signal: `signal_type: absence`, `expected_event: [description]`, `window: [start–end]`, `source: [tactic_id or scope]`, `severity: early_warning | significant | critical`. Severity is determined by the event's relationship to tactic health: `early_warning` if the event is a leading indicator, `significant` if it directly affects a metric, `critical` if its absence implies disengagement or loss (e.g., a previously active contributor stops responding). Absence signals are particularly important in domains involving human participants (volunteers, customers, students) where disengagement is silent — the person simply stops showing up. The `expected_events` register is seeded from domain model patterns (e.g., "active contributors typically submit at least 1 PR per 2 weeks") and refined as the system accumulates data. The Governor may add custom expected events to the operating document.
+
+**Environmental signals** `[ROBUST]` — emitted when a condition on the environmental watch list (§7.14) changes beyond its defined threshold. Schema: `signal_type: environmental`, `condition_id: [watch list entry ID]`, `previous_state: [last observed value or state]`, `current_state: [new observation]`, `source: [monitoring method — manual_governor | automated_api | executor_discovery | scheduled_search]`, `affected_entities: [list of goal_id, strategy_id, or wmbt_id affected]`, `severity: informational | significant | critical`. Environmental signals are distinct from knowledge_flag signals: knowledge flags capture unexpected discoveries during action execution; environmental signals capture expected-category changes detected through systematic monitoring. A knowledge flag may trigger the creation of a new environmental watch list entry; an environmental signal fires from an existing entry. Environmental signals with `severity: critical` trigger event-triggered reviews (§7.9). All environmental signals feed into goal health computation (§20.12) as inputs to the environmental alignment assessment. Environmental signals use `goal_id` for attribution (they affect the goal level, not individual tactics); `tactic_id`, `strategy_id`, and `action_id` are null unless the signal is traced to a specific entity via the watch list's `relevance` field.
+
+**System signals:** Three system-level signal types track operational health (as opposed to strategic health):
+
+- `agent_degradation` (component: orchestrator/executor/governor/api, fallback: which fallback was used, cycle: which cycle the failure occurred in). Tracks individual agent failures and graceful degradation events (see Section 7.7).
+- `signal_pipeline_degradation` (stale_tactics: [list], total_active: N, stale_count: M). Emitted when >50% of active tactics have stale signals, indicating the signal input stream is degraded (see §7.13.1).
+- `signal_pipeline_failure` (last_signal_date: [date], cycles_without_signals: N). Emitted when no new signals of any type arrive for >2× the shortest active tactic's cadence, indicating total observability loss (see §7.13.1).
+
+These signals are not part of the strategic feedback loop — they are operational health indicators that surface when the system itself is malfunctioning, as opposed to when a strategy or tactic is failing. System-level signals use `system` as attribution (see §7.4 above).
+
+**Signal granularity:** One signal = one assessable claim from one identified source. A source containing multiple claims produces one compound signal with individually tagged claims. Signal count reflects recording entries, not claim count. This distinction matters when thresholds reference signal counts (e.g., "≥3 signals per domain") — 3 compound signals from 3 sources are sufficient even if they contain 15 total claims.
+
+**Signal triage (Tier 0+):** When signal sources produce high-volume raw data (web search, API feeds, sensor streams, OSINT), the orchestrator must apply a triage filter before formal recording. Triage criteria: (1) relevance to active tactic or strategy, (2) source credibility at or above the minimum tier for the domain, (3) temporal currency within the domain's validity window, (4) deduplication against already-recorded signals. Triaged-out data is logged as "reviewed, not recorded" for auditability. Without triage, high-volume sources flood the signal store and degrade health computation quality.
+
+**Temporal validity:** Each signal must declare a `temporal_validity` field with one of these values: a duration (`hours`, `days`, `weeks`) or `structural`. Duration-based validity expires after the stated window. `structural` validity marks signals that represent permanent facts — historical events ("Oman FM breakthrough collapsed Feb 27"), institutional designations ("Mojtaba Khamenei installed as Supreme Leader"), physical constants, or legal frameworks. Structural signals do not degrade and are never marked stale. Domain defaults apply when signals don't declare explicit validity (e.g., military assessments in active conflict: 48h; diplomatic assessments: 1 week; market data: 24h). At each review cycle, the orchestrator checks signal validity. Expired signals are marked `stale` and excluded from health computation unless no current replacement exists (in which case, noted as "best available, stale"). This prevents systematically stale analysis in fast-moving domains where the signal store accumulates outdated intelligence.
+
+**Validity transitions:** A signal's temporal validity may change as conditions persist. A signal categorized as `48h` validity (e.g., "Strait of Hormuz closed to Western shipping") may transition to `structural` if the underlying condition persists beyond 3× its original validity window without material change. Validity transitions are recorded as signal amendments (not new signals) — the original signal retains its ID and content but its `temporal_validity` field is updated with a note: "Upgraded from [original] to [new] on [date]: condition persisted [duration] without change." This prevents the pathology where a signal cycles between stale→refreshed→stale when the underlying fact hasn't changed.
+
+### 7.5 The Operating Document as System Configuration
+
+The operating document is the configuration that the agentic system reads and executes against. This distinction is fundamental to understanding what GOSTA produces.
+
+**GOSTA does not produce a dashboard, a form, or a project management tool.** It produces an autonomous agent system where the operating document is the instruction set and the orchestrator is the reasoning engine. When the Governor changes the operating document, the system's behavior changes on the next cycle — without code changes, configuration updates, or redeployment. The document IS the configuration.
+
+**Document, not database.** The natural engineering instinct is to decompose the operating document into structured database fields: a `goal` table with typed columns, a `tactic` table with foreign keys, a `guardrail` table with boolean flags. This is wrong. The framework's power comes from being a document that a reasoning agent reads holistically. An orchestrator that reads "professional voice, NIS2/DORA framing required" as a guardrail and evaluates a draft against it is doing something fundamentally different from a system checking `requires_professional_voice: true`. The document preserves nuance, intent, and context. The database preserves only the fields someone thought to define at design time.
+
+**Version history matters.** The operating document must be version-tracked. When tactic performance shifts, the ability to correlate "what changed in the document" with "what changed in the metrics" is a diagnostic tool. If performance degraded after a guardrail was relaxed, the version history surfaces that cause immediately.
+
+**One document per scope.** Each distinct operational scope gets its own operating document. The documents share the same structure but differ in content. An agent operating across multiple scopes reads the relevant document for each and respects the guardrails specific to that scope. When an action in one scope spawns a child scope (Section 3.5, Complex Actions as Scope Delegation), the child gets its own operating document and its own orchestrator instance.
+
+### 7.6 What a Running GOSTA System Looks Like
+
+When fully operational, a GOSTA implementation runs like this:
+
+**Continuously:** Executors receive action specifications with relevant reference materials attached, produce deliverables, and emit signals. The Signal Store accumulates execution data. Discovered external material is stored in the Reference Pool.
+
+**At each action cycle:** The orchestrator wakes up, loads context from the operating document and data stores, assesses the current state, generates a work plan for the next cycle, dispatches actions to executors, and surfaces a status report. If nothing is escalated, the Governor may not need to engage at all.
+
+**At each tactic cycle:** The orchestrator computes tactic health, evaluates kill conditions, compares A/B variants, and generates recommendations. It drafts operating document updates and presents everything to the Governor. The Governor reviews and decides. The orchestrator applies the decisions and the system continues.
+
+**At each strategy cycle:** The orchestrator assesses strategies, evaluates what-must-be-true conditions, computes objective progress, and generates strategic recommendations. It drafts a comprehensive operating document revision and proposes domain model updates. The Governor reviews the strategic picture and decides. The orchestrator applies the decisions, transfers episodic learnings to structural memory, and the system continues with updated strategic direction.
+
+**The Governor's actual time commitment** depends on the cadences defined in the operating document. For a typical business scope with weekly/monthly/quarterly cadences, steady-state commitment is approximately 3-5 hours/month for governance decisions, or 5-8 hours/month total at Stage 1-2 when deliverable review is included (see Section 6.4.3). For a compressed scope (e.g., 90-day sprint with daily/weekly/bi-weekly cadences), commitment is higher but the scope is shorter. Everything else — the execution, the measurement, the health computation, the reporting, the work plan generation — is autonomous.
+
+### 7.7 Agent Failure Protocol (Graceful Degradation) `[ROBUST]`
+
+AI agents fail — API rate limits, context window overflows, malformed responses, service outages. A GOSTA implementation must handle agent failures without halting the system or corrupting state.
+
+**Failure modes and responses:**
+
+| Failure | Response | Signal |
+|---------|----------|--------|
+| Orchestrator fails to generate work plan | Use safe defaults: repeat last cycle's action types with conservative parameters (maintain current prices, reorder at minimum viable levels) | Emit `agent_degradation` signal with `component: orchestrator, fallback: safe_defaults` |
+| Orchestrator generates unparseable response | Log the raw response, fall back to safe defaults for this cycle, retry on next cycle | Emit `agent_degradation` signal with `component: orchestrator, fallback: parse_failure` |
+| Executor fails to complete action | Mark action as failed, emit failure signal, orchestrator replans on next cycle | Standard action failure signal (status: failed) |
+| Governor unavailable at review deadline | Queue review for next available Governor session. If delay exceeds one full review cadence, emit escalation signal. Orchestrator continues executing current approved work plan without new decisions. If delay exceeds two full review cadences, escalate to alternate Governor (if designated) for action-level approvals. If no alternate exists and delay exceeds three full review cadences, halt new action generation and operate on safe defaults only until Governor re-engages. Queued non-delegable decisions (kill/pivot/persevere) are never auto-resolved — they remain queued. | Emit `agent_degradation` signal with `component: governor, fallback: review_queued` |
+| API rate limit or service outage | Retry with exponential backoff. If retries exhausted, fall back to safe defaults | Emit `agent_degradation` signal with `component: api, fallback: retries_exhausted` |
+
+**Retry limits.** All retriable failure modes (executor failure, API rate limits, unparseable responses) are subject to a maximum retry count to prevent infinite loops. Default retry policy: exponential backoff with a maximum of 3 retries per action per cycle (retry intervals: 1×base, 2×base, 4×base where base is implementation-defined, typically 30 seconds for API calls, 1 cycle for executor failures). If all retries are exhausted:
+- For executor failures: mark the action as `failed` with `failure_reason: retries_exhausted`, emit failure signal, and proceed to the next action. The orchestrator replans on the next cycle. If the same action fails across 2 consecutive cycles, the orchestrator escalates to the Governor: 'Action [X] has failed [N] consecutive attempts. Options: (a) retry with modified parameters, (b) skip and replace with alternative action, (c) escalate to tactic-level assessment.'
+- For API/service outages: fall back to safe defaults for the remainder of the cycle. If the outage persists across 3 consecutive cycles, the orchestrator emits `agent_degradation` with `severity: critical` and surfaces it in the next Governor review as a systemic infrastructure issue.
+- For orchestrator parse failures: if the orchestrator fails to generate a parseable work plan for 2 consecutive cycles, the implementation should restart the orchestrator process (Tier 1+) or prompt the Governor to start a fresh session (Tier 0). The signal store and decision log are not affected (they are append-only stores external to the orchestrator process).
+
+The Governor may override default retry limits in the operating document for specific action types where domain knowledge suggests different retry behavior is appropriate (e.g., external API integrations with known rate-limit windows may warrant higher retry counts with longer backoff intervals).
+
+**Silent failure detection.** A silent failure occurs when an action completes (no error signal) but produces no measurable signal — the action appears to have executed but generated no data. Silent failures are more dangerous than explicit failures because the system does not know something went wrong.
+
+Detection heuristic: each action type has an **expected signal window** — the time period after dispatch within which at least one signal is expected. The expected signal window is derived from the action's `timeline` field (if specified) or defaults to one action cycle. If an action completes with `status: completed` but no signal is recorded in the signal store within the expected signal window, the orchestrator flags it as `signal_type: absence` with `expected_event: action_signal` and `source_action: [action_id]`.
+
+Response to silent failure detection:
+- First occurrence: flag as informational in the next status report. The action may have legitimate reasons for producing no signal (e.g., a monitoring action that found nothing to report).
+- Second consecutive occurrence for the same action type: flag as `severity: significant`. The orchestrator asks: 'Action type [X] has produced no measurable signal for [N] consecutive executions. Is the signal pipeline functioning? Is the action producing outputs that are not being captured?'
+- Third consecutive occurrence: flag as `severity: critical` and include in the next tactic health report as a potential data gap. Tactic health computation for this tactic is marked as `data_quality: degraded` until the gap is resolved.
+
+This mechanism builds on the absence-based signal architecture (§7.4) but applies specifically to action execution rather than external events.
+
+**Kill assessment under degraded data quality.** When a tactic's health computation is marked `data_quality: degraded`, the kill condition assessment enters a modified mode: the kill condition clock continues (calendar time is not extended — unlike pause, the tactic is still executing), but the kill recommendation carries a mandatory `data_quality_caveat`: 'Kill condition [met/approaching] but [N] of [M] input signals are absent or degraded. Confidence in this assessment is reduced.' The Governor sees both the kill assessment result and the data quality caveat, and may: (a) proceed with kill (accepting the degraded-data risk), (b) defer the kill decision for one cycle to allow data quality to recover, or (c) investigate the signal pipeline before deciding. If the Governor defers, the deferral is logged as `decision_type: kill_deferred, reason: data_quality_degraded` and the tactic's kill deadline extends by one cycle (one-time extension per degradation event). A second consecutive deferral for the same degradation event is not permitted — the Governor must decide or investigate.
+
+**Infrastructure failure recovery** `[ROBUST]`**.** The failure modes above address component-level failures within an otherwise functioning system. Infrastructure failures — where the orchestrator process itself crashes mid-cycle, the signal store becomes unavailable, or the OD store is corrupted — require a different response.
+
+**Mid-cycle orchestrator crash:** The implementation must ensure cycle-level atomicity. Either a full cycle completes (all actions dispatched, all signals written, status report generated) or the cycle is rolled back to its pre-start state. Implementation approaches include write-ahead logging (log intended actions before dispatch), checkpoint-based recovery (snapshot state at cycle start, restore on crash), or idempotent cycle design (re-running a cycle from the start produces the same result). At Tier 0, this is handled naturally — each session is a cycle, and if the session crashes, the Governor starts a new session from the bootstrap file (which reflects the last completed session's state). At Tier 1+, the implementation must provide this guarantee explicitly.
+
+**Signal store unavailability:** If the signal store is unreachable, the orchestrator operates in **degraded signal mode**: it continues executing the current work plan (actions already dispatched continue), but skips health computation and recommendation generation (both require signal data). The status report notes: 'Signal store unavailable — health computation deferred. Executing approved work plan from last valid cycle.' The orchestrator retries signal store connection at each subsequent cycle. Signals generated during the outage are buffered locally (if possible) and flushed to the store on reconnection. If local buffering is not possible, the signals are lost — the orchestrator notes the gap in the next health report as `data_gap: signal_store_outage, duration: [N cycles]`.
+
+**Kill deadline extension during infrastructure outage.** When the signal store is unavailable, kill condition assessment cannot proceed (no signal data to evaluate). Kill condition deadlines for all active tactics are extended by the duration of the signal store outage, applying the same principle as pause-based extension (§8.5.1): time during which the system cannot assess a tactic's performance does not count against the tactic's kill deadline. **Distinction from pause:** Pause (§8.5.1) is a deliberate Governor decision — the tactic halts execution entirely. Infrastructure-driven extension is involuntary — the tactic continues executing but signal collection is impaired. The distinction matters for two reasons: (1) during pause, no actions execute and no signals are expected; during infrastructure outage, actions may still execute and produce outputs that are not captured — creating a data gap that must be flagged in subsequent health reports; (2) pause extension resets the kill deadline cleanly; infrastructure extension requires the orchestrator to estimate the data gap's impact on kill condition evaluability and note it as a `data_quality_caveat` in the next kill assessment. Similarly, when a tactic is in active recovery from a soft constraint violation, the kill timer continues — recovery is an operational state, not a suspension. The tactic is still executing and producing signals; the recovery merely modifies how some actions are dispatched. The extension is applied on signal store reconnection and logged as `kill_deadline_extension: {reason: signal_store_outage, duration: [N cycles], original_deadline: [date], new_deadline: [date]}`. Silent failure detection (above) is also suspended during signal store unavailability — absence signals cannot be written to an unreachable store. On reconnection, the orchestrator performs a catch-up absence check for the outage window: any action that completed during the outage without producing a signal is flagged retroactively.
+
+**OD store corruption:** If the operating document cannot be loaded or fails integrity checks (§8.3, OD State Versioning), the orchestrator halts all new action generation and enters **safe mode**: only safe defaults execute, and the Governor is notified immediately via the escalation channel. The orchestrator does not attempt to reconstruct a corrupted OD — this is a Governor-level recovery decision. The decision log and signal store (which are separate from the OD) are preserved for forensic analysis.
+**Alternate Governor designation.** For scopes with time-sensitive external dependencies (hiring, sales, event management), the operating document should designate an alternate Governor who can approve time-critical decisions during the primary Governor's unavailability. The alternate Governor's authority is limited to action-level approvals only — not kill/pivot/persevere, graduation, guardrail changes, or any other non-delegable decision (Section 6.3). The alternate Governor's decisions are logged with `source: alternate_governor` attribution. If no alternate is designated and the primary Governor is unavailable, the standard queuing protocol above applies.
+
+**Safe defaults** are deterministic, conservative actions that keep the system operational without AI reasoning. They must be:
+- Defined at implementation time, not computed at failure time
+- Never violate any guardrail in the chain
+- Preserve the current state rather than optimizing (hold prices, maintain inventory levels)
+- Reviewed for domain appropriateness during domain model creation (Section 13.6). For each action type the system executes, define a domain-appropriate safe default. If no safe default exists for an action type because any repetition would be harmful (e.g., duplicate outreach to the same contacts, resending the same referral prompt), the safe default for that type is **skip** — do not execute. The domain model's anti-patterns section should flag action types where repetition is harmful. *Note: what constitutes "domain-appropriate" is Governor and domain expert judgment exercised during domain model creation. The framework provides the structure (define one per action type, flag harmful repetition) but the content of each safe default requires domain knowledge that is outside the spec's scope.*
+
+**Degradation tracking:** The `agent_degradation` signal type (Section 7.4) is accumulated in the Signal Store like any other signal. The orchestrator reports degradation frequency in tactic health reports. If degradation events exceed a threshold (implementation-defined), the orchestrator flags it as a systemic issue for Governor review.
+
+**State protection:** Agent failures must not corrupt system state. The implementation must ensure that either an action completes fully or it does not apply — no partial state mutations. This is an implementation concern (use transactions, idempotent operations, or copy-on-write patterns), not a framework concern, but the framework requires it.
+
+**Decision reference validation:** Governor decisions (kill, pivot, persevere, revise_objective) reference entities by ID (`target_id`). The implementation must validate that every `target_id` in a Governor decision corresponds to a valid entity in the operating document — a tactic ID, strategy ID, or objective ID as appropriate for the decision scope. If the Governor returns an unrecognized ID (e.g., referencing a domain model change proposal ID where a tactic ID is expected), the system must:
+1. Reject the invalid decision silently (do not apply it)
+2. Emit an `agent_degradation` signal with `component: governor, fallback: invalid_reference`
+3. Log the raw decision for debugging
+4. Continue processing remaining valid decisions in the same response
+
+This prevents a single malformed decision from crashing the system or corrupting entity state. Simulation testing revealed this failure mode: a simulated Governor in the test harness (Section 6.6) attempted to kill `dmc-2` (a domain model change proposal ID) as if it were a tactic, causing a system crash.
+
+**System-level failure modes.** This section handles component-level failures — an agent crashes, produces garbage, or becomes unavailable. For system-level failures that §7.7 does not cover (signal pipeline failure, recovery oscillation, context/memory corruption, capacity overload, cascading failure across scopes, semantic Governor decision errors), see §7.13 (Failure Resilience Architecture).
+
+### 7.8 Tactic Exhaustion Protocol `[ROBUST]`
+
+When all tactics under a strategy are killed or completed before the strategy's activation period ends, the system enters a **tactic exhaustion** state. The operating document has no remaining tactical hypotheses to test, but the strategic reasoning has not been invalidated and the strategy has time remaining. The system must not go idle — it must act.
+
+**Trigger:** A tactic is killed or completed and `getNextPendingTactic(strategyId)` returns nothing. Note: a tactic in `killed_winding_down` status (Section 4.3) does not count as a pending tactic — it is completing external commitments, not producing new signal toward the strategy's hypothesis.
+
+**Protocol:**
+
+1. **Trigger immediate strategy review.** Do not wait for the next scheduled strategy review. The standard strategy cycle (Section 7.2, Strategy Cycle) executes immediately, with one additional input: the exhaustion event itself as context for the Governor's decision.
+
+2. **Governor decides among three options:**
+   - **Reactivate best-performing completed tactic.** Among completed tactics under this strategy, select the one whose final health report showed hypothesis_status = `holding` with the most metrics at `on_track` or `exceeded` (Section 20.2). If multiple tactics tie, the Governor selects. Its kill conditions and bootstrap period reset. This is appropriate when the exhaustion was caused by an environmental disruption (market event, demand shock) rather than a fundamental flaw in the tactical approach.
+   - **Define an ad-hoc replacement tactic.** The Governor specifies a new tactic inline — hypothesis, approach, kill conditions, guardrails — based on what the exhausted tactics revealed. This is appropriate when the learning from killed tactics suggests a specific modification not covered by any existing tactic.
+   - **Mark strategy as exhausted and escalate.** The strategy is marked `exhausted` (distinct from `killed` — the reasoning was not disproven, the implementation space was consumed). This triggers an immediate objective-level assessment: is the objective still reachable with remaining strategies? If not, the Governor must either define a new strategy or revise the objective.
+   - **Mark strategy as completed.** The strategy achieved its intended contribution to the objective. All tactics either completed successfully or were killed after producing the intended results. The strategy has no remaining implementation space because the work is done, not because alternatives were consumed. Completed is distinct from exhausted: completed strategies feed Vector 2 (internal success learning) in structural memory transfer, while exhausted strategies feed Vector 1 (internal failure/limitation learning). See Section 4.3 for the full status vocabulary and its structural memory transfer mapping. **Decision rule for completed vs. exhausted:** a strategy is `completed` when its primary objective metric meets or exceeds the target threshold at the time all tactics reach terminal state; it is `exhausted` when all tactics reach terminal state but the metric remains below the target. If the metric is inconclusive (within 15% below the target threshold — i.e., metric ≥ 85% of target but < 100%), the Governor makes the determination and logs the rationale. Metrics at or above 100% of target are always `completed`; metrics below 85% of target are always `exhausted`.
+
+3. **Log the decision.** The decision log entry must record which option was chosen, why, and — for reactivation — which tactic was reactivated and what conditions changed since its original completion.
+
+**Strategy terminal status vocabulary:**
+
+| Status | Definition | Distinguishing Criterion |
+|--------|-----------|------------------------|
+| `active` | Strategy executing with at least one active tactic | Normal operation |
+| `exhausted` | All tactics terminated; implementation space consumed but reasoning not disproven | Metric below 85% of target when all tactics reach terminal state |
+| `completed` | All tactics terminated; strategy achieved its contribution | Metric ≥ 100% of target (or ≥ 85% with Governor determination) |
+| `killed` | Strategic reasoning disproven (WMBT falsified or kill signal triggered) | WMBT falsification or strategy-level kill signal |
+| `paused` | Suspended by Governor; retains specification and history | Governor pause decision (§4.3) |
+
+| `graduated` | Tactic achieved success criteria and transitioned to permanent operations | Governor declares tactic's outputs are now standard operating procedure, not experimental |
+
+Transition from `exhausted` back to `active` occurs when the Governor reactivates a tactic or defines a replacement (options 1-2 above). Transition from `paused` to `active` occurs on Governor resume. Transition from `completed` to `graduated` occurs when the Governor decides the tactic's approach should become permanent operational baseline — the tactic's actions continue executing but are no longer tracked as experimental (no kill condition assessment, no hypothesis evaluation, no A/B comparison). `graduated` is a terminal state distinct from `completed`: `completed` means the work is done; `graduated` means the work continues but is no longer governed as an experiment. In structural memory transfer, graduated tactics feed Vector 2 (internal success learning) with the additional tag `operational_baseline: true`. All other terminal transitions (`killed`, `completed`, `graduated`) are irreversible.
+
+**Kill reason classification.** When a strategy reaches `killed` status, the decision log entry includes a `kill_reason` field to distinguish the cause for structural memory routing: `disproven` (WMBT falsified or kill signal triggered — feeds Vector 1, internal failure learning), `resource_reallocation` (strategy terminated to concentrate resources on a competing strategy, not because its reasoning was disproven — feeds Vector 3, external learning; hypothesis remains untested), `superseded` (a replacement strategy was defined that incorporates this strategy's learnings — feeds Vector 2, internal success learning if partial results were positive), or `external_constraint` (strategy terminated due to an external event outside the system's control — regulatory change, force majeure, infrastructure dependency loss — that makes the strategy non-viable regardless of its reasoning quality; feeds Vector 3, external learning; hypothesis was not tested against its own merits). The `kill_reason` does not change the tactic status (`killed` in all cases) but determines how the strategy's learning is classified in structural memory transfer (§18.2.3).
+
+**Last-tactic kill interaction.** When the orchestrator recommends killing the only remaining active tactic under a strategy, the tactic kill and the exhaustion protocol trigger are presented to the Governor as a single compound decision — not sequentially. The Governor sees: 'TAC-X is recommended for kill [evidence]. If killed, this strategy enters tactic exhaustion — your options are: (a) kill TAC-X and reactivate a previously completed tactic (per option 1 above — only completed tactics with hypothesis_status = holding are eligible; killed tactics are not reactivatable), (b) kill TAC-X and define a replacement, (c) kill TAC-X and mark the strategy as exhausted, or (d) override the kill recommendation (pivot or persevere instead).' This prevents the Governor from killing a tactic without awareness of the exhaustion consequence.
+
+**Partial strategy exhaustion (sub-component gap)** `[ROBUST]` — The exhaustion protocol above triggers when *all* tactics under a strategy are killed or completed. A distinct situation arises when a strategy serves multiple sub-components of an objective (e.g., 3 geographic sections, 4 product lines, N customer segments) via separate tactics, and one or more tactics are killed while others remain active. Full exhaustion does not trigger (active tactics remain), but a coverage gap exists — the strategy can no longer serve all sub-components of the objective. When a tactic is killed and the strategy still has active tactics, the orchestrator assesses whether the killed tactic served a sub-component not covered by any remaining tactic. If so, it surfaces the gap in the strategy health report: "Strategy A covers N-M of N sub-components. [Killed tactic] served [sub-component]. Alternative coverage required from complementary strategies, new tactics, or Governor acceptance of partial coverage." The Governor decides: reassign coverage to a complementary strategy, define an ad-hoc replacement tactic for the uncovered sub-component, or accept partial coverage with justification. **Escalation:** if the coverage gap persists unresolved for 2 strategy review cycles, the orchestrator escalates per §7.7 (Governor non-response protocol). Safe default: accept partial coverage with logged justification "Governor did not resolve coverage gap within 2 strategy cycles; partial coverage accepted by default." This prevents indefinite unresolved gaps while preserving the Governor's ability to intervene.
+
+**Why idle is not acceptable:** A system that goes dormant when tactics are exhausted fails the Governor. The whole point of the framework is to maintain continuous operational control. An 18% idle period (as observed in simulation testing) represents uncontrolled time — no guardrail enforcement, no signal generation, no adaptation to environmental changes. The exhaustion protocol ensures the Governor is always presented with a decision rather than discovering a gap after the fact.
+
+### 7.9 Event-Triggered Reviews `[ROBUST]`
+
+The standard review cadences (tactic reviews at defined intervals, strategy reviews at defined intervals) assume a relatively stable operating environment between review points. When significant environmental changes occur — market disruptions, sudden metric shifts, guardrail breaches — the system should not wait for the next scheduled review to reassess.
+
+**Review-triggering signals** are environmental changes significant enough to warrant an immediate review outside the fixed cadence. They do not replace scheduled reviews — they supplement them.
+
+**Conditions that trigger an ad-hoc tactic review:**
+
+- A guardrail violation is sustained for more than one action cycle (a single-cycle violation may be transient; a sustained violation indicates a structural mismatch between the tactic and the environment)
+- A market event or external disruption changes the cost structure, demand level, or competitive landscape in a way that directly affects the active tactic's hypothesis
+- A key metric drops by more than 30% from its rolling average within a single action cycle (sudden regression, not gradual decline)
+
+**Conditions that trigger an ad-hoc strategy review:**
+
+- A tactic exhaustion event (Section 7.8 — this always triggers immediate strategy review)
+- A what-must-be-true condition is falsified by a market event before the next scheduled strategy review
+- The objective metric crosses its target threshold (either met or becomes unreachable) between scheduled reviews
+- **Objective deadline warning:** When elapsed calendar time reaches 75% of any objective's deadline duration (measured in calendar days from scope start to the objective's `deadline` field), an immediate strategy review is triggered to assess whether the objective is still reachable. If the system runs for fewer days than the objective's deadline (e.g., a 45-day simulation testing a 90-day objective), the warning triggers at 75% of the configured runtime to ensure the mechanism is exercised
+
+**How event-triggered reviews work:**
+
+The triggered review follows the same format and steps as the scheduled review for the appropriate level (tactic cycle or strategy cycle from Section 7.2). The only difference is the trigger — the content, decision protocol, and Governor interaction are identical. The triggered review does not reset the scheduled review cadence; the next scheduled review still occurs at its planned time.
+
+**Domain-specific trigger conditions.** The trigger conditions listed above are framework-level defaults. The operating document MAY define additional event-triggered review conditions beyond these defaults. Each custom trigger specifies: (1) the condition, (2) which review level it triggers (tactic or strategy), and (3) any special context to include in the triggered review. Custom triggers are evaluated at each action cycle alongside the default triggers. Examples: in a hiring scope, "offer rejection when remaining_offers_needed exceeds candidates_in_final_stage" triggers an immediate tactic review. In a product launch scope, "competitor announces competing feature" triggers an ad-hoc strategy review with competitive analysis context. Custom trigger conditions are defined in the operating document's review schedule section (Section 9.2, CUSTOM REVIEW TRIGGERS).
+
+**Implementation note:** The orchestrator evaluates all trigger conditions — both default and domain-specific — at each action cycle as part of Step 3 (ASSESS CURRENT STATE). If a trigger condition is met, the orchestrator escalates to the appropriate review cycle before proceeding to Step 4 (GENERATE WORK PLAN). This means an action cycle may expand to include a tactic or strategy review when conditions warrant it.
+
+**Event-triggered review record.** Each event-triggered review produces a record in the decision log:
+
+```
+EVENT-TRIGGERED REVIEW:
+  Trigger condition: [which condition was met — default or custom]
+  Trigger evidence: [specific data that triggered the review]
+  Review level triggered: [tactic | strategy]
+  Review outcome: [decisions made, if any, with standard decision log format]
+  Scheduled review impact: [none — next scheduled review unchanged]
+```
+
+This ensures ad-hoc reviews are auditable and their outcomes are captured with the same rigor as scheduled reviews.
+
+### 7.10 Scope Conclusion Protocol `[ADVANCED]`
+
+When a scope has a defined endpoint — a fixed deadline, completion criteria, or resource exhaustion — the conclusion protocol ensures orderly closure and knowledge capture. Not all scopes are continuous; hiring sprints, product launches, event preparations, and seasonal campaigns have natural endpoints where the scope concludes and its operating document is archived.
+
+**Objective met before deadline.** Trigger a final strategy review. Execute structural memory transfer (Section 7.2, Strategy Cycle Step 5) for all active and completed tactics — this is the scope's last opportunity to codify what it learned into the domain model. Archive the operating document with final metrics, the complete decision log, and domain model learnings. If this is a child scope (Section 3.5), emit a completion signal to the parent scope with `outcome_type: delivered`.
+
+**Deadline reached, objective partially met.** The Governor decides: extend (set a new deadline and continue), conclude with partial results, or restructure (revise the objective and continue with modified targets). If concluding, execute structural memory transfer and capture "partial success" learnings — what worked, what didn't, and what would need to change for a second attempt. A partial success is a legitimate learning outcome, not a failure. Mark the objective as `partially_met` with the actual achievement recorded alongside the original target.
+
+**Deferred conversions (pipeline carry-forward).** At scope conclusion, some leads, prospects, or in-progress items may be qualified and progressing but unable to convert within the scope timeline due to external dependencies (procurement cycles, budget approvals, seasonal timing). These are not failures — they are evidence the tactic worked but the conversion timeline exceeded the scope timeline. At conclusion, the orchestrator inventories all in-progress items and classifies each as: `converted` (counted toward objective metric), `deferred` (qualified, expected to convert after scope ends, with estimated conversion date and value), or `lost` (disqualified or abandoned). Deferred items are recorded in the scope conclusion archive with their originating tactic, current pipeline stage, and expected conversion date. If a successor scope exists, deferred items are loaded into the new scope's operating document as pre-qualified pipeline — they skip the prospecting stage and enter at their current pipeline stage. In structural memory transfer, deferred conversions inform hypothesis assessment: a tactic that produced 3 deferred conversions and 1 in-scope conversion is more successful than a tactic that produced 1 in-scope conversion alone.
+
+**Deadline reached, objective not met.** Execute structural memory transfer. Record the gap between target and actual. The domain model should capture why the objective was missed — was the target miscalibrated, the strategies wrong, the tactics insufficient, or the timeline too aggressive? This diagnosis informs future scopes.
+
+**Wind-down precedence.** If the scope's deadline arrives while any tactics are in `killed_winding_down` status with pending external commitments, scope conclusion is held until wind-down completes or the Governor explicitly forces conclusion. If the Governor forces conclusion, unfulfilled commitments are marked as `scope_ended_with_pending_obligations` in episodic memory and the external parties are notified per the wind-down safe default (release with notification). This is an exceptional state — the Governor should set scope deadlines with sufficient buffer for wind-down when external commitments are likely.
+
+**Child scope lifecycle at parent conclusion** `[ADVANCED]` — When a parent scope concludes, each active child scope is assessed independently. The parent Governor decides per child: (a) **conclude with parent** — the child scope's work is complete or no longer relevant; execute the child's own conclusion protocol (structural memory transfer, learning capture) and archive; (b) **transfer to successor scope** — if a successor parent scope exists (e.g., next season's planning scope), the child scope is reassigned with its full state, decision log, and domain model preserved; the successor parent Governor inherits oversight; (c) **convert to independent scope** — the child scope continues with its own Governor as an autonomous scope, no longer reporting upward; the parent's completion signal notes which child scopes were released as independent. The decision is logged in both the parent and child decision logs as `decision_type: child_scope_disposition` with `{child_scope_id, disposition: concluded | transferred | independent, justification}`. If the parent Governor does not address a child scope's disposition at conclusion, the default is `concluded` — the child scope archives with the parent.
+
+**Domain model transfer across scopes.** Learnings from a concluded scope persist in the domain model for use by future scopes in the same domain. A hiring sprint's domain model learnings ("technical blog posts produce ~1.5 qualified applicants each") inform the next hiring cycle's operating document. When a new scope opens in the same domain, it loads the domain model (which now contains learnings from previous scopes) and uses validated hypotheses and calibrated norms to set more accurate initial targets, kill conditions, and bootstrap expectations.
+
+**Scope conclusion record.** At scope conclusion, the operating document is archived with a conclusion summary that captures:
+
+```
+SCOPE CONCLUSION:
+  Conclusion type: [achieved | partially_met | failed | killed | expired | transferred]
+  Conclusion date: [date]
+  Final metric values: [metric: value for each objective]
+  Conclusion rationale: [Governor's summary of why the scope concluded with this outcome]
+  Child scope dispositions: [list of child scope IDs and their dispositions, if any]
+  Deferred items: [count and summary of deferred conversions, if any]
+```
+
+This record enables structural memory transfer (§18.2.3) to accurately classify scope outcomes for future scopes in the same domain.
+
+### 7.11 Stateless Orchestrator Variant `[CORE]`
+
+The execution loops defined in §7.2–7.6 assume a persistent orchestrator process that maintains state in memory across cycles. A **stateless orchestrator** operates without persistence between sessions — all state is reconstituted from files at the start of each session. This is the operating model for Tier 0 (Manual/AI-Assisted) implementations.
+
+#### State Reconstitution
+
+At the start of each session, the orchestrator reads files in this order:
+1. **Bootstrap file** — Current state, pending items, context loading order.
+2. **Operating document** — System configuration.
+3. **Domain models** — Knowledge grounding (only those relevant to current phase/cycle).
+4. **Most recent health report** (if any) — Where things stand.
+5. **Most recent session log** — What happened last time.
+6. **Decision log** — Full decision history (append-only).
+
+This sequence reconstitutes enough context for the orchestrator to resume the execution loop from where the previous session ended. The bootstrap file is the critical continuity mechanism — it is the only file overwritten each session.
+
+#### Mapping Execution Loops to Sessions
+
+In a persistent orchestrator, cycles run continuously. In a stateless orchestrator, each session corresponds to one or more cycles:
+
+| Persistent Model | Stateless Model |
+|-----------------|-----------------|
+| Action cycle runs automatically | Orchestrator proposes actions; Governor approves in conversation; orchestrator executes within the session |
+| Tactic review fires on cadence | Governor triggers review ("run tactic review") or orchestrator recommends it based on elapsed time/signals |
+| Strategy review fires on cadence | Governor triggers or orchestrator recommends at session start based on bootstrap state |
+| Signals flow to signal store automatically | Orchestrator writes signals to signal files during the session; reads them back at next session start |
+
+The execution loop logic (§7.2) is identical — the same steps, the same evaluations, the same decision points. The difference is that steps happen within a conversation session rather than a continuous process, and the Governor is present throughout rather than being called upon at defined escalation points.
+
+**Graduation limit for stateless orchestrators:** Stateless orchestrators are limited to Stages 1-3. Stage 4+ requires persistent state (orchestrator memory across sessions) for autonomous decision-making — a stateless orchestrator reconstitutes from files each session and has no persistent judgment continuity to support autonomous kills or tactic lifecycle management. If a Governor attempts to promote a stateless experiment to Stage 4, the orchestrator should flag: "Stage 4 requires persistent state for autonomous decisions. At Tier 0 (stateless), maximum graduation is Stage 3. Consider upgrading to Tier 1+ implementation before promoting."
+
+#### Session Types
+
+A stateless orchestrator session has one of five purposes:
+
+- **Bootstrap:** First session of a new scope. Creates OD, ingests domain models, establishes initial plan.
+- **Execution:** Performs actions from the current plan. Produces deliverables and signals.
+- **Review:** Computes health, assesses kill conditions, surfaces recommendations.
+- **Decision:** Presents trade-offs for pending Governor decisions. Records decisions. Updates OD if needed.
+- **Ad-hoc:** Exploratory analysis, Governor questions, or work that doesn't fit the other types.
+
+In practice, a single session may combine types (e.g., execute actions, then trigger a review when a phase gate is reached). The types define purpose, not rigid boundaries.
+
+#### Deliberation Requirements `[ROBUST]`
+
+A stateless orchestrator must surface tensions for Governor deliberation at every decision point. This requirement addresses an observed failure mode: without deliberation enforcement, the orchestrator may operate as a "document factory" — producing outputs efficiently but without surfacing the competing interpretations that make Governor decisions meaningful.
+
+**The requirement:** Before presenting any recommendation that requires a Governor decision (kill, pivot, persevere, phase advance, approve, reject), the orchestrator must:
+
+1. Identify at least one **tension** — a point where different domain models, different layers of the hierarchy, or different evaluation criteria produce competing recommendations.
+2. Present the tension with each side's reasoning, grounded in specific domain model concepts.
+3. If no genuine tension exists (all domain models and criteria agree), state this explicitly: "All inputs agree on [X] — no competing interpretation identified." This itself becomes a signal the Governor can challenge.
+
+**Multi-domain consultation:** When the scope references multiple domain models, the orchestrator should assess each domain model's perspective independently before synthesizing a recommendation. Disagreements between domain models are surfaced as tensions (see §14.7).
+
+**Rationale:** Empirical observation from the product roadmap experiment showed that the same scope, same domain models, and same features produced materially different outputs depending on whether deliberation was enforced (2 Governor decisions without deliberation vs. 8 decisions with deliberation, resulting in a fundamentally different roadmap). The deliberation requirement ensures that the Governor makes decisions that would otherwise be implicit assumptions in the orchestrator's reasoning.
+
+#### Limitations of Tier 0
+
+The stateless orchestrator variant supports GOSTA Stages 1-3. The following capabilities require a persistent process (Tier 1+):
+
+- **Stage 4-5 autonomy:** Autonomous tactic lifecycle management requires continuous monitoring, not session-based checks.
+- **Real-time signal collection:** API-based signal ingestion from analytics platforms, CRMs, or financial feeds.
+- **Sub-daily review cadences:** Cadences shorter than "next session" require automation.
+- **Multi-scope signal sharing:** Cross-scope signal routing requires a persistent signal store.
+- **Event-triggered reviews with real-time detection:** External event monitoring (App Store rejection, revenue drop) requires continuous watchers.
+
+For these capabilities, upgrade to Tier 1+ and implement the persistent orchestrator model defined in §7.1–7.6.
+
+### 7.12 Parallelism Rules `[ROBUST]`
+
+**Purpose:** Define when work can fork into parallel streams and how parallel outputs are merged.
+
+**When Parallelism is Valid:**
+- The parallel work items have independent inputs (no shared mutable state).
+- Each work item's output does not depend on another's result.
+- Resource capacity exists (agents, compute, Governor attention) for concurrent execution.
+
+**When Parallelism is NOT Valid:**
+- Work item B requires work item A's output as input (sequential dependency).
+- Work items share a mutable resource that could produce race conditions.
+- The Governor needs to make a decision between items before both complete.
+
+**Fork Protocol:**
+1. Identify parallelizable work items (independent inputs, no shared state).
+2. Define the merge point — where parallel outputs converge.
+3. Define the merge protocol — how outputs are consolidated (concatenation, synthesis, conflict resolution).
+4. Execute in parallel.
+5. At merge point, check for conflicts between parallel outputs.
+
+**Conflict Resolution at Merge:**
+- If parallel outputs agree: merge directly.
+- If parallel outputs disagree: surface as a tension (Step 3b in Cowork Protocol, or equivalent deliberation in other implementations).
+- If parallel outputs are incommensurable (different formats, different assumptions): the orchestrator must normalize before merging.
+
+**Practical Example:** Multi-domain scoring (§20.10) across 3 domain models. Each domain is scored independently (parallelizable — independent inputs). The merge point is the consolidated scoring matrix. The merge protocol is: present per-domain scores, compute composite, surface spreads > 2.0 as tensions.
+
+### 7.13 Failure Resilience Architecture `[ROBUST]`
+
+Section 7.7 defines how individual agent failures are handled — unavailability, failed output, timeout, safe defaults, degradation signals. This section addresses six systemic failure modes that §7.7 does not cover: failures where the system continues operating but produces incorrect results, failures that propagate across components, and failures in the infrastructure that §7.7 assumes is functioning.
+
+**Design principle:** The most dangerous failures are silent ones — the system operates normally but on bad data, corrupt context, or degraded observability. Every mechanism in this section converts silent failures into visible ones that either self-correct or escalate to the Governor.
+
+**Relationship to §7.7:** §7.7 handles component-level failures (an agent crashes, times out, produces garbage). §7.13 handles system-level failures (the signal pipeline goes blind, memory becomes contradictory, recovery oscillates, context overflows, failures cascade across scopes, the Governor makes a structurally valid but semantically incoherent decision). §7.7 is prerequisite — implement it first. §7.13 extends the failure model to cover failure modes discovered through simulation testing and operational experience.
+
+#### 7.13.1 Signal Pipeline Failure (Observability Collapse)
+
+**The problem:** §7.7 handles individual signal failures — an executor fails to emit a signal, a signal has incomplete provenance. But the signal pipeline itself can fail: the metrics platform goes offline, the API integration stops returning data, or the signal collection mechanism silently stops working. When this happens, the system operates blind. Health computation runs on stale data. Kill conditions are evaluated against old signals. Guardrail breaches go undetected. The system *believes* it is functioning correctly because no individual component has failed — the absence of new signals is indistinguishable from "nothing happened."
+
+This is categorically different from §6.7.1 (Degraded-Mode Autonomy), which handles grounding component degradation. Signal pipeline failure affects the *input stream* to all computations, not just the grounding layer. A system with perfect grounding but no incoming signals is more dangerous than one with degraded grounding and active signals — at least degraded grounding is detected.
+
+**Detection mechanism — signal freshness monitoring:**
+
+The orchestrator tracks the timestamp of the most recent signal per active tactic. At each cycle start, it checks:
+
+| Condition | Classification | Response |
+|-----------|---------------|----------|
+| All active tactics have signals within the expected cadence | Normal | Continue |
+| One tactic has no signal for >1.5× its expected cadence | Tactic signal gap | Flag in tactic health report. May be legitimate (action not yet due). |
+| >50% of active tactics have no signal for >1.5× their expected cadence | Pipeline degradation | Escalate. System may be operating on stale data. |
+| No new signals of any type for >2× the shortest active tactic's cadence | Pipeline failure | Halt autonomous decisions. All decisions require Governor approval until signal flow resumes. |
+
+**Expected cadence** is derived from the tactic's action cycle frequency. A tactic with weekly actions should produce at least one signal per week. The implementation defines cadence per tactic type; if undefined, default is the scope's shortest review cadence.
+
+**Response protocol:**
+
+1. **Pipeline degradation (>50% stale):** Emit `signal_pipeline_degradation` signal (a new system-level signal type, like `agent_degradation`). The orchestrator appends a **staleness warning** to the health report: "Health scores computed from data that is [N days] stale for [M of T] active tactics. Scores may not reflect current reality." Autonomous decisions continue but carry a staleness flag that the Governor sees at review.
+
+2. **Pipeline failure (total blackout):** Emit `signal_pipeline_failure` signal. **Halt all autonomous decisions** — regardless of graduation stage, all decisions require Governor approval until signal flow resumes. The orchestrator cannot distinguish "nothing is happening" from "everything is happening but I can't see it." Safe default: assume the environment has changed and require human judgment. The Governor may override this halt if they have independent observability (e.g., they can check the metrics dashboard directly).
+
+3. **Selective pipeline failure (one source down):** When a specific data source fails but others continue, the orchestrator identifies which tactics depend on the failed source (via signal attribution chains) and applies the halt only to those tactics. Tactics fed by functioning sources continue at normal autonomy.
+
+**Implementation by tier:**
+
+- *Tier 0:* The AI checks signal recency at session start. If the most recent signal for any active tactic is older than expected, the AI flags it: "TAC-2 last signal was 12 days ago (expected cadence: weekly). Either no action was taken, or signal collection failed. Please confirm: is the metrics source still active?" The Governor answers, and the AI records the assessment.
+- *Tier 1:* Automated freshness checks run at each cycle. Signal sources are registered with expected update frequencies. A missed update triggers an automated probe (ping the API, check the integration). If the probe fails, the system classifies the failure (source-specific vs. pipeline-wide) and applies the appropriate response.
+- *Tier 2+:* Predictive pipeline monitoring. The system tracks signal arrival patterns and detects anomalies: "Signal source X has been delivering at 3-day intervals for 8 cycles. The current gap is 5 days — 2σ above normal. Possible pipeline degradation developing." The system also monitors signal *volume* — if a source that normally produces 10 signals per cycle suddenly produces 2, the system flags potential partial failure even though signals are still arriving.
+
+**Relationship to §6.7.1:** Degraded-mode autonomy (§6.7.1) constrains autonomy when *grounding components* degrade. Signal pipeline failure constrains autonomy when *signal flow* degrades. Both can fire simultaneously — grounding can be healthy while the pipeline is down (correct reasoning, no new data) or grounding can be degraded while the pipeline is active (new data, incorrect interpretation). The most restrictive constraint wins.
+
+#### 7.13.2 Recovery Verification
+
+**The problem:** §7.7 and §6.7.1 define failure responses and restoration conditions, but neither verifies that recovery is genuine. When a data source comes back online, the system immediately returns to normal operation. But recoveries can be transient — the service returns for one cycle, then fails again, causing the system to oscillate between normal and degraded mode. Each transition has overhead (re-assessment, Governor notification, autonomy changes), and the oscillation itself degrades the Governor's trust and the system's coherence.
+
+**The mechanism — stability window:** After any failure recovery, the system enters a **verification period** before restoring full normal operation. During this period, the recovered component must demonstrate stable operation for a defined number of cycles before the system treats the recovery as genuine.
+
+**Recovery states:**
+
+```
+NORMAL → FAILED → RECOVERING → VERIFIED → NORMAL
+                      ↓
+                  (relapse)
+                      ↓
+                   FAILED (counter increments)
+```
+
+**Verification protocol:**
+
+| Recovery Type | Stability Window | Verification Criteria | During Verification |
+|--------------|-----------------|----------------------|-------------------|
+| Signal pipeline recovery | 2 consecutive cycles with signals at expected cadence | Signals arrive from all previously-stale sources, with valid provenance | Autonomy constraints from §7.13.1 remain in effect. Staleness warning removed from health report. Governor notified: "Pipeline recovery in progress — verifying stability." |
+| Grounding component recovery (§6.7.1) | 2 consecutive cycles with no component-level errors | Component passes the same health checks that detected the original degradation | Degraded-mode autonomy remains in effect. Governor notified of recovery progress. |
+| Agent recovery (§7.7) | 1 successful cycle with no degradation signals | Agent completes a full cycle producing valid output | Safe defaults remain available as fallback. Degradation signal frequency resets. |
+| Context/memory recovery (§7.13.3) | 1 cycle after repair + Governor confirmation | Repaired file/state passes integrity checks (see §7.13.3) | Reduced context loading scope remains in effect until verification completes. |
+
+**Relapse escalation:** If the same component fails, recovers, and fails again within a defined window (recommended: 5 review cycles), the system escalates:
+
+- **First relapse:** Stability window doubles (2→4 cycles for pipeline, 1→2 for agent).
+- **Second relapse:** The system flags the component as **chronically unstable** and recommends the Governor either: (a) accept permanent degraded-mode operation for that component, (b) replace the component (switch data source, change API provider), or (c) formally regress the graduation stage if the instability undermines the stage's prerequisites.
+- **Third relapse:** The system treats the component as permanently degraded until the Governor explicitly restores it. No automatic recovery attempts — the Governor must confirm the fix and reset the relapse counter.
+
+**Implementation by tier:**
+
+- *Tier 0:* The AI tracks recovery status in the bootstrap file. When a previously-flagged issue is resolved, the AI notes: "Data source X back online as of this session. Maintaining Stage [N-1] approval requirements for 2 more sessions to verify stability." The Governor can accelerate verification by confirming they've independently validated the fix.
+- *Tier 1:* Automated recovery tracking. The system maintains a recovery state machine per component. Recovery transitions are logged in the decision log with `type: recovery_verification`.
+- *Tier 2+:* The system correlates recovery patterns across components. If multiple components tend to fail and recover together (suggesting a shared dependency like a cloud provider), it groups them for joint verification and flags the common dependency: "Signal pipeline and data grounding both failed and recovered at the same time — likely shared infrastructure dependency. Recommend monitoring [infrastructure component]."
+
+#### 7.13.3 Context and Memory Failure
+
+**The problem:** §18 (Memory Architecture) defines how memory is stored, loaded, and maintained. But it assumes memory infrastructure is functioning correctly. In practice, memory fails: bootstrap files are corrupted (partial write from a crashed session), session logs are truncated, learnings files contain contradictory entries (two sessions recorded opposite conclusions about the same tactic), or the operating document has been manually edited in ways that break structural integrity. These failures are especially dangerous because they corrupt the system's foundation — every subsequent decision is based on a false premise.
+
+**Memory failure taxonomy:**
+
+| Failure Type | How It Occurs | Detection Method | Severity |
+|-------------|--------------|-----------------|----------|
+| Bootstrap corruption | Session crash during Step 5 (bootstrap update). Partial write leaves incomplete or malformed state. | Parse validation at session start: all required fields present, dates parseable, referenced entities exist in OD. | Critical — entire session starts from wrong state |
+| Session log truncation | Session ended abruptly. Log records partial session but bootstrap was updated as if session completed. | Bootstrap references "last session" outcomes that don't appear in the most recent session log. | High — episodic memory gap, false continuity assumption |
+| Learnings contradiction | Two sessions recorded opposite structural learnings about the same entity (e.g., "Strategy A's reasoning is strong" and "Strategy A's reasoning is fundamentally flawed"). | At structural memory load time, check for entries about the same entity with opposing conclusions. | Medium — structural memory becomes unreliable for that entity |
+| OD structural drift | Manual editing introduced inconsistencies (orphaned tactics, broken parent references, guardrails referencing deleted objectives). | §8 structural integrity check at session start, plus entity reference validation. | High — OD is the system configuration; drift means the system is misconfigured |
+| Working memory overflow | Session context exceeds capacity (Tier 0: context window; Tier 1+: working memory buffer). The system silently drops older context to fit new context. | Monitor context utilization. At Tier 0: track approximate token count of loaded context vs. model capacity. | High — system operates on partial context without knowing it (see also §7.13.4) |
+| File-level corruption | Storage failure, encoding errors, merge conflicts in version-controlled files. File exists but contents are damaged. | Character encoding validation, JSON/markdown parse validation, checksum comparison (if implemented). | Variable — depends on which file |
+
+**Detection protocol — session-start integrity checks:**
+
+At the start of every session, before any substantive work, the system runs these checks in order:
+
+1. **Bootstrap validation:** Parse the bootstrap file. Verify: all required sections present, current state fields populated, context loading order references files that exist, "last session" summary is non-empty.
+2. **OD structural integrity:** Run §8 structural integrity rules. Every entity has a parent. No orphans. No contamination. All referenced IDs resolve.
+3. **Temporal consistency:** The bootstrap's "last session" date should be ≤ today. The most recent session log's date should match the bootstrap's "last session" date. If they differ, flag a potential missed session or bootstrap corruption.
+4. **Learnings coherence:** Scan learnings entries for contradictions — same entity, opposing conclusions. If found, flag for Governor resolution: "Learnings contain contradictory entries about Strategy A. Session [X] recorded 'reasoning is strong.' Session [Y] recorded 'reasoning is fundamentally flawed.' Which is current?"
+5. **Cross-file reference consistency:** Entities referenced in the bootstrap, session logs, and learnings must exist in the OD (or be marked as historical/killed with dates). References to entities that don't exist anywhere suggest either file corruption or an OD edit that didn't propagate.
+
+**Response protocol:**
+
+| Check Result | Response |
+|-------------|----------|
+| All checks pass | Proceed normally |
+| Bootstrap validation fails | **Do not proceed with session work.** Present the corruption to the Governor. Attempt reconstruction from the most recent valid session log + OD current state. If reconstruction succeeds, Governor confirms before proceeding. If reconstruction fails, Governor must manually repair or roll back to the last known-good state. |
+| OD structural integrity fails | Present violations to Governor (same as §8 existing behavior). AI does not silently fix — surfaces for Governor awareness, then fixes with approval. |
+| Temporal inconsistency detected | Alert Governor: "Bootstrap says last session was [date], but most recent session log is from [different date]. Possible missed session or bootstrap corruption." Governor clarifies before session proceeds. |
+| Learnings contradiction found | Flag contradictions. Governor resolves by choosing the current truth and archiving the superseded entry. Session can proceed on non-contradicted topics while contradictions are queued for resolution. |
+| Cross-file reference inconsistency | Flag orphaned references. Non-blocking if the orphan is in a historical record (session log referencing a since-killed tactic). Blocking if the orphan is in an active context (bootstrap referencing a tactic that doesn't exist in the OD). |
+
+**Implementation by tier:**
+
+- *Tier 0:* The AI performs checks 1-5 as part of the Orient step (§5.1 in the Cowork Protocol). This extends the existing bootstrap loading with explicit integrity validation. If any check fails, the AI reports the issue before doing any session work. The Governor can choose to repair, override, or abort the session. The AI records which checks passed/failed in the session log.
+- *Tier 1:* Automated integrity checks run at system startup. Failed checks block the execution loop from starting. The system presents a repair wizard: "Bootstrap is corrupted. Last valid session log is from [date]. Proposed reconstruction: [summary]. Approve to proceed, or provide manual correction."
+- *Tier 2+:* Proactive integrity monitoring. The system maintains checksums of critical files. Any file modification outside the system's normal write paths (manual edit, external tool) is detected and flagged at next cycle start: "operating-document.md was modified outside the system at [timestamp]. Running integrity check." The system also runs periodic background integrity sweeps (not just at session start) to catch drift that accumulates between sessions.
+
+**Relationship to §18.2.6 (Meta-Memory):** Meta-memory's summary fidelity audit checks whether the system's summaries accurately represent the underlying data. Context/memory failure checking is the infrastructure-level complement — it checks whether the underlying data itself is intact. Both are needed: intact-but-misrepresented data (meta-memory problem) and corrupted-but-faithfully-summarized data (infrastructure problem) are different failure modes.
+
+#### 7.13.4 Graceful Capacity Degradation
+
+**The problem:** GOSTA mechanisms assume sufficient capacity — context window to hold the OD and signals, compute budget to run all domain models, Governor attention to review all escalations. In practice, capacity is finite and variable. At Tier 0, the AI's context window is the hard constraint: a complex OD (15 pages) + 5 domain models (10 pages each) + session logs + signals can exceed model limits. At Tier 1+, API rate limits, compute budgets, and Governor bandwidth are the constraints. When capacity is exceeded, the system either fails (context window overflow, API throttling) or silently drops content (older context evicted to make room for new context). Silent dropping is the dangerous case — the system continues operating but has forgotten critical information.
+
+**Capacity dimensions:**
+
+| Dimension | Constraint | Tier 0 Impact | Tier 1+ Impact |
+|-----------|-----------|---------------|----------------|
+| Context capacity | Model context window (tokens) | Primary constraint. All state must fit in the conversation. | Working memory buffer size. Affects how much state the orchestrator holds per cycle. |
+| Signal volume | Number of signals per cycle | AI must read and synthesize all signals in conversation. Overload causes selective attention. | Signal store query performance. Affects health computation latency. |
+| Domain model complexity | Number and size of domain models | Must fit in context alongside OD and signals. | Domain knowledge store query cost. |
+| Governor bandwidth | Number of decisions requiring Governor review per cycle | Governor fatigue → rubber-stamping or delayed reviews. | Same — human bandwidth is tier-independent. |
+| Computation budget | Health computation, A/B comparison, diagnostic classification | In-conversation computation limited by response length and model reasoning capacity. | API cost, compute time per cycle. |
+
+**Load-shedding protocol:**
+
+When capacity is approaching limits, the system sheds load in priority order — lowest-priority content is shed first:
+
+**Priority 1 (never shed):** Current OD (goal through active tactic specifications). Active guardrails. Unfired kill conditions.
+
+**Priority 2 (shed last):** Domain models for active tactics' domains. Signals from the current review period. Bootstrap state.
+
+**Priority 3 (shed when needed):** Historical session logs (retain summaries, shed full transcripts). Completed/killed tactic specifications. Signals older than the current review period (retain aggregates, shed individual signals).
+
+**Priority 4 (shed first):** Domain models for domains with no active tactics. Detailed action-level records for completed actions. Historical decision log entries older than 2 review periods (retain in files, shed from working memory).
+
+**Context utilization monitoring (Tier 0 specific):**
+
+The AI tracks approximate context utilization during context loading. After loading each component, it estimates the remaining capacity:
+
+```
+Load bootstrap          →  ~5% used
+Load OD                 → ~25% used
+Load domain model 1     → ~35% used
+Load domain model 2     → ~45% used
+Load recent signals     → ~55% used
+Load session log summary → ~60% used
+[remaining 40% for session work — adequate]
+```
+
+If projected utilization exceeds 75% after loading Priority 1-2 content, the AI announces the constraint: "Context capacity is at approximately 75% after loading core state. I've loaded [list]. I have NOT loaded [list] to preserve working room for this session. If you need information from the unloaded content, I can swap it in by unloading something else."
+
+If projected utilization exceeds 90% before loading all Priority 1 content, the AI escalates: "The operating document and active signals alone consume approximately 90% of my context capacity. This scope may need to shed complexity (fewer active tactics, consolidated domain models) or upgrade to Tier 1 where state persistence reduces context pressure."
+
+**Governor bandwidth management:**
+
+When the number of decisions requiring Governor review exceeds a threshold (recommended: >5 non-trivial decisions per review session), the system batches and prioritizes:
+
+1. **Critical decisions first:** Kill/pivot/persevere decisions, guardrail breaches, non-delegable items.
+2. **Time-sensitive decisions second:** Decisions with external deadlines or dependencies.
+3. **Routine decisions last:** Parameter adjustments, status updates, informational items.
+
+If the queue exceeds the Governor's declared bandwidth (set in OD as `governor_review_capacity`, optional), the system defers routine decisions to the next review cycle and notifies the Governor: "You have 8 decisions queued. I've prioritized the 4 critical ones for this review. The remaining 4 are routine and can wait until next cycle. Override if any are time-sensitive."
+
+**Implementation by tier:**
+
+- *Tier 0:* Context monitoring is the primary mechanism. The AI manages its own context budget, announces what it has and hasn't loaded, and offers the Governor swap-in/swap-out choices. Governor bandwidth is managed through session structure — the Cowork Protocol's session types (§3 in the Cowork Protocol) already separate work sessions from review sessions, providing natural batching.
+- *Tier 1:* Automated capacity monitoring with configurable thresholds. Signal volume is managed through aggregation — when signal count per cycle exceeds a threshold, the system aggregates at the tactic level rather than presenting individual signals. Governor bandwidth is tracked and queuing is automated.
+- *Tier 2+:* Predictive capacity management. The system forecasts capacity needs based on scope complexity trends: "You currently have 8 active tactics across 3 strategies. At current growth rate, signal volume will exceed the Tier 1 processing budget within 4 cycles. Recommend either consolidating tactics or upgrading compute allocation." The system also optimizes context loading strategies based on access patterns — domain models that haven't been referenced in N cycles are candidates for Priority 4 shedding.
+
+**Signal processing throughput:**
+
+At Tier 0, signal processing throughput is not a concern — the AI processes signals conversationally within a single session, and signal volume is bounded by the Governor's manual data collection rate. At Tier 1, throughput is limited by orchestrator cycle time but rarely saturates because signal volume is modest (single scope, moderate tactic count). Throughput becomes a structural concern at Tier 2+ with many active tactics, where the signal processing bottleneck shifts from context capacity to computational throughput: can the orchestrator read, aggregate, and synthesize all signals within a single action cycle? When health computation cannot complete before the next cycle begins, the system is processing-overloaded — it accumulates a signal backlog, health reports are computed from partial data, and decisions lag behind reality.
+
+Detection: the orchestrator tracks health computation duration per cycle. If computation duration exceeds 80% of the action cycle period for 2 consecutive cycles, the system is approaching throughput saturation.
+
+Response protocol (applied in order):
+
+1. **Aggregation escalation.** Switch from individual-signal processing to pre-aggregated processing: instead of reading N individual signals and computing health, pre-aggregate signals by tactic at write time (signal store maintains running tactic-level aggregates updated on each signal write). The orchestrator reads tactic-level aggregates rather than individual signals. Individual signals remain in the store for audit and drill-down.
+
+2. **Parallel health computation.** Decompose health computation by strategy — each strategy's tactic health reports are computed independently and can run in parallel. Only strategy-level and objective-level aggregation requires sequential processing. This reduces wall-clock computation time proportional to the number of strategies.
+
+3. **Tiered computation cadence.** If aggregation and parallelism are insufficient, decouple computation cadence from action cadence: healthy tactics (hypothesis holding, kill condition safe) are computed at every Nth action cycle (N=2 or 3); at-risk and critical tactics are computed every cycle. This reduces total computation volume while maintaining high-frequency monitoring for the tactics that need it.
+
+4. **Scope partitioning.** If a single orchestrator cannot process the signal volume, partition the scope: each strategy gets its own orchestrator instance that manages its tactics and reports strategy-level health to a meta-orchestrator. The meta-orchestrator handles cross-strategy aggregation and Governor-facing reports. This is an architectural change — it should be recommended to the Governor when the above measures are insufficient.
+
+The system logs which throughput response is active and includes it in the system health section of the health report: "Signal processing: tiered computation active. Healthy tactics computed every 2nd cycle. At-risk tactics computed every cycle. Total signals processed this cycle: 127 of 340 (remainder deferred to next cycle)."
+
+#### 7.13.5 Cascading Failure Propagation `[ADVANCED]`
+
+**The problem:** In multi-scope hierarchies (§3.5), a parent scope's orchestrator failure propagates to child scopes. A child scope's signal pipeline failure may corrupt the parent's aggregated health computation. §7.7 handles failures within a single scope. In multi-scope deployments, failures cross scope boundaries.
+
+**Cascade paths:**
+
+| Origin | Propagation Path | Impact |
+|--------|-----------------|--------|
+| Parent orchestrator failure | Parent stops dispatching work to child scopes. Child scopes continue executing but parent can no longer aggregate results or make cross-scope decisions. | Child scopes operate independently without coordination. Resource allocation across scopes freezes at last-known values. |
+| Child scope signal failure | Child scope stops producing signals to parent. Parent's health computation for that child goes stale. | Parent makes cross-scope decisions with incomplete information. May reallocate resources away from a child that is actually performing well (or toward one that is failing). |
+| Shared data source failure | Data source used by multiple scopes goes offline simultaneously. | All dependent scopes degrade simultaneously. If scopes share a Governor, the Governor is overwhelmed with simultaneous escalations. |
+| Governor failure across scopes | A Governor who governs multiple scopes becomes unavailable. | All scopes governed by that Governor enter the §7.7 Governor-unavailability protocol simultaneously. Alternate Governor (if any) faces an escalation flood. |
+
+**Isolation mechanisms:**
+
+1. **Scope-level circuit breakers:** When a child scope emits `signal_pipeline_failure` or `agent_degradation` at a rate exceeding a threshold (implementation-defined, recommended: 3 failures per 5 cycles), the parent scope's orchestrator isolates that child — it stops including the child's signals in aggregate health computation and flags it: "Child scope [X] is experiencing repeated failures. Excluded from aggregate health until stabilized. Last reliable data from [date]." This prevents a failing child from corrupting the parent's decision-making.
+
+2. **Cascade detection:** The parent orchestrator monitors failure patterns across child scopes. If >50% of child scopes report failures in the same cycle, the parent classifies this as a **correlated failure** (likely a shared root cause) rather than independent failures. Correlated failures trigger a different response: instead of isolating each child individually, the parent pauses cross-scope decisions and escalates to the Governor: "3 of 4 child scopes reported failures simultaneously. Likely shared infrastructure issue. Pausing cross-scope resource allocation until root cause identified."
+
+3. **Independent operation mode:** When isolated from the parent (parent failure or circuit breaker), a child scope continues executing its current work plan autonomously — but cannot request resources from the parent, cannot trigger cross-scope decisions, and operates within its last-approved resource budget. The child scope must operate as if it were a standalone scope until the parent recovers. When the parent recovers, reconciliation protocol runs: the parent loads each child's recent activity and integrates it into the aggregated state.
+
+**Implementation by tier:**
+
+- *Tier 0:* Not applicable — Tier 0 operates single scopes. Multi-scope is Tier 3.
+- *Tier 1:* Not applicable — single-scope.
+- *Tier 2+:* The orchestrator maintains a per-child health monitor. Failure events from children are correlated in time. Circuit breaker state is tracked in the parent's signal store. Reconciliation after parent recovery runs automatically — the parent reads each child's recent session logs and signals, identifies any decisions that need cross-scope validation, and surfaces them to the Governor.
+
+**Relationship to §6.7.1:** Degraded-mode autonomy operates within a single scope. Cascading failure operates across scopes. A child scope may be in degraded-mode (its own grounding is degraded) while the parent-child communication channel is healthy — or vice versa. Both are tracked independently.
+
+#### 7.13.6 Governor Decision Validation
+
+**The problem:** §7.7 handles Governor *unavailability*. §8 (Structural Integrity) catches *structural* errors in the OD. But neither handles the case where the Governor makes a decision that is structurally valid but semantically incoherent given the current signals. Examples: approving a tactic whose kill condition has already been met; persevering with a strategy whose what-must-be-true condition was falsified 3 cycles ago; setting a guardrail threshold that contradicts another active guardrail; allocating 150% of available budget across tactics.
+
+This is not about overriding the Governor — the Governor has final authority (§6.1). It is about ensuring the Governor has the information needed to make a coherent decision, and flagging when a decision appears to contradict the system's current state.
+
+**Validation checks (run after every Governor decision, before applying):**
+
+| Check | What It Catches | Response |
+|-------|----------------|----------|
+| Kill condition consistency | Governor perseveres with a tactic whose kill condition is currently met | Flag: "TAC-3's kill condition (conversion rate < 2% for 3 consecutive cycles) is currently met (1.8% for 4 cycles). You chose to persevere. Please confirm this is intentional — you may have information the system doesn't." |
+| What-must-be-true consistency | Governor continues a strategy whose WMBT condition is falsified | Flag: "Strategy A's WMBT condition 'organic search volume >10K/month' was falsified in Cycle 5 (current: 6.2K). You haven't killed Strategy A. Confirm this is intentional." |
+| Budget coherence | Governor's tactic allocations exceed available budget | Block: "Approved tactic allocations total $15,000. Available budget is $12,000. Please adjust allocations before I can apply them." Budget incoherence is blocking, not just a flag — applying it would create an impossible execution state. |
+| Guardrail contradiction | Governor sets or modifies a guardrail that contradicts another active guardrail | Flag: "New guardrail 'maximum spend per tactic: $5,000' contradicts existing guardrail 'minimum A/B test budget: $6,000.' Both cannot be satisfied simultaneously. Please resolve." |
+| Temporal coherence | Governor sets deadlines that are already past or objectives with deadlines before their tactics' expected completion | Flag: "Objective deadline is April 15. TAC-4's estimated completion is May 1. The objective cannot be met with current tactic timelines. Confirm or adjust." |
+| Graduation-state coherence | Governor delegates a non-delegable decision, or attempts to act at an authority level inconsistent with the current stage | Block: "At Stage 2, strategy kills require Governor approval. You asked the AI to autonomously decide which strategies to kill. This exceeds Stage 2 autonomy bounds." |
+
+**Response types:**
+
+- **Flag (soft validation):** The system presents the inconsistency and asks for confirmation. If the Governor confirms, the decision is applied and logged with `validation_override: [check_name]`. The Governor may have information the system doesn't — a pending partnership that will change the numbers, a strategic pivot they haven't yet formalized.
+- **Block (hard validation):** The system cannot apply the decision because it would create an impossible state (budget exceeding available funds, authority exceeding graduation stage). The Governor must modify the decision. Hard blocks are limited to: budget incoherence, graduation-state authority violations, and OD structural integrity violations (§8).
+
+**Relationship to Semantic Coherence Validation (§8.1).** Governor Decision Validation (this section) is *reactive* — it fires when the Governor issues a decision and catches decision-state inconsistencies before application. Semantic Coherence Validation (§8.1) is *proactive* — it fires at OD authoring time and review time, catching cross-entity semantic issues before they propagate. Together, they form a two-layer integrity net: §8.1 prevents bad specifications from entering the system; §7.13.6 prevents bad decisions from being applied to the system.
+
+**The Governor can always override flags.** The system's role is to surface inconsistencies, not prevent decisions. If the Governor consistently overrides a specific validation check, the system notes this pattern at strategy review: "You've overridden the kill-condition consistency check 4 times for SEO tactics. This suggests either the kill conditions need updating or you have a standing policy to maintain SEO presence regardless of metrics. Want to formalize this?" This converts repeated overrides into explicit policy, reducing future friction.
+
+**Implementation by tier:**
+
+- *Tier 0:* The AI runs validation checks mentally after receiving a Governor decision and before applying it. Checks are presented conversationally: "Before I apply this — I notice TAC-3's kill condition has been met for 4 cycles. You chose to persevere. Is that intentional, or would you like to revisit?" The tone is collaborative, not adversarial. Budget coherence is checked by summing allocations. Temporal coherence is checked by comparing dates.
+- *Tier 1:* Automated validation runs after each Governor input. Flags appear in the approval interface as warnings alongside the decision. Blocks prevent the "Apply" action until resolved. Override logging is automatic.
+- *Tier 2+:* The system learns from validation patterns. It tracks which checks produce the most overrides, which produce the most "I didn't realize that — let me change my decision" responses, and which are consistently irrelevant. This produces validation tuning recommendations: "The temporal coherence check has been overridden 100% of the time for finite-scope objectives. Consider disabling for finite scopes where deadlines are aspirational." The system also detects Governor decision patterns that are technically valid but strategically inconsistent — e.g., approving tactics that collectively pull in opposing directions — and surfaces these as meta-level observations at strategy review.
+
+**Design boundary:** Governor decision validation is informational infrastructure, not a check on Governor authority. The Governor can always override flags. The system never refuses to apply a flagged decision after Governor confirmation. The framework treats the Governor as the final authority (§6.1); this mechanism ensures that authority is exercised with full awareness of the system's current state.
+
+#### 7.13.7 Constraint Propagation Verification `[ROBUST]`
+
+**The problem:** §8 Rule 4 requires that every layer inherits all constraints from layers above it. At Tier 0, this happens naturally — the AI re-reads all files each session, so constraint context is always fresh. At Tier 1+, persistent orchestrators and executors may cache constraint context between cycles. When a guardrail changes (tightened, added, or — via `guardrail_recovery` — reinstated after an override), the change must propagate to all active agents operating under that constraint. If an executor runs with stale guardrails, it may violate constraints the Governor has already tightened. This is the downward-flow counterpart to §7.13.1's upward signal pipeline monitoring.
+
+**Verification mechanism:**
+
+The operating document carries a `constraint_version` counter — a monotonically increasing integer incremented every time any guardrail, boundary, or constraint in the OD is modified. Every agent (orchestrator, executor) records the `constraint_version` it loaded at context initialization.
+
+| Check Point | What Is Verified | Response on Mismatch |
+|-------------|-----------------|---------------------|
+| Executor receives action specification | Action spec includes `constraint_version` from the orchestrator's current OD version. Executor compares against its cached version. | If executor's cached version < action spec's version: executor reloads constraint context from the OD before executing. Action is not started until constraints are refreshed. |
+| Orchestrator begins cycle | Orchestrator checks `constraint_version` in the OD against its cached version. | If mismatch: orchestrator reloads the full OD before computing health or generating work plans. All in-flight action specifications from the previous cycle are flagged as "pre-constraint-change" in the health report. |
+| Governor decision applied | After any Governor decision that modifies guardrails, the system increments `constraint_version` and broadcasts an invalidation signal to all active agents. | Agents that receive the invalidation reload constraints at the start of their next cycle. Agents mid-execution complete their current action under old constraints (to avoid partial state corruption) but flag the output: "Completed under constraint_version N; current is N+1. Governor should verify output compliance with updated constraints." |
+
+**What this prevents:**
+
+- An executor producing content under a relaxed guardrail that the Governor tightened 3 cycles ago
+- An orchestrator generating a work plan that allocates resources to an approach the Governor has since constrained
+- A multi-executor deployment where some executors operate under updated constraints while others still use the old version (split-brain constraint state)
+
+**Implementation by tier:**
+
+- *Tier 0:* Not needed — the AI re-reads all files each session. Constraint propagation is automatic. The `constraint_version` counter is implicit (the file modification timestamp serves the same purpose).
+- *Tier 1:* The `constraint_version` counter is stored in the OD header. The orchestrator checks it at cycle start. Executors check it before executing each action. Reloading constraints is a database read, not a full OD parse — only the guardrail chain for the relevant tactic needs refreshing.
+- *Tier 2+:* The system maintains a constraint changelog: which constraints changed, when, by whom (Governor decision ID), and which agents have acknowledged the change. Agents that fail to acknowledge a constraint change within 2 action cycles are flagged as "constraint-stale" in the system health report. The orchestrator can force-refresh any stale agent's constraint context. The changelog also supports constraint impact analysis: "Guardrail G was tightened in Cycle 12. 3 actions completed between Cycle 12 and executor refresh in Cycle 14. These actions should be reviewed for compliance with the updated guardrail."
+
+**Relationship to §8 Rule 6 (Guardrails never relax):** Constraint propagation verification enforces Rule 6 at runtime. Rule 6 is a structural rule — it states that relaxation is prohibited. This mechanism verifies that the prohibition is actually observed in practice: when a guardrail is tightened, all agents operating under it receive the tightened version. Without runtime verification, Rule 6 is a policy without enforcement in persistent-process deployments.
+
+### 7.14 Environmental Signal Architecture `[ROBUST]`
+
+External signals enter the GOSTA feedback loop through three reactive paths: Governor reports at reviews, executor discovery during action execution (knowledge_flag signals, §7.4), and milestone events reported by the Governor or detected from external systems. These paths are reactive — they capture external changes after they occur and after someone notices them. No mechanism proactively scans the environment for changes that affect the scope's goals, strategies, or what-must-be-true conditions.
+
+At Tier 0, this is acceptable — the Governor is the environmental scanner, and their judgment is sufficient for low-cadence scopes. At Tier 2+, where review cadences may be weekly or faster and scopes operate with higher autonomy, relying on reactive detection creates a blind spot: the system can respond to changes it detects, but it cannot detect changes it isn't looking for.
+
+#### 7.14.1 Environmental Watch List
+
+The operating document may define an **environmental watch list** — a set of external conditions whose change would materially affect the scope's goals, strategies, or what-must-be-true conditions. Each entry specifies:
+
+- `condition`: What to monitor (e.g., "competitor pricing for product category X", "regulatory status of AI in healthcare in EU", "platform algorithm changes for content distribution")
+- `relevance`: Which goal, strategy, or WMBT this condition affects
+- `monitoring_method`: How the condition is observed (manual Governor check, automated API feed, executor discovery, scheduled web search)
+- `check_cadence`: How often the condition should be checked (at minimum, at each strategy review; more frequently for volatile conditions)
+- `change_threshold`: What level of change warrants a signal (e.g., "price change >10%", "any regulatory announcement", "algorithm change affecting organic reach")
+
+The environmental watch list is seeded at authoring time from two sources: (a) the what-must-be-true conditions of active strategies — each WMBT that depends on an external condition implies a watch list entry, and (b) the goal-level guardrails — each guardrail that references an external factor implies monitoring. The orchestrator may propose additional entries as it learns which external factors affect the scope.
+
+#### 7.14.2 Environmental Signal Processing
+
+When an environmental watch list condition changes beyond its threshold, the system emits an environmental signal:
+
+`signal_type: environmental`, `condition_id: [watch list entry]`, `previous_state: [last observed]`, `current_state: [new observation]`, `source: [monitoring method]`, `affected_entities: [goal/strategy/WMBT IDs]`, `severity: informational | significant | critical`.
+
+Severity classification:
+- **Informational:** Change detected but within normal variance. Logged for trend tracking. No immediate action.
+- **Significant:** Change exceeds threshold and affects an active strategy's WMBT or a goal's guardrail viability. Included in the next scheduled health report.
+- **Critical:** Change directly falsifies a WMBT, renders a guardrail untenable, or triggers a goal-level reassessment. Triggers an event-triggered review (§7.9) immediately.
+
+**Relationship to §7.9:** Environmental signals with `severity: critical` satisfy the event-triggered review condition "a market event or external disruption changes the cost structure, demand level, or competitive landscape." The watch list makes this trigger proactive rather than reactive — the system detects the event rather than waiting for the Governor to report it.
+
+**Relationship to §20.12 (Goal Health):** Environmental signals are a primary input to the environmental alignment assessment in goal health computation. A watch list that consistently produces `informational` signals indicates environmental stability (alignment = aligned). Accumulating `significant` signals indicate drift. Any `critical` signal immediately shifts alignment to `drifting` or `misaligned`.
+
+#### 7.14.3 Implementation by Tier
+
+- *Tier 0:* The environmental watch list is a section in the operating document. The AI checks it at the start of each strategy review session: "Before we begin the strategy review, let me check the environmental watch list. [Condition 1]: any changes? [Condition 2]: any changes?" The Governor reports changes; the AI records them as signals. This is lightweight and adds 5-10 minutes to the strategy review.
+- *Tier 1:* The watch list is stored in the OD. Conditions with automated monitoring methods (API feeds, platform metrics) are checked programmatically at each action cycle. Manual conditions are prompted to the Governor at the appropriate cadence. Environmental signals are written to the signal store like any other signal.
+- *Tier 2+:* Automated environmental scanning. The system maintains active monitors for each watch list condition — scheduled API calls, web searches, news feed processing. NLP-based change detection classifies environmental signals automatically. The system also proposes new watch list entries when it detects that a health computation outcome was influenced by an external factor not on the watch list: "Tactic health declined this cycle. Root cause appears to be [external factor X], which is not on the environmental watch list. Recommend adding: [proposed entry]."
+
+**Design boundary:** The environmental watch list is a monitoring tool, not a prediction tool. It detects changes that have occurred, not changes that will occur. Scenario planning (§15.4) and challenge scenarios (§16.11.1) address forward-looking assessment. The watch list addresses the simpler but operationally critical problem: did something in the external environment change since last review, and does the scope need to respond?
+
+---
+
+## 8. Structural Integrity Rules
+
+**Rule 1 — No orphans:** Every item must have a parent above and at least one child below (except actions). An objective without strategies is a wish. A strategy without tactics is a slide deck. A tactic without actions is a hypothesis never tested.
+
+**Rule 2 — No contamination:** Each layer answers only its own question. Goals do not contain timelines. Objectives do not prescribe methods. Strategies do not specify implementation details. Tactics do not specify task-level assignees. Actions do not explain strategic rationale.
+
+The most common contamination patterns in practice:
+
+**Tactic-level details leaking into strategies.** A strategy that states "publish 3 posts/week, 40% commentary, 30% original, 30% questions, spaced 2-3 hours apart" has embedded its entire tactic and action plan into its definition. This makes the strategy rigid — the orchestrator cannot adjust the implementation when it observes that one format outperforms another 3:1, because the implementation is locked into the strategy spec. The strategy should state the approach reasoning ("compete on thought leadership leveraging founder expertise"). The specific format mix, posting cadence, and timing are tactic-level decisions that the orchestrator generates and adjusts based on signal data.
+
+**Strategy-level reasoning leaking into tactics.** A tactic that spends half its specification explaining why thought leadership is the right approach is doing the strategy's job. The tactic should reference its parent strategy for the reasoning and focus on the testable hypothesis and implementation specifics.
+
+**Test for contamination:** If changing a detail requires rewriting the strategy definition, that detail is at the wrong layer. Strategy definitions should be stable across their lifecycle. Tactics should be the adjustable surface. If changing a detail requires rewriting the tactic definition, that detail belongs at the action layer.
+
+**Rule 3 — Single ownership:** Every strategy has exactly one owner. Every tactic has exactly one owner. Actions have exactly one assignee.
+
+**Rule 4 — Falsifiability:** Objectives must be binary-auditable. Strategies must have what-must-be-true conditions that can be verified. Tactics must have a testable hypothesis with a kill condition.
+
+**Rule 5 — Traceability:** Every action traces upward to one tactic, one strategy, one objective, one goal. If it cannot be traced, it is waste.
+
+**Rule 6 — Guardrail inheritance:** Constraints accumulate downward and never relax.
+
+**Rule 7 — Feedback obligation:** Every layer emits structured signals upward at its defined cadence. Silence is a negative signal. **Tier 0 note:** At Tier 0 (stateless execution), the feedback obligation applies per-session — the AI must emit signals for every action within a session. Cross-session silence is tracked by the Governor via bootstrap file staleness (has the bootstrap been updated within the review cadence?), not by automated monitoring.
+
+**Rule 8 — Kill discipline:** Tactics that meet their kill condition must be killed. Strategies whose what-must-be-true conditions are falsified must be killed. Continuing a dead tactic or a disproven strategy is the single most common planning failure. The system enforces this structurally.
+
+**Rule 9 — Layer boundary respect:** The transformation model (Section 2.4) defines the boundary. If you are reasoning about approach selection, you are at the Strategy layer. If you are specifying a testable implementation, you are at the Tactic layer. Content that shifts layers depending on scope is not evidence that layers are invalid — it is evidence that the content performs different transformations in different contexts.
+
+### 8.1 Semantic Coherence Validation
+
+Rules 1–9 above are *structural* invariants — they constrain form (hierarchy, field presence, layer boundaries). But a system can be structurally valid and semantically incoherent: a tactic whose kill condition references a metric that no data source provides, a guardrail that contradicts another guardrail at a different layer, a strategy whose what-must-be-true conditions have no logical relationship to the parent objective's success metric. Structural validation (§14.3.1) catches missing fields. Governor Decision Validation (§7.13.6) catches inconsistencies in *decisions*. Semantic Coherence Validation catches inconsistencies in *specifications* — the OD elements themselves.
+
+**Relationship to existing mechanisms.** §7.13.6 validates decisions against current state (reactive — fires when a decision is issued). §14.3.1 validates schema against field requirements (structural — fires at bootstrap and phase gates). Semantic Coherence Validation validates cross-entity meaning (proactive — fires at authoring time and review time, before problems propagate to health computation or decision-making).
+
+#### 8.1.1 Core Invariants
+
+These invariants must hold for any GOSTA implementation. Violation of a core invariant means the feedback loop or control system cannot function correctly.
+
+**Invariant C1 — Kill condition evaluability.** Every tactic's kill condition must reference metrics or states that the system can actually evaluate. If the kill condition says "conversion rate < 2% for 3 cycles" but no conversion tracking is configured, the kill condition can never fire — the tactic runs indefinitely, defeating the framework's core feedback mechanism.
+
+Check: for each active tactic, verify that every metric referenced in the kill condition appears in the tactic's signal specification or is available from a declared data source (Governor-provided data, API feed, or executor output). If a metric is unevaluable, flag the tactic as **kill-condition-blocked** — it cannot enter its first action cycle until the data source is confirmed.
+
+Response: **blocking at tactic activation** — the tactic cannot start until the Governor confirms data source availability or revises the kill condition.
+
+**Execution-completion kill condition default** `[ROBUST]` — Some tactics are pure execution tasks (deliver a document, build a feature, complete an analysis) with no ongoing metric to evaluate. These tactics appear to have `Kill Condition: N/A` because there is no performance threshold to test against. However, C1 still requires an evaluable kill condition — without one, the tactic can never be formally killed, preventing resource reallocation and exhaustion detection. The resolution: every execution-only tactic must declare a **completion-based kill condition** that is evaluable by the system. The standard form is: `kill_condition: deliverable not accepted by Governor after [N] revision cycles` (default N=3). This gives the tactic a finite evaluation window: if the deliverable is not accepted after N attempts, the tactic is killed — the approach is not working. Additional execution-only kill condition forms: (a) `deadline_exceeded: [date]` — if the deliverable is not complete by the deadline, kill; (b) `cost_exceeded: [threshold]` — if execution cost (Governor time, API calls, revision rounds) exceeds the threshold, kill; (c) `scope_exceeded: [boundary]` — if the deliverable scope grows beyond the original specification, kill and re-scope. The Governor selects the appropriate form at tactic creation. If no kill condition is specified for an execution-only tactic, the orchestrator applies the default (`deliverable not accepted after 3 revision cycles`) and flags: "This tactic has no explicit kill condition. Applying default: kill after 3 unsuccessful revision cycles. Override?" The Governor may accept the default or specify a custom condition. A tactic with `Kill Condition: N/A` in the operating document is a C1 violation — the orchestrator must resolve it before the tactic activates.
+
+**Invariant C2 — Resource allocation arithmetic.** The sum of `ALLOCATION_WEIGHT` across all active (non-paused, non-terminal) tactics within a strategy must equal 1.0. The sum of `STRATEGY_ALLOCATION_WEIGHT` across all active strategies within an objective must equal 1.0.
+
+Check: after any tactic status change (creation, kill, pause, resume) or any allocation adjustment, verify the sums. Note: §4.3 specifies proportional renormalization when tactics are killed. This invariant verifies the renormalization was applied correctly, not just that it was attempted.
+
+Response: **flag with auto-correction** — if sums deviate, the system normalizes proportionally (per §4.3) and logs the correction. If the deviation was introduced by a Governor decision (manual allocation override), flag the inconsistency but apply the Governor's values — the Governor may have intentional reasons.
+
+**Invariant C3 — Temporal ordering.** Tactic estimated completion dates must not exceed the parent strategy's review deadline. Strategy deadlines must not exceed the parent objective's deadline. If a tactic is expected to complete after the strategy under which it operates will be reviewed, the tactic's output cannot inform that review — it is structurally late.
+
+Check: after any deadline modification or tactic creation, verify the ordering chain from tactic → strategy → objective. Goal-level has no deadline (goals are directional).
+
+Response: **flag** — the Governor may accept the mismatch (the tactic contributes to a later review cycle). But the mismatch must be visible, not silent.
+
+**Implementation by tier:**
+
+- *Tier 0:* The AI checks C1, C2, and C3 during OD authoring and at each tactic creation. For C1, the AI asks: "This kill condition references [metric]. Where will this data come from?" If the Governor cannot answer, the kill condition is revised before the tactic is accepted. For C2, the AI verifies allocation sums whenever tactic status changes and announces corrections. For C3, the AI flags temporal mismatches conversationally.
+- *Tier 1:* Automated validation rules run on OD write operations. C1 checks kill condition metrics against registered data sources. C2 runs on every tactic status transition. C3 runs on every deadline modification. Violations appear in the approval UI.
+- *Tier 2+:* Continuous validation. C1 extends to verify data source *liveness* (is the source still producing data, not just registered). C2 includes allocation drift detection (small rounding errors accumulating over many cycles). C3 includes projected completion date tracking (if current velocity suggests the tactic will miss its deadline, flag proactively).
+
+#### 8.1.2 Cross-Entity Invariants `[ROBUST]`
+
+These invariants validate semantic relationships across layers. They prevent specifications that are individually valid but collectively incoherent.
+
+**Invariant R1 — Hypothesis-domain model coherence.** A tactic's hypothesis should reference concepts that exist in the currently loaded domain model version, or be explicitly marked as a novel hypothesis extending beyond established domain knowledge.
+
+Check: at tactic creation and at each strategy review, verify that the domain model concepts cited in the hypothesis field still exist and have not been materially modified since the tactic was created. If a domain model update removed or significantly changed a concept that an active tactic's hypothesis depends on, flag the tactic for review.
+
+Response: **flag** — the tactic may still be valid (the hypothesis was correct even though the domain model's framing changed). But the orchestrator must surface the discrepancy rather than silently continuing with a hypothesis grounded in an outdated domain model version.
+
+**Invariant R2 — WMBT-objective alignment.** Each strategy's what-must-be-true conditions should collectively be necessary conditions for (or strongly indicative of) the parent objective's success metric improving. A WMBT that can be fully satisfied while the objective metric fails is not a genuine what-must-be-true — it is a what-would-be-nice.
+
+Check: at strategy creation and at each strategy review, the orchestrator assesses whether the WMBT conditions, if all holding, would logically imply progress on the objective's metric. This is a semantic judgment, not a mechanical check — it requires reasoning about the causal chain from WMBT → tactic success → signal improvement → objective metric.
+
+Response: **flag** — the Governor reviews the alignment assessment. If the WMBT and objective are misaligned, the Governor either revises the WMBT, revises the objective metric, or confirms the relationship with reasoning that the orchestrator records. This flag is informational, not blocking — misalignment may reflect genuine uncertainty about causal mechanisms, which is itself worth documenting.
+
+**Invariant R3 — Guardrail logical consistency.** No two active guardrails within the same scope should logically contradict (both cannot be simultaneously satisfied). This extends §7.13.6's decision-time contradiction check to cover the initial OD guardrail set and guardrails introduced through recovery actions (§5.2).
+
+Check: at OD authoring, at any guardrail addition/modification, and at strategy review. For each pair of guardrails that operate on overlapping domains (e.g., two cost guardrails, two engagement guardrails), evaluate whether a state exists in which both can be satisfied. If no such state exists, the pair contradicts.
+
+Response: **blocking at authoring** if detected during OD creation. **Flag** if detected at review (the contradiction may have been introduced by a guardrail recovery action that the Governor needs to reconcile).
+
+**Invariant R4 — Guardrail inheritance compatibility.** A guardrail at a lower layer must not contradict a guardrail inherited from a higher layer. Rule 6 (guardrails never relax) prevents weakening; this invariant prevents semantic contradiction — a lower guardrail that tightens in one dimension while making another inherited guardrail impossible to satisfy.
+
+Check: at tactic creation and any guardrail modification, verify that the new guardrail is compatible with all inherited guardrails from parent layers. "Compatible" means there exists an operational state satisfying both the new guardrail and all inherited ones simultaneously.
+
+Response: **flag** — the Governor resolves by modifying one of the conflicting guardrails. If the child guardrail is necessary for the tactic's operation, the parent guardrail may need calibration (§5.3).
+
+**Implementation by tier:**
+
+- *Tier 0:* The AI performs R1–R4 as part of its OD authoring and strategy review reasoning. For R1, it checks whether hypothesis concepts appear in loaded domain model files. For R2, it presents its alignment assessment explicitly: "STR-2's WMBTs are [conditions]. These relate to OBJ-1's metric [metric] because [reasoning]. Alignment: strong / weak / unclear." For R3 and R4, it reasons about guardrail compatibility when the Governor introduces new guardrails: "This new guardrail [X] may conflict with existing guardrail [Y] because [reasoning]."
+- *Tier 1:* R1 is automated through domain model concept indexing — the system maintains a concept registry and flags stale references. R2 remains a semantic judgment but is prompted systematically at strategy creation (the system presents the WMBT-objective relationship and requires Governor confirmation). R3 and R4 use pairwise constraint comparison within overlapping domains.
+- *Tier 2+:* R1 includes automated semantic similarity detection (hypothesis language vs. domain model language — flag drift even when concept names match but meanings have shifted). R2 includes historical backtesting: when past strategy cycles had weak WMBT-objective alignment, what was the outcome? R3 and R4 include formal constraint satisfaction checking where guardrails are expressible as numeric bounds.
+
+#### 8.1.3 Advanced Invariants `[ADVANCED]`
+
+These invariants apply to multi-scope, multi-domain, or high-autonomy deployments.
+
+**Invariant A1 — WMBT-kill condition coupling.** When a tactic's kill condition is met, the orchestrator checks whether the killed tactic was the sole or primary evidence source for any of the parent strategy's WMBT conditions. If so, the WMBT condition's status should transition to "at risk" (evidence base removed) rather than remaining "holding" (which implies continued supporting evidence).
+
+Check: at tactic kill, for each WMBT condition on the parent strategy, identify whether the killed tactic was contributing signal evidence to that condition's assessment. If it was the sole contributor, transition the WMBT to "at risk" and include the reasoning in the strategy health report.
+
+Response: **automatic status transition** — the WMBT moves to "at risk" with an explanation. This is not a kill recommendation for the strategy — it surfaces that the evidence base has narrowed, prompting the Governor to decide whether a replacement tactic is needed.
+
+**Invariant A2 — Cross-domain concept consistency.** When the same concept (e.g., "user acquisition cost," "brand awareness") is referenced across multiple domain models, the definitions should be semantically compatible. A marketing domain model defining "brand awareness" as aided recall and a sales domain model defining it as inbound inquiry rate are measuring different things under the same name.
+
+Check: at domain model loading (strategy review or deliberation round), compare concept definitions across loaded domain models. If the same term appears with materially different definitions, flag the discrepancy before any cross-domain assessment or deliberation.
+
+Response: **flag before cross-domain assessment** — the orchestrator (or Coordinator in deliberation) must either (a) reconcile the definitions with Governor input, (b) use disambiguated terms (e.g., "brand awareness (aided recall)" vs. "brand awareness (inbound rate)"), or (c) note the discrepancy in the assessment and weight conclusions accordingly.
+
+**Implementation by tier:**
+
+- *Tier 0:* A1 is part of the AI's tactic kill reasoning — it checks WMBT impact before finalizing the kill report. A2 is checked during multi-domain assessment (§7.5 / deliberation): the AI explicitly compares concept usage across domain model files before synthesizing.
+- *Tier 1:* A1 is automated through signal attribution — the system tracks which tactic signals contribute to each WMBT assessment. A2 requires concept registry with cross-domain mapping.
+- *Tier 2+:* A1 includes predictive coupling analysis — before proposing a tactic kill, estimate the impact on all WMBT conditions and include it in the kill recommendation. A2 includes automated semantic comparison of concept definitions using NLP similarity.
+
+#### 8.1.4 Validation Timing
+
+Semantic coherence checks run at two points:
+
+**Authoring time.** When the OD is created or modified — new tactics, new strategies, guardrail changes, kill condition revisions, resource reallocation. Authoring-time checks prevent incoherent specifications from entering the system. At Tier 0, this is the AI reviewing the Governor's inputs during the authoring session. At Tier 1+, this is pre-commit validation on OD write operations.
+
+**Review time.** At every strategy review (§7.2) and goal review (§20.12). Review-time checks catch coherence drift — specifications that were coherent at authoring time but have become incoherent due to domain model updates, tactic kills, or environmental changes. The orchestrator includes a coherence check summary in the strategy health report.
+
+Authoring-time checks that fail as **blocking** must be resolved before the change is committed. Review-time checks that fail produce **flags** in the health report for Governor attention — the system continues operating because the incoherence may be known and accepted.
+
+### 8.2 Decision-to-State Traceability `[ROBUST]`
+
+Every element in the operating document should be traceable to the decision that authorized it. At Stages 1-2, this is inherent — every OD change requires Governor approval, and the approval is a decision entry. At Stage 3+, the orchestrator makes autonomous decisions (tactic creation, kill, pivot, parameter adjustment) with post-hoc reporting. The gap: an OD mutation can exist without a corresponding decision entry if the system fails between mutation and logging, or if parameter adjustments accumulate without individual entries.
+
+**Principle:** OD mutation and decision logging must be atomic — both happen or neither happens. The decision entry is not a post-hoc report; it is part of the mutation operation itself.
+
+#### 8.2.1 The Authorization Field
+
+Every OD element that can be created or modified autonomously gains an `authorized_by` field:
+
+```
+authorized_by: DEC-[decision_id] | GOV-[session] | SYSTEM-[mechanism]
+```
+
+Three authorization sources:
+- `DEC-N` — references a specific decision entry in the decision log. Used for all Governor decisions and autonomous orchestrator decisions that generate a decision entry.
+- `GOV-[session]` — references a Governor authoring session (initial OD creation, bulk modifications during authoring). Used when the Governor creates multiple elements in a single authoring session without individual decision entries for each.
+- `SYSTEM-[mechanism]` — references an automatic system response. Used for guardrail recovery actions (§5.2), allocation renormalization (§4.3), and constraint propagation (§7.13.7). The mechanism name provides auditability without requiring a full decision entry for every automated adjustment.
+
+The `authorized_by` field is informational, not a foreign key constraint. It enables reconciliation (§8.2.3) without blocking system operation if a decision entry is temporarily missing.
+
+#### 8.2.2 Atomic Decision-Mutation Requirement
+
+At Stage 3+ (where the orchestrator makes autonomous OD changes), the following protocol applies:
+
+1. **Create decision entry first.** Before mutating the OD, write the decision entry to the decision log with the intended change.
+2. **Mutate OD with reference.** Apply the change to the OD, including the `authorized_by` field pointing to the decision entry from step 1.
+3. **If step 2 fails, mark decision as `not_applied`.** The decision entry exists but the OD was not modified. The system retries at the next cycle.
+
+This reverses the current "mutate then log" pattern. The decision entry becomes the *intent record*, not the *audit record*. If the system fails between steps 1 and 2, the decision entry exists but the OD is unchanged — a reconciliation check (§8.2.3) detects the unapplied decision and retries.
+
+**Implementation by tier:**
+
+- *Tier 0:* The atomic requirement is natural — the AI creates the decision entry and modifies the OD within the same session. Both are file writes in the same conversation turn. The `authorized_by` field is a simple text reference (e.g., "DEC-14" or "GOV-session-7"). The AI writes the decision entry before modifying the OD file.
+- *Tier 1:* Database transaction wraps decision insertion and OD update. If the transaction fails, both roll back. The `authorized_by` field is a foreign key to the decision store.
+- *Tier 2+:* Distributed transaction or saga pattern. Decision service writes intent, OD service applies change, confirmation signal closes the saga. Failed sagas appear in the reconciliation report.
+
+#### 8.2.3 Reconciliation Check
+
+At every strategy review, the orchestrator performs a reconciliation between the OD's current state and the decision log:
+
+**Forward check (decisions → state):** For each decision entry since the last strategy review, verify that the intended OD change was applied. A decision marked `approve` for TAC-5 should correspond to an active TAC-5 in the OD. A decision marked `kill` for TAC-3 should correspond to TAC-3 having a terminal status.
+
+**Reverse check (state → decisions):** For each active OD element (tactic, strategy, objective), verify that an `authorized_by` reference exists and points to a valid decision entry (or GOV/SYSTEM authorization). Elements with missing or invalid authorization are flagged as **unauthorized state** — the orchestrator surfaces them to the Governor for retroactive authorization or removal.
+
+**Parameter drift check:** For elements with `SYSTEM-renormalize` or `SYSTEM-recovery` authorization, verify that the automated adjustment was correct (allocation sums are valid, recovery action matches the guardrail's recovery specification).
+
+Response: reconciliation results appear in the strategy health report under a "State Integrity" section. Unauthorized state is a **flag** (not blocking) — the Governor may retroactively authorize it, or may request rollback.
+
+**Implementation by tier:**
+
+- *Tier 0:* The AI performs the reconciliation as part of the strategy review session. It reads the decision log and the OD, cross-references them, and reports discrepancies conversationally: "I found TAC-7 in the OD but no decision entry authorizing its creation. Was this created in a session I don't have context for, or should we add a retroactive decision entry?" At Tier 0, discrepancies typically arise from multi-session context gaps (the AI in a new session may not have full history).
+- *Tier 1:* Automated reconciliation query: `SELECT od_elements WHERE authorized_by NOT IN decision_log AND authorized_by NOT LIKE 'GOV-%' AND authorized_by NOT LIKE 'SYSTEM-%'`. Results appear in the strategy health report.
+- *Tier 2+:* Continuous reconciliation — every OD mutation triggers an immediate check, not just at strategy review. Unauthorized mutations are blocked before they reach the OD (the system rejects OD writes without valid authorization references).
+
+### 8.3 OD State Versioning `[ROBUST]`
+
+§8.2 traces *which decision authorized* each OD element. This section addresses a complementary problem: *what was the OD state when a decision was made?* The decision log records intent ("kill TAC-3 because kill condition met"), but not context ("TAC-3's kill condition was X, metric was Y, allocation was Z at the time of the decision"). Without context preservation, post-mortem audits require manual reconstruction — walking the decision log backward from the current OD, reversing each change to approximate historical state. This is error-prone and, at Tier 0, often impossible across multi-session gaps.
+
+**Principle:** Every decision entry should be self-contained — a reader should be able to understand the decision's rationale without needing to reconstruct the OD state at that time.
+
+#### 8.3.1 Decision Context Snapshot
+
+Each decision entry gains a `context_snapshot` section capturing the OD parameters that were evaluated to reach the decision. This is not a full OD copy — it captures only the fields directly relevant to the decision.
+
+**Required snapshot fields by decision type:**
+
+| Decision Type | Snapshot Fields |
+|---------------|----------------|
+| kill | Target element's current spec (hypothesis, kill condition, success metrics), metric values at decision time, signal IDs referenced with their values, parent strategy WMBT status |
+| pivot | Same as kill, plus: proposed new spec (revised hypothesis, revised kill condition), what changed and why |
+| persevere | Target element's kill condition, current metric values vs. kill threshold, reasoning for continuation |
+| rebalance | All affected elements' allocation weights (before and after), total allocation sum, trigger signal |
+| revise_objective | Old metric/target/deadline, new metric/target/deadline, signals motivating the revision |
+| approve (new tactic) | Parent strategy spec, new tactic spec, how tactic serves the strategy's hypothesis space |
+| guardrail_change | Old guardrail text/threshold, new guardrail text/threshold, calibration rationale (§5.3) |
+| graduation | Current stage readiness indicators (§16.11), prerequisite check results (a-f), proposed new stage |
+
+For decision types not listed (pause, resume, phase_advance, conclude_scope, etc.), snapshot the target element's current spec and the signals motivating the decision.
+
+**What the snapshot is NOT:**
+- Not a full OD copy (that would be redundant and expensive)
+- Not a database schema requirement (at Tier 0, it's markdown fields in the decision entry)
+- Not blocking — a decision entry without a snapshot is still valid; the snapshot improves auditability but does not gate system operation
+
+#### 8.3.2 Authorization Chain Preservation
+
+§8.2.1 defines `authorized_by` as pointing to the most recent authorization. When an element is modified multiple times, the previous authorization is overwritten. This section preserves the chain.
+
+**Mechanism:** The decision entry's `context_snapshot` includes an `prior_authorized_by` field — the `authorized_by` value that existed on the target element *before* this decision modified it. This creates a backward-linked chain: DEC-12 records that TAC-3 was previously authorized by DEC-5. DEC-5 records that TAC-3 was previously authorized by GOV-session-1 (creation). The chain terminates at the creation authorization.
+
+**Example chain reconstruction:**
+```
+TAC-3 current state: authorized_by: DEC-12 (parameter adjustment)
+  DEC-12 context_snapshot: prior_authorized_by: DEC-8 (rebalance)
+    DEC-8 context_snapshot: prior_authorized_by: DEC-5 (pivot)
+      DEC-5 context_snapshot: prior_authorized_by: GOV-session-1 (creation)
+```
+
+This enables forward traversal ("what was the original intent?") and backward traversal ("how did we get here?") without full OD snapshots.
+
+#### 8.3.3 Cross-Session Edit Detection
+
+At Tier 0, the Governor may manually edit OD files between sessions. The AI in the next session loads the current OD without knowing what changed. §8.2.3's reverse check can detect unauthorized state, but it cannot tell *what specifically changed* or distinguish intentional edits from file corruption.
+
+**Mechanism:** The bootstrap file (00-BOOTSTRAP.md) gains an `od_checksum` field — a lightweight content fingerprint of the OD file. At session end, the AI computes and records the checksum. At session start, the AI computes the current checksum and compares. If the checksums differ, the AI reports: "The Operating Document has been modified since session [N]. Changes detected in: [diff summary]. No decision entry covers these changes. Governor: were these intentional edits?"
+
+**Implementation by tier:**
+
+- *Tier 0:* The AI computes a simple structural fingerprint: count of active goals, objectives, strategies, tactics, total allocation weight sum, guardrail count. A change in any of these values triggers the cross-session edit alert. This is not a cryptographic hash — it's a quick sanity check that catches most edits (adding/removing elements, changing allocations) while missing parameter-only changes (rewording a hypothesis without changing structure). The AI can also diff the OD file directly if the prior version is available.
+- *Tier 1:* Database-level change tracking. Every write to the OD store is logged with timestamp, user, and diff. Cross-session gaps are detected automatically.
+- *Tier 2+:* Event sourcing — the OD is stored as a stream of events rather than a current-state document. Any historical state is reconstructable by replaying events up to the desired timestamp. Full "as-of" query support.
+
+#### 8.3.4 Relationship to Existing Mechanisms
+
+**§8.2 (Decision-to-State Traceability)** answers "who authorized this element?" §8.3 answers "what did the system look like when this decision was made?" They are complementary: §8.2 traces forward (decision → state), §8.3 traces backward (state → context at decision time).
+
+**§17.2.1 (OD Store)** declares that "previous versions are never deleted or modified." §8.3 operationalizes this principle: the decision context snapshot is the mechanism that preserves version information without requiring full OD copies.
+
+**§18.2.2 (Episodic Memory)** stores episode summaries per tactic per cycle. Episode summaries describe *outcomes* (what happened); decision context snapshots describe *inputs* (what the system believed when it decided). Both are needed for complete post-mortem analysis.
+
+**Implementation by tier:** Across all §8.3 mechanisms, Tier 0 users record decision context snapshots and OD fingerprints manually in markdown fields within decision entries and bootstrap templates. Tier 1 users integrate snapshots into database schemas with change-logging triggers. Tier 2+ users implement event sourcing with replay capability, enabling "as-of" queries that reconstruct OD state at any historical decision point without requiring explicit snapshots.
+
+### 8.4 Causal Context at Kill Decisions `[CORE]`
+
+Kill decisions are the most consequential decisions in the system — they terminate resource-consuming experiments that may not be restarted. GOSTA provides strong mechanisms for *detecting* when kill conditions are met (§20.3-20.5, §7.2 Tactic Cycle) and for *validating* that the Governor's kill decision is coherent (§7.13.6). What it does not provide is structured reasoning about *confounding factors* — external or internal conditions that may explain metric underperformance independently of the tactic's hypothesis being wrong.
+
+**The problem:** A tactic shows metric underperformance. The kill condition fires. But the underperformance may be caused by: (a) the hypothesis is wrong (genuine failure — kill is correct), (b) environmental change depressed the metric regardless of tactic quality (Tier 2+: detected via environmental watch list §7.14; Tier 0–1: Governor reports environmental changes at review), (c) a sibling tactic's activities interfered (spillover), (d) insufficient human input (§20.8) starved the tactic, or (e) a data grounding issue produced unreliable signals. Without structured prompts, the Governor (or orchestrator) attributes underperformance to (a) by default — the most visible explanation, not necessarily the correct one.
+
+#### 8.4.1 Confounder Surface at Kill Decision
+
+When a kill condition is met and the orchestrator recommends kill, the recommendation must include a **confounder assessment** — a structured check against known alternative explanations.
+
+**Required confounder checks:**
+
+| Confounder | How Detected | Presented As |
+|------------|-------------|--------------|
+| Environmental change | At Tier 2+: environmental watch list (§7.14) shows condition change. At Tier 0–1: Governor reports known environmental changes at review, or orchestrator asks 'Has anything changed in the external environment since last review?' | "ENV-003 (market contraction) occurred during TAC-3's active period. Metric may reflect market conditions, not tactic failure." |
+| Sibling tactic interference | Another tactic under the same strategy targets overlapping metrics or audiences | "TAC-4 (paid promotion) overlaps TAC-3's audience. TAC-4's activity may have contaminated TAC-3's organic metrics." |
+| Input starvation | Human creative input rate (§20.8) fell below the tactic's declared estimate | "TAC-3 received 1 of 4 expected human inputs per cycle. Input adjustment factor: effectiveness may be understated." |
+| Data grounding issue | Signal provenance includes `[PROVENANCE-INCOMPLETE]` or `[STALE]` flags | "2 of 5 signals feeding TAC-3's kill assessment are flagged `[STALE]`. Kill condition may be based on outdated data." |
+| Bootstrap insufficiency | Tactic has completed fewer post-bootstrap cycles than the minimum evidence floor (§4.2) | "TAC-3 has completed 1 post-bootstrap cycle. Minimum evidence floor is 2 cycles. Kill assessment may be premature." |
+| Allocation change | Tactic's resource allocation was modified during the assessment period (§4.3 rebalance) | "TAC-3's allocation was reduced from 0.4 to 0.2 after DEC-15 (rebalance). Performance decline may reflect resource reduction, not hypothesis failure." |
+
+**The confounder assessment is advisory, not blocking.** The Governor may still kill after reviewing confounders. But the decision entry must record which confounders were present and whether the Governor considered them. This converts implicit causal reasoning into an auditable record. (For tier-specific implementation of confounder detection — conversational at Tier 0, automated at Tier 1, statistical at Tier 2+ — see §8.4.3.)
+
+**Decision weight guidance.** The confounder assessment does not produce a numerical adjustment to the kill recommendation — it surfaces qualitative evidence for the Governor's judgment. However, the Governor's disposition of each confounder must be substantive, not formulaic. A disposition of 'dismissed' requires a stated reason that specifically addresses why this confounder does not explain the underperformance. A disposition of 'acknowledged' requires a stated reason why the kill is correct despite the confounder's presence. Dispositions of 'dismissed — not applicable' or 'acknowledged — proceeding anyway' without reasoning are flagged by the orchestrator as insufficient and returned to the Governor for elaboration. This prevents confounder assessment from degenerating into a rubber-stamp checklist.
+
+**Minimum disposition quality.** A confounder disposition meets the substantive threshold when it addresses the specific causal claim — not the confounder's existence. Examples of sufficient dispositions: 'Dismissed: TAC-4 launched 3 weeks after TAC-3's decline began; timeline rules out contamination' (addresses the causal mechanism). 'Acknowledged: market contraction affected all tactics equally; TAC-3 underperformed relative to siblings under same conditions' (explains why the confounder doesn't change the conclusion). Examples of insufficient dispositions: 'Dismissed: not relevant' (no causal reasoning). 'Acknowledged: proceeding with kill' (no explanation of why confounder doesn't change conclusion). When the orchestrator returns an insufficient disposition for elaboration, the Governor has one re-elaboration attempt. If the second disposition is also insufficient, the orchestrator logs it as `disposition_quality: minimal` and proceeds — the framework does not block Governor decisions, but the quality flag persists in the decision record for structural memory transfer and pattern detection.
+
+#### 8.4.2 Confounder Recording in Decision Entry
+
+When a kill decision is made with active confounders, the decision entry includes:
+
+```
+- **Confounders Present:** [list of active confounders with evidence]
+- **Confounder Disposition:** [for each: dismissed (with reason) | acknowledged (kill despite confounder) | not applicable]
+```
+
+**Example:**
+```
+DEC-14 | 2026-04-15
+- Type: kill
+- Target: TAC-3 (Organic Content Series)
+- Decision: Kill — engagement rate below 2% for 3 consecutive cycles.
+- Confounders Present:
+  - ENV-003 (market contraction): Market dropped 15% during TAC-3's active period.
+    Disposition: acknowledged — market affected all tactics equally; TAC-4 performed 2.1x
+    better under same conditions. TAC-3's underperformance is relative, not absolute.
+  - TAC-4 (sibling overlap): TAC-4 targets same audience with paid promotion.
+    Disposition: dismissed — TAC-4 launched after TAC-3's metrics were already declining.
+    Timeline rules out contamination.
+  - Input starvation: Received 2 of 4 expected inputs per cycle.
+    Disposition: acknowledged — input gap is real but TAC-3 showed no improvement even
+    in cycles with full input (Week 3, Week 5). Input is not the bottleneck.
+```
+
+This record enables structural memory transfer (§18.2.3): if TAC-3's kill is later reconsidered, the confounder assessment is available without re-analysis.
+
+#### 8.4.3 Application Beyond Kill Decisions `[ROBUST]`
+
+The confounder surface applies most critically to kill decisions (irreversible) but has value at other decision points:
+
+- **Pivot decisions:** Same confounder checks. If a tactic is pivoting due to underperformance, and the underperformance has an environmental explanation, the pivot may target the wrong problem.
+- **Strategy kill (WMBT falsification):** When a WMBT is declared falsified, check whether the falsifying evidence is confounded by environmental factors or data grounding issues.
+- **A/B winner declaration:** Before declaring an A/B winner (§4.2), surface any confounders that may explain the performance difference beyond the variant's inherent quality (schedule confounds are already handled by §4.2's override mechanism; this extends to environmental and input confounders).
+
+At `[CORE]` complexity, only kill decisions trigger confounder assessment. At `[ROBUST]`, the assessment extends to pivots, strategy kills, and A/B declarations.
+
+**Implementation by tier:**
+
+- *Tier 0:* The AI checks each confounder source as part of the kill recommendation. Environmental watch list: has any watch list entry changed during the tactic's active period? Sibling overlap: does another active tactic share metric dependencies? Input rate: compare actual human inputs to the tactic's declared estimate. Data quality: are any signals flagged? The AI presents confounders conversationally before recommending kill. At Tier 0, this adds ~3 minutes to each kill recommendation.
+- *Tier 1:* Automated confounder detection. Environmental changes are cross-referenced with tactic timelines. Sibling tactic overlap is detected via shared signal attribution chains. Input starvation is computed from the human_creative dependency tracking. Confounders appear in the health report alongside the kill recommendation.
+- *Tier 2+:* Statistical confounder adjustment. When environmental data is available as a time series, the system computes adjusted performance: "TAC-3's engagement was 1.8% raw but 2.4% adjusted for market contraction (using sibling tactic baseline)." Adjusted and raw values are presented side-by-side. The Governor decides which to act on. This is the closest GOSTA gets to formal causal inference — it adjusts for observable confounders but does not attempt unobservable confounder estimation (which would require randomized experiments, already covered by A/B testing in §4.2).
+
+### 8.5 Feature Interaction Rules `[ROBUST]`
+
+When multiple framework mechanisms are active simultaneously, their interaction must be deterministic. This section specifies behavior for feature pairs where the default composition is ambiguous.
+
+#### 8.5.1 Pause/Resume and Kill Timer Interaction
+
+When a tactic is paused (§4.3), its kill condition timer **suspends**. Calendar time during pause does not count toward the kill condition deadline. On resume, the kill condition deadline extends by the duration of the pause. Rationale: a paused tactic is not executing — holding it accountable for elapsed time during pause would create an incentive to avoid pause (defeating its purpose as a resource management tool). The kill condition's `deadline` field in the OD is updated on resume to reflect the extension; the original deadline is preserved in the decision log for audit purposes.
+
+**Guardrail violation timers** (§5.1) also suspend during pause — a paused tactic cannot actively violate a guardrail.
+
+**Bootstrap timer** does not suspend during pause — if a tactic is paused during bootstrap, the bootstrap counter retains its value but calendar time continues. This is consistent with §4.3's existing specification that paused-during-bootstrap tactics "resume where they left off."
+
+**A/B comparison during/after pause.** When one A/B variant is paused while others continue, the comparison is confounded by unequal execution periods. On resume, the orchestrator flags subsequent A/B comparisons with `confound: pause_inequality` and reports both raw comparison (total metrics regardless of active time) and time-normalized comparison (metrics per active week, excluding paused period). This parallels the staggered-start reporting in §4.2. If the pause duration exceeds one full review cycle, the orchestrator also notes in the A/B comparison: 'Variant [X] was paused for [N] cycles. Comparison reflects [M] vs [M+N] active weeks.' The Governor decides which comparison to act on.
+
+#### 8.5.2 A/B Testing and Rebalance Validity
+
+When a rebalance decision (§4.3) changes allocation weights for tactics participating in an A/B test (§4.2), prior A/B comparison results remain valid only for the pre-rebalance period. Post-rebalance comparisons must account for the allocation change:
+
+- **Tactic-level A/B:** If both variants' allocations change proportionally (e.g., both reduced by the same ratio), comparisons remain valid — relative resource parity is preserved. If allocations change disproportionately, the orchestrator flags subsequent comparisons with `confound: allocation_change` and reports both raw and allocation-normalized metrics. The Governor decides which comparison to act on.
+- **Strategy-level A/B:** Portfolio rebalance (§4.3) that changes `STRATEGY_ALLOCATION_WEIGHT` between competing strategies voids the A/B comparison from the rebalance date forward. The orchestrator marks the test as `confound: portfolio_rebalance` and stops reporting comparative metrics. Both strategies are evaluated independently. This parallels the activation schedule override rule in §4.2.
+
+**Complementary strategies** (§4.2) are not affected — rebalancing complementary strategies is a resource allocation decision, not a comparison validity issue.
+
+**Complementary strategy synergy assessment.** When strategies are declared `relationship: complementary` (§4.2), their combined contribution to the objective may exceed the sum of individual contributions (synergy) or fall short (interference). The health computation (§20.7) for objectives with complementary strategies adds a **combined contribution check**: at each strategy review, the orchestrator compares the objective metric's actual trajectory against the projected trajectory if each strategy's contribution were independent. If actual trajectory exceeds independent projection by ≥15%, the orchestrator notes `synergy_detected: {magnitude, likely_mechanism}` in the objective health report. If actual trajectory falls below independent projection by ≥15%, it notes `interference_detected: {magnitude, likely_cause}`. The synergy/interference assessment is informational — it does not change kill/pivot/persevere decisions, which remain based on individual strategy health (§20.6) and overall objective progress (§20.7). However, it gives the Governor visibility into whether the complementary portfolio is producing the expected combined effect, or whether the strategies are inadvertently undermining each other. If interference is detected for 2 consecutive strategy reviews, the orchestrator recommends the Governor evaluate whether the strategies should be reclassified as `competing` or whether the interference source should be addressed.
+
+#### 8.5.3 Strategy Kill and Tactic Kill Ordering
+
+When a strategy is killed (§4.3, §7.2 Strategy Cycle), its child tactics are terminated in a defined order:
+
+1. **Tactics in `killed_winding_down` status** complete their wind-down normally — the strategy kill does not interrupt external commitment fulfillment.
+2. **Active tactics with `commitment_cost: irreversible` or `committed` actions in flight** enter `killed_winding_down` status and complete those actions before terminating.
+3. **All other active tactics** are killed immediately. Their status transitions to `killed` (or `killed_winding_down` if they have pending external commitments per §4.3 wind-down rules).
+4. **Paused tactics** are killed immediately (no wind-down needed — they have no in-flight actions).
+5. **Tactic kill callbacks** (health report finalization, structural memory transfer) execute after each tactic's status reaches terminal state.
+
+**Strategy status lifecycle during kill:** The strategy transitions through an intermediate state: `active` → `killing` → `killed`. The strategy enters `killing` when the Governor issues the kill decision — this is logged immediately as `decision_type: strategy_kill, status: killing`. While in `killing`, no new tactic work plans are generated, but wind-down actions continue. The strategy transitions from `killing` to `killed` only after all child tactics reach terminal state (`killed` or `killed_winding_down` → `killed`). Tactic kill callbacks may fire while the strategy is in `killing` state — but not after it reaches `killed`. This two-phase approach prevents the state inconsistency of a terminal parent with non-terminal children.
+
+**Signal attribution:** Signals emitted during tactic wind-down after a strategy kill are attributed to the killed tactic (for cost accounting) but are excluded from the strategy's WMBT assessment (the strategy kill decision is already made).
+
+**Cross-strategy kill sequencing.** When multiple strategies under the same objective are recommended for kill at the same strategy review, the ordering matters because each kill's resource reallocation affects the remaining strategies' viability. Sequencing rule: (a) evaluate all strategy kill recommendations simultaneously; (b) present them to the Governor as a batch with the combined resource reallocation implications; (c) the Governor decides the order — or may choose to kill some but not others based on the combined picture. The orchestrator must not execute strategy kills sequentially and independently, because killing Strategy A first may free resources that make Strategy B's kill condition no longer met. Batch presentation is mandatory when 2+ strategies are recommended for kill in the same review cycle.
+
+#### 8.5.4 Sequential Tactic Data Carryover
+
+When tactics under the same strategy run sequentially (TAC-1 completes or is killed, then TAC-2 begins), the second tactic inherits the signal environment left by the first. The operating document should specify the **data carryover policy** for sequential tactics:
+
+- **Clean baseline:** TAC-2's metrics start from a fresh baseline measured at TAC-2's activation. Prior tactic's signals are available in the signal store for reference but are not included in TAC-2's health computation.
+- **Inherited baseline:** TAC-2's baseline is the final state of TAC-1's metrics. TAC-2's health computation uses TAC-1's endpoint as TAC-2's starting point. Appropriate when tactics are sequential refinements of the same approach.
+
+Default if undeclared: `clean_baseline`. The orchestrator applies the declared policy when computing TAC-2's metric evaluation (§20.2). If inherited baseline is used and TAC-1 was killed (vs. completed), the orchestrator notes `baseline_source: killed_predecessor` in TAC-2's health report as an informational confound.
+
+#### 8.5.5 Sequential A/B Cold Start Default
+
+When sequential A/B testing (§4.2) transitions from Strategy A to Strategy B, the system state reflects A's execution. §4.2 notes this temporal confound but does not specify the default transition policy. The default cold start behavior for sequential A/B transitions is: Strategy B begins with a **documented adjustment period** equal to one bootstrap cycle (as declared for Strategy B's first tactic). During this adjustment period, Strategy B's metrics are collected but not compared against Strategy A's metrics — the comparison window begins after the adjustment period. The operating document may override this default by specifying `cold_start: immediate` (no adjustment period — compare from Day 1) or `cold_start: reset` (reset all affected metrics to fresh baseline before Strategy B begins, if operationally feasible). The chosen policy is logged in the A/B comparison record.
+
+#### 8.5.6 Committed Actions on Pivot
+
+When a tactic pivot (§4.3) is decided, in-flight actions with `commitment_cost: irreversible` or `committed` status are not automatically cancelled — they complete per the wind-down protocol (§4.3 pivot checklist, item 2). However, committed actions whose outputs would directly contradict the pivot's new approach require explicit Governor disposition: (a) complete the action and discard the output (honor the external commitment but don't use the result), (b) complete the action and use the output alongside the new approach (if compatible), or (c) attempt to cancel the commitment (Governor judgment on relationship cost). The orchestrator flags committed actions that conflict with the pivot direction: `pivot_conflict: {action_id, commitment_type, conflict_description}`. Unflagged committed actions complete normally.
+
+#### 8.5.7 API Outage and Kill Timer Interaction
+
+§7.7 specifies kill deadline extension during signal store outages. A distinct scenario: an external API outage (e.g., analytics platform down, CRM unavailable) prevents signal collection for specific tactics while the signal store itself is healthy. In this case, the kill timer behavior depends on signal coverage: if the outage prevents collection of ≥50% of the tactic's kill condition input signals (by count), the kill deadline extends by the outage duration — same principle as §7.7 signal store outage, applied per-tactic rather than system-wide. If <50% of input signals are affected, the kill timer continues and the health computation proceeds with a `data_quality: partial` flag. The 50% threshold is a default; the Governor may declare a per-tactic threshold in the operating document if domain conditions warrant different sensitivity.
+
+#### 8.5.8 Semantic Coherence and Decision Flow `[ROBUST]`
+
+When semantic coherence validation (§8.1.2) produces a finding during decision execution (e.g., Governor approves a kill, but the coherence check discovers the kill condition references a deprecated metric), the interaction depends on the invariant class:
+
+- **C1-C3 (blocking invariants — kill condition evaluability, allocation arithmetic, temporal ordering):** Halt decision execution. The decision cannot proceed until the structural issue is resolved. The orchestrator surfaces the violation with a proposed fix and waits for Governor approval. This is not a reversal of the decision — it's a pre-flight check failure.
+- **R1-R4 (review invariants — hypothesis-domain coherence, WMBT-objective alignment, guardrail consistency):** Decision proceeds with a warning. The violation is logged and must be addressed at the next review cycle. Rationale: review invariants indicate drift, not immediate danger.
+- **Reconciliation check failures (§8.2.3):** Decision proceeds. The reconciliation issue is logged but does not block. Reconciliation failures typically indicate documentation drift between OD and work plan, not decision quality issues.
+
+When coherence validation fires during health computation (rather than decision execution), all findings flow into the health report's computation trace as context — they do not alter the health score directly but may influence the epistemic classification of the recommendation.
+
+#### 8.5.9 Sycophancy Detection Interactions `[ROBUST]`
+
+Sycophancy flags (§14.3.9) are **informational overlays** — they never override existing decision mechanisms. They add diagnostic data that the Governor uses to evaluate whether the system's framing is trustworthy. Specific interactions:
+
+**Sycophancy + Kill decisions.** When `kill_proximity_silent` fires (a kill condition metric is within 20% of its threshold for 2+ consecutive cycles without appearing in the Risk Factors section), AND the health report recommends `persevere`, the flag does not override the recommendation. It surfaces the inconsistency: "Kill proximity alert exists but was not addressed in the recommendation rationale." The Governor then decides whether the `persevere` recommendation reflects genuine analysis or positive-framing bias. If `recommendation_divergence` also fires (most signals trend negative but persevere is recommended), both flags appear together — this combination is a strong sycophancy indicator requiring Governor attention.
+
+**Sycophancy + Pause.** When a tactic is in `paused` status, sycophancy detection continues monitoring but adjusts behavior: `kill_proximity_silent` is **suppressed** during pause because metrics are not expected to move. `recommendation_divergence` remains active — if the health report for a paused tactic frames the pause positively without acknowledging the negative signals that may have prompted it, the flag fires. `generic_risk_section` detection continues normally.
+
+**Sycophancy + A/B Testing.** When A/B comparison is active, sycophancy flags are evaluated **per-variant** in the health report. If variant A has `recommendation_divergence` but variant B does not, this is a per-variant finding, not a system-wide flag. If the comparative recommendation (which variant to promote) shows `recommendation_divergence` against the aggregate signal direction, that is a comparison-level sycophancy flag surfaced in the System Health section.
+
+**Sycophancy + Finding Classification.** When a health assessment carries `information_gap` classification (§14.3.8), sycophancy flags are **still evaluated** — information gaps do not suppress sycophancy detection. However, the Governor should weigh both: a `recommendation_divergence` flag on an `information_gap` recommendation is less concerning (the divergence may be the information gap itself) than one on a `confirmed` recommendation (where the evidence exists but the framing ignores it).
+
+### 8.6 Interface Contracts Between Components `[ROBUST]`
+
+The framework's data flows form a pipeline: actions produce signals, signals feed health computation, health reports feed decision recommendations, decisions modify the operating document, the OD drives work plan generation. Each handoff is a potential corruption point — malformed output from one component silently degrades the next. This section specifies validation contracts at each boundary.
+
+**Design principle:** Every component that consumes another component's output must validate that output before processing. The producer is responsible for schema conformance; the consumer is responsible for completeness, freshness, and cross-source consistency. Neither assumes the other is correct.
+
+#### 8.6.1 Signal Emission Contract
+
+**Producer:** Executors (action execution) and orchestrator (system signals).
+**Consumer:** Signal store → health computation.
+
+**Required validation at emission:**
+- Schema conformance: every signal must include `signal_id`, `type` (from Appendix B.3), `source_action` or `source: system`, `timestamp`, `tactic_id`. Signals missing any required field are rejected — not stored, not counted.
+- Attribution: every signal must trace to a specific action or system event. Unattributed signals are rejected. (§14.3, attribution prerequisite.)
+- Temporal validity: every signal must declare `temporal_validity` (duration or `structural`). Signals without temporal validity are treated as `temporal_validity: 1_cycle` by default.
+- Type validation: `signal.type` must be a value from the signal type vocabulary (Appendix B.3). Unknown types are logged as `type: unknown` with a `schema_violation` flag and excluded from health computation until the Governor classifies them.
+
+**Tier 0 note:** The AI validates signals as it writes them to the signal log file. Malformed signals are corrected in conversation before recording.
+
+#### 8.6.2 Health Computation Contract
+
+**Producer:** Orchestrator (health computation engine).
+**Consumer:** Decision recommendation engine → Governor.
+
+**Required validation at computation:**
+- Signal completeness check: before computing tactic health, verify that at least one signal exists for the tactic in the current cycle. If zero signals exist, emit `health_status: data_insufficient` instead of computing a numeric score. Do not default to the previous cycle's health — absence of data is not absence of change.
+- Signal freshness check: exclude signals whose `temporal_validity` has expired from the computation. If excluding stale signals reduces the signal count below the minimum threshold (1 signal per kill condition input), flag `health_status: stale_data` and note which signals expired.
+- Formula verification (Tier 1+): health computation must be deterministic — the same signal set must produce the same health score. At Tier 1+, implementations should log the input signal IDs and output score for each computation, enabling replay verification. At Tier 0, the AI shows its reasoning in the health report.
+- Cross-signal consistency: if two signals for the same tactic contradict each other (e.g., one reports `metric: improving`, another reports `metric: declining` for the same metric in the same cycle), flag `signal_conflict: {signal_ids, metric, values}` in the health report. Do not average contradictory signals — surface the conflict for Governor resolution.
+
+#### 8.6.3 Decision-to-OD Mutation Contract
+
+**Producer:** Governor decisions (via decision log).
+**Consumer:** OD state.
+
+**Required validation at mutation (extends §8.2):**
+- State transition legality: the target entity must be in a state from which the decision's transition is valid. A `kill` decision targeting a tactic in `completed` status is invalid. A `graduate` decision targeting a tactic not in `completed` status is invalid. Invalid transitions are blocked — not applied, flagged to Governor as `invalid_transition: {entity, current_status, attempted_transition}`.
+- Prerequisite satisfaction: decisions with prerequisites (e.g., graduation requires §16 prerequisites, kill requires causal context §8.4) must have those prerequisites verified before the OD mutation is applied. Missing prerequisites block the mutation.
+- Cascade completeness: decisions that trigger cascades (strategy kill → tactic kills, scope conclusion → child scope dispositions) must have all cascade targets resolved before the decision is marked complete. Partially-applied cascades are flagged as `cascade_incomplete: {resolved: [ids], pending: [ids]}`.
+
+#### 8.6.4 OD-to-Work-Plan Contract
+
+**Producer:** Operating document (approved state).
+**Consumer:** Orchestrator (work plan generation, §7.2).
+
+**Required validation before work plan generation:**
+- OD integrity: run §8.1 invariant checks (C1-C7 at minimum) before generating the work plan. If any CORE invariant fails, halt work plan generation and escalate. If a ROBUST invariant fails, flag and continue with degraded work plan (omit the violating entity).
+- Dependency resolution: verify that all tactic dependencies (`depends_on` fields) form a DAG — no circular dependencies. If a cycle is detected, flag `dependency_cycle: {tactic_ids}` and exclude the cycle from the work plan. **Escalation protocol for circular dependencies:** (1) Flag as session-blocker at bootstrap — no health computation or work plan generation involving the cycle proceeds until resolved. (2) The orchestrator proposes a cycle-breaking point by identifying the weakest dependency link (the dependency with the least structural justification in the domain model). (3) The Governor approves the proposed break point or provides an alternative. (4) Once resolved, the dependency graph is re-validated before proceeding. If the Governor does not respond within the current session, the non-cyclic portion of the work plan proceeds normally and the cyclic entities are excluded with `dependency_cycle_unresolved` status.
+- Resource consistency: verify that `ALLOCATION_WEIGHT` sums to 1.0 per strategy (C2). If not, renormalize before generating the work plan (§4.3 renormalization protocol).
+- Active entity filter: work plans must include actions for every tactic in `active` or `bootstrap` status. If a tactic has no actions generated, flag `coverage_gap: {tactic_id}` in the work plan output.
+
+#### 8.6.5 Memory Loading Contract
+
+**Producer:** Persistent storage (bootstrap, session logs, learnings, OD).
+**Consumer:** Orchestrator at session start.
+
+**Required validation at load (extends §7.11, §18):**
+- Bootstrap parse validation: the bootstrap file must contain the required sections (Current State, Context Loading Order, Last Session Summary, Pending Items). Missing sections trigger `bootstrap_incomplete: {missing: [sections]}` — the orchestrator loads what exists and flags the gaps to the Governor at session start, rather than failing silently.
+- Cross-source consistency check: after loading bootstrap + OD + most recent health report, verify consistency: (a) entity statuses in bootstrap match entity statuses in OD — if not, flag `state_drift: {entity, bootstrap_status, od_status}` and use OD as source of truth; (b) pending decisions in bootstrap have corresponding entries in the decision log — if not, flag `orphaned_pending: {decision_description}`; (c) the most recent health report's tactic list matches the OD's active tactic list — if not, flag `health_report_stale: {missing_tactics, extra_tactics}`.
+- Memory integrity: if any file fails to load (corruption, missing), the orchestrator enters degraded mode for that memory source (§7.7 safe defaults) and flags the failure. It does not proceed as if the memory is empty — empty and unavailable are different states.
+
+#### 8.6.6 Learning Vector Routing Contract
+
+**Producer:** Kill/complete/graduate decisions.
+**Consumer:** Structural memory (learnings).
+
+**Required validation at routing:**
+- Kill reason presence: every strategy kill must have a `kill_reason` field (Appendix B.4). If absent, the orchestrator prompts the Governor to classify before structural memory transfer proceeds. Unclassified kills are queued — not lost, not defaulted.
+- Vector correctness: the kill reason determines the learning vector (§7.8, Appendix B.4). The orchestrator verifies the mapping: `disproven` → Vector 1, `resource_reallocation` → Vector 3, `superseded` → Vector 2, `external_constraint` → Vector 3. If the Governor explicitly overrides the routing (e.g., "this was technically superseded but the learnings are failure learnings"), the override is logged with `routing_override: {default_vector, override_vector, justification}`.
+- Generalization review: when an episodic learning (specific tactic outcome) is proposed for structural memory (general anti-pattern or principle), the proposal is surfaced at the next strategy review — not auto-promoted. The Governor verifies that the generalization is warranted (one failed tactic does not make an anti-pattern; a pattern across 2+ tactics might).
+
+#### 8.6.7 Environmental Monitoring Contract
+
+**Producer:** Environmental signal sources (monitoring methods, §7.14).
+**Consumer:** Watch list → health computation.
+
+**Required validation:**
+- Monitoring liveness: for each watch list item, the orchestrator tracks `last_checked: {date}` and `check_method`. If `last_checked` exceeds the declared monitoring frequency by 2x, flag `monitoring_gap: {watch_item, expected_frequency, last_checked}`. At Tier 0, this means the AI checks at each session whether environmental scans are overdue.
+- Source staleness: environmental signals older than their declared `temporal_validity` are excluded from health computation and flagged as `stale_environmental: {signal_id, age, validity_window}`.
+
+#### 8.6.8 Deliberation Output Contract
+
+**Producer:** Deliberation coordinator (synthesis report).
+**Consumer:** Governor.
+
+**Required validation (extends deliberation protocol §9.3):**
+- Attribution completeness: every claim in the synthesis report must trace to a specific agent position paper, round, and section (deliberation protocol §4.4 Attribution Chains table). Claims without attribution are flagged as `unsourced_synthesis_claim`.
+- Agreement map fidelity: the synthesis report's agreement/disagreement classification must be verifiable against the position papers. At Tier 0, the Governor can spot-check. At Tier 1+, automated comparison of position paper conclusions against synthesis agreement map.
+- Recommendation consistency: the synthesis recommendation must not contradict the declared consensus. If 4 of 5 agents recommend "kill" but the synthesis recommends "persevere," the inconsistency is flagged as `synthesis_recommendation_conflict` for Governor attention.
+
+#### 8.6.9 Implementation Guidance by Tier
+
+The contracts above define WHAT must be validated. This section specifies HOW, by tier.
+
+**Tier 0 (file-based, conversational AI):**
+
+All contract validation is cognitive — the AI performs checks as inline reasoning during its response. The Governor is the ultimate fallback for any check the AI cannot perform deterministically.
+
+- **Signal emission (§8.6.1):** The AI validates each signal as it writes to the signal log. Missing fields are caught during composition, not after storage. The AI says: "This signal is missing a `temporal_validity` — defaulting to 1 cycle. Correct?"
+- **Health computation (§8.6.2):** The AI checks signal availability before computing health. If a tactic has no signals this cycle, the AI writes `data_insufficient` instead of guessing. The computation trace (§20.1) IS the verification — the Governor reads the reasoning in the health report.
+- **Decision-to-OD (§8.6.3):** The AI validates state transitions before applying Governor decisions to the OD. If the Governor says "kill TAC-3" and TAC-3 is already `completed`, the AI asks: "TAC-3 is already completed — did you mean a different tactic?"
+- **OD-to-work-plan (§8.6.4):** The AI reads the OD and checks C1-C7 invariants at session start (bootstrap integrity). Work plan generation is the AI proposing actions in conversation — coverage gaps are visible to the Governor.
+- **Memory loading (§8.6.5):** The AI reads bootstrap + OD + health report sequentially and flags inconsistencies conversationally: "Bootstrap says TAC-2 is active but OD has it as killed — using OD as source of truth."
+- **Learning routing (§8.6.6):** The AI prompts the Governor for kill reason classification during the decision conversation. Routing happens in the same session as the decision.
+- **Environmental monitoring (§8.6.7):** The AI checks watch list recency at session start (part of bootstrap integrity). Overdue scans are flagged conversationally.
+- **Deliberation output (§8.6.8):** The Governor reads position papers directly alongside the synthesis. Verification is manual spot-checking per deliberation protocol §9.3.
+
+**Tier 1 (minimum viable coded product):**
+
+Contract validation transitions from cognitive to programmatic. Each contract maps to a validation layer in the codebase.
+
+- **Signal emission (§8.6.1):** Schema validation middleware rejects malformed signals before they reach the signal store. Implementation: JSON Schema validation on the signal write endpoint. Rejected signals are logged to an error queue with the validation failure reason. The orchestrator retries with corrected schema or escalates.
+- **Health computation (§8.6.2):** Health computation is a deterministic function: `f(signals[], thresholds[]) → health_report`. Implementation: the function logs input signal IDs and output scores to a computation trace table (§20.1). Replay verification: a nightly job re-runs the last N computations and compares results. Mismatches trigger `computation_drift` alerts. Signal freshness is checked by comparing `signal.timestamp + signal.temporal_validity` against `now()` — expired signals are excluded with logged reason.
+- **Decision-to-OD (§8.6.3):** OD mutations are applied through a state machine that enforces legal transitions. Implementation: a transition table defines valid `{current_state, decision_type} → new_state` pairs. Invalid transitions are rejected at the API level with `400 Invalid Transition`. Cascades are processed as transactions — all targets resolve or the entire cascade rolls back, preventing partial application.
+- **OD-to-work-plan (§8.6.4):** Work plan generation runs §8.1 invariant checks as a pre-flight step. Implementation: a validation pipeline that returns `{passed: bool, violations: [{rule, entity, detail}]}`. If any CORE invariant fails, the pipeline halts and returns the violation list. Dependency DAG validation uses topological sort — cycle detection is a standard graph algorithm.
+- **Memory loading (§8.6.5):** Cross-source consistency is an automated startup check. Implementation: after loading all stores, run a reconciliation query that compares entity statuses across bootstrap, OD, and most recent health report. Drift entries are logged and surfaced in the dashboard. Use OD as source of truth for entity statuses, bootstrap for session context, health report for last-known metrics.
+- **Learning routing (§8.6.6):** Kill decisions without `kill_reason` are blocked from entering structural memory. Implementation: the learning transfer pipeline has a gate that checks for kill reason presence. Absent reasons are queued in a `pending_classification` table surfaced at the next Governor review.
+- **Environmental monitoring (§8.6.7):** A scheduler tracks `last_checked` per watch list item. Implementation: a cron job compares `last_checked + monitoring_frequency` against `now()`. Overdue items trigger `monitoring_gap` signals automatically. The orchestrator includes these in the next health report.
+- **Deliberation output (§8.6.8):** Automated comparison of synthesis report claims against position papers. Implementation: extract recommendation fields from each position paper, compare against the synthesis agreement map. Mismatches generate `synthesis_discrepancy` records for Governor review. At minimum: verify agent count, consensus count, and recommendation direction match.
+
+**Transaction semantics (Tier 1+):** Contracts §8.6.3 (decision-to-OD) and §8.6.4 (OD-to-work-plan) require atomicity — either the full operation succeeds or it rolls back cleanly. Implementation options: database transactions (if OD is database-backed), write-ahead logging (log intended changes before applying), or optimistic concurrency (version the OD state, reject mutations against stale versions). The choice depends on infrastructure; the framework requires the guarantee, not the mechanism.
+
+**Error handling pattern (Tier 1+):** All contract violations follow the same flow: (1) detect at the boundary, (2) log with structured error (`contract: [id], violation: [type], entity: [id], detail: [text]`), (3) reject the malformed data (do not process), (4) surface in the next health report under Interface Contract Violations, (5) if the violation is blocking (CORE invariant, invalid state transition), halt the pipeline and escalate. Non-blocking violations (stale data, missing optional field) are flagged but processing continues with degraded quality.
+
+**Tier 2+ (robust operations):**
+
+All Tier 1 implementations apply, plus:
+
+- **Continuous validation:** Contracts are checked not just at boundaries but continuously. A background process periodically re-validates the entire OD against all invariants, the signal store against schema, and the health report history against computation traces. Drift detected between boundary checks indicates a bug in the pipeline — the background check is the safety net.
+- **Cross-contract correlation:** At Tier 2+, contract violations are correlated across boundaries. Example: a `signal_conflict` (§8.6.2) that feeds into a `health_status: data_insufficient` (§8.6.2) that leads to a `kill_deferred` (§8.6.3) is tracked as a single causal chain, not three independent violations. The Governor sees the chain: "TAC-3 kill deferred because health data was insufficient because two signals conflicted."
+- **Predictive contract monitoring:** The system tracks contract violation rates over time. If signal schema violations increase from 1% to 5% over 4 cycles, it flags a degradation trend before the rate reaches a critical threshold. Same for staleness rates, missing attribution rates, and computation drift frequency.
+- **Scale safety:** At Tier 2+, multiple orchestrator instances may operate concurrently (e.g., one per scope in a multi-scope deployment). Contract validation must be concurrency-safe: OD mutations use optimistic locking (version numbers), signal writes are idempotent (duplicate signal IDs are detected and deduplicated), and health computation uses snapshot isolation (reads a consistent point-in-time view of the signal store).
+
+---
+
+## 9. Operating Document Template
+
+The operating document is the primary input to the entire system — both for the Governor governing the organization and for the orchestrator executing against it (see Section 7.5). If either reader cannot do their job from this document alone, it is incomplete.
+
+This section defines the required and recommended elements of an operating document. Every operational scope (a product, a brand, a business unit, a project) gets its own operating document following this template.
+
+### 9.1 Required Elements
+
+These elements are non-negotiable. An operating document missing any of them is structurally broken — the orchestrator cannot execute and the Governor cannot govern.
+
+#### Identity and Scope
+
+What does this document govern? Define the boundary clearly. Without this, guardrails from one scope bleed into another, and the orchestrator doesn't know what it's operating on.
+
+```
+SCOPE: [Name of the product / brand / business unit / project]
+DESCRIPTION: [One paragraph defining what this scope covers and what it excludes]
+OWNER: [Governor — the person with decision authority over this scope]
+DOCUMENT VERSION: [Version number and date]
+GRADUATION STAGE: [1–5, current stage per Section 16.11. All scopes start at 1.]
+```
+
+#### Goals with Guardrails
+
+Each goal states a destination. Each guardrail set defines what's out of bounds in pursuit of that goal. Without guardrails, the goal is an aspiration with no constraints. An agent optimizing toward an unconstrained goal will take the cheapest path, which is usually the wrong one.
+
+```
+GOAL: [Directional statement — no timelines, no numbers, no methods]
+GUARDRAILS:
+  - [Constraint text] | severity: hard | soft [ROBUST, default: hard]
+    recovery (if soft): [What the orchestrator does on violation — must be
+    concrete, executable, and reversible. See Section 5.1.]
+  - [Constraint text] | severity: hard
+  - [Constraint text] | severity: soft
+    recovery: [recovery action]
+```
+
+The same severity/recovery notation applies to guardrails at every level (goal, objective, strategy, tactic, action). Inherited guardrails retain their original severity — a lower layer cannot soften a hard constraint from a higher layer.
+
+Repeat for each goal (4–8 per organization, 1–2 for a single-purpose scope).
+
+#### Objectives with Metrics, Thresholds, and Deadlines
+
+The metric alone isn't enough — the threshold defines success. "Track follower count" is monitoring. "Reach 5,000 followers by Q3 2026" is an objective. Without the threshold, neither the Governor nor the orchestrator can evaluate pass/fail.
+
+```
+OBJECTIVE: [Measurable result] by [deadline]
+PARENT GOAL: [Which goal this serves]
+SUCCESS THRESHOLD: [Specific number or condition that defines pass/fail]
+GUARDRAILS:
+  - [Objective-level constraints inherited from goal, plus any additions]
+```
+
+Repeat for each objective (2–5 per goal).
+
+#### Strategies with Rationale and What-Must-Be-True
+
+The strategy connects the objective to the tactics that will achieve it. It captures the reasoning — why this approach, what assumptions underpin it, and what the strategy deliberately does not do. Without the strategy layer, the operating document jumps from "what we're measuring" to "what experiments we're running" with no explanation of why those experiments and not others.
+
+```
+STRATEGY: [Named approach]
+PARENT OBJECTIVE: [Which objective this serves]
+OWNER: [Single accountable person]
+RELATIONSHIP [ROBUST]: [competing | complementary — required when multiple
+  strategies exist under the same objective. Competing strategies are assessed
+  head-to-head; complementary strategies are assessed for combined contribution.
+  See Section 4.2. Tier note: although marked ROBUST, this field is required at
+  CORE tier when an objective has 2+ strategies — without it, A/B comparison
+  (Section 20.9) cannot determine whether strategies should be compared
+  head-to-head or assessed for combined contribution. CORE implementations
+  with multiple strategies per objective MUST populate this field.]
+RATIONALE: [Why this approach. What competitive or structural logic justifies it.
+  What advantage this approach exploits.]
+WHAT MUST BE TRUE:
+  - [Assumption 1 that must hold for any tactic under this strategy to succeed]
+  - [Assumption 2]
+  - [Assumption 3]
+NOT DOING: [What this strategy explicitly excludes — approaches deliberately rejected
+  and why]
+STRATEGY-LEVEL KILL SIGNAL: [Under what conditions the reasoning itself is disproven —
+  typically: if N tactics implementing this reasoning all fail, or if a what-must-be-true
+  condition is definitively falsified]
+ACTIVATION SCHEDULE (if sequential A/B): [Which period this strategy runs — e.g.,
+  "Days 1–15" or "Weeks 1–4." Required when strategies under the same objective have
+  contradictory guardrails that prevent parallel execution. See Section 4.2,
+  Sequential A/B Testing. Omit for parallel strategies.]
+GUARDRAILS:
+  - [Inherited from goal and objective]
+  - [Strategy-specific additions]
+STRATEGY_ALLOCATION_WEIGHT [ROBUST]: [0.0–1.0, relative share of objective
+  resources. Default: equal distribution among active strategies. Updated via
+  portfolio_rebalance (Section 4.3). Sum across active strategies under an
+  objective must equal 1.0. Tier note: although marked ROBUST, this field is
+  required at CORE tier when portfolio_rebalance decisions are made — without
+  it, the orchestrator cannot execute rebalancing. CORE implementations that
+  never rebalance may omit this field; the default equal-distribution applies.]
+```
+
+Repeat for each strategy (1–3 per objective).
+
+#### Tactics with Hypotheses and Kill Conditions
+
+The tactic is the testable implementation of the strategy. The hypothesis is what makes it testable. The kill condition is what makes it killable. Without both, you get planning inertia — tactics that run forever because no one defined what failure looks like.
+
+Each tactic follows the Tactic Specification Template (Section 10). At minimum, the operating document must include for each tactic:
+
+```
+TACTIC: [Name]
+PARENT STRATEGY: [Which strategy this implements]
+OWNER: [Single accountable person]
+HYPOTHESIS: If we [approach], we expect [measurable outcome]
+KILL CONDITION: If [metric] has not reached [threshold] by [date], kill or pivot
+SUCCESS METRICS:
+  - [Leading indicator 1 with target value]
+  - [Leading indicator 2 with target value]
+  METRIC PREREQUISITES [ROBUST]: [If any metric structurally depends
+    on another metric being at a certain level before it can move,
+    declare the dependency. Format:
+      [metric_B] requires [metric_A] >= [threshold]
+    Example: "review turnaround time requires active reviewers >= 3"
+    When a prerequisite is not met, the dependent metric's kill
+    condition clock is suspended (similar to regression_tolerance —
+    Section 20.3) and the orchestrator surfaces the prerequisite
+    gap in the tactic health report. The Governor may respond by:
+    (a) adding a tactic targeting the prerequisite metric,
+    (b) revising the kill condition to account for the dependency,
+    or (c) killing the tactic if the prerequisite is unlikely to
+    be met. Prerequisite relationships are directional and
+    non-circular — if A requires B and B requires A, the
+    orchestrator flags this as a specification error at OD
+    validation time.]
+GUARDRAILS:
+  - [Inherited from goal, objective, and strategy]
+  - [Tactic-specific additions]
+TIMELINE: [Start date] to [End date / review date]
+A/B VARIANT: [If part of a test: which variant, compared against what, on what shared
+  metric. Specify whether this is a tactic-level A/B (same strategy, different
+  implementation) or strategy-level A/B (same objective, different approach)]
+HUMAN CREATIVE DEPENDENCIES: [If this tactic requires human-originated input that
+  cannot be scheduled: what input, how many per cycle, and what the tactic does
+  when input rate is lower than planned. See Section 3.5 and 4.4]
+ALLOCATION_WEIGHT: [0.0–1.0, relative share of strategy resources. Default: equal
+  distribution among active tactics. Updated at tactic review when Governor
+  rebalances. See Section 4.3.]
+```
+
+**Action-level fields** (not part of the tactic template but applied per action by the orchestrator or executor):
+
+- `commitment_cost` `[ROBUST]`: Each action is tagged `reversible | committed | irreversible`. Reversible actions can be undone or abandoned with no external consequence. Committed actions have external obligations that require completion (e.g., scheduled meetings, contracted deliveries). Irreversible actions permanently change state (e.g., public announcements, infrastructure changes). Actions tagged `committed` or `irreversible` are flagged to the Governor with the commitment's duration and consequence. At Stage 2+, committed/irreversible actions require explicit Governor approval. See Section 21.7.
+
+Repeat for each tactic (1–5 per strategy).
+
+#### Current State / Baseline
+
+Where are we right now? If the objective is 5,000 followers, the orchestrator needs to know you're starting from 47, not 2,000. Without baseline, no delta can be computed, no trend can be detected, no progress can be measured.
+
+```
+BASELINE:
+  [Metric 1]: [Current value] as of [date]
+    Source: [Where this number comes from]
+    Methodology: [annual average | trailing N-period | seasonally adjusted |
+                  raw point-in-time | other — specify]
+    Seasonal note: [If metric has known seasonal variation, note it.
+                    E.g., "Q1 and Q4 historically 20% above annual average"]
+  [Metric 2]: [Current value] as of [date]
+    Source: [...]
+    Methodology: [...]
+```
+
+**Baseline methodology validation** `[ROBUST]` — Baselines that use annual averages, sample means, or uncontrolled aggregations can produce misleading metric signals when compared against seasonal, cyclical, or volatile data. At OD validation (Section 21.8), the orchestrator should check each baseline for methodology disclosure. If the baseline is an annual average but the metric is assessed quarterly, year-over-year quarterly comparison is more accurate than comparison against the annual average. If methodology is ambiguous or undeclared, flag it as a validation warning. When seasonal variation exists, the orchestrator should compare metrics against same-period prior-year baselines, not against the annual average. The Governor may override this with explicit justification (e.g., "seasonal adjustment not relevant for this metric").
+
+Update the baseline section at each strategy review. The previous baseline becomes part of the decision history.
+
+#### Review Dates
+
+When is the next decision point for each tactic, strategy, and objective? Without explicit dates, reviews slip indefinitely.
+
+```
+REVIEW SCHEDULE:
+  Tactic [name]: Next kill/pivot/persevere decision [date]
+  Tactic [name]: Next kill/pivot/persevere decision [date]
+  Strategy [name]: Next strategy review [date]
+  Objective [name]: Next objective review [date]
+  Goals: Next goal review [date]
+```
+
+REVIEW LEVEL ASSIGNMENTS [ROBUST]:
+  Tactic reviews: [Level 1 (skim) | Level 2 (targeted) | Level 3 (deep)]
+  Strategy reviews: [Level 2 | Level 3]
+  Goal reviews: [Level 3]
+  Note: Review levels are defined in Section 6.4. The Governor may adjust
+  review levels at any review based on current scope complexity and risk.
+  Changes are logged in the decision log as decision_type: review_level_change.
+
+### 9.2 Recommended Elements `[ROBUST; Custom Review Triggers and Alternate Governor are ADVANCED]`
+
+These elements are not structurally required — the framework functions without them. But in practice, operating documents that omit them produce weaker orchestrator output and require more Governor intervention.
+
+#### Audience Definition
+
+Who specifically is this for? Not "everyone in cybersecurity" — the Probable Purchaser profile. The orchestrator uses this to evaluate whether outputs are targeting the right people. Without it, the agent has no filter for relevance.
+
+```
+AUDIENCE:
+  PRIMARY: [Specific profile — role, industry, geography, pain point]
+  SECONDARY: [If applicable]
+  EXCLUDED: [Who we are explicitly NOT targeting and why]
+```
+
+#### Voice and Positioning
+
+How does this identity speak? What stance does it take? This is more specific than a guardrail — it's an operational style guide that shapes every action.
+
+```
+VOICE:
+  TONE: [e.g., professional, domain-expert, authoritative but accessible]
+  POSITIONING: [e.g., "EU cyber governance specialist, NIS2/DORA framing"]
+  DIFFERENTIATION: [What makes this voice distinct from competitors]
+  EXAMPLES: [1-2 sentences that exemplify the voice]
+```
+
+#### Domain Context
+
+Which domain models apply to this scope? The orchestrator needs to know which knowledge stores to load. Without this declaration, the orchestrator operates with whatever domain knowledge it has in its training data — which may be outdated, incomplete, or wrong.
+
+```
+DOMAIN MODELS:
+  - [Business function 1, e.g., Marketing]
+  - [Business function 2, e.g., Content Operations]
+```
+
+#### Graduation Stage Tracking `[ROBUST]`
+
+The operating document should track the current graduation stage and the evidence supporting the current stage assignment. This enables the orchestrator to assess graduation readiness and prevents premature stage advancement.
+
+```
+GRADUATION TRACKING:
+  Current stage: [1-5]
+  Stage entry date: [date current stage was granted]
+  Prerequisites met for current stage: [list from §16.11]
+  Prerequisites remaining for next stage: [list from §16.11]
+  Last graduation assessment: [date and outcome]
+  Challenge probe results: [summary of last challenge scenario, if Stage 3+]
+```
+
+Challenge probes (§16.11.1) are recorded in the decision log as `decision_type: challenge_probe` with: `{scenario_description, system_response_summary, confidence_score, probe_outcome: passed | failed | inconclusive, assessor: governor | automated}`. The probe outcome feeds the graduation assessment — a failed challenge probe blocks stage advancement until the underlying capability gap is addressed.
+
+#### Active A/B Tests
+
+Which tactics or strategies are being compared, on what metric, with what decision timeline? Without this declared explicitly, the orchestrator doesn't know which items are competing hypotheses vs. independent efforts.
+
+```
+ACTIVE A/B TESTS:
+  STRATEGY-LEVEL TEST: [Strategy A name] vs [Strategy B name]
+    SHARED METRIC: [The metric both are measured against]
+    DECISION DATE: [When the comparison will be evaluated]
+    DECISION RULE: [What constitutes a clear winner]
+  TACTIC-LEVEL TEST: [Tactic A name] vs [Tactic B name]
+    PARENT STRATEGY: [Which strategy both implement]
+    SHARED METRIC: [The metric both are measured against]
+    DECISION DATE: [When the comparison will be evaluated]
+    DECISION RULE: [What constitutes a clear winner]
+```
+
+#### Reference Material Anchors
+
+Which Reference Pool items (Section 17.2.4) are foundational to this scope's execution? Declaring these gives the orchestrator a baseline set of materials to always include when generating action specifications, and gives the Governor visibility into what raw materials underpin this scope.
+
+```
+REFERENCE MATERIALS:
+  - [Name / Reference Pool ID] — role: [options-universe | context] — [What it is and why it matters]
+  - [Name / Reference Pool ID] — role: [options-universe | context] — [What it is and why it matters]
+```
+
+Each anchor must declare a `consumption_role` (see Section 17.2.4 schema):
+- **`options-universe`** — Material containing the items being evaluated, sequenced, or prioritized. The orchestrator MUST read these before generating tactics. Without them, the session has evaluation lenses (domain models) but nothing to evaluate. Examples: a feature inventory, a product backlog, a list of strategic alternatives.
+- **`context`** — Background material informing understanding. Read as needed during execution. Examples: market research, competitive analysis, brand voice guides.
+
+Not all Reference Pool items need to be listed here — only those that are foundational across the scope. Tactic-specific and action-specific materials are selected by the orchestrator at work plan generation time.
+
+#### Decision History
+
+What was decided at the last review and why? This gives the orchestrator context for why the current state looks the way it does, and gives the Governor a trail of reasoning to revisit.
+
+```
+DECISION LOG:
+  [Date]: [Decision made] — [Rationale]
+  [Date]: [Decision made] — [Rationale]
+```
+
+Append to this log at every review. Never delete entries. The decision log is an audit trail, not a status update.
+
+#### Custom Review Triggers `[ADVANCED]`
+
+Which domain-specific events should trigger an unscheduled review? Section 7.9 defines framework-level defaults (30% metric drop, guardrail violation, WMBT falsification, 75% deadline warning). This element lets the Governor define additional triggers specific to the scope's domain.
+
+```
+CUSTOM REVIEW TRIGGERS:
+  - CONDITION: [What event or threshold constitutes the trigger]
+    TRIGGERS: [tactic_review | strategy_review]
+    CONTEXT: [What additional information should be included in the triggered review]
+  - CONDITION: [...]
+    TRIGGERS: [...]
+    CONTEXT: [...]
+```
+
+Examples: In a hiring scope, "offer rejection when remaining_offers_needed exceeds candidates_in_final_stage" triggers an immediate tactic review. In a product launch scope, "competitor announces competing feature" triggers an ad-hoc strategy review with competitive analysis context.
+
+#### Alternate Governor `[ADVANCED]`
+
+For scopes with time-sensitive external dependencies (hiring, sales, event management), designate who can make time-critical decisions during the primary Governor's unavailability.
+
+```
+ALTERNATE GOVERNOR:
+  PERSON: [Name / role]
+  AUTHORITY: action_approval_only
+  CONSTRAINTS: [Any additional limitations beyond the default "action-level only"]
+  ACTIVATION: [When the alternate is activated — e.g., "when primary Governor is unreachable for 48+ hours"]
+```
+
+The alternate Governor may approve time-critical action-level decisions only. Kill/pivot/persevere and all other non-delegable decisions (Section 6.1) remain with the primary Governor. Alternate Governor decisions are logged with `source: alternate_governor` attribution.
+
+### 9.3 What Must NOT Be in the Operating Document
+
+**Action-level details beyond the seed list.** The tactic template includes seed actions to bootstrap the first cycle (see Section 10). Beyond these, no posting schedules, no content calendars, no specific task assignments. Ongoing actions are generated by the orchestrator and adjusted cycle to cycle based on signals. Putting them in the operating document freezes them and defeats the feedback loop. The seed actions are consumed by the first cycle and are not updated — they are starting points, not plans.
+
+**Metric data.** The document defines what metrics matter and what thresholds define success. It does not contain the metrics themselves — those come from the data grounding layer. An operating document with embedded metric values becomes stale the moment it's written. The one exception is the baseline section, which records a point-in-time snapshot that is updated at each strategy review.
+
+**Orchestrator instructions.** The operating document does not tell the orchestrator how to do its job. It tells the orchestrator what the goals, constraints, strategies, and success criteria are. The orchestrator determines how to decompose strategies into tactic-level work plans. If the operating document prescribes specific orchestrator behavior, it is doing the orchestrator's job and creating a rigid system that cannot adapt.
+
+**Tactic-level details in strategy definitions.** The strategy section captures reasoning, not implementation. If the strategy specifies posting frequency, content format, or channel-specific tactics, those details belong in the tactic section. See Rule 2 (No contamination).
+
+### 9.4 Operating Document Lifecycle
+
+The operating document is a living artifact with a defined update rhythm:
+
+- **At action review:** No document changes. The orchestrator executes against the current document. If the Governor wants to adjust something, the change is noted for the next tactic review, not applied immediately (unless a guardrail violation is discovered).
+- **At tactic review:** Update tactic status. Record kill/pivot/persevere decisions in the decision log. Add or remove tactics. Update review dates. Revise kill conditions if a pivot was decided.
+- **At strategy review:** Update baselines. Review strategies — assess what-must-be-true conditions, make strategy-level kill/pivot/persevere decisions. Review and potentially revise objectives (metrics, thresholds, deadlines). Rebalance the strategy and tactic portfolio. Add decision log entries explaining any strategy-level or objective-level changes.
+- **At goal review:** Review and potentially revise goals and their guardrails. Set objectives for the next cycle. Major revision of the document. Previous version is archived, not overwritten.
+
+Every version is saved. The version history, combined with the decision log, creates a complete record of strategic evolution that can be audited, analyzed, and learned from.
+
+---
+
+## 10. Tactic Specification Template
+
+**Field complexity annotations:** Each field carries a `[CORE]`, `[ROBUST]`, or `[ADVANCED]` marker indicating the feature complexity level at which that field becomes relevant — not the implementation tier. `[CORE]` fields are required for any tactic at any tier. `[ROBUST]` fields become relevant when adopting features like A/B testing, domain model stacking, or detailed dependency tracking. `[ADVANCED]` fields support metric lag modeling, reference material management, and other advanced features. At any implementation tier (including Tier 0), include the fields that match the feature complexity you've adopted. Execution protocols (Section 22) may omit higher-complexity fields without violating structural integrity, provided all `[CORE]` fields are present.
+
+| Field | Tier | Description |
+|-------|------|-------------|
+| Name | `[CORE]` | Short, descriptive identifier |
+| Parent Strategy | `[CORE]` | Which strategy this tactic implements |
+| Parent Objective | `[CORE]` | Which objective the parent strategy serves |
+| Owner | `[ROBUST]` | Single accountable person (name and role) |
+| Hypothesis | `[CORE]` | "If we do X, we expect Y" — the testable prediction |
+| Approach | `[ROBUST]` | How the tactic will be executed (specific implementation details) |
+| Success Metrics | `[CORE]` | 2–3 leading indicators with target values |
+| Kill Condition | `[CORE]` | "If [metric] has not reached [value] by [date], kill or pivot" |
+| Kill Requires | `[ROBUST]` | `autonomous` (default) or `governor_approval`. When set to `governor_approval`, this tactic cannot be auto-killed at any stage — kill recommendations are always escalated to the Governor regardless of graduation level. Use for safety-critical baselines, regulatory compliance tactics, or institutional obligations where the cost of an incorrect autonomous kill is catastrophic. See §7.2, Step 5. **Authoring note:** for maintain-baseline objectives (§21.4), `governor_approval` is strongly recommended. The OD validation checklist (§21.8) flags maintain-baseline tactics that use the default `autonomous` as a warning. |
+| Guardrails (Inherited) | `[CORE]` | Constraints from parent goal, objective, and strategy |
+| Guardrails (Own) | `[CORE]` | Additional constraints specific to this tactic |
+| A/B Variant | `[ROBUST]` | If part of a test: which variant and what the comparison is. Specify tactic-level or strategy-level test. |
+| Dependencies | `[ROBUST]` | Other tactics, teams, or external factors. Each dependency classified by type: execution, external, or human creative (see Section 3.5) |
+| Bootstrap Cycles | `[CORE]` | Number of action cycles before kill condition assessment begins (default: 3). During bootstrap, the orchestrator executes seed actions and collects baseline signal data without evaluating kill conditions. Guardrail violations are still enforced. See Section 7.2, Bootstrap Mode. |
+| Timeline | `[CORE]` | Start, milestones, end |
+| Actions (Seed) | `[CORE]` | Initial actions to bootstrap the first cycle — discrete, assignable, time-bound tasks (3–10). Each action tagged with dependency type if applicable. Actions with human creative dependencies must be identified explicitly — they affect tactic health computation (see Section 4.4). After the first cycle, the orchestrator generates subsequent actions based on signals and tactic health. The seed list is not maintained — it exists to start execution, not to constrain it. |
+| Human Creative Input Estimate | `[ROBUST]` | If the tactic depends on human creative input: how many inputs are expected per cycle, and what happens to the tactic if the input rate is lower than planned |
+| Metric Lag (Optional) | `[ADVANCED]` | Known delay between intervention completion and target metric response (e.g., "12_weeks"). Extends kill_deadline by this duration. See §20.3, Metric lag adjustment. Default: 0 (immediate response). |
+| Metric Prerequisites (Optional) | `[ADVANCED]` | Conditions that must be true before kill condition assessment begins. Each prerequisite is a testable condition (e.g., "upstream tactic T1 has completed bootstrap," "data pipeline producing ≥100 events/day"). When any prerequisite is unmet, kill condition assessment is suspended (see §20.3). Empty if the tactic has no upstream dependencies affecting its kill metric. |
+| Reference Material Requirements (Optional) | `[ADVANCED]` | Types or specific Reference Pool items this tactic depends on (e.g., "brand voice guide, prior deliverables from Tactic T1, competitor research"). The orchestrator uses this to know which Reference Pool items to include in action specifications. Empty if the tactic is self-contained. |
+| Review Date | `[ROBUST]` | Next kill/pivot/persevere decision point |
+| Related Function | `[ADVANCED]` | Primary business function |
+
+---
+
+## 11. Worked Example: Simple Goal `[ROBUST]`
+
+The following example demonstrates the full framework applied to a simple operational goal. The same structure, feedback loops, guardrails, and A/B testing mechanics apply. All five layers are shown.
+
+### 11.1 Goal
+
+**Goal:** Build a recognized and trusted brand presence online.
+
+**Guardrails:** No purchased followers or engagement bots. No off-brand content for virality. Brand voice remains professional and domain-expert. No political or divisive content.
+
+### 11.2 Objective
+
+**Objective:** Reach 5,000 followers on X/Twitter with an engagement rate above 3% by Q3 2026.
+
+**Inherited Guardrails:** All goal-level guardrails apply.
+
+**Objective-Level Guardrails:** Organic growth only for this objective. Maximum spend of €200/month on content tools (not ads).
+
+### 11.3 Strategies (Strategy-Level A/B Test)
+
+Two competing strategies test fundamentally different approaches to the same objective:
+
+#### Strategy A: Thought Leadership Positioning
+
+| Field | Value |
+|-------|-------|
+| Owner | Governor |
+| Rationale | Founder has deep domain expertise in EU cybersecurity governance (NIS2, DORA). This expertise is a compounding asset — it builds credibility over time and cannot be replicated by competitors without the same background. Thought leadership attracts a high-quality audience (decision-makers) rather than a broad one. |
+| What Must Be True | 1. Founder's expertise is differentiated enough to attract organic attention on X/Twitter. 2. Target audience (EU security decision-makers) is active and reachable on this platform. 3. Founder can sustain creative input at a rate of 2-3 original observations per week. |
+| Not Doing | Not pursuing paid growth, viral content, broad-audience appeal, or engagement farming. |
+| Strategy-Level Kill Signal | If 2+ tactics implementing thought leadership all fail to achieve 5% MoM growth after 8 weeks each, the approach is wrong for this platform/audience combination. |
+| Guardrails (Inherited) | All goal and objective guardrails. |
+| Guardrails (Own) | Content must demonstrate genuine expertise, not repackaged news. Every post must be defensible by the founder in a professional setting. |
+
+#### Strategy B: Community-First Network Building
+
+| Field | Value |
+|-------|-------|
+| Owner | Governor |
+| Rationale | In professional niches, audience growth is driven by relationships more than content. Engaging with existing communities, amplifying others, and building reciprocal relationships creates network effects that compound. Being known personally by 100 influential accounts is more valuable than being seen by 10,000 passive followers. |
+| What Must Be True | 1. An active cybersecurity community exists on X/Twitter with identifiable key participants. 2. Reciprocal engagement generates follower growth (not just goodwill). 3. Relationship-building can be sustained without the time cost exceeding the €200/month tool budget equivalent in founder time. |
+| Not Doing | Not prioritizing original content volume. Not pursuing follower count through content alone. |
+| Strategy-Level Kill Signal | If 2+ tactics implementing community engagement all fail to achieve 5% MoM growth after 8 weeks each, the relationship-driven approach doesn't convert to followers on this platform. |
+| Guardrails (Inherited) | All goal and objective guardrails. |
+| Guardrails (Own) | No engagement with controversial or off-topic threads. Quality over quantity in interactions. |
+
+**Strategy-Level A/B Comparison:** Both strategies target the same objective with the same primary metric (follower MoM growth) but test fundamentally different approaches: content-driven vs. relationship-driven growth. At the strategy review (quarterly in this example), their results are compared and a strategy-level kill/pivot/persevere decision is made.
+
+### 11.4 Tactics (Under Strategy A)
+
+#### Tactic A1: Expert Content Series
+
+| Field | Value |
+|-------|-------|
+| Owner | Marketing Lead |
+| Parent Strategy | Thought Leadership Positioning |
+| Hypothesis | Consistent expert content (industry commentary, original insights, data-driven takes) will drive organic follower growth at 15%+ month-over-month. |
+| Approach | Publish 3 posts/week: 1 industry news commentary, 1 original insight or data point, 1 community engagement (polls, questions, threads). Use strategic hashtags and tag relevant accounts. Engage with 10+ accounts daily in the cybersecurity community. |
+| Success Metrics | Follower growth rate (MoM%), engagement rate per post, impressions per post |
+| Kill Condition | If follower growth is below 5% MoM after 8 weeks, pivot. |
+| Guardrails (Inherited) | No bots, no purchased followers, professional voice, organic only, €200/month tool cap, content must demonstrate genuine expertise |
+| Guardrails (Own) | All content reviewed before posting. No more than 1 promotional post per week. |
+| Timeline | 8 weeks, then review |
+
+#### Tactic A2: Deep-Dive Thread Series
+
+| Field | Value |
+|-------|-------|
+| Owner | Marketing Lead |
+| Parent Strategy | Thought Leadership Positioning |
+| Hypothesis | Long-form threads (5-10 tweets) breaking down complex cybersecurity governance topics will generate higher engagement and more qualified followers than short-form posts. |
+| Approach | Publish 2 threads/week, each a deep-dive into a specific NIS2/DORA topic. Each thread ends with a question or discussion prompt. Supplement with 1 short post/week for visibility. |
+| Success Metrics | Follower growth rate (MoM%), engagement rate per thread, bookmark/save rate, thread completion rate |
+| Kill Condition | If follower growth is below 5% MoM after 8 weeks, pivot. |
+| Guardrails (Inherited) | Same as Tactic A1 |
+| Guardrails (Own) | Threads must be substantive — no "10 tips" listicle threads. Each thread must contain at least one original analysis or framework. |
+| Timeline | 8 weeks, then review |
+
+**Tactic-Level A/B Comparison:** Both tactics implement Thought Leadership Positioning (Strategy A) but test different content formats: short-form posts vs. long-form threads. After 8 weeks, the tactic review compares their metrics and makes a tactic-level kill/pivot/persevere decision. Note: this comparison tells us which *implementation* of thought leadership works better. The strategy-level comparison (Strategy A vs B) tells us whether thought leadership itself is the right *approach*.
+
+### 11.5 Tactics (Under Strategy B)
+
+#### Tactic B1: Active Community Engagement
+
+| Field | Value |
+|-------|-------|
+| Owner | Marketing Lead |
+| Parent Strategy | Community-First Network Building |
+| Hypothesis | Prioritizing community engagement (replies, collaborations, amplifying others) over original content will build network effects and drive follower growth at 15%+ MoM. |
+| Approach | Publish 1 post/week (high quality only). Spend 80% of social time engaging: reply to 20+ relevant posts daily, join 3 Twitter Spaces per week, co-create content with 2 community members per month. Build reciprocal relationships with key accounts. |
+| Success Metrics | Follower growth rate (MoM%), reply/mention rate, network referral followers |
+| Kill Condition | If follower growth is below 5% MoM after 8 weeks, pivot. |
+| Guardrails (Inherited) | All goal, objective, and Strategy B guardrails |
+| Guardrails (Own) | No engagement with controversial or off-topic threads. Quality over quantity in replies. |
+| Timeline | 8 weeks, then review |
+
+### 11.6 Actions (Tactic A1 Example)
+
+| # | Action | Assignee | Deliverable | Deadline |
+|---|--------|----------|-------------|----------|
+| 1 | Audit current X/Twitter profile: bio, pinned post, visual branding. Align with brand guidelines. | Marketing Lead | Updated profile | Week 1 |
+| 2 | Build a content calendar for weeks 1–8 with post topics, formats, and hashtags. | Marketing Lead | Published calendar | Week 1 |
+| 3 | Identify and list 50 target accounts (industry leaders, peers, potential followers) for daily engagement. | Marketing Lead | Target account list | Week 1 |
+| 4 | Set up analytics tracking: follower count, engagement rate, impressions per post, weekly reporting. | Marketing Lead | Live dashboard | Week 1 |
+| 5 | Produce and publish 3 posts per week per content calendar. | Marketing Lead | Published posts | Weekly |
+| 6 | Engage with 10+ accounts daily: likes, replies, retweets with commentary. | Marketing Lead | Engagement log | Daily |
+| 7 | Weekly metrics review: compile follower growth, engagement rate, top-performing posts. | Marketing Lead | Weekly report | Weekly |
+| 8 | 8-week tactic review: compile full A/B comparison data, write recommendation (kill/pivot/persevere). | Marketing Lead | Review document | Week 8 |
+
+### 11.7 Feedback Flow in This Example
+
+**Actions → Tactic:** Weekly metrics reports (Action 7) aggregate into tactic health. If posts are being published but engagement is flat, the signal is that content quality or targeting needs adjustment — not that more posts are needed.
+
+**Tactic → Strategy:** At the 8-week review, Tactic A1 and Tactic A2 each report their metrics. If A1 is at 18% MoM and A2 is at 7% MoM, the signal is clear: short-form posts outperform threads for this account at this stage. Decision: persevere A1, pivot or kill A2. Crucially, this tells us about *implementation* preference. The thought leadership strategy itself is performing — it just performs better as short-form posts.
+
+**Strategy → Objective:** At the strategy review (quarterly in this example), Strategy A (Thought Leadership) and Strategy B (Community-First) are compared. If Strategy A's best tactic is producing 18% MoM growth and Strategy B's tactic is producing 7% MoM growth, the signal is that thought leadership outperforms community engagement for this account/market. Decision: expand Strategy A, reduce or kill Strategy B.
+
+**Objective → Goal:** At the strategy review, follower count and engagement rate are assessed against the objective target. If on track, no intervention needed. If behind despite healthy strategies and tactics, the objective itself may need reframing (perhaps the platform choice is wrong, and LinkedIn would serve the brand goal better).
+
+**Goal reassessment:** At the goal review (annual in this example), the question is whether "build a recognized and trusted brand presence online" is still the right goal, or whether the organization's strategic priorities have shifted.
+
+---
+
+## 12. Scaling the Framework `[ROBUST]`
+
+The framework handles complexity through depth, not structural change:
+
+| Dimension | Simple Goal | Complex Organization |
+|-----------|-------------|---------------------|
+| Goals | 1–2 | 4–8 |
+| Objectives per goal | 1–2 | 3–5 |
+| Strategies per objective | 1 | 1–3 |
+| Tactics per strategy | 1–2 | 2–5 |
+| Actions per tactic | 3–5 | 5–10 |
+| Total managed items | ~20–40 | ~400–800 |
+| Review overhead (human) | Light | Moderate (depends on cadence) |
+| Review overhead (agentic) | Negligible | Negligible |
+| A/B tests running (tactic-level) | 0–1 | 3–8 |
+| A/B tests running (strategy-level) | 0–1 | 1–4 |
+| Agent autonomy typical | Action-level | Mixed action, tactic, and strategy-level |
+
+The key insight: a solo founder managing a social media account and a 50-person company running 8 strategic goals use the same framework. The founder simply has fewer items at each layer and shorter review cycles. The structure, the feedback mechanics, the guardrail inheritance, and the kill discipline are identical.
+
+The cost argument that originally drove the collapse from five layers to four — that 750+ items is too expensive to manage — does not apply to agentic execution. Agents manage tactic portfolios, track signals, compute health metrics, and surface decisions. The human governor's review burden scales with the number of decisions requiring human judgment (strategy kills, objective rebalancing), not with the total number of items in the system. The five-layer model creates more items, but the additional items (strategies) are managed at the strategy review cadence and require fewer decisions than tactics. The overhead increase for Governor time is marginal and zero for agents.
+
+---
+
+## 13. Domain Models: Pluggable Knowledge for Any Domain
+
+### 13.1 The Problem
+
+The framework is structurally invariant across domains. But structure alone doesn't produce good output. An agent that generates a perfectly structured tactic (owner, hypothesis, kill condition, actions) can still produce substantively worthless content if it doesn't understand the domain it's operating in. A marketing tactic without an understanding of Probable Purchasers, Levels of Awareness, or Permission is structurally valid and strategically empty. An education tactic without understanding of learning progressions, developmental stages, or assessment methods is equally hollow.
+
+The framework tells agents *how to organize* execution. It does not tell them *what good looks like* within a specific domain. That knowledge lives in the domain model.
+
+### 13.2 What a Domain Model Is
+
+A domain model is a structured body of knowledge specific to any knowledge domain that agents must reference (not generate from memory) when producing content at each framework layer. A domain can be a business function (Marketing, Finance), a discipline (Education, Agriculture), a technical field (Cybersecurity, AI), or any area where structured knowledge improves agent reasoning. It provides five things:
+
+**Vocabulary for guardrails.** Domain concepts that define what must be protected, who must be targeted, and what must be avoided. These concepts become the content of goal-level, objective-level, and strategy-level guardrails.
+
+**Intelligence for strategy formulation.** Domain frameworks that help identify which approaches are available, what competitive logic applies, and where the highest leverage points are. These concepts inform which strategies to pursue and what what-must-be-true conditions to define.
+
+**Hypothesis templates for tactics.** Domain approaches that can be tested as competing hypotheses. These are the raw material for tactic generation — an agent that knows the available approaches can propose meaningful A/B tests instead of arbitrary ones.
+
+**Quality criteria for actions.** Domain principles that define what makes a well-executed action within this function. These become implicit acceptance criteria embedded in action specifications.
+
+**Anti-patterns for validation.** Known failure modes that allow the system to flag output matching common mistakes before it enters execution.
+
+### 13.3 Domain Model Structure
+
+Every domain model follows the same schema, regardless of domain:
+
+| Component | Purpose | How Agents Use It |
+|-----------|---------|-------------------|
+| Core Concepts | Foundational terms and their definitions, mapped to framework layers | Referenced when generating any content within this function |
+| Concept Relationships | How concepts relate to each other (prerequisites, conflicts, synergies) | Used to validate that strategies, tactics, and actions are internally coherent |
+| Guardrail Vocabulary | Concepts that typically become constraints | Suggested as guardrails when goals, objectives, and strategies are being defined |
+| Hypothesis Library | Proven and theoretical approaches that can be tested | Used to generate tactic hypotheses and A/B test designs |
+| Quality Principles | Execution standards that define "good" within this function | Applied as acceptance criteria for actions |
+| Anti-Patterns | Common mistakes and known failure modes | Used as negative validation — agent output that matches an anti-pattern is flagged |
+
+**Domain model quality criteria (content validation):** Structural completeness (having the required components) is necessary but not sufficient. The content of each component must meet quality criteria to produce analytical value. Three tests, applied at domain model creation or selection:
+
+1. **Specificity test:** Each Core Concept's *description* must explain how the concept applies specifically to the session's product or context in a way that would not be true of a competing product or a generic domain model for the same field. Test: "Does this concept's description differentiate how it manifests in THIS specific context versus a generic application of the same domain?" If the description merely defines the concept in general terms (e.g., an "Article 28" concept that summarizes what Art 28 requires without explaining how the session's product uniquely serves Art 28 compliance), it is too generic and will produce vocabulary-translated summaries rather than domain-specific insight. Note: concept *names* may legitimately use standard domain terminology (Kaufman's terms, regulatory article numbers, etc.) — specificity is evaluated on the description content, not the concept header.
+2. **Distinctiveness test:** Each Quality Principle must produce evaluation criteria that differ from other domains in the same analysis. Test: "Would applying this principle to a different domain produce a different assessment?" If no, it does not add analytical value beyond what other domains already provide.
+3. **Anti-Pattern specificity test:** Each Anti-Pattern must describe failures specific to this domain. Test: "Is this anti-pattern already covered by basic critical thinking?" If yes (e.g., "consider multiple perspectives"), it does not prevent domain-specific errors.
+
+A domain model that fails any test should be flagged to the Governor before analysis proceeds: "This domain model may produce generic results. Consider: (a) adding Hypothesis Library and Guardrail Vocabulary components for depth, (b) making Core Concepts domain-specific, (c) using a pre-built model instead." If the Governor proceeds with a flagged model, the analysis output should carry a quality annotation.
+
+**Runtime domain model quality detection** `[ROBUST]` — The content validation above runs at creation time. During execution, a domain model's quality may become apparent only when it produces assessments. The orchestrator monitors domain model output quality via two runtime heuristics: (1) **Convergence detection:** If two or more domain models produce assessments that are >80% semantically overlapping (same conclusions, same structure, same vocabulary), the orchestrator flags `domain_model_convergence: {models: [IDs], overlap_estimate: [%]}` — this indicates at least one model is not producing substantively distinct analysis, confirming §5.1 Quality Criterion guardrail type violations. (2) **Vacuity detection:** If a domain model's assessment contains no falsifiable claims — every conclusion is hedged, conditional, or generic enough to be true of any domain — the orchestrator flags `domain_model_vacuity: {model_id, evidence: "no falsifiable claims in assessment"}`. Both flags surface in the tactic health report. The Governor decides: replace the model (§4.3 Replace protocol), continue with quality annotation, or accept the output. These heuristics are imperfect — they detect symptoms, not root causes — but they prevent low-quality models from silently degrading analysis quality.
+
+**Source credibility in signal attribution** `[ROBUST]` — For analytical scopes that consume external intelligence (web search results, third-party data, domain expert inputs), signal quality varies by source. The framework does not define a universal source credibility taxonomy (source quality is domain-specific), but requires that analytical scope operating documents declare a **source attribution policy** specifying: (a) whether source credibility tiers are used (and if so, the domain-specific tier definitions), (b) the minimum source diversity requirement per assessment (e.g., "no claim may rest solely on a single source tier"), and (c) how source credibility affects signal weighting in health computation. If no source attribution policy is declared, the default is: all sources are treated equally in health computation, and the Governor is responsible for judging source quality at review. This makes source credibility an explicit authoring decision rather than an implicit assumption.
+
+**Execution cost tracking** `[ROBUST]` — For analytical scopes and any scope where execution consumes metered resources (API calls, compute time, search queries, external data purchases), the framework tracks Governor time ceiling (§7.2 Step 4b) but does not track non-Governor execution costs. This creates a blind spot: a tactic may be within its Governor time budget but consuming disproportionate API or compute resources that the Governor is unaware of. The orchestrator must track and surface execution costs using this protocol: (1) **Cost categories:** The OD declares which cost categories apply to the scope: `execution_costs: [{category: api_calls|compute_time|search_queries|external_data|other, unit: [unit], budget: [threshold_per_cycle]|unbounded}]`. If no execution costs are declared, the field defaults to empty (no cost tracking). (2) **Per-tactic cost accumulation:** The orchestrator tracks cumulative cost per tactic per cycle across declared categories. Cost data comes from executor action reports (each action completion includes cost metadata if the category is declared). (3) **Cost guardrail:** If any tactic's per-cycle cost in any category exceeds its budget, the orchestrator flags `cost_exceeded: {tactic: [ID], category: [cat], budget: [B], actual: [A]}` in the tactic health report. The Governor decides: extend the budget, constrain the tactic's actions, or kill the tactic. (4) **Scope-level cost summary:** At strategy review, the orchestrator presents total execution cost across all tactics, broken down by category. This enables the Governor to assess cost-effectiveness alongside health metrics. If execution costs are declared but a tactic's actions do not report cost metadata, the orchestrator flags `cost_data_missing: {tactic: [ID], category: [cat]}` — the cost tracking cannot function without executor cooperation. For Tier 0 implementations, cost tracking is manual: the Governor estimates costs per session and the AI records them in the signal file.
+
+### 13.4 Worked Example: Marketing Domain Model
+
+The following marketing domain model is derived from foundational marketing principles. It demonstrates how domain knowledge plugs into the framework at each layer. Below is the schema-level summary showing how domain concepts map to the five framework layers.
+
+#### Core Concepts (Summary)
+
+| Concept | Definition | Framework Layer Affected |
+|---------|-----------|------------------------|
+| Attention | The scarce resource that marketing competes for. Prospects filter ruthlessly. | Strategy (approach must earn attention), Tactic, Action |
+| Receptivity | How open a prospect is to your message, determined by context and timing. | Strategy (channel/timing logic), Tactic, Action |
+| Probable Purchaser | The specific type of person suited to what you're offering. Not everyone. | Goal (guardrail), Objective, Strategy (who we're targeting and why) |
+| Levels of Awareness | Five stages: Unaware → Problem Aware → Solution Aware → Offer Aware → Fully Aware. | Objective (metric selection), Strategy (which levels to target), Tactic (approach design) |
+| Point of Market Entry | The moment a prospect first becomes interested in your category. | Strategy (timing logic), Tactic |
+| Remarkability | Being distinctive enough to violate expectations and attract attention naturally. | Strategy (differentiation logic), Tactic (hypothesis) |
+| Free | Offering genuine value at no cost to earn attention and permission. | Strategy (approach logic), Tactic (hypothesis) |
+| Permission | The right to follow up after providing value. Compounds over time. | Strategy (asset-building logic), Tactic (hypothesis), Action (CTA design) |
+| Hook | A single phrase conveying the primary benefit. Cuts through noise. | Action (content creation) |
+| Call to Action | A single, clear next step for the prospect. Without it, attention doesn't convert. | Action (mandatory element) |
+| Demonstration | Showing the product in action rather than explaining benefits. | Strategy (approach logic), Tactic (hypothesis), Action |
+| Visualization | Helping prospects imagine their life after purchasing. | Action (content creation) |
+| Framing | Emphasizing details that matter while de-emphasizing those that don't. Honest compression. | Action (content creation) |
+| Narrative | Stories following the Hero's Journey. Prospects want to be the hero. | Strategy (positioning), Tactic (hypothesis), Action |
+| Controversy | Publicly taking a position not everyone agrees with. Generates discussion. | Strategy (differentiation logic), Tactic (hypothesis) |
+| Reputation | What people think about your offer and company. Most valuable long-term asset. | Goal (guardrail), Strategy (what-must-be-true: reputation must be protected) |
+| Addressability | How easy it is to reach people who might want what you offer. | Objective (feasibility), Strategy (channel selection logic) |
+| End Result | The experience or emotion the prospect actually wants. | Strategy (messaging logic), Tactic, Action (content creation) |
+
+#### Guardrail Vocabulary
+
+When defining guardrails for marketing goals, objectives, and strategies, draw from these concepts:
+
+- **Probable Purchaser constraints:** "We target [profile]. We do not pursue [excluded segments]."
+- **Qualification criteria:** "We do not acquire customers who [disqualifying conditions]."
+- **Reputation protection:** "We do not take actions that [reputation-damaging behaviors]."
+- **Addressability requirements:** "We only enter markets where the audience is addressable via [channels]."
+- **Permission boundaries:** "We do not contact prospects without explicit permission. We do not abuse permission by [specific violations]."
+
+#### Hypothesis Library
+
+When generating marketing tactics, draw from these testable approaches:
+
+| Approach | Hypothesis Template | Best Tested Against |
+|----------|-------------------|-------------------|
+| Free Value | "If we offer [specific free value] to [probable purchaser], we will earn permission to follow up at [X%] conversion rate." | Permission, Demonstration |
+| Remarkability | "If we [specific remarkable element], it will generate organic attention and word-of-mouth at [X] rate without paid promotion." | Free Value, Controversy |
+| Controversy | "If we take a public position on [specific stance], it will generate discussion and attract [probable purchaser] attention at [X] rate." | Remarkability, Content Marketing |
+| Demonstration | "If we show [product/service] in action via [medium], prospects will convert at [X%] vs. [Y%] for explanation-only approaches." | Narrative, Free Value |
+| Narrative | "If we tell customer success stories following [format], prospects will move from [Level of Awareness A] to [Level of Awareness B] at [X%] rate." | Demonstration, Controversy |
+| Permission-First | "If we prioritize building permission assets over direct conversion, our long-term customer acquisition cost will be [X%] lower than direct approach." | Direct Response |
+| Point-of-Entry Targeting | "If we reach prospects within [timeframe] of their Point of Market Entry, we will achieve [X%] higher conversion than late-stage targeting." | Broad Awareness |
+
+#### Quality Principles for Actions
+
+Every marketing action should be validated against these principles before execution:
+
+- Every piece of content must have a clear Call to Action. No exceptions.
+- Content must be framed around the End Result the prospect desires, not the feature set.
+- The message form must match the prospect's Receptivity context (channel, timing, format).
+- Content must target a specific Level of Awareness. Content that tries to address all levels addresses none.
+- The Hook must be identifiable in the first line or headline. If the Hook is buried, attention is lost.
+- Demonstration should be used over explanation whenever possible. Show, don't tell.
+- All content must pass the Probable Purchaser test: would this attract the people most likely to buy, or just anyone?
+
+#### Anti-Patterns
+
+Agent output that matches these patterns should be flagged and rejected:
+
+- **Spray and pray:** Targeting "everyone" or undefined audiences. Violates Probable Purchaser.
+- **Feature obsession:** Describing features instead of End Results.
+- **Permission abuse:** Following up with content unrelated to what was promised.
+- **Attention without conversion:** Generating visibility with no path to sale.
+- **Level mismatch:** Pitching price and terms to Unaware prospects, or explaining the problem to Fully Aware prospects.
+- **Missing CTA:** Any marketing output without a clear next step for the prospect.
+- **Controversy without purpose:** Taking provocative positions that attract attention but repel Probable Purchasers.
+- **Reputation-damaging shortcuts:** Purchased followers, fake testimonials, misleading framing.
+
+### 13.5 Worked Example: Value Creation Domain Model
+
+The following Value Creation domain model is derived from foundational business principles. It demonstrates how domain knowledge for a second business function plugs into the framework using the same schema. Below is the schema-level summary.
+
+#### Core Concepts (Summary)
+
+| Concept | Definition | Framework Layer Affected |
+|---------|-----------|------------------------|
+| Iron Law of the Market | Market demand is non-negotiable — no amount of execution overcomes its absence. | Goal (guardrail: validate market before committing), Objective (market size informs feasibility), Strategy (what-must-be-true: market exists) |
+| Core Human Drives | Five fundamental drivers: Acquire, Bond, Learn, Defend, Feel. The more drives your offer connects with, the more attractive it becomes. | Goal (which drives does the business serve?), Strategy (which drives does this approach activate?) |
+| Twelve Standard Forms of Value | Product, Service, Shared Resource, Subscription, Resale, Lease, Agency, Audience Aggregation, Loan, Option, Insurance, Capital. | Strategy (the form of value IS the strategic choice), Tactic (testing a specific form) |
+| Economic Values | Nine dimensions: Efficacy, Speed, Reliability, Ease of Use, Flexibility, Status, Aesthetic Appeal, Emotion, Cost. | Objective (which dimensions define success?), Strategy (which dimensions does this approach optimize?) |
+| Convenience vs. Fidelity | Two meta-dimensions. Optimizing for both simultaneously is nearly impossible. | Goal (guardrail: which end of the spectrum), Strategy (does this approach maintain the chosen position?) |
+| Trade-offs | Every design choice is a trade-off. Offerings that try to be everything end up being nothing. | Strategy (what are we deliberately sacrificing?), Tactic, Action |
+| Critical Assumptions | Facts that must be true for the business to succeed. | Strategy (what-must-be-true conditions ARE critical assumptions), Tactic (kill conditions test critical assumptions) |
+| Shadow Testing | Selling before it exists. Collects the most valuable feedback: willingness to pay. | Tactic (validation method), Action |
+| Minimum Viable Offer | Smallest version that produces an actual sale. Distinguishes real demand from hypothetical interest. | Tactic (the first milestone that validates with real money) |
+| Iteration Cycle | Observe → Design experiment → Conduct → Evaluate → Accept/reject. | Action (every action that modifies the offering follows this cycle) |
+
+#### Guardrail Vocabulary
+
+- **Iron Law constraints:** "We do not commit resources to building for markets that have not been validated."
+- **Mercenary/Crusader balance:** "The offering must connect to genuine organizational capability and interest."
+- **Trade-off commitment:** "We optimize for [convenience/fidelity]. We do not attempt both simultaneously."
+- **Critical Assumption discipline:** "No tactic proceeds past [milestone] without its Critical Assumptions tested via Shadow Testing or equivalent."
+- **Form-of-value boundaries:** "We deliver value as [Subscription/Service/Product/etc.]. We do not drift into other forms without a deliberate strategy-level decision."
+
+#### Hypothesis Library
+
+| Approach | Hypothesis Template | Best Tested Against |
+|----------|-------------------|-------------------|
+| Form of Value A/B | "If we deliver as a [Subscription], customers will pay [X/month] and retain for [Y months], producing higher LTV than delivering as a [Service]." | Alternative Form |
+| Hassle Premium | "If we eliminate [specific hassle], customers will pay [X% premium] over DIY." | Lower-hassle vs. lower-price |
+| Bundling | "If we bundle [A] with [B], the combined package converts at [X%] vs. [Y%] separately." | Unbundled pricing |
+| Shadow Testing | "If we offer [MVO] to [target], we achieve [X] preorders in [Y weeks], validating that [assumption]." | Direct build-first |
+
+#### Quality Principles for Actions
+
+- Every design decision must identify the Trade-off being made.
+- Prototypes must be in the same form as the finished offering.
+- Feedback must come from real potential customers, not internal stakeholders.
+- Every iteration must define what it's testing before it begins.
+- Shadow Testing should be attempted before significant resource commitment.
+- The MVO is the threshold for real validation.
+- Field Testing is mandatory before launch.
+
+#### Anti-Patterns
+
+- **Building without validation:** Committing resources before Critical Assumptions are tested.
+- **Stealth mode:** Hiding the offering from potential customers during development.
+- **Optimize-for-everything:** Attempting to score high on all Economic Values simultaneously.
+- **Form-of-value drift:** Starting as a Product, drifting into a Service, adding a Subscription, none fully developed.
+- **Hassle blindness:** Building more features instead of removing hassle.
+- **Ignoring the Iron Law:** Falling in love with the solution while the market is too small.
+- **Skipping the MVO:** Going from prototype to production without testing willingness to pay.
+
+### 13.6 Adding New Domain Models
+
+To add a domain model for any new domain (Education, Agriculture, Cybersecurity, Project Management, or any knowledge area), follow the same schema:
+
+1. **Identify core concepts.** What are the foundational principles of this function? Source them from established domain knowledge, not from agent generation. Map each concept to the framework layers it affects — now including the Strategy layer (which concepts inform approach selection and what-must-be-true reasoning?).
+2. **Map concept relationships.** Which concepts are prerequisites for others? Which conflict? Which create synergies?
+3. **Extract guardrail vocabulary.** Which concepts naturally become constraints that protect the organization? These now include strategy-level guardrails (approach boundaries) in addition to goal and objective-level constraints.
+4. **Build the hypothesis library.** What are the known approaches that can be tested as competing tactics?
+5. **Define quality principles.** What distinguishes a well-executed action from a mediocre one in this function?
+6. **Document anti-patterns.** What are the common mistakes? What does bad output look like? Each anti-pattern should include **exception conditions** that prevent false positives — the boundary between the anti-pattern and valid practice. Example: "Level-jumping" (moving to harder material before mastering the current level) has an exception: "overlapping progression" (introducing the next level alongside continued current-level practice) is valid pedagogy, not level-jumping. Without exception conditions, coarse anti-patterns will flag valid approaches and require Governor disambiguation at every review.
+7. **Define safe defaults per action type (Section 7.7).** For each action type the system will execute in this domain, define a domain-appropriate safe default — the conservative, deterministic action that keeps the system operational if the orchestrator fails. For action types where any repetition would be harmful (e.g., duplicate outreach to the same contacts, re-sending the same referral request), the safe default is **skip** — do not execute. Record these in the anti-patterns section so the system knows which action types must not be blindly repeated.
+
+The domain model is stored in the Domain Model Store (see Section 17.2.3) and retrieved by agents when operating within that domain. Agents do not generate domain knowledge — they retrieve and apply it. New domain models must meet the minimum completeness thresholds defined in Section 17.2.3 — at minimum 3 core concepts, 2 guardrail vocabulary entries, 2 hypothesis library entries, 3 quality principles, and 2 anti-patterns. Concept relationships can be empty initially but must be populated by the second strategy review.
+
+**Critical instruction for implementing agents:** Domain models are not optional supplementary material. They are essential grounding infrastructure that prevents domain hallucination (Section 14.2), provides quality standards for output evaluation, supplies anti-patterns that protect against known failures, and offers hypothesis templates that accelerate tactic design. If the operating document references a domain for which no domain model exists, the implementing agent must: (1) flag this gap to the Governor, (2) operate with explicit acknowledgment that domain-specific judgments are ungrounded in the first cycle, and (3) treat creation of the missing domain model as a required deliverable of the first cycle, using the schema defined in Section 13.3 and the authoring guidance in Section 21.11. An agent operating without domain grounding across multiple cycles will progressively make worse domain-specific decisions because it has no corrective reference — each ungrounded judgment compounds into the next cycle's baseline.
+
+**First-cycle quality assessment (before domain model exists).** During the bootstrap cycle when no domain model exists, agent output quality is assessed by Governor judgment, not by domain model comparison. The orchestrator presents all first-cycle outputs as **drafts requiring Governor review** — not as finished deliverables. The Governor's edits, rejections, and approvals constitute the initial quality signal. The pattern of Governor edits is then used as primary input for domain model creation: if the Governor consistently rewrites agent-generated tone, that becomes a quality principle; if the Governor rejects a content format, that becomes an anti-pattern. The domain model is derived from the Governor's corrections, not from the agent's initial output. This means first-cycle quality is inherently lower and Governor time investment is higher — both are expected and temporary.
+
+**Domain Completeness Check (dual-timing):** This check runs twice — at different points it catches different gaps:
+
+1. **At bootstrap** — based on topic type and standard analytical frameworks, suggest domains the Governor may not have included. Example: a conflict analysis topic should flag "Information & Intelligence" if the Governor only specified military/economic/diplomatic. This is predictive — the AI infers what might be missing before the analysis runs.
+
+2. **At synthesis completion** — based on blind spots revealed by the actual analysis, flag domains that would have changed conclusions. Example: after analyzing Iran-Israel-USA through 3 domains, the synthesis reveals that Trump's political incentives cannot be properly contextualized without a Domestic Politics domain. This is empirical — the AI sees what the analysis actually missed.
+
+Both checks are presented to the Governor. The bootstrap check is free (pre-analysis). The synthesis check may require additional analysis cost but catches gaps the bootstrap check cannot predict. In a product context, the synthesis check should display: "This analysis may have blind spots in [missing domain]. Adding [domain] would cost [N] additional credits."
+
+### 13.7 Domain Model Stacking `[ROBUST]`
+
+Many real-world scopes operate at the intersection of multiple domains. A content publishing system operates at the intersection of marketing (what makes content strategically effective) and content operations (what makes content operationally well-executed). A sales automation system operates at the intersection of sales (what makes a deal progress) and customer relationship management (what makes a relationship healthy).
+
+When a system spans multiple domains, the orchestrator needs **multiple domain models loaded simultaneously.** This is domain model stacking. The orchestrator retrieves all relevant domain models and applies them in combination:
+
+- The **marketing domain model** tells the orchestrator what makes content strategically sound: target the Probable Purchaser, match the Level of Awareness, include a CTA, frame around the End Result.
+- The **content operations domain model** tells the orchestrator what makes content operationally effective: optimal posting cadence for the platform, engagement-to-follower conversion mechanics, platform algorithm behavior.
+
+Without stacking, an orchestrator with only the marketing model generates strategically correct but operationally naive tactics. It knows to target the right audience but doesn't know that posting 3 times in 10 minutes suppresses reach on most platforms. Conversely, an orchestrator with only the operations model generates operationally smooth but strategically empty output — well-timed posts that say nothing worth reading.
+
+**Stacking rules:**
+
+- Domain models are additive. The guardrail vocabularies merge (union). The anti-pattern sets merge (union). Quality principles from all loaded models apply simultaneously.
+- When domain models conflict (e.g., marketing says "post when the insight is fresh" but operations says "post at optimal engagement windows"), the conflict must be recorded using the conflict resolution schema defined in Section 17.2.3 and surfaced to the strategy owner for resolution. Resolved conflicts are persisted and checked on subsequent cycles — if the same conflict recurs in a different strategy scope, the previous resolution is surfaced as precedent but not automatically applied.
+- Each domain model is maintained independently by its respective domain expert. The marketing model is curated by someone who understands marketing. The operations model is curated by someone who understands the operational domain. They don't need to coordinate — the stacking mechanism handles combination.
+
+**The substantive + operational pattern:** The most common stacking pattern is pairing a **substantive domain model** (what is right for this domain) with an **operational delivery model** (what works for the delivery mechanism). The substantive model provides strategic grounding — vocabulary, quality standards, hypothesis templates. The operational model provides execution grounding — how the delivery medium works, what cadences and formats are effective, what operational anti-patterns to avoid. Neither substitutes for the other.
+
+This pattern applies across any domain, not just business functions:
+
+| Scope | Substantive Model | Operational Model | Reference Pool Examples |
+|-------|-------------------|-------------------|------------------------|
+| Content publishing | Marketing | Content Operations | Brand voice guide, competitor content screenshots, source articles, prior posts (prior_deliverable), platform algorithm documentation |
+| Child education | Child Development | Pedagogical Delivery | Curriculum standards documents, age-appropriate activity templates, assessment rubrics, example lesson plans, educational research papers |
+| Sales automation | Sales | CRM / Pipeline Operations | Pricing sheets, case study documents, competitor comparison matrices, objection handling scripts, prior proposals (prior_deliverable) |
+| Hiring | Talent Assessment | Recruitment Operations | Job description templates, interview question banks, salary benchmarking data, employer brand materials, candidate evaluation scorecards |
+| Agricultural management | Plant Science | Farm Operations | Soil test reports, seed variety datasheets, weather history data, pest identification guides, harvest yield records, regulatory compliance documents |
+
+For every scope, ask: *what is the delivery mechanism?* The answer determines the operational model. A child education scope delivers through teaching sessions — the operational model covers attention spans, session structure, and reinforcement schedules. A hiring scope delivers through candidate interactions — the operational model covers pipeline stages, response timing, and assessment methods. The substantive model tells you what to do; the operational model tells you how the medium works. The Reference Pool provides the raw material that grounds execution — source documents, templates, prior deliverables, and discovered items that executors use when producing work. Without a populated Reference Pool, agents produce deliverables from domain model principles alone, which yields structurally correct but thinly sourced output.
+
+When building a new system, identify all the domains it touches and ensure a domain model exists for each. A system running on an incomplete domain model stack will have blind spots that manifest as structurally valid but substantively weak output in the uncovered domain.
+
+**Stacking conflict resolution at scale.** When 3+ domain models are stacked and their conflicts are frequent or high-stakes, the conflict-recording mechanism above (surface to strategy owner, persist as precedent) may be insufficient — the orchestrator's inline synthesis cannot represent each domain's reasoning with equal rigor. In these cases, the Deliberation Protocol provides a structured alternative: each domain model is assigned a dedicated Domain Agent that argues from its perspective, a Coordinator identifies disagreements and formulates targeted comparison prompts, and a Synthesis Report surfaces consensus and dissent for the Governor. This is the formal mechanism for resolving domain model stacking conflicts when inline resolution is inadequate. See §14.7 for the three-tier escalation model (inline → sequential isolation → deliberation) and §7.1 for the Coordinator and Domain Agent component definitions.
+
+---
+
+## 14. Grounding Architecture `[ROBUST]`
+
+### 14.1 Purpose
+
+The framework is a control system. Control systems require accurate signals. If agents hallucinate — producing plausible but false structure, domain content, metrics, or status — the control system operates on fiction. Hallucinated signals flow upward through the feedback loops, corrupt kill/pivot/persevere decisions at both the tactic and strategy levels, misallocate resources, and degrade strategic outcomes. The feedback loop amplifies hallucination rather than correcting it. In systems-theoretic terms, the grounding architecture is a GIGO (Garbage In, Garbage Out) prevention system and a fail-safe against negative reinforcing feedback loops — see Section 15.2 and 15.3 for the formal foundations.
+
+The grounding architecture is the infrastructure substrate that ensures the control system operates on reality. It sits between the framework and the agents. It is not a sixth layer — it is the foundation all five layers depend on.
+
+### 14.2 Hallucination Taxonomy
+
+Agent hallucinations in GOSTA fall into four categories, organized by what they corrupt in the control system. Each category maps to a different mitigation layer in the grounding architecture (§14.3).
+
+#### Category 1 — Form Corruption
+
+The agent's output is structurally malformed. The GOSTA hierarchy itself is damaged.
+
+| Type | Description | Example | Impact | Mitigated by |
+|------|-------------|---------|--------|--------------|
+| Structural | Agent confuses layers, producing output at the wrong level of the hierarchy | An action that is actually a tactic; an objective that embeds a method; a goal with a deadline; a tactic that contains strategic reasoning instead of a testable hypothesis; a strategy that specifies implementation details | Corrupts the hierarchy. Downstream items inherit wrong constraints. | Schema Validation (§14.3.1) |
+
+Form corruption is the most detectable category — deterministic validation catches it before output enters the system. It is also the most dangerous if undetected, because structural errors cascade through guardrail inheritance.
+
+#### Category 2 — Substance Corruption
+
+The agent's output is structurally valid but the content is wrong. The framework's hierarchy is intact, but what it contains is fiction.
+
+| Type | Description | Example | Impact | Mitigated by |
+|------|-------------|---------|--------|--------------|
+| Domain | Agent generates plausible-sounding but wrong domain content | A marketing tactic that targets "everyone" instead of the Probable Purchaser; a sales action with no CTA; a strategy whose rationale contradicts domain fundamentals | Structurally valid, substantively worthless. Wastes tactic cycles. | Domain Knowledge Store (§14.3.2) |
+| Capability | Agent proposes actions or plans that the system cannot actually execute | At Tier 0: "Set up automated email drip sequence" when operating with markdown files in conversation. At Tier 1: "Pull conversion data from Salesforce" when no Salesforce integration exists. At any tier: "Run A/B test across 10,000 users" when the scope has 200. | Actions pass structural and domain validation but are operationally impossible. The feedback loop stalls — expected signals never arrive because the action could never produce them. Diagnosed late as "poor execution" when the real cause is infeasible specification. | Capability Validation (§14.3.6) |
+
+Domain hallucination and capability hallucination differ in what's wrong: domain hallucination means the *reasoning* is wrong (wrong concepts, wrong principles), while capability hallucination means the *feasibility assumption* is wrong (right concept, impossible execution). A tactic that applies the right domain concepts but requires infrastructure that doesn't exist is capability hallucination, not domain hallucination. The distinction matters because the mitigations are different: domain hallucination is caught by checking against the domain model, capability hallucination is caught by checking against the system's actual capabilities.
+
+#### Category 3 — Signal Corruption
+
+The feedback loop operates on fiction. The framework's structure and substance may be correct, but the signals flowing upward are wrong.
+
+| Type | Description | Example | Impact | Mitigated by |
+|------|-------------|---------|--------|--------------|
+| Metric/Data | Agent fabricates or misreports numbers | Reports "engagement rate increased 18%" when no measurement was taken; confuses correlation with causation in A/B results | Most dangerous signal corruption. Kill/pivot/persevere decisions based on fiction. | Data Grounding (§14.3.3) |
+| Status | Agent reports completion or health incorrectly | Reports an action as complete when it wasn't; reports "no blockers" when blockers exist but weren't detected | Subtle. The agent isn't lying — it genuinely believes the output is correct. Discovered late. | Data Grounding (§14.3.3) |
+| Temporal | Agent treats outdated information as current | Uses a market signal from cycle 1 to justify a recommendation in cycle 5; reports a competitor's pricing from 6 months ago as current; bases health computation on signals that haven't been refreshed in 3+ review cycles | The data was once real — this is not fabrication. But expired truth applied as current truth corrupts decisions just as badly as invented data. Particularly dangerous because the signal passes all other validation (it has provenance, correct schema, real source). | Temporal Validity (§14.3.3) |
+
+Signal corruption is the most operationally dangerous category because it corrupts the feedback loop — the framework's primary learning mechanism. Metric/data hallucination and status hallucination involve signals that were never true. Temporal hallucination involves signals that were once true but are no longer. All three corrupt the same mechanism (health computation → kill/pivot/persevere decisions), but through different failure modes: fabrication, misreporting, and staleness.
+
+#### Category 4 — Continuity Corruption
+
+Information is distorted as it crosses boundaries — between agents in deliberation, or between sessions over time. The corruption occurs not in production of information but in its transmission or reconstruction.
+
+| Type | Description | Example | Impact | Mitigated by |
+|------|-------------|---------|--------|--------------|
+| Synthesis | Coordinator misrepresents or distorts agent positions during multi-agent deliberation | Coordinator's interim assessment says "NIS2 supports F-09" when NIS2 actually recommended F-13; Coordinator claims convergence exists when agents' positions are materially different; Coordinator paraphrases a domain concept in a way that changes its meaning as it crosses agent boundaries | Unique to multi-agent deliberation (§14.7 Level 3). Cascading: Round 2+ agents respond to the Coordinator's framing, not to original position papers. A single synthesis distortion corrupts all downstream rounds. The isolation guarantee that prevents groupthink simultaneously prevents agents from cross-checking the Coordinator's representations. See Deliberation Protocol §9.3 for detection and mitigation. | Synthesis Verification (§14.3.5) |
+| Memory confabulation | Agent "remembers" events, decisions, or states from prior sessions that didn't happen | AI claims "we agreed to pivot STR-2 last session" when no such decision was made; AI synthesizes a false consensus from partial file reads; AI fills gaps in session history from training data rather than from actual session logs | Corrupts the decision log's integrity and the Governor's trust. At Tier 0, where state is reconstituted from files each session, the risk is highest — incomplete file reads or training-data gap-filling can produce confident false memories. At Tier 1+, database-backed state eliminates this risk. | File-based state reconstitution (architectural; §7.11) |
+
+Continuity corruption is distinct from the other three categories because the error occurs in *transmission*, not *production*. The originating agent may have produced correct output. The corruption happens when that output crosses a boundary — from one agent to another (synthesis), or from one session to the next (memory confabulation). This makes it harder to detect: the corrupted information has the provenance and structural validity of the original, just not its content.
+
+#### Category 5 — Reasoning Corruption
+
+The agent's output is structurally valid, substantively grounded, and cites real domain concepts — but the reasoning connecting concepts to recommendations is shallow, incomplete, or logically gapped. All other validation passes. This is the most insidious category because it produces output that *looks* rigorous.
+
+| Type | Description | Example | Impact | Mitigated by |
+|------|-------------|---------|--------|--------------|
+| Shallow application | Agent cites a domain concept correctly but engages with only one manifestation, ignoring alternatives the concept encompasses | Domain model defines "Risk Reversal" with 4 forms (free trials, guarantees, proof-of-concept, performance contracts); agent cites "Risk Reversal" and recommends only money-back guarantees without considering alternatives | Recommendation is technically grounded but substantively impoverished. The domain model's richness is wasted — the agent uses it as a label, not as a reasoning tool. Governor sees a cited concept and trusts the recommendation without realizing the concept was only superficially engaged. | Reasoning Depth Validation (§14.3.7) |
+| Concept omission | Agent cites relevant concepts but fails to consider other domain model concepts that are equally or more relevant to the decision | A tactic hypothesis cites "Probable Purchaser" (targeting) but ignores "Level of Awareness" (messaging) and "Risk Reversal" (conversion) from the same domain model — all three are relevant to the tactic's success | Recommendation is grounded in what it cites but blind to what it omits. The omission is invisible because citation checks only verify that cited concepts are real, not that all relevant concepts were considered. | Reasoning Depth Validation (§14.3.7) |
+| Chain gap | Logical gap between cited concept and recommendation — the concept is real, the recommendation may be reasonable, but the inferential chain connecting them has missing or unjustified steps | Agent cites "Value Ladder" concept (ascending offers), then recommends "launch premium tier" without reasoning through why the current tier structure indicates readiness for a premium offering, what evidence supports the price point, or what the value ladder's prerequisite conditions are | Creates false traceability. The Governor traces the recommendation to a real concept and assumes the reasoning is sound, but the intermediate inference is fabricated or assumed. The cite-then-apply discipline (§14.3.2) catches *definition distortion* but not *application gaps*. | Reasoning Depth Validation (§14.3.7) |
+
+Reasoning corruption is distinct from substance corruption (Category 2). In substance corruption, the content itself is wrong — wrong concepts, wrong principles, wrong domain knowledge. In reasoning corruption, the domain content is correct but the *intellectual work* of connecting that content to a specific recommendation is deficient. The domain model is a toolbox; reasoning corruption means the agent picked up the right tool but used it carelessly. This distinction matters because the mitigations are different: substance corruption is caught by checking output against the domain model, reasoning corruption is caught by checking whether the output *engaged* with the domain model at the depth the decision warrants.
+
+#### Taxonomy Summary
+
+| Category | Types | What's Corrupted | Primary Detection |
+|----------|-------|-------------------|-------------------|
+| Form | Structural | GOSTA hierarchy | Deterministic schema validation |
+| Substance | Domain, Capability | Agent output quality | Domain model checks, capability registry |
+| Signal | Metric/Data, Status, Temporal | Feedback loop | Data source verification, provenance, staleness checks |
+| Continuity | Synthesis, Memory confabulation | Cross-boundary information flow | Source-vs-representation comparison, file-based state |
+| Reasoning | Shallow application, Concept omission, Chain gap | Reasoning quality (not reasoning existence) | Depth checks, coverage checks, chain integrity checks (§14.3.7) |
+
+**Severity by tier.** Form and substance corruption are equally severe at all tiers. Signal corruption is equally severe at all tiers (though mitigations improve at higher tiers). Continuity corruption varies: synthesis hallucination is equally severe whenever deliberation is active; memory confabulation is primarily a Tier 0 concern because the architecture eliminates it at Tier 1+ through database-backed state. Reasoning corruption is equally severe at all tiers and uniquely dangerous because it passes all other validation — grounding checks confirm the cited concepts are real, retrieval faithfulness checks confirm the definitions are accurate, yet the reasoning connecting concept to recommendation is perfunctory or incomplete.
+
+### 14.3 Grounding Components
+
+The grounding architecture has six core components plus one structural prerequisite. Each addresses one or more hallucination categories from the taxonomy (§14.2). Schema Validation prevents form corruption. Domain Knowledge Store prevents substance corruption (domain hallucination). Capability Validation prevents substance corruption (capability hallucination). Data Grounding prevents signal corruption (metric/data, status, and temporal hallucination). Synthesis Verification prevents continuity corruption (synthesis hallucination). Reasoning Depth Validation prevents reasoning corruption (shallow application, concept omission, chain gaps). Memory confabulation is prevented architecturally by the file-based state model (§7.11) rather than by a dedicated grounding component. Attribution is the structural prerequisite that makes all six components functional.
+
+#### 14.3.1 Schema Validation — Prevents Structural Hallucination
+
+**What it does:** Enforces the framework's taxonomy. Every object produced by an agent (goal, objective, strategy, tactic, action, signal) must conform to the structural schema before entering the system.
+
+**How it works:** This is deterministic, not probabilistic. Code, not AI. The schema encodes the structural integrity rules from Section 8:
+
+- Goals are validated: no timelines, no metrics, no embedded methods. Guardrails are present.
+- Objectives are validated: metric present, deadline present, no method prescribed, maps to exactly one goal.
+- Strategies are validated: owner present, rationale present, what-must-be-true conditions present, strategy-level kill signal present, no implementation details (those belong in tactics), maps to exactly one objective.
+- Tactics are validated: owner present, hypothesis present, kill condition present, success metrics present, 3–10 actions, maps to exactly one strategy.
+- Actions are validated: assignee present, deliverable present, deadline present, maps to exactly one tactic.
+- Signals are validated: required fields present, data source referenced, format conforms to signal specification.
+
+**Enforcement:** Agent output that fails schema validation is rejected and returned for correction. No exceptions. This is the cheapest, highest-impact grounding measure — it catches structural errors before they enter the system.
+
+Schema validation by tier:
+- *Tier 0:* The AI is the schema validator. There is no separate validation code — the AI self-checks its output against the structural rules above before presenting it to the Governor. The Cowork Protocol §5.1 operationalizes this: the AI verifies that goals have guardrails, objectives have metrics, strategies have WMBTs, tactics have kill conditions, and signals have provenance before emitting them. The Governor is the second check — structural violations that slip past the AI are caught during review. This is weaker than deterministic validation (the AI can miss its own errors) but sufficient at the scale Tier 0 operates: single scope, human review of every output.
+- *Tier 1:* Deterministic code validation. Every object produced by an agent is checked programmatically before entering the system. Goals without guardrails are rejected by the validator, not by AI judgment. This eliminates the self-checking weakness of Tier 0 — structural errors cannot enter the system regardless of agent quality.
+- *Tier 2+:* Schema validation extends to cross-object consistency: a tactic referencing a killed strategy is caught, a signal citing a non-existent tactic_id is caught, guardrail inheritance chains are verified end-to-end. Validation runs as a pre-commit hook — no agent output enters the system without passing the full structural check.
+
+**Relationship to Semantic Coherence Validation (§8.1).** Schema Validation checks structural correctness (are fields present? do layers nest properly?). Semantic Coherence Validation checks cross-entity meaning (do the *values* in those fields make sense together?). Both are required — a tactic can pass schema validation (all required fields present) while failing semantic coherence (its kill condition references an unavailable metric). Schema validation is the structural foundation; semantic coherence is the semantic layer built on top of it.
+
+**Build priority:** First. Implement before any agent is given execution authority.
+
+#### 14.3.2 Domain Knowledge Store — Prevents Domain Hallucination
+
+**What it does:** Provides structured, retrievable domain knowledge for each domain. Agents must retrieve from the store when generating domain-specific content. They do not rely on their training data for domain claims.
+
+**How it works:** Each domain has a domain model (see Section 13) stored as structured, retrievable knowledge. When an agent operates within a domain, it retrieves the relevant domain model and applies it:
+
+- Guardrail vocabulary is retrieved when defining constraints at any level.
+- Domain concepts are retrieved when formulating strategies (informing approach reasoning and what-must-be-true conditions).
+- Hypothesis library is retrieved when generating tactics.
+- Quality principles are retrieved when specifying actions.
+- Anti-patterns are retrieved when validating output.
+
+**Architecture:** The domain knowledge store is a retrieval system. At Tier 0, this is simply markdown files — the AI reads the domain model file into its context window, which IS the retrieval. All four properties below hold at Tier 0 through file conventions rather than infrastructure: structured (the domain model template enforces schema), curated (Governor-authored), versioned (file diffs in git or manual version headers), function-scoped (one file per domain, AI reads only the relevant one). At Tier 1+, this becomes a formal RAG pattern with the following properties:
+
+- **Structured, not free-text.** Domain models follow the schema defined in Section 13. Concepts are indexed by their framework layer mapping.
+- **Curated, not generated.** Domain knowledge is authored by domain experts (or sourced from established references) and reviewed by the Governor. Agents never write to the knowledge store — they only read from it. Evolution happens through the change proposal protocol defined in Section 17.2.3.
+- **Versioned.** Domain models evolve. New concepts are added, anti-patterns are updated, hypothesis libraries expand. Every version is tracked using the versioning schema defined in Section 17.2.3, with predecessor chains and change summaries per version.
+- **Function-scoped.** An agent operating in marketing retrieves the marketing domain model. An agent operating in engineering retrieves the engineering domain model. No cross-contamination. The store supports two retrieval modes — full retrieval and section retrieval — as defined in Section 17.2.3.
+
+**Validation:** Agent output is checked against the retrieved domain model. Tactics that match known anti-patterns are flagged. Actions that violate quality principles are flagged. Strategies whose rationale contradicts domain fundamentals are flagged. Guardrails that omit standard domain vocabulary are flagged. Flags do not auto-reject (domain knowledge is advisory, not prescriptive) — they escalate to the strategy owner or Governor for review.
+
+**Retrieval faithfulness:** The domain knowledge store prevents agents from *inventing* wrong domain content. But an agent can also *distort* correct content during application — retrieving a concept accurately but narrowing, broadening, or shifting its meaning when using it in reasoning. This is a subtle form of domain hallucination: the agent cites a real concept, passes anti-pattern checks, yet the application doesn't match the concept's actual definition.
+
+Three vectors of retrieval distortion:
+1. **Narrowing.** Agent cites a broad concept but applies only one manifestation. Example: domain model defines "Risk Reversal" as "removing barriers to the first transaction by reversing who bears the risk" — agent applies it exclusively as "money-back guarantees," missing other forms (free trials, proof-of-concept projects, performance guarantees).
+2. **Broadening.** Agent applies a concept beyond its defined scope. Example: domain model defines "Probable Purchaser" with specific criteria — agent applies it to an audience that meets only one of four criteria.
+3. **Semantic drift.** Agent paraphrases a concept in reasoning, and the paraphrase subtly changes the meaning. After 2-3 reasoning steps built on the paraphrase, the conclusion is disconnected from the original concept.
+
+Mitigation by tier:
+- *Tier 0:* **Cite-then-apply discipline.** When an agent cites a domain concept in its reasoning, it must state the concept's definition (from the domain model) before applying it. This makes distortion visible — the Governor or Coordinator can compare the stated definition against the application. In deliberation, this is enforced through the Position Paper's "Domain Concepts Applied" table (Deliberation Protocol §4.1), which requires the concept name, source section, and application description. For non-deliberation output, the same principle applies: any recommendation that cites a domain concept should include enough of the concept's definition to make the application auditable.
+- *Tier 1+:* **Automated faithfulness check.** Compare the agent's application description against the concept's definition in the domain model using semantic similarity. Flag applications where similarity drops below a threshold — these are candidates for distortion. Not a rejection (the agent may be legitimately extending the concept), but a flag for review.
+- *Tier 2+:* **Concept-level attribution.** Each concept citation in agent output carries a reference to the exact version and section of the domain model. Automated verification checks that the cited text exists at that reference. Combined with the Tier 1 semantic check, this catches both misquotation and misapplication.
+
+**Relationship to Reference Pool:** The domain knowledge store provides codified knowledge (principles, patterns, anti-patterns). The Reference Pool (Section 17.2.4) provides raw source material (articles, documents, templates, prior deliverables). Both contribute to grounding but at different levels: the domain store grounds the agent's *reasoning* (is this the right approach?), while the Reference Pool grounds the agent's *output* (does this deliverable draw from real source material?). An executor with domain knowledge but no reference materials produces principled but thinly sourced work. An executor with reference materials but no domain knowledge produces well-sourced but unprincipled work. Both are needed.
+
+**Build priority:** Third. The most complex component, but what turns competent structure into competent content. Build the marketing domain model first as the template, then extend to other functions.
+
+#### 14.3.3 Data Grounding — Prevents Metric and Status Hallucination
+
+**What it does:** Ensures every metric, status report, and data claim made by an agent is sourced from actual systems, not generated.
+
+**How it works:** Agents must pull from real data sources when emitting signals. The data grounding layer connects agents to the systems where ground truth lives. What counts as a "real data source" varies by tier:
+
+Data grounding by tier:
+- *Tier 0:* The AI has no API connections. Data sources are: files the Governor provides (reports, spreadsheets, screenshots), information the Governor states in conversation, and the AI's own prior session outputs (signal files, health reports). When the AI claims a metric, it must cite which file or Governor statement the number came from. If no source exists, the signal must declare confidence as `estimated` and state the basis of the estimate. The Governor is the primary verification mechanism — the AI presents claims, the Governor confirms or corrects. Most signals at Tier 0 are `self-reported` or `Governor-reported`, and the provenance requirement ensures this is visible rather than hidden.
+- *Tier 1:* The data grounding layer connects to real systems — analytics platforms, CRM tools, project management systems, financial systems. Agents pull from these sources via API when emitting signals. Provenance is automatically populated (source = system name, timestamp = query time, method = API endpoint or query). Self-reported signals still exist (for actions without API verification) but are the minority, not the default.
+- *Tier 2+:* Data grounding becomes continuous. Connected systems push updates to the signal store, not just respond to agent queries. Real-time verification: "Post published" is confirmed by platform API webhook, not by periodic polling. Cross-source validation: a metric claimed from one system is spot-checked against a second system where overlap exists. Data quality monitoring: if a connected system starts returning stale or incomplete data, the grounding layer flags it before agents consume it.
+
+At all tiers, the following source types apply:
+- **Analytics platforms** (social media metrics, web analytics, platform APIs) for marketing signals.
+- **CRM and pipeline tools** for sales signals.
+- **Project management systems** for action completion status.
+- **Financial systems** for budget and spend tracking.
+- **Platform APIs** for external state verification (did the post get published? did the deployment succeed?).
+- **Governor-provided data** (reports, spreadsheets, verbal confirmation) — primary source at Tier 0, supplementary at Tier 1+.
+
+**Provenance requirement:** Every signal emitted by an agent must include:
+
+- **Source:** Which system the data came from.
+- **Timestamp:** When the data was retrieved.
+- **Method:** How the metric was calculated (if derived).
+- **Confidence:** Whether the data is complete, partial, or estimated.
+
+Signals without provenance are rejected by the schema validator. They do not enter the feedback loop.
+
+**Verification for status signals:** Action completion is not self-reported. Where possible, completion is verified against external state:
+
+- "Post published" → verified by platform API (post exists, is public, timestamp matches).
+- "Dashboard created" → verified by system access (dashboard URL returns data).
+- "Document delivered" → verified by file system or recipient confirmation.
+
+Where automated verification is not possible, the action is flagged as "self-reported, unverified" and treated with lower confidence in tactic-level aggregation.
+
+**Temporal validity:** A signal's provenance includes a timestamp, but the framework does not currently decay signal weight over time. For scopes that run across multiple review cycles, signals age — a market signal from cycle 1 may be false by cycle 5. Flagged signals are not discarded — they are marked `[STALE]` and treated as lower-confidence inputs in health computation. This is a health computation rule, not a schema-level rejection — stale signals are real data, they are just potentially outdated data.
+
+Temporal validity by tier:
+- *Tier 0:* At each tactic review and strategy review, the AI checks signal timestamps when reading signal files. Signals older than 2 review cycles without refresh are flagged `[STALE]` and reported in the health report's Grounding Status section. The Governor decides per signal: refresh (re-collect from source), accept as-is, or discard. Manual but sufficient — the AI already reads timestamps, it just needs the rule.
+- *Tier 1:* Staleness detection is automated. The signal store query filters by age relative to the tactic's review cadence. Stale signals are flagged in dashboards alongside health scores, so the Governor sees aging signals before they corrupt a health computation. The system can auto-generate refresh tasks: "SIG-042 is stale — re-collect from [source system]."
+- *Tier 2+:* Proactive staleness management. The system monitors signal age continuously and triggers automatic refresh from connected data sources (analytics APIs, CRM, project management systems) when signals approach the staleness threshold. Signals that cannot be auto-refreshed (manual data, external reports) generate Governor alerts before the review cadence. Staleness weighting becomes configurable per signal type — fast-moving metrics (social engagement) may have a 1-cycle threshold while slow-moving metrics (brand awareness) may tolerate 3-4 cycles.
+
+**Build priority:** Second. Connects agents to reality. Without this, agents operate in a closed loop of self-generated data, which is the fastest path to systemic hallucination.
+
+#### 14.3.4 Attribution — Structural Prerequisite for All Grounding
+
+**What it does:** Ensures every output, signal, and data point in the system is tagged with its parent tactic, strategy, objective, and goal. Attribution is not a grounding component in the same sense as the others — it is the structural prerequisite that makes all other components functional.
+
+**Why it comes first:** Without attribution, the feedback loop has nothing to aggregate against. A system can emit signals perfectly (data grounding), validate structure flawlessly (schema validation), and retrieve domain knowledge accurately (domain knowledge store), but if signals are not tagged to the tactic and strategy that produced them, the orchestrator cannot compute tactic health or strategy validation. It cannot compare Tactic A vs. Tactic B in a tactic-level A/B test. It cannot compare Strategy A vs. Strategy B in a strategy-level A/B test. It cannot determine whether a kill condition has been met. The signals exist but are uninterpretable.
+
+Attribution is the foreign key that connects execution to strategy. Every output the system produces — every action completed, every deliverable created, every metric collected — must carry a `tactic_id` and `strategy_id` that traces upward through the hierarchy. Without this, you have data but not information.
+
+**How it works:**
+
+- Every action is tagged with its parent `tactic_id` and `strategy_id` at creation time.
+- Every output produced by an action inherits both IDs.
+- Every signal emitted by an action carries both IDs.
+- Tactic-level aggregation groups signals by `tactic_id` to compute hypothesis health.
+- Strategy-level aggregation groups tactic signals by `strategy_id` to compute approach validation.
+- Tactic-level A/B comparison filters two sets of signals by their respective `tactic_id` values and compares them on shared metrics.
+- Strategy-level A/B comparison filters two sets of tactic aggregations by their respective `strategy_id` values and compares them on shared metrics.
+
+**Build priority:** Before everything else. Attribution is a schema-level change (adding fields to existing data structures), not a feature. It is the smallest effort with the highest structural dependency — nothing above it in the grounding stack works without it.
+
+#### 14.3.5 Synthesis Verification — Prevents Synthesis Hallucination
+
+**What it does:** Ensures the Coordinator's representations of agent positions in interim assessments and synthesis reports accurately reflect the agents' actual position papers and response papers. This component is only active during multi-agent deliberation (§14.7 Level 3).
+
+**Why it's needed:** In deliberation, agents never communicate directly — all inter-agent information flows through the Coordinator. This isolation is a deliberate design choice: it prevents groupthink and ensures each domain perspective is preserved. But isolation creates a single point of failure for information accuracy. If the Coordinator mischaracterizes Agent A's position to Agent B, Agent B's Round 2 response is grounded in a distortion. The distortion cascades: Agent B may shift position based on what Agent A supposedly said, and subsequent rounds build on that shifted position. Unlike other hallucination types (where the error is local to one agent), synthesis hallucination corrupts the entire deliberation.
+
+**Three vectors of synthesis hallucination:**
+1. **Position misrepresentation.** The Coordinator summarizes an agent's recommendation or reasoning inaccurately. Subtle shifts — "recommends F-13 as priority" becoming "supports F-13 alongside other features" — change the deliberation's direction without triggering obvious errors.
+2. **Consensus inflation.** The Coordinator claims convergence that doesn't exist — reporting "5 of 6 agents agree" when examination of the actual papers shows only 3 hold the stated position. This skips necessary Governor review by misrepresenting consensus strength.
+3. **Cross-domain concept drift.** When the Coordinator relays a domain-specific concept from one agent to another, the concept passes through two transformations: the originating agent's interpretation and the Coordinator's paraphrase. By the time the receiving agent responds, the concept may have drifted from its original definition in the source domain model. Domain grounding (§14.3.2) only protects within a single agent's domain — it does not protect concepts as they cross agent boundaries.
+
+**Mitigation at each implementation tier:**
+
+*Tier 0 (Cowork/file-based):* The Governor reads position papers directly, not just the Coordinator's synthesis. The Deliberation Protocol's artifact structure (§4) makes this possible — all position papers, response papers, interim assessments, and synthesis reports are separate files. Full verification (reading every paper against the synthesis) is tractable with up to 5 domain agents. Beyond 5, the Deliberation Protocol §9.3 defines a spot-check protocol. The Governor's minimum verification: for each hard disagreement in the synthesis, read the cited agents' actual papers and confirm the Coordinator's characterization.
+
+*Tier 1+ (coded):* Automated verification compares the Coordinator's characterization of each agent's position against the actual position paper. Implementation options range from simple (exact-match extraction of recommendation fields) to sophisticated (semantic similarity scoring between Coordinator summaries and source papers). At minimum: the Coordinator's Synthesis Report includes verbatim quotes from each agent's recommendation section alongside its paraphrase, enabling automated or Governor-assisted diff-checking.
+
+*Tier 2+ (robust):* The Coordinator's interim assessment is validated before being sent to Round 2+ agents. A verification pass checks: (a) every agent mentioned in the assessment actually submitted a position paper, (b) every characterization of an agent's position includes a traceable citation to the source paper, (c) consensus counts match actual paper analysis. Failed verification blocks the round and flags the Coordinator's output for correction.
+
+**Relationship to Groupthink Detection (§14.7, Deliberation Protocol §9):** Groupthink detection catches false *agreement* — agents converging suspiciously. Synthesis verification catches false *representation* — the Coordinator distorting what agents said. These are complementary, not overlapping. A deliberation can pass groupthink checks (genuine disagreement exists) while failing synthesis verification (the Coordinator mischaracterizes the disagreement).
+
+**Build priority:** Fifth. Only needed when multi-agent deliberation is active. Build after the first four components are operational. At Tier 0, this is a Governor behavioral discipline (read position papers directly), not a system feature. At Tier 1+, it becomes an automated check integrated into the Coordinator's output pipeline.
+
+#### 14.3.6 Capability Validation — Prevents Capability Hallucination
+
+**What it does:** Ensures that actions and plans proposed by agents are operationally feasible — that the system, environment, and resources can actually execute what the agent specifies. Capability hallucination is structurally valid, domain-appropriate output that cannot be executed because it assumes tools, integrations, access, or scale that don't exist.
+
+**Why it's needed:** Agents are trained on broad corpora describing what organizations *can* do with ideal infrastructure. When generating actions, they default to proposing whatever would be most effective, not what's actually executable in the current environment. A marketing tactic that proposes "automated multi-channel drip campaigns" is structurally valid (proper action format, tactic_id, deliverable, deadline) and domain-grounded (drip campaigns are a real marketing concept correctly applied). But if the scope operates at Tier 0 with no marketing automation platform, the action is fiction. Schema validation passes. Domain model checks pass. The action enters the system, generates no signals (because it can never execute), and the tactic stalls. The orchestrator diagnoses "poor execution" when the real cause is infeasible specification.
+
+The gap between what agents can *describe* and what the system can *do* is widest at Tier 0 and narrows at higher tiers, but never fully closes — even a Tier 2 system has capability boundaries (APIs not integrated, tools not licensed, scale constraints).
+
+**How it works:**
+
+The capability validation layer maintains an awareness of the system's actual operational boundaries and checks proposed actions against them. What constitutes the "capability registry" varies by tier:
+
+Capability validation by tier:
+- *Tier 0:* The AI maintains a **capability awareness section** in the bootstrap file (or operating document) that declares what the AI can actually do in the current execution environment. At minimum: what tools/platforms are accessible, what data sources the Governor can provide, what actions require Governor execution vs. AI execution, and what scale the scope operates at. Before proposing actions, the AI checks feasibility against this declaration. Actions that exceed declared capabilities are either reformulated to fit (e.g., "manual email outreach" instead of "automated drip campaign") or flagged as requiring Governor capability confirmation before entering the action cycle. The Cowork Protocol's session structure naturally supports this — the Governor reviews all proposed actions and can catch feasibility gaps. But the AI should not rely on the Governor as the primary filter; the AI should self-filter first.
+- *Tier 1:* The system maintains a **capability registry** — a structured list of integrated systems, available APIs, tool access, and resource constraints. When the orchestrator generates action specifications, each action is checked against the registry: does the proposed action require a system that's integrated? Is the data source accessible? Is the scale feasible given current infrastructure? Actions that fail the capability check are either auto-reformulated (if an equivalent feasible action exists) or flagged to the Governor with an explicit "this action requires [capability] which is not currently available — approve, substitute, or defer?"
+- *Tier 2+:* Capability validation becomes dynamic. The registry updates automatically as integrations are added or removed. Resource constraints (API rate limits, compute budgets, team capacity) are tracked in real time and factored into action feasibility. The system can propose **capability upgrade paths**: "This tactic's hypothesis requires analytics data at a granularity we don't currently have. Integrating [system] would enable it. Cost: [estimate]. Alternative: modify the tactic to use available signals at lower granularity." This turns capability gaps from silent failures into explicit architectural decisions.
+
+**What it checks:**
+
+1. **Tool/platform access.** Does the proposed action require a tool or platform the system is connected to? (e.g., "post to LinkedIn" requires LinkedIn API access or manual Governor posting)
+2. **Data source availability.** Does the proposed signal collection assume a data source that exists and is accessible? (e.g., "track conversion rate" requires analytics setup)
+3. **Scale feasibility.** Does the proposed action assume a scale that matches the scope's reality? (e.g., A/B test sample sizes, audience reach, production capacity)
+4. **Human resource requirements.** Does the proposed action require human effort that's available? (e.g., "conduct 20 user interviews this week" when the Governor has 5 hours available)
+5. **Execution authority.** Does the proposed action require permissions or access that the executing agent has? (e.g., "deploy to production" requires deployment access)
+
+**Relationship to preconditions (§7.2):** Preconditions are tactic-level gates ("don't start tactic until X is true"). Capability validation is action-level feasibility ("can this specific action be executed at all?"). They are complementary: a tactic may pass its preconditions (upstream tactic completed, data pipeline running) but still contain infeasible actions (the data pipeline produces data at a different granularity than the action assumes). Capability validation catches action-level infeasibility that preconditions cannot.
+
+**Build priority:** Sixth. Build after the first five components are operational. At Tier 0, this is a self-discipline for the AI (check feasibility against declared capabilities before proposing) and a Governor review pattern (catch infeasible proposals during action approval). At Tier 1+, it becomes a registry-based check in the action specification pipeline.
+
+#### 14.3.7 Reasoning Depth Validation — Prevents Reasoning Corruption `[ROBUST]`
+
+**What it does:** Ensures that the AI's reasoning engages substantively with domain model concepts rather than citing them superficially. All other grounding components verify that reasoning is *present and correctly sourced*. This component verifies that reasoning is *deep enough* for the decision at hand.
+
+**Why it's needed:** The cite-then-apply discipline (§14.3.2) and the `[UNGROUNDED]` flag catch two failure modes: distorted concepts and missing concepts. But a third failure mode remains: the AI cites a real concept, states its correct definition, and then applies it minimally — using the concept as a label rather than as a reasoning tool. This produces output that passes every existing validation while providing the Governor with a false sense of analytical rigor. The Governor sees domain citations, assumes substantive engagement, and approves a recommendation that was never deeply reasoned. Over time, the system optimizes for citation compliance rather than reasoning quality — a form of governance theater at the analytical level.
+
+**Three checks:**
+
+1. **Depth check — concept engagement.** When the AI cites a domain concept in a recommendation, the reasoning must engage with the concept's internal structure, not just its name. A concept with multiple manifestations, preconditions, or decision criteria demands that the reasoning address which manifestations apply, whether preconditions are met, and how decision criteria were evaluated. The check: *does the reasoning use the concept's internal distinctions to narrow or justify the recommendation, or does it merely name the concept as supporting evidence?*
+
+   Operational test (AI self-check): "If I removed the concept citation from this recommendation, would the recommendation change? If not, the concept is decorative, not load-bearing."
+
+2. **Coverage check — relevant concept scan.** Before finalizing a recommendation at a decision point (kill, pivot, persevere, phase advance, strategy review), the AI scans the loaded domain model(s) for concepts relevant to the decision that were NOT cited in the reasoning. The check is asymmetric: it is acceptable to cite few concepts if the reasoning is deep; it is a flag to cite only one concept when multiple relevant concepts exist in the loaded domain model.
+
+   Operational test (AI self-check): "Which domain model concepts relate to this decision's subject matter? Did I consider each one, even if I concluded it was not material?" Concepts reviewed and deemed irrelevant are logged as `considered_not_material: [concept, reason]` — this creates an auditable record that the omission was deliberate, not accidental.
+
+3. **Chain integrity check — inferential completeness.** The reasoning chain from domain concept → application → recommendation must not contain unjustified leaps. Each step should either follow logically from the prior step or explicitly state the assumption being made. The check: *can the Governor follow the reasoning chain from concept to recommendation without needing to fill in unstated assumptions?*
+
+   Operational test (AI self-check): "Does each reasoning step follow from the prior one, or am I assuming an intermediate conclusion without stating it?" If the chain requires the Governor to infer a step, the AI states the missing step explicitly — either as a justified inference or as an assumption flagged for Governor review.
+
+**When checks apply:** Reasoning depth validation is decision-proportional. Not every output needs deep reasoning — a routine action cycle with no decision point can cite concepts briefly. The checks activate at **decision points** (kill, pivot, persevere, phase advance, strategy review, objective rebalancing) and at **recommendation generation** (tactic proposals, strategy proposals, A/B test recommendations, domain model change proposals). Routine health reports use standard computation traces (§20.1) and do not require depth validation beyond the existing formula.
+
+**Mitigation by tier:**
+
+- *Tier 0:* AI self-checks before presenting recommendations at decision points. The three operational tests above are cognitive checks — the AI asks itself the questions and adjusts the recommendation's reasoning depth before presenting to the Governor. When the AI detects shallow reasoning in its own output, it either deepens the engagement (preferred) or flags: `[SHALLOW: This recommendation cites [concept] but does not fully engage with its [manifestations / preconditions / decision criteria]. Deepening would require [specific analysis]. Governor may request deeper analysis or accept as-is.]` The Governor can then decide whether the decision's stakes warrant deeper reasoning. At Tier 0, the Governor is also a check — they can challenge any recommendation by asking "why this specific application of that concept?" The framework cannot force the Governor to challenge, but the `[SHALLOW]` flag increases the probability.
+
+- *Tier 1+:* Automated depth scoring. The system evaluates recommendation reasoning against a depth rubric: (a) concept named only (score: 1), (b) concept defined and applied (score: 2), (c) concept's internal distinctions used to narrow the recommendation (score: 3), (d) multiple concepts synthesized with explicit interaction effects (score: 4). Recommendations at decision points with depth scores below 2 are flagged for review. Coverage checks are automated: the system scans the domain model for concepts whose keywords overlap with the decision context and flags uncited matches as potential omissions.
+
+- *Tier 2+:* Comparative depth analysis. The system compares reasoning depth across similar decisions within the scope's history. If reasoning depth is declining over time (e.g., early recommendations scored 3-4, recent ones score 1-2), the system flags a reasoning quality degradation trend — analogous to governance integrity warnings (§16.11) but for AI reasoning rather than Governor engagement.
+
+**Relationship to retrieval faithfulness (§14.3.2):** Retrieval faithfulness catches *distortion* — the concept was retrieved but its meaning was narrowed, broadened, or drifted during application. Reasoning depth catches *shallowness* — the concept was retrieved accurately but applied minimally. A recommendation can pass retrieval faithfulness checks (concept accurately defined, no semantic drift) while failing reasoning depth checks (concept used as a label, not engaged substantively). The cite-then-apply discipline is necessary but not sufficient — it ensures the definition is stated, not that the definition is *used*.
+
+**Relationship to computation traces (§20.1):** Computation traces record *what* the system computed (signals included, thresholds applied, recommendation basis). Reasoning depth validation checks *how well* the system reasoned about what the computation means. A trace might show "kill recommended because metric X = 42 against threshold 50" — that is a complete computation trace but says nothing about whether the AI considered domain model concepts that might explain *why* metric X underperformed or whether alternative interpretations exist. Traces and depth checks are complementary: traces ensure reproducibility, depth checks ensure interpretive quality.
+
+**Build priority:** Seventh. Build after all other grounding components are operational. At Tier 0, this is primarily an AI self-discipline that improves reasoning quality incrementally. At Tier 1+, automated depth scoring provides objective measurement. This component is the least critical for system correctness (the system functions without it) but the most important for system *value* — the difference between a governance framework that produces technically valid output and one that produces genuinely insightful recommendations.
+
+
+#### 14.3.8 Finding Classification — Epistemic Annotation for All Assessments `[ROBUST]`
+
+**What it does:** Assigns an epistemic classification to every health assessment recommendation and deliberation finding, making explicit whether the recommendation rests on solid evidence, insufficient data, or a conditional assumption. This classification is not a grounding component — it is a cross-cutting annotation that operates on top of the grounding layer's outputs. It tells the Governor not just *what* the system recommends, but *how confident the evidentiary basis is*.
+
+**Why it's needed:** The grounding components (§14.3.1–§14.3.7) ensure that data is real, concepts are accurate, reasoning is deep, and synthesis is faithful. But after all grounding checks pass, a recommendation can still rest on thin evidence — few signals, stale data, or unverified assumptions. Without explicit classification, the Governor receives every recommendation with equal apparent confidence. A kill recommendation backed by 6 corroborating signals across 4 cycles looks identical in format to a kill recommendation based on a single data point from one cycle. The Governor must read the full computation trace to assess evidence quality — and in practice, this means evidence quality is assessed inconsistently or not at all.
+
+Finding Classification makes the evidence quality machine-readable and Governor-visible at the recommendation level, not buried in traces.
+
+**Three classifications:**
+
+- **`confirmed`** — The recommendation is supported by complete metric data, consistent signal trends, and a full attribution chain. The Governor can act on this with standard confidence. Classification basis: sufficient corroborating signals from independent sources, no stale signals in computation, no `[PROVENANCE-INCOMPLETE]` flags on primary evidence.
+
+- **`information_gap`** — The recommendation is based on incomplete data. The system has identified a concern but the data that would confirm or disconfirm it is missing, stale, or insufficient. The Governor should collect the specified data before making an irreversible decision. Classification triggers: majority of input signals flagged `[STALE]` or `[PROVENANCE-INCOMPLETE]`, fewer than 3 signals in computation, assessment based on a single data point, or bootstrap period just ended with minimal data.
+
+- **`conditional`** — The recommendation holds only if a stated assumption is true. The assumption is testable and the test is specified. The Governor should monitor the condition. Classification triggers: WMBT status inferred from indirect evidence, environmental watch list condition changed with unclear impact, or the recommendation reverses if a specific testable condition fails.
+
+**Precedence rule:** If a finding qualifies as both `conditional` and `information_gap`, classify as `information_gap` — missing data takes priority over conditional logic.
+
+**Where classification applies:**
+
+1. **Tactic health recommendations** (kill/pivot/persevere) — every recommendation in the health report carries a classification and classification basis. See Cowork Protocol §7.1.
+2. **Strategy health — WMBT status assessments** (holding/at_risk/falsified) — each WMBT assessment carries a classification. See Cowork Protocol §7.2.
+3. **Strategy and goal health recommendations** — strategy and goal-level recommendations carry classification. See Cowork Protocol §7.2, §7.3.
+4. **Guardrail evaluations** — guardrail status assessments carry classification. Mechanical guardrails (deterministic threshold comparison) are always `confirmed` by definition. Interpretive guardrails (requiring qualitative judgment) may be `information_gap` or `conditional`.
+5. **Deliberation findings** — every substantive finding in a Deliberation Synthesis Report is classified. See Deliberation Protocol §4.4.
+
+**Autonomy interaction (critical safety constraint):** At graduation Stage 3 and above (§6.3), the AI system may make certain decisions autonomously — including killing underperforming tactics. Finding Classification constrains this autonomy: **a `kill` or `pivot` recommendation classified as `information_gap` is NOT eligible for autonomous execution.** The system must escalate to the Governor because the evidence basis is insufficient for an irreversible autonomous decision. This constraint applies regardless of whether the kill condition metric threshold is technically met — if the data supporting the threshold assessment is classified as insufficient, autonomous action is blocked.
+
+**Autonomy interaction by decision type and classification:**
+
+| Decision Type | `confirmed` | `information_gap` | `conditional` |
+|--------------|-------------|-------------------|---------------|
+| `kill` | Autonomous at Stage 3+ | **Blocked** — escalate to Governor | Autonomous IF the condition is testable within the current cycle; otherwise escalate |
+| `pivot` | Autonomous at Stage 4+ | **Blocked** — escalate to Governor | Escalate (pivots are partially irreversible) |
+| `persevere` | Autonomous at Stage 3+ | Autonomous (safe default — continuing is reversible) | Autonomous with condition noted in next health report |
+| `rebalance` | Autonomous at Stage 3+ | Autonomous (reversible next cycle) | Autonomous with condition noted |
+| `pause` | Autonomous at Stage 3+ | Autonomous (conservative action) | Autonomous |
+| Hard guardrail violation | Halt (safety default) | Halt — classification informs Governor's post-halt assessment: "we halted because this looks like a violation, but the data basis is thin" | Halt — Governor evaluates the condition |
+
+For hard guardrail violations classified as `information_gap`: the system still halts (safety default), but the classification informs the Governor's post-halt assessment — "we halted because this looks like a violation, but the data basis is thin."
+
+**Graduation interaction:** Finding Classification does not gate graduation stages — a system can graduate with any mix of classifications. However, a high frequency of `information_gap` classifications over consecutive cycles may indicate signal pipeline immaturity (§7.13) and should be noted in graduation readiness assessment.
+
+**Relationship to existing mechanisms:**
+
+- **Computation traces (§20.1)** record the signals included/excluded and thresholds applied. Finding Classification adds an epistemic *judgment* on top of the computation trace — "given these inputs, how confident should the Governor be?"
+- **Confidence field on signals** (§6.2) classifies individual signal quality (`complete`/`partial`/`estimated`). Finding Classification classifies the aggregate assessment built from multiple signals — a recommendation can be `confirmed` even if some input signals are `partial`, or `information_gap` even if the few signals present are `complete`.
+- **Data Grounding (§14.3.3)** ensures signal data comes from real sources. Finding Classification operates downstream — after data grounding has verified provenance, the question becomes "is there *enough* verified data to support this recommendation?"
+
+**Mitigation by tier:**
+
+- *Tier 0:* The AI self-classifies each recommendation during health computation. The classification and its basis appear in the health report next to the recommendation. The Governor reviews the classification as part of normal health report review. At Tier 0, this is a cognitive discipline — the AI must ask "is this recommendation backed by solid evidence, thin evidence, or a conditional assumption?" before presenting it. The `[STALE]`, `[PROVENANCE-INCOMPLETE]`, and signal count checks provide concrete criteria.
+
+- *Tier 1:* Classification is computed programmatically from signal metadata. The system counts non-stale signals, checks provenance flags, and applies classification rules automatically. `information_gap` recommendations at Stage 3+ are system-blocked from autonomous execution — the system enforces the escalation, not just recommends it.
+
+- *Tier 2+:* Classification feeds into governance dashboards — trend analysis of classification distributions over time (rising `information_gap` rate suggests signal pipeline degradation), cross-scope comparison of classification quality, and predictive flagging ("this tactic's next review will likely produce an `information_gap` kill recommendation based on signal pipeline status").
+
+**Build priority:** Eighth. Build after all grounding components are operational. Finding Classification consumes the outputs of data grounding (signal freshness, provenance) and attribution (signal-to-recommendation chain), so those must be in place first. At Tier 0, this is primarily an AI self-discipline that improves decision transparency. At Tier 1+, it becomes a programmatic safety constraint on autonomous decisions.
+
+#### 14.3.9 Sycophancy Detection — Prevents Systematic Positive Bias `[ROBUST]`
+
+**The problem.** LLMs trained with RLHF exhibit systematic bias toward agreeable, non-confrontational outputs. In GOSTA, this manifests as positive framing of ambiguous signals, soft kill recommendations, and baseline drift in health assessments. Unlike other grounding failures (which produce incorrect content), sycophancy produces *correctly computed but misleadingly framed* content. The health score may be accurate while the narrative steers the Governor toward optimism.
+
+**Three attack surfaces:**
+
+1. **Health report sycophancy.** Selective signal emphasis, soft recommendations on kill decisions, baseline drift in what "healthy" means. Detected by: mandatory adversarial section in health reports, signal-recommendation consistency checks, kill-condition proximity alerting.
+
+2. **Deliberation sycophancy.** Coordinator framing bias toward Governor preferences, false consensus among domain agents anchoring to OD strategy rather than independent domain reasoning. Detected by: position independence verification in Round 1, convergence probes, cross-deliberation dissent frequency tracking.
+
+3. **Signal-level sycophancy.** Executor-produced signals with optimistic qualitative framing that contradicts quantitative direction. Detected by: quantitative-vs-narrative divergence checks on signals.
+
+**Detection mechanisms (operationalized in Cowork Protocol and Deliberation Protocol):**
+
+- **Mandatory Risk Factors section** in health reports (health-report.md template). Every health report must include a non-empty section listing what is going wrong or could go wrong, with signal citations. Generic dismissals ("no significant risks") are flagged. Sycophancy self-check: risk section completeness + recommendation-signal alignment.
+- **Signal-recommendation consistency check** (Cowork Protocol §7.1). When >50% of non-stale signals trend negative but recommendation is `persevere`, the orchestrator must provide explicit divergence justification citing specific countervailing evidence.
+- **Kill-condition proximity alerting** (Cowork Protocol §7.1). Metrics within configurable threshold (default: 20%) of kill threshold are prominently surfaced in the Kill Proximity Alerts table. Approaching trajectory for 2+ cycles triggers `kill_proximity_silent` flag if not addressed in recommendation.
+- **Position independence verification** (Deliberation Protocol §3.1). After Round 1, Coordinator checks for unanimous recommendations, reasoning homogeneity, and OD-anchoring (>50% citations from OD vs domain models).
+- **Convergence Probe Protocol** (Deliberation Protocol §4.5). When Round 1 unanimity is detected, Coordinator issues directed adversarial prompts: agents must construct the strongest counter-argument from their domain perspective.
+- **Cross-deliberation dissent frequency tracking** (learnings.md). Tracks unanimity rate and hard disagreement frequency across deliberation cycles. >60% unanimity rate with <1.0 mean hard disagreements across 3+ cycles flags `low_dissent_frequency`.
+- **Quantitative-vs-narrative divergence check** (Cowork Protocol §6.2). Signals with quantitative data declining but qualitative framing positive are tagged `[DIVERGENCE]`. Health computation discounts qualitative framing for divergence-tagged signals.
+
+**Relationship to existing mechanisms:**
+- Finding classification (§14.3.8) forces epistemic honesty but does not detect positive framing bias within correctly classified findings.
+- Groupthink detection (Deliberation Protocol §9) catches premature consensus but not OD-anchoring sycophancy. Sycophancy detection extends groupthink detection with OD-anchoring checks and convergence probes.
+- Mechanical guardrail evaluation (§5.4) bypasses interpretive bias for threshold checks but does not cover narrative recommendations.
+- Signal provenance (§14.3.3) requires evidence citations. Sycophancy detection adds a narrative-vs-data direction check on top of provenance.
+
+**Detection is not prevention.** These mechanisms surface potential sycophancy for Governor attention. The Governor decides whether the flagged pattern is genuine sycophancy or legitimate positive assessment. False positives are acceptable — missed sycophancy is not.
+
+**Sycophancy flags vocabulary** (see also Appendix B.12):
+- `generic_risk_section` — health report Risk Factors section empty or boilerplate for 2+ reports
+- `recommendation_divergence` — signal trend direction contradicts recommendation without explicit justification
+- `kill_proximity_silent` — metric within threshold of kill condition but not prominently surfaced
+- `round1_unanimity` — all domain agents agree in Round 1 before cross-examination
+- `low_dissent_frequency` — deliberation agents never disagree across 3+ cycles
+- `narrative_quantitative_divergence` — signal narrative contradicts signal quantitative data
+
+**Mitigation by tier:**
+
+- *Tier 0:* The orchestrator performs the sycophancy self-check at health report generation (risk section completeness + recommendation-signal alignment). In deliberation, the Coordinator performs position independence verification and issues convergence probes when unanimity is detected. All checks are cognitive disciplines — the AI asks "am I framing this too positively?" and documents the answer.
+
+- *Tier 1:* Signal-recommendation consistency check is computed programmatically from signal trend data. Kill proximity alerting is automated. Divergence-tagging on signals is automated at recording time. Dissent frequency tracking is computed from deliberation metadata.
+
+- *Tier 2+:* Sycophancy indicators feed into governance dashboards — trend analysis of flag frequency, cross-scope comparison, and predictive flagging ("this orchestrator instance has shown increasing generic_risk_section flags over 5 cycles").
+
+**Build priority:** Ninth. Build after Finding Classification (§14.3.8) is operational. Sycophancy detection consumes the outputs of health computation, signal recording, and deliberation — those must be in place first. At Tier 0, this is primarily an AI self-discipline that improves framing transparency. At Tier 1+, it becomes a programmatic check layer.
+
+### 14.4 How Grounding Integrates with the Framework
+
+The grounding architecture does not change the five-layer structure. It operates beneath it:
+
+```
+┌──────────────────────────────────────────────────────────┐
+│               FRAMEWORK (Control System)                  │
+│  Goal → Objective → Strategy → Tactic → Action            │
+│  Guardrails ↓    Feedback ↑    A/B Testing                │
+├──────────────────────────────────────────────────────────┤
+│             GROUNDING (Infrastructure)                    │
+│                                                           │
+│  Attribution  │ Schema Val. │ Domain Store │ Data Ground. │
+│  (Identity)   │ (Form)      │ (Substance)  │ (Signals)    │
+│               │             │              │              │
+│  Capability Validation      │ Synthesis Verification      │
+│  (Feasibility)              │ (Coordinator accuracy)      │
+│                             │ [Level 3 deliberation only] │
+│                                                           │
+│  Finding Classification                                       │
+│  (Evidence quality)         [all health assessments]          │
+│                                                           │
+│  Memory confabulation: mitigated architecturally (§7.11)  │
+└──────────────────────────────────────────────────────────┘
+```
+
+Every interaction between an agent and the framework passes through the grounding layer. The six interaction paths below correspond to the hallucination categories in §14.2:
+
+- **Agent produces output → Schema validation checks structure (form) → Domain store checks content (substance) → Output enters framework.**
+- **Agent emits signal → Data grounding verifies source (signal: metric/data, status) → Schema validation checks format (form) → Temporal validity checks freshness (signal: temporal) → Signal enters feedback loop.**
+- **Agent generates tactic → Domain store provides hypothesis templates (substance) → Schema validates structure (form) → Kill condition verified against data sources (signal).**
+- **Orchestrator generates actions → Capability validation checks feasibility (substance: capability) → Infeasible actions reformulated or flagged → Feasible actions dispatched to executors.**
+- **Agent formulates strategy → Domain store provides approach frameworks and what-must-be-true patterns (substance) → Schema validates that rationale is present and implementation details are absent (form).**
+- **Coordinator produces synthesis → Synthesis verification checks each characterization against source position papers (continuity) → Consensus counts validated against actual papers → Verified synthesis enters framework or proceeds to next round.** (Level 3 deliberation only.)
+
+### 14.5 Build Sequence
+
+| Order | Component | Category | Effort | Impact | Addresses |
+|-------|-----------|----------|--------|--------|-----------|
+| 1 | Attribution | (Prerequisite) | Minimal | Critical | Structural prerequisite. Without tactic_id and strategy_id on every output and signal, nothing downstream can aggregate or compare. A schema change, not a feature. |
+| 2 | Schema Validation | Form | Low | High | Structural hallucination (form corruption). Catches malformed output before it enters the system. Validates five layers. |
+| 3 | Data Grounding | Signal | Medium | High | Metric/data, status, and temporal hallucination (signal corruption). Connects agents to real data. Prevents feedback loop corruption. Includes temporal validity checks. |
+| 4 | Domain Knowledge Store | Substance | High | Medium-High | Domain hallucination (substance corruption). Turns structurally valid output into substantively good output. Includes retrieval faithfulness checks. |
+| 5 | Synthesis Verification | Continuity | Low-Medium | High (when active) | Synthesis hallucination (continuity corruption). Only needed at Level 3 deliberation. At Tier 0: Governor behavioral discipline (read source papers). At Tier 1+: automated verification of Coordinator output against source artifacts. |
+| 6 | Capability Validation | Substance | Low-Medium | Medium-High | Capability hallucination (substance corruption). Prevents infeasible action specifications. At Tier 0: AI self-check against declared capabilities. At Tier 1+: registry-based action feasibility check. |
+| — | (Architectural) | Continuity | — | — | Memory confabulation (continuity corruption). Mitigated by file-based state reconstitution (§7.11) at Tier 0 and database-backed state at Tier 1+. No dedicated component needed. |
+
+Attribution first because it is the foreign key that makes the entire feedback loop interpretable. Schema validation second because it's deterministic, cheapest to build after attribution, and blocks the most damaging structural errors. Data grounding third because the feedback loop is the framework's learning mechanism — if it runs on fiction, everything downstream is wrong. Domain knowledge store fourth because it requires the most curation effort, but it's what elevates agent output from acceptable to good. Synthesis verification fifth because it only applies to Level 3 deliberation — most scopes never activate it, but when deliberation is used, synthesis distortion is the highest-risk failure mode because it cascades through rounds. Capability validation sixth because feasibility gaps are caught by Governor review at Tier 0 even without this component — the component formalizes what should already be happening.
+
+### 14.6 Grounding as a Living System
+
+The grounding architecture is not a one-time build. It evolves:
+
+- **Schema validation** updates when the framework structure is refined (new fields, new rules, new signal formats).
+- **Domain knowledge store** updates as domain understanding deepens — new concepts are added, hypothesis libraries expand based on what A/B tests reveal, anti-patterns accumulate from real failures.
+- **Data grounding** updates as new systems are integrated — new analytics platforms, new APIs, new verification methods.
+- **Capability validation** updates as the system's operational boundaries change — new integrations added, tools decommissioned, resource constraints revised, Governor availability changes.
+
+Each tactic review should include a brief grounding health check: Are agents producing structurally valid output? Are signals grounded in real data? Are domain anti-patterns being caught? Are stale signals flagged? Are proposed actions feasible given current capabilities? If any of these degrade, the grounding layer needs attention before the framework's decisions can be trusted.
+
+**Confidence calibration.** The grounding layer ensures signals carry confidence levels (complete, partial, estimated). But declared confidence is only useful if it's accurate over time. Systematic miscalibration — agents consistently declaring "complete" confidence on metrics that later prove inaccurate — indicates a data grounding gap: the agent's connection to the source system may be unreliable, or the method field may be masking assumptions.
+
+Calibration by tier:
+- *Tier 0:* At each strategy review (or after 3+ tactic review cycles, whichever comes first), the Governor manually compares signal predictions against actual outcomes using the Confidence Calibration table in `learnings.md`. For signals that declared "complete" confidence, how many were accurate? For "estimated," how many were within 20% of actual? This is labor-intensive and realistically happens only at retrospectives, but it surfaces gross miscalibration patterns. Findings inform the next scope's signal provenance requirements.
+- *Tier 1:* The signal store tracks declared confidence alongside eventual outcomes. At each review cadence, the system auto-generates a calibration report: accuracy rate by confidence level, worst-performing signal sources, trend over time. The Governor reviews the report rather than manually comparing predictions. Systematic miscalibration triggers a flag on the data source: "Signals from [source] declared 'complete' confidence but were accurate only 40% of the time — downgrade default confidence to 'partial' for this source."
+- *Tier 2+:* Calibration becomes a feedback loop. The system adjusts confidence weighting in health computation formulas based on historical accuracy — a source with 90% accuracy at "complete" gets full weight, a source with 50% accuracy gets automatic downweighting. Calibration drift alerts fire when a previously reliable source degrades. In multi-agent deliberation, per-agent calibration profiles inform synthesis: an agent whose domain model consistently produces overconfident recommendations gets a calibration note in the Coordinator's context, improving synthesis accuracy without manual Governor intervention.
+
+### 14.7 Multi-Domain Consultation Pattern `[ROBUST]`
+
+When an operating document references multiple domain models, the orchestrator must consult them systematically rather than blending their concepts into a single undifferentiated analysis. This section defines how.
+
+#### Independent Assessment
+
+For any decision or recommendation that touches multiple domains (strategy selection, feature prioritization, tactic design, kill/pivot/persevere), the orchestrator assesses each domain model's perspective independently:
+
+1. For each referenced domain model, evaluate the decision through that model's concepts, quality principles, and anti-patterns.
+2. Produce a per-domain recommendation with explicit reasoning.
+3. Compare recommendations across domains.
+
+#### Disagreement Surfacing
+
+When domain models produce different recommendations, the disagreement is the valuable output — it reveals tensions that require Governor judgment. The orchestrator surfaces disagreements as follows:
+
+- **State the tension explicitly:** "Value Creation recommends X because [concept]. Marketing recommends Y because [concept]. These conflict because [reasoning]."
+- **Do not resolve the tension silently.** The orchestrator may state which recommendation it would follow and why, but must present the competing view with equal rigor.
+- **Cross-domain stacking notes (§13.7)** may provide guidance for known interaction patterns. Reference them when applicable, but note that stacking notes describe general patterns — they may not resolve the specific tension at hand.
+
+#### When Multi-Domain Consultation is Required
+
+Multi-domain consultation is required at:
+- Strategy reviews (§7.2, Strategy Review Cycle) when multiple domain models are referenced
+- Any Governor decision point where the OD references 2+ domain models
+- Feature or tactic prioritization that scores items against multiple domain criteria
+- Any recommendation where the orchestrator detects that a single-domain analysis would produce a different recommendation than a multi-domain analysis
+
+Multi-domain consultation is NOT required for:
+- Routine action execution within an approved plan
+- Signal computation (signals are factual, not interpretive)
+- Health computation using pre-defined thresholds (§20)
+
+#### Three-Level Escalation Model
+
+Multi-domain consultation operates at three escalation levels. (These are distinct from the implementation tiers in §0/§16, which describe infrastructure maturity.) The default is Level 1. The orchestrator escalates to higher levels when lower levels produce unresolved disagreement.
+
+**Level 1 — Inline multi-domain assessment (default).** The orchestrator reads all relevant domain models and evaluates the decision through each model's lens sequentially within a single reasoning pass. Tensions are noted in the recommendation. Suitable for routine decisions where domain models are broadly aligned or the decision is low-stakes and reversible.
+
+**Level 2 — Sequential isolation.** The orchestrator evaluates each domain model in a separate pass (independent assessment above), producing per-domain recommendations before attempting synthesis. This prevents blending — each domain's reasoning is preserved intact. Suitable when the orchestrator detects that Level 1 produced a recommendation that differs from what any single domain would recommend (blending diluted the domain perspectives). Also suitable when the Governor explicitly requests independent domain assessments.
+
+**Level 3 — Deliberation (multi-agent).** Each domain model is assigned a dedicated Domain Agent that produces a formal position paper (§7.1 Deliberation Components). A Coordinator identifies disagreements, formulates targeted prompts, and agents respond in subsequent rounds. The Coordinator produces a Synthesis Report with consensus recommendations, documented dissents, and Governor decision points. Suitable when: (a) 3+ domain models are active, (b) Level 2 produced materially different per-domain recommendations, and (c) the decision is high-stakes, irreversible, or the Governor explicitly requests adversarial evaluation. The Governor completes a pre-deliberation review (§6.1) before Round 1, updating existing information channels as needed. The Deliberation Protocol (a separate document) specifies the full round structure, artifact templates, finding classification, disagreement classification, groupthink detection, sycophancy detection, and termination rules.
+
+**Escalation triggers:**
+- Level 1 → Level 2: Orchestrator detects that a single-domain analysis would produce a different recommendation than the blended multi-domain analysis. Or: Governor requests independent assessments.
+- Level 2 → Level 3: Per-domain recommendations from Level 2 are materially different AND the decision meets the deliberation criteria in §7.2 Strategy Cycle STEP 3.
+- Governor override: The Governor may request any level at any time, regardless of trigger conditions.
+
+#### Cross-Hierarchy Impact Detection
+
+A decision at one layer of the hierarchy may alter priorities at another layer. For example, a strategy-level decision about customer acquisition approach may reshape which tactics should be prioritized. The orchestrator must detect and flag these cross-hierarchy impacts:
+
+- After any Governor decision that modifies a strategy or objective, the orchestrator evaluates whether existing tactics remain correctly prioritized given the new strategic direction.
+- If the decision would reorder, invalidate, or change the kill conditions of existing tactics, the orchestrator surfaces this as a downstream impact requiring Governor awareness.
+- The orchestrator does NOT autonomously reprioritize tactics based on strategy changes — it flags the impact and lets the Governor decide how to handle it.
+
+---
+
+## 15. Systems Foundations `[ROBUST]`
+
+### 15.1 Purpose
+
+The GOSTA framework is a hierarchical control system. Sections 1–14 define its structure, layers, feedback mechanics, domain knowledge, and grounding infrastructure. But they do not make explicit the systems-theoretic primitives that the framework relies on. This section does.
+
+Making the foundations explicit serves three purposes. First, it gives the framework a formal vocabulary for its own mechanisms — concepts like "feedback loop" and "constraint" are used throughout but never grounded in their systems-theoretic definitions. Second, it equips agents and strategy/tactic owners with a toolkit for diagnosing and improving the system itself, not just operating within it. Third, it documents the cognitive architecture of the human governor (the CEO/founder) whose judgment sits at the top of the control hierarchy, making its vulnerabilities visible and therefore manageable.
+
+The material in this section is meta-level. It does not describe a business function (marketing, sales, finance). It describes how systems work, how to analyze them, how to improve them, and how the human mind interacts with them. These foundations are not domain models — they are the theoretical substrate beneath the framework and all domain models.
+
+### 15.2 Systems Structure Primitives
+
+The GOSTA framework is built on systems-theoretic concepts that have formal definitions. This section names them and maps each to the framework mechanism it underpins.
+
+**Flow.** The movement of resources, information, or value through a system. In GOSTA, there are two primary flows: the downward command flow (guardrails, targets, approach logic, constraints) and the upward feedback flow (signals, metrics, health reports). Section 2.3 describes these flows. Every pathology in the framework — stale tactics, corrupted feedback, misallocated resources — can be diagnosed as a flow problem: something is stuck, misdirected, or moving too slowly.
+
+**Stock.** An accumulation of resources at a point in the system. In GOSTA, tactics are stocks: they accumulate action signals over time, and the accumulated signal is what the tactic review evaluates. Strategies are higher-order stocks: they accumulate tactic-level validation signals over strategy cycles. Permission assets (marketing), pipeline value (sales), and cash reserves (finance) are all stocks that tactics either build or deplete. The distinction matters because stocks have inertia — they don't respond instantly to changes in flow. A tactic that shifts approach today won't show changed metrics until the stock of new signals accumulates enough to displace the old pattern.
+
+**Slack.** Capacity beyond the minimum required for operation. In GOSTA, slack is what enables A/B testing at both levels (Section 4.2). Running parallel tactics requires spare capacity within a strategy; running parallel strategies requires spare capacity within an objective. Organizations without slack cannot run parallel hypotheses, which means they cannot learn systematically. They are locked into single bets.
+
+**Constraint (Bottleneck).** The factor that limits throughput of the entire system. In GOSTA, constraints are explicitly identified in two forms: guardrails (deliberate constraints that protect the system, defined at goal, objective, and strategy levels) and bottlenecks (unintentional constraints that limit performance). Human creative dependencies (Section 3.5) are a common bottleneck — the Governor's input rate constrains every tactic that depends on it. The distinction between deliberate and unintentional constraints is critical: guardrails should be preserved; bottlenecks should be addressed.
+
+**Feedback Loops.** Circular causal chains where a system's output influences its subsequent input. Two types:
+
+- **Balancing (negative) feedback loops** drive a system toward a target. The GOSTA control loop (Section 2.3) is fundamentally a balancing feedback loop: the objective defines a target, tactics produce signals via actions, the orchestrator compares signals to target, and the variance drives the next cycle's work plan. Kill conditions are the failure mode of a balancing loop — when the system cannot close the gap between current state and target, the loop is terminated.
+
+- **Reinforcing (positive) feedback loops** amplify a system's output in the same direction. In GOSTA, a working tactic can create reinforcing loops: strong content builds audience → larger audience generates more engagement → more engagement attracts organic reach → organic reach builds audience further. The danger is that reinforcing loops also amplify in negative directions: hallucinated signals → corrupted decisions → worse execution → more misleading signals. Section 14 (Grounding Architecture) exists specifically to prevent negative reinforcing loops from forming in the feedback system.
+
+**Autocatalysis.** A system whose output creates the conditions for more output without additional input. In GOSTA, the ideal end state of a mature tactic is autocatalytic. The framework's graduation path (Section 16.11) implicitly describes the system becoming increasingly autocatalytic — less Governor intervention needed because the system's own outputs sustain its operation.
+
+**Environment.** The context within which a system operates, including factors the system cannot control but must respond to. In GOSTA, the environment includes market conditions, competitor actions, platform algorithm changes, regulatory shifts, and macroeconomic forces. The goal review (Section 6.4) is the mechanism for reassessing whether the environment has changed enough to invalidate the goals themselves.
+
+**Selection Tests.** Criteria that a system must satisfy to survive and continue operating. In GOSTA, kill conditions are explicit selection tests at the tactic level. What-must-be-true conditions are selection tests at the strategy level. Objectives that consistently miss targets face elimination at the strategy review; goals that no longer align with the environment face revision at the goal review. The framework's review rhythm (Section 6.4) is a structured schedule of selection tests applied at progressively higher layers.
+
+**Gall's Law.** A complex system that works invariably evolved from a simple system that worked. In GOSTA, this principle manifests in two ways: the implementation sequence (Section 16) builds the system incrementally rather than all at once, and the graduation path starts with maximum human control and minimum agent autonomy.
+
+**Interdependence.** Changes in one part of a system affect other parts, often in non-obvious ways. In GOSTA, interdependence is managed through dependency declarations (Section 3.5) at the action level and through domain model stacking (Section 13.7) at the knowledge level.
+
+### 15.3 Systems Analysis Discipline
+
+The GOSTA framework depends on accurate signal interpretation at every review cadence. This section defines the analytical discipline required.
+
+**Measurement.** Quantifying a system's behavior by observing it accurately and objectively. In GOSTA, measurement happens at the action layer and aggregates upward. The data grounding component (Section 14.3.3) ensures measurements come from real systems, not from agent generation.
+
+**Key Performance Indicators.** Measurements of the critical parts of a system. In GOSTA, every objective contains KPIs. The discipline is in choosing the right ones — measuring what matters rather than what is easy to measure.
+
+**Garbage In, Garbage Out.** The quality of output is constrained by input quality. In GOSTA, GIGO has two applications: if action-level signals are inaccurate, every decision built on them is unreliable (the grounding architecture is essentially a GIGO prevention system); and if goals are vague or objectives unmeasurable, the orchestrator's output will be correspondingly poor.
+
+**Analytical Honesty.** Measuring without distorting data to match desired outcomes. In GOSTA, analytical honesty is challenged at every kill/pivot/persevere decision point. Pre-committed kill conditions and what-must-be-true conditions are forcing mechanisms — they make decision rules explicit before the data arrives.
+
+**Correlation vs. Causation.** Two metrics moving together does not mean one causes the other. A/B testing (Section 4.2) is the primary defense — running competing tactics or strategies against the same metric isolates causal signal.
+
+**Proxy Measurement.** Measuring one thing as an estimate of another. Many tactic metrics are proxies: follower count proxies brand awareness; engagement proxies content quality. The discipline is remembering that proxies are approximations.
+
+**Context.** The conditions surrounding a measurement that determine its meaning. The baseline section of the operating document (Section 9.1) exists to provide this context.
+
+**Norms.** Typical ranges that describe what is usual. In GOSTA, norms inform kill condition thresholds. If the norm is wrong, kill conditions will terminate healthy tactics or preserve failing ones. Norms should be sourced from domain knowledge and historical data.
+
+**Segmentation.** Breaking a system into meaningful subgroups. Aggregate metrics may hide that a tactic performs strongly with one segment and poorly with another.
+
+**Deconstruction.** Breaking a complex system into component parts. The five-layer hierarchy IS a deconstruction of strategic execution. Each layer is analyzed and managed independently, then recombined through the feedback loop.
+
+### 15.4 Systems Improvement Vocabulary
+
+When a tactic is underperforming, the framework prescribes kill, pivot, or persevere. When a strategy is weakening, the same three options apply. This section provides the vocabulary of improvement interventions available when pivoting or optimizing.
+
+**Refactoring.** Changing internal structure without changing external behavior. In GOSTA, refactoring applies when a tactic's approach is sound but execution structure is inefficient — reorganizing actions, reassigning ownership, changing sequence.
+
+**Optimization.** Maximizing output given current configuration. What the action cycle does: adjust the action plan to produce more from the same resources.
+
+**The Critical Few (Pareto Principle).** A small number of inputs produce the majority of outputs. Guides resource allocation: which actions actually drive the hypothesis forward?
+
+**Diminishing Returns.** Beyond a certain point, additional input produces progressively less output. Signal to shift levers rather than push harder on an exhausted one.
+
+**Friction.** Resistance that slows desired action. Reducing friction in execution is often the cheapest way to improve tactic performance.
+
+**Automation.** Using technology to perform tasks with minimal human intervention. The graduation path (Section 16.11) is an automation trajectory.
+
+**Cessation.** Stopping activities that no longer contribute. The traceability rule (Section 8, Rule 5) is the diagnostic: if an activity can't trace to a tactic, strategy, objective, and goal, it is waste.
+
+**Resilience.** The ability to recover from disturbances. Built through parallel tactics (killing one doesn't collapse the strategy), parallel strategies (killing one doesn't collapse the objective), and guardrail inheritance.
+
+**Fail-safes.** Mechanisms preventing catastrophic outcomes. Guardrails, kill conditions, what-must-be-true conditions, and the grounding architecture are all fail-safes.
+
+**Stress Testing.** Subjecting the system to extreme conditions to identify failure points before they occur in production.
+
+**Scenario Planning.** Constructing multiple plausible futures. Strengthens the strategy review by asking "what are the three most likely futures?" rather than "is this on track?"
+
+**Sustainable Growth Cycle.** Growth that feeds itself without depleting resources. Domain models should flag tactics that produce short-term metrics at the cost of long-term asset depletion.
+
+**Experimental Mind-set.** Treating every action as an experiment. The tactic layer's design intent — but should extend to action-level learning within the action cycle.
+
+### 15.5 Cognitive Architecture of the Governor
+
+The GOSTA framework places a human at the top of the control hierarchy. This section documents how the human mind operates as a control system and where its architecture creates predictable vulnerabilities.
+
+**Perceptual Control.** Humans are goal-seeking systems that act to bring perception into alignment with an internal reference level. Goals and objectives are externalized reference levels.
+
+**Reference Level.** The internal standard against which a person compares current perception. Writing goals and strategies forces the Governor to clarify their reference levels.
+
+**Conservation of Energy.** The brain defaults to lowest-energy responses. Reviews must be externally triggered (Section 6.4), not self-initiated.
+
+**Guiding Structure.** Environment shapes behavior more reliably than intention. The framework itself is a guiding structure — compliance is an environment design problem, not a discipline problem.
+
+**Reorganization.** When known actions can't close the gap, the person enters exploratory behavior. The hypothesis library (domain model component) reduces reorganization cost by providing pre-structured alternatives.
+
+**Conflict.** Competing internal control systems produce tension and suboptimal performance. Goal domain separation (Section 3.1) is a conflict prevention mechanism.
+
+**Loss Aversion.** Losses are experienced ~2x as intensely as equivalent gains. Primary threat to kill discipline. Pre-committed kill conditions and what-must-be-true conditions exist precisely because loss aversion predicts the Governor will resist killing underperformers.
+
+**Absence Blindness.** People are poor at noticing what isn't there. Structural integrity rules (Section 8, Rules 1 and 7) partially compensate. Strategic-level absence requires deliberate environmental scanning.
+
+**Cognitive Scope Limitation.** The conscious mind tracks ~4–7 items simultaneously. The recommended ranges (4–8 goals, 2–5 objectives, 1–3 strategies, 1–5 tactics) are calibrated to this limit.
+
+**Threat Lockdown.** Under perceived threat, the brain narrows focus and reduces creative thinking. Pre-committed decision rules protect judgment quality during crises.
+
+**Pattern Matching.** Domain models are externalized pattern libraries. A/B testing provides structural checks against false pattern matches.
+
+**Mental Simulation.** The Governor imagines future states when setting goals and choosing strategies. Domain models enrich the internal model. The operating document template forces externalization of simulations.
+
+**Willpower Depletion.** Self-control depletes with use. Time limits on reviews (Section 6.4) protect decision quality. The graduation path (Section 16.11) automates routine decisions to free cognitive resources for high-stakes ones.
+
+### 15.6 Integration Map
+
+| Concept | Source | Framework Section | How It Integrates |
+|---------|--------|-------------------|-------------------|
+| Flow | Understanding Systems | 2.3 (Control Loop) | Names the primary flows and enables flow-based diagnosis |
+| Stock | Understanding Systems | 4.1 (Feedback Loop) | Explains why tactic and strategy health signals have inertia |
+| Slack | Understanding Systems | 4.2 (A/B Testing) | Explains the resource precondition for parallel testing at both levels |
+| Constraint | Understanding Systems | 3.5 (Dependencies), 5 (Guardrails) | Distinguishes deliberate constraints from unintentional bottlenecks |
+| Feedback Loops | Understanding Systems | 2.3, 4.1, 14 | Formal vocabulary for balancing vs. reinforcing loops |
+| Autocatalysis | Understanding Systems | 16.11 (Graduation Path) | Ideal end state of mature, self-sustaining tactics |
+| Environment | Understanding Systems | 6.4 (Goal Review) | Why goals require periodic reassessment |
+| Selection Tests | Understanding Systems | 3.3 (What-Must-Be-True), 3.4 (Kill Conditions) | Kill conditions and what-must-be-true are formal selection tests |
+| Gall's Law | Understanding Systems | 16 (Implementation Sequence) | Justifies incremental build and phased autonomy |
+| Interdependence | Understanding Systems | 2.3 (Lateral Flow), 13.7 (Stacking) | Changes propagate non-obviously across layers |
+| Measurement | Analyzing Systems | 14.3.3 (Data Grounding) | Quality requirements for signal accuracy |
+| KPIs | Analyzing Systems | 3.2 (Objectives) | Discipline of choosing the right metrics |
+| GIGO | Analyzing Systems | 14 (Grounding Architecture) | Grounding is fundamentally GIGO prevention |
+| Analytical Honesty | Analyzing Systems | 3.3 (Strategy Kill), 4.3 (Tactic Kill) | Why pre-committed conditions are necessary |
+| Correlation vs. Causation | Analyzing Systems | 4.2 (A/B Testing) | A/B testing isolates causal signal |
+| Proxy Measurement | Analyzing Systems | 3.2 (Objectives), 7.4 (Signal Spec) | Many metrics are proxies; flags divergence risk |
+| Context | Analyzing Systems | 9.1 (Baseline) | Baselines make metrics interpretable |
+| Norms | Analyzing Systems | 3.3, 3.4, 13 (Domain Models) | Kill thresholds should be informed by domain norms |
+| Segmentation | Analyzing Systems | 13.4 (Marketing: Probable Purchaser) | Hidden patterns require segmented analysis |
+| Deconstruction | Analyzing Systems | 1 (Design Principles), 8 (Structural Rules) | Five-layer hierarchy IS a deconstruction |
+| Refactoring | Improving Systems | 4.3 (Pivot) | Specific pivot type: change structure, not hypothesis |
+| Optimization | Improving Systems | 7.1 (Agent Execution) | What the action cycle does within a working tactic |
+| Critical Few | Improving Systems | 4.3, 6.4 (Tactic Review) | Guides resource reallocation |
+| Diminishing Returns | Improving Systems | 4.3 (Pivot) | Signal to shift levers |
+| Friction | Improving Systems | 3.5 (Actions) | Diagnose delays as friction |
+| Automation | Improving Systems | 16.11 (Graduation Path) | Autonomy trajectory is automation trajectory |
+| Cessation | Improving Systems | 8, Rule 5 (Traceability) | Untraceable activities are waste |
+| Resilience | Improving Systems | 4.2, 5 (Guardrails) | Parallel items and guardrails create resilience |
+| Fail-safes | Improving Systems | 3.3 (What-Must-Be-True), 5, 14 | Multiple fail-safe mechanisms across framework |
+| Stress Testing | Improving Systems | 14.6 (Grounding as Living System) | Framework should be stress-tested |
+| Scenario Planning | Improving Systems | 6.4 (Strategy Review) | Multiple plausible futures strengthen review |
+| Sustainable Growth | Improving Systems | 13 (Domain Models) | Flag asset-depleting tactics |
+| Experimental Mind-set | Improving Systems | 3.4 (Tactics) | Tactic layer's design intent |
+| Perceptual Control | Human Mind | 3.1 (Goals) | Goals are externalized reference levels |
+| Reference Level | Human Mind | 3.1, 3.3, 9.1 | Writing goals and strategies forces clarification |
+| Conservation of Energy | Human Mind | 6.4 (Review Rhythm) | Reviews must be externally triggered |
+| Guiding Structure | Human Mind | 1 (Design Principles), 6.4 | Framework IS a guiding structure |
+| Reorganization | Human Mind | 4.3 (Pivot), 13 (Hypothesis Library) | Hypothesis libraries reduce exploration cost |
+| Conflict | Human Mind | 3.1 (Distinct Domains), 4.4 | Goal domain separation prevents conflict |
+| Loss Aversion | Human Mind | 3.3 (Strategy Kill), 4.3 (Tactic Kill) | Pre-committed conditions compensate |
+| Absence Blindness | Human Mind | 8 (Structural Rules) | Rules 1 and 7 catch missing items |
+| Cognitive Scope Limitation | Human Mind | 12 (Scaling) | Layer ranges are cognitive calibrations |
+| Threat Lockdown | Human Mind | 4.3, 5 (Guardrails) | Pre-committed rules protect under pressure |
+| Pattern Matching | Human Mind | 13 (Domain Models) | Externalized pattern libraries |
+| Mental Simulation | Human Mind | 3.1, 3.3, 9 (Operating Doc) | Operating document externalizes simulation |
+| Willpower Depletion | Human Mind | 6.4 (Review Limits), 16.11 (Graduation) | Time limits and automation protect cognition |
+
+---
+
+## 16. Implementation Sequence
+
+Building a GOSTA application requires two stages: **definition** (what you are building and governing) and **technical build** (the software that executes and learns). The definition stage produces the inputs the build stage depends on — skipping it produces technically functional systems that have no strategic purpose.
+
+**Tier 0 note:** At Tier 0, only the definition stage applies. There is no technical build — the AI and markdown files ARE the implementation. A Tier 0 user completes the Product Definition (if building a product) or skips directly to the Operating Document (if running an analytical scope), then uses the Cowork Protocol and startup.md to bootstrap and execute. Phases 1-6 below are the build sequence for Tier 1+ implementations. Tier 0 users should read Phase 0 (Operating Document) for OD authoring guidance, then skip to Section 16.10 (Graduation Stages) to understand how the system evolves over time. When a Tier 0 scope outgrows file-based execution (review cadences need automation, signal collection needs APIs, multiple concurrent scopes share signals), that is the trigger to begin the Tier 1 technical build using Phases 1-6.
+
+### 16.1 Application Development Flow
+
+The end-to-end process for building a GOSTA application:
+
+```
+Product Definition ──→ GOSTA Alignment ──→ Operating Document ──→ Technical Build (Phases 1–6)
+     (what)              (how it governs)     (first scope)         (software)
+```
+
+**Step 1 — Product Definition.** Describe what the application does using standard product definition practices: user problems, features, data models, screens, tech stack. This is a product document, not a GOSTA document. It answers "what are we building?" without reference to the governance framework.
+
+**Step 2 — GOSTA Alignment.** Apply the GOSTA Alignment Checklist (Section 16.2) to transform the product definition into a GOSTA-aware product definition. This step maps the product's concepts to the five-layer hierarchy, identifies which roles map to Governor/Orchestrator/Executor, ensures attribution is built into the data model, and connects the product's execution and review flows to the framework's knowledge requirements and computation definitions.
+
+A GOSTA-aligned product definition does not replace the original product definition. It extends it with the structural commitments GOSTA requires. The product still describes what the app does; the alignment adds how it governs, learns, and adapts.
+
+**Step 3 — Operating Document.** The Governor authors the first operating document for the application's first operational scope, following the template from Section 9 and the authoring guide from Section 21. The operating document is what turns a product definition into a running system — it provides the goals, strategies, tactics, and actions that the system executes against.
+
+Every GOSTA application must have at least one operating document before technical build begins. A product definition without an operating document is a description of capability without purpose.
+
+**Step 4 — Technical Build.** Follow Phases 1–6 (Sections 16.4–16.9) using the aligned product definition as the build specification and the operating document as the runtime configuration. The product definition tells developers what to build; the operating document tells the built system what to do.
+
+### 16.2 GOSTA Alignment Checklist
+
+Use this checklist to verify a product definition is GOSTA-aware. Every item must be addressed before proceeding to the operating document and technical build.
+
+**Actor Mapping**
+- [ ] Product defines which user roles map to Governor
+- [ ] Product defines which system components map to Orchestrator
+- [ ] Product defines which system components map to Executor agents
+- [ ] Product specifies the Governor's nine authorities per Section 6.1
+
+**Five-Layer Hierarchy**
+- [ ] Product maps its concepts to Goals → Objectives → Strategies → Tactics → Actions
+- [ ] Product defines how guardrails flow downward through the hierarchy (Section 5)
+- [ ] Product defines how signals flow upward through attribution (Section 4.1)
+
+**Data Model**
+- [ ] Every output schema carries attribution fields: `goal_id`, `objective_id`, `strategy_id`, `tactic_id`, `action_id`
+- [ ] Product maps its data stores to the five GOSTA stores: Operating Document Store, Signal Store, Domain Model Store, Reference Pool, Health Report Store (Section 17.2)
+- [ ] Signal schema includes provenance fields: source, timestamp, method, confidence
+
+**Execution and Review**
+- [ ] Product defines how the Governor sets review cadences (or provides sensible defaults)
+- [ ] Product references GOSTA Section 19 for knowledge requirements per process type
+- [ ] Product references GOSTA Section 20 for computation definitions (health, kill conditions, A/B comparison)
+- [ ] Orchestrator flows are separated by cycle type: action cycle, tactic review, strategy review
+
+**Governance Interface**
+- [ ] Product defines how the Governor interacts with the system at each review cadence
+- [ ] Product defines the approval flow for work plans, health reports, and operating document revisions
+- [ ] Product specifies which graduation stage (Section 16.11) the application starts at
+
+**Domain Knowledge**
+- [ ] Product identifies which domain models (Section 13) the application needs
+- [ ] Product specifies whether domain models exist or must be built as a first-cycle deliverable
+
+### 16.3 Phase 0: The Operating Document
+
+Before any technical work, the Governor authors the operating document for the first operational scope. This document follows the framework structure: goals with guardrails, objectives with metrics and deadlines, strategies with rationale and what-must-be-true conditions, tactics with hypotheses and kill conditions, and actions with assignees and deliverables.
+
+This is not a technical milestone. It is a governance milestone. The operating document is what gives every subsequent technical component its purpose. Without it, you are building infrastructure for a system that doesn't know what it's trying to achieve.
+
+**Output:** One operating document per operational scope, following the template from Section 9 and the tactic specification template from Section 10.
+
+### 16.4 Phase 1: Attribution
+
+Add tactic_id and strategy_id (and parent objective_id, goal_id) to every output, draft, deliverable, and signal in the system. This is a schema change — typically adding fields to existing data structures. It is the smallest technical effort in the entire sequence and the one with the highest structural dependency.
+
+Without attribution, the system generates outputs that cannot be traced to the tactic or strategy that produced them. Tactic-level and strategy-level A/B testing is impossible. Health computation at any level is impossible. The feedback loop is structurally broken regardless of how good the signals are.
+
+**Output:** Every item the system produces carries a traceable lineage from action through tactic through strategy through objective to goal.
+
+### 16.5 Phase 2: Signal Emission
+
+Connect the execution layer to real data sources. The system must emit structured signals after every action: completion status, timing, output reference, and — critically — performance data retrieved from external systems (analytics platforms, CRM, platform APIs).
+
+Before this phase, the system is blind. It executes but cannot observe the results of its execution. The orchestrator, when built, will have nothing to reason about.
+
+**Output:** Structured signals emitted at action completion, attributed to their parent tactic and strategy, with provenance (source, timestamp, method, confidence).
+
+### 16.6 Phase 3: Schema Validation
+
+Implement deterministic validation that checks every agent-produced object against the framework's structural rules before it enters the system. Goals without guardrails are rejected. Objectives without metrics are rejected. Strategies without what-must-be-true conditions are rejected. Tactics without kill conditions are rejected. Actions without assignees are rejected. Signals without provenance are rejected.
+
+This is code, not AI. It is the cheapest high-impact grounding measure. From this point forward, structural hallucination cannot enter the system.
+
+**Output:** Validation layer that rejects malformed objects with specific error messages indicating the structural rule violated.
+
+### 16.7 Phase 4: The Orchestrator
+
+Build the orchestrating agent. The orchestrator runs three distinct cycle types at cadences defined in the operating document (see Section 7.2 for full execution loops, Section 19 for knowledge requirements, Section 20 for computation definitions):
+
+**Action cycle** (at the action review cadence):
+
+1. Reads the operating document summary for the relevant scope.
+2. Reads all signals emitted since the last cycle.
+3. Assesses current state: metric values, kill condition proximity, A/B test status.
+4. Generates a work plan for the next cycle: which actions to execute, in what sequence, with what parameters.
+5. Flags any tactic whose kill condition is approaching or met.
+6. Surfaces the work plan and status report to the Governor for approval.
+
+**Tactic review** (at the tactic review cadence):
+
+7. Computes tactic health per Section 20.5: hypothesis status, metric evaluation, kill condition assessment.
+8. Compares tactics within tactic-level A/B tests on shared metrics per Section 20.7.
+9. Generates kill/pivot/persevere recommendations with evidence.
+10. Surfaces tactic health reports and recommendations to the Governor.
+
+**Strategy review** (at the strategy review cadence):
+
+11. Aggregates tactic health per strategy.
+12. Computes strategy health per Section 20.6: what-must-be-true validation, approach validation, portfolio health.
+13. Compares strategies within strategy-level A/B tests on shared metrics.
+14. Performs structural memory transfer (Section 19.8).
+15. Drafts operating document revision if warranted.
+16. Surfaces strategy health reports, recommendations, and proposed revisions to the Governor.
+
+The orchestrator does not execute. It plans, computes, and reports. Execution remains at the action level. The Governor approves, modifies, or rejects at each cycle type. This is the governance touchpoint from Section 6.4.
+
+**Output:** Per-cycle-type reports and recommendations, surfaced for human approval.
+
+### 16.8 Phase 5: Domain Knowledge Store + Reference Pool
+
+Build and populate the domain knowledge stores for each domain the system operates in (see Section 13). Load the relevant domain models into the orchestrator's context when it generates work plans. Build the Reference Pool (Section 17.2.4) with scope-based retrieval, lifecycle management, and intake paths for Governor uploads, executor discoveries, and prior deliverable archival.
+
+Before this phase, the orchestrator is structurally competent but domain-naive. It correctly computes tactic and strategy health and generates structurally valid work plans, but the content of those plans may be substantively mediocre. The domain knowledge store is what elevates output from "correctly structured" to "strategically sound." The Reference Pool is what elevates output from "principled but thinly sourced" to "grounded in real material."
+
+**Output:** Retrievable, structured domain models loaded into orchestrator context per domain. Agent output validated against domain quality principles and anti-patterns. Reference Pool populated with initial source materials (brand guides, templates, prior deliverables) and connected to action specifications so executors receive relevant reference material with each task.
+
+### 16.9 Phase 6: Approval UI and Governance Loop
+
+Build the interface through which the Governor interacts with the system at each review cadence:
+
+- **Action review:** Review and approve/modify/reject the orchestrator's work plan. Flag blockers.
+- **Tactic review:** Review tactic health dashboards. Make kill/pivot/persevere decisions per tactic. Compare tactic-level A/B test results.
+- **Strategy review:** Review strategy health. Assess what-must-be-true conditions. Make kill/pivot/persevere decisions per strategy. Compare strategy-level A/B results. Review objective progress. Rebalance the strategy and tactic portfolio.
+- **Goal review:** Review goal relevance. Revise operating documents.
+
+The UI is the last phase because every preceding component feeds into it. Without attribution, the UI has nothing to show. Without signals, the dashboards are empty. Without the orchestrator, there are no work plans to approve. Without the domain store, the health reports lack domain context.
+
+**Output:** Governance interface aligned to the review rhythm from Section 6.4.
+
+### 16.10 Dependency Map
+
+```
+Product Definition
+        │
+        ▼
+GOSTA Alignment (Section 16.2)
+        │
+        ▼
+Operating Document (Phase 0)
+        │
+        ▼
+  Attribution (Phase 1)
+        │
+        ▼
+  Signal Emission (Phase 2)
+        │
+        ▼
+  Schema Validation (Phase 3)
+        │
+        ▼
+  Orchestrator (Phase 4)
+       ╱ | ╲
+      ▼  ▼  ▼
+Domain   Ref    Approval UI
+Store    Pool   (Phase 6)
+(Phase 5)
+```
+
+Product Definition and GOSTA Alignment are definition steps — they produce the inputs the build depends on. Phase 0 (Operating Document) bridges definition and build. Phases 5 and 6 can be built in parallel once the orchestrator exists. The Reference Pool can be built alongside the Domain Store in Phase 5 as both serve the same purpose — grounding agent output in real material. Everything else is strictly sequential.
+
+### 16.11 The Graduation Path `[ADVANCED: finite-scope graduation guidance]`
+
+The system starts with maximum human involvement and minimum agent autonomy. Over time, as the grounding layer proves reliable and the orchestrator demonstrates consistent guardrail compliance, autonomy increases:
+
+**Stage 1 — Human-driven.** Governor writes operating document, approves every work plan, reviews every action output. Orchestrator is advisory only. This is where every implementation starts.
+
+**Stage 2 — Orchestrator-suggested.** Orchestrator generates work plans, tactic health reports, and strategy health reports. Governor reviews and approves. Execution proceeds automatically after approval. The orchestrator earns trust through demonstrated accuracy of its health assessments and relevance of its work plans.
+
+**Stage 3 — Orchestrator-managed with exceptions.** Orchestrator generates and executes work plans within established patterns. Only novel situations, guardrail near-violations, tactic kill condition triggers, and strategy what-must-be-true alerts surface to the Governor. The Governor reviews by exception rather than by default.
+
+**Stage 4 — Full tactic-level autonomy.** Orchestrator manages tactics end-to-end: generates actions, executes them, adjusts based on signals, and reports health. Governor engages at the tactic review (kill/pivot/persevere) and strategy review (assessment, portfolio rebalancing). Action-level operations are fully autonomous within guardrails.
+
+**Stage 5 — Full autonomy within strategies.** Orchestrator manages all operations within existing strategies: proposes new tactics, kills and pivots tactics based on data, adjusts tactic parameters, and reports strategy health — all without Governor approval. Governor engages at the strategy review (kill/pivot/persevere, resource rebalancing across strategies under an objective) and goal review (goal reassessment). Note: "objective rebalancing" refers to reallocating resources among strategies pursuing the objective — it does not mean modifying the objective's metrics, thresholds, or targets, which remains non-delegable (Section 6.1, item 2). Strategy creation, modification, and retirement always require Governor approval (see Section 6.3). The orchestrator may *recommend* strategy changes with supporting evidence, but cannot enact them.
+
+Stage 5 is not a starting point. It is earned through stages 1–4, and only for scopes where the grounding layer is mature and the orchestrator has a track record of guardrail compliance. Different scopes may be at different stages simultaneously — high-risk scopes stay at Stage 1 longer than low-risk ones. Even after graduation, the autonomy safeguards (§6.7) may narrow stage behavior based on situational factors — grounding degradation, decision irreversibility, risk magnitude, or Governor-defined conditions.
+
+**Graduation readiness indicators.** Graduation is a Governor decision (Section 6.1, item 9). The following indicators are non-binding — they help the Governor assess whether the preconditions for the next stage are met. All indicators should hold for the most recent N review cycles before graduation (recommended: N = 3 for weekly cadence, N = 2 for monthly cadence).
+
+| Transition | Readiness Indicators |
+|------------|---------------------|
+| Stage 1 → 2 | Orchestrator work plans required minimal Governor modification for N consecutive cycles. "Minimal modification" is computable: the Governor accepted the orchestrator's recommended work plan in ≥80% of cycles, with modifications limited to action-level adjustments (adding, removing, or resequencing individual actions) rather than structural changes (rejecting the plan, adding new tactics, changing strategy direction, or revising objectives). Zero guardrail violations. Governor is spending review time confirming plans rather than redesigning them. |
+| Stage 2 → 3 | Orchestrator health assessments matched actual outcomes for N consecutive cycles (recommended decisions were correct in hindsight). Kill/pivot/persevere recommendations aligned with Governor's independent judgment. No cases where the Governor was surprised by data the orchestrator should have surfaced. |
+| Stage 3 → 4 | Exception-only reviews produced no critical misses for N consecutive cycles (no case where the Governor discovered a problem the orchestrator failed to escalate). Tactic kills executed autonomously by the orchestrator were validated as correct at subsequent strategy reviews. |
+| Stage 4 → 5 | Governor consistently agrees with tactic portfolio management decisions at strategy review. Orchestrator demonstrates ability to generate new tactics that perform comparably to Governor-designed tactics. Domain model is mature (meets "strategy review 2" completeness thresholds per Section 17.2.3). |
+
+**Failure resilience prerequisites (§7.13).** The readiness indicators above assume the system's failure resilience infrastructure is functioning. Before granting any graduation beyond Stage 2, the Governor should verify: (a) signal pipeline monitoring is active and has not reported `signal_pipeline_failure` in the last N cycles, (b) no components are in chronically unstable recovery state (§7.13.2), (c) session-start integrity checks (§7.13.3) have passed consistently, (d) Governor decision validation (§7.13.6) is operational (has produced at least one flag or confirmed zero inconsistencies, demonstrating the checks are running rather than silently disabled), (e) constraint propagation verification (§7.13.7) has executed without unresolved constraint version mismatches — confirming that guardrail and constraint changes propagate correctly to executors and orchestrator before decisions are applied, and (f) semantic coherence validation (§8.1) has been running at authoring time and review time — core invariants (C1-C3) are verified operational, and for systems adopting `[ROBUST]` features, cross-entity invariants (R1-R4) and reconciliation checks (§8.2.3) produce results (even if all pass, demonstrating the checks are active rather than silently disabled). A system graduating to Stage 3+ while its signal pipeline is degraded, its memory integrity is unchecked, its constraint propagation is unverified, or its semantic coherence checks are not running is operating at higher autonomy without the observability that justifies it. Additionally, the Governor should note the scope's Finding Classification distribution (§14.3.8): if a high proportion of health assessments carry `information_gap` classification over consecutive cycles, this may indicate signal pipeline immaturity — the system is producing recommendations but the evidence basis is thin. This does not block graduation, but should be weighed against readiness indicators. (g) Sycophancy detection operational (§14.3.9): health reports must include substantive Risk Factors sections for at least 3 consecutive reports before Stage 3 promotion. Signal-recommendation consistency check must be active. If deliberation mode is enabled, at least 3 deliberation cycles must have produced the Independence Assessment with no `low_dissent_frequency` flag (the flag requires 3+ cycles to trigger, so fewer than 3 cycles makes this check vacuous). Additionally, at least 2 of these cycles must have Round 1 position diversity (no `round1_unanimity` flag). A system graduating to Stage 3+ without sycophancy detection is granting autonomy to a system whose framing biases have not been monitored.
+
+**Crisis-aware assessment.** The readiness indicators above measure steady-state performance ("N consecutive cycles of good plans"). But steady-state competence does not guarantee crisis competence. A system that passes graduation after 3 easy weeks may fail catastrophically in week 4 when a crisis requires cross-domain synthesis or novel reasoning. If no crisis or significant disruption has occurred during the assessment window, the Governor should issue a **challenge scenario** before granting graduation: a hypothetical disruption relevant to the domain ("What would you propose if a late frost destroyed 50% of the current crop?" / "What if the top-performing tactic's primary channel went down for 2 weeks?"). The orchestrator must produce a response plan that the Governor evaluates for cross-domain reasoning quality, not just format compliance. A challenge scenario is not a trick — it tests whether the AI can reason under novel conditions, which is the core capability needed at the next autonomy level. If the orchestrator's response requires the Governor to redesign it substantially, graduation should be held regardless of steady-state indicators.
+
+**Probation period.** For the first 2–4 review cycles after any graduation, the Governor receives the previous stage's reports as informational (non-blocking). This maintains situational awareness during the transition without reverting the autonomy grant. If problems emerge during probation, the Governor regresses the stage before the probation period ends.
+
+**Short-scope considerations.** For scopes with a known finite duration, the Governor sets N at scope creation based on expected available review cycles. If the scope is too short to produce sufficient cycles for confident graduation (e.g., a 6-week sprint producing only 1-2 review data points), graduation may not occur — and that's acceptable. Short scopes that conclude before graduation becomes operationally relevant should still capture their performance data for domain model learning, even without a stage transition. The graduation evidence from a concluded scope can inform the starting stage of a subsequent scope in the same domain — e.g., if Hiring Sprint 1 produced evidence for Stage 2 readiness, Hiring Sprint 2 may start at Stage 2 with Governor approval.
+
+#### 16.11.1 Governance Integrity at High Stages `[ADVANCED]`
+
+As the system graduates to Stage 4 and beyond, the Governor's engagement naturally decreases — fewer reviews, less data exposure, more pre-digested recommendations. This is correct for efficiency, but it creates a risk: the Governor's situational awareness degrades to the point where their reviews become ceremonial. The Governor has nominal authority (they can veto) but not substantive authority (they can't form an independent judgment). At that point, the system has de facto full autonomy regardless of what the per-stage table says.
+
+**Challenge probes:** At Stage 4+, each Governor review session includes at least one item designed to require genuine engagement rather than approval on trust. These are real ambiguities in the data that benefit from human judgment — the orchestrator selects the most genuinely ambiguous item from the current data and presents it without a strong recommendation. Examples:
+
+- Two plausible but contradictory interpretations of the same signal data — the Governor must choose which interpretation drives the next cycle
+- A tactic recommendation where the quantitative signal and the qualitative context point in different directions
+- A guardrail near-violation that requires the Governor to decide: tighten the guardrail, or adjust the approach
+
+Challenge probes are generated as part of the health computation cycle (Section 7.2, Tactic Cycle and Strategy Cycle). They are not tricks or tests — they are the genuinely hard calls that the system surfaces for human judgment rather than resolving autonomously.
+
+**Ambiguity selection heuristic.** The orchestrator selects the challenge probe from items where: (a) the computed recommendation confidence is below a defined threshold (recommended: <0.7 on a 0-1 scale), (b) quantitative signals and qualitative context point in different directions (e.g., metric is improving but domain model anti-pattern is present), or (c) the computation produces a result within 15% of a decision boundary (e.g., a metric at 85% of kill threshold). If multiple items qualify, select the one with the highest decision stakes (closest to a kill threshold or strategy-level WMBT boundary).
+
+**Recommended confidence computation:** `confidence = 1.0 - (margin_to_boundary / boundary_value)` where `margin_to_boundary` is the absolute distance between the current metric value and the nearest decision boundary (kill threshold, WMBT falsification point, or A/B winner threshold), and `boundary_value` is the threshold itself. Items near boundaries produce low confidence (closer to 0); items far from boundaries produce high confidence (closer to 1). **Unit normalization:** because this formula produces values that depend on metric scale, confidence scores are only comparable within the same metric type. When selecting the "highest decision stakes" probe target across metrics with different scales, the orchestrator ranks by proximity-to-boundary as a percentage of boundary value (i.e., `margin_to_boundary / boundary_value`), not by raw confidence score. The item with the smallest percentage margin is the highest-stakes item. For qualitative assessments without numeric boundaries, the orchestrator assigns confidence based on signal agreement: 1.0 if all signals agree, 0.5 if signals split, 0.0 if signals contradict. Implementations may substitute more sophisticated confidence models; the requirement is that the model is deterministic and documented.
+
+**Governance integrity warning:** If the Governor approves all recommendations without modification for N consecutive review cycles (N is defined per scope in the operating document), the system flags a governance integrity warning. A "modification" is any of: (a) changing the orchestrator's `recommended_decision` (e.g., overriding a `persevere` recommendation with `kill`), (b) adding conditions, constraints, or caveats not present in the orchestrator's proposal, (c) rejecting or revising a domain model change proposal, or (d) requesting additional data or analysis before deciding. Simply approving the recommendation with acknowledgment comments does NOT count as a modification — the system tracks substantive changes to the decision, not commentary. This warning does not imply the Governor is wrong — the AI's recommendations may be genuinely excellent. But it triggers a structured "deep dive" review where the Governor engages with raw signals and tactic-level data rather than pre-computed summaries, to verify their situational awareness is intact. Recommended defaults for N: 3–5 for monthly strategy review cadence, 2–3 for weekly tactic review cadence. Lower N increases Governor burden; higher N risks extended rubber-stamping. The Governor adjusts N based on scope risk — high-risk scopes warrant lower N.
+
+**Re-graduation after regression** `[ADVANCED]` — When a scope has been regressed from Stage N to Stage N-1, re-graduating to Stage N requires stronger evidence than first-time graduation:
+
+1. **Extended observation window.** The standard N-cycle readiness indicator window is doubled for re-graduation (e.g., if first graduation required 3 consecutive good cycles, re-graduation requires 6). This ensures the failure mode that caused regression has been genuinely resolved, not just temporarily masked.
+2. **Failure mode evidence.** The re-graduation proposal must explicitly address the specific failure mode that triggered regression. The Governor (or orchestrator at Stage 4+) must document: (a) what caused the regression, (b) what structural change was made to prevent recurrence, and (c) evidence that the structural change is working (minimum 2 review cycles of post-change data). For scopes with metric_lag tactics (§20.3): "2 review cycles" means 2 cycles after the lag window has passed for the relevant metrics — the orchestrator waits for the lag window, then observes for 2 additional cycles. If this produces an impractically long evidence window, the Governor may substitute leading indicator evidence at their discretion, logged as `evidence_type: leading_indicator_substitute`. A re-graduation proposal that only shows "N good cycles" without addressing the regression cause should be rejected — the same failure may recur under stress.
+3. **Challenge scenario targeting.** The challenge scenario (see "Crisis-aware assessment" below) for re-graduation must target the specific failure mode that caused regression. If regression occurred because the orchestrator failed to escalate a cross-domain conflict, the challenge scenario must include a cross-domain conflict. Generic challenge scenarios are insufficient for re-graduation.
+4. **Probation extension.** The post-graduation probation period is extended to 4-6 review cycles (vs. 2-4 for first-time graduation). During extended probation, any recurrence of the original failure mode triggers immediate re-regression without waiting for the probation period to end.
+
+Re-graduation history is logged in the decision log as `decision_type: graduation` with `graduation_subtype: re_graduation` and `prior_regression_id` linking to the regression decision. Scopes with 2+ regressions from the same stage are flagged as structurally limited — the Governor should consider whether the scope's complexity exceeds the system's capability at that autonomy level, rather than attempting a third re-graduation.
+
+**Graduation regression:** If a deep-dive review reveals that the Governor's situational awareness has materially degraded, the appropriate response is graduation regression: moving the scope back one stage to restore Governor engagement at a lower level. Operational indicators of degraded awareness include: (a) the Governor cannot state the current hypothesis status for ≥50% of active tactics without consulting the report, (b) the Governor is surprised by a tactic-level outcome that was reported in the previous 2+ health reports, or (c) the Governor's challenge probe response contradicts data already present in the most recent health report. These are assessed by the Governor themselves during the deep-dive — the system provides the structured review, the Governor self-assesses. *Note: the system provides the 3 computable indicators and the structured deep-dive format, but the honesty and rigor of the Governor's self-assessment is inherently outside spec control. This is a deliberate design choice — a system that could override the Governor's self-assessment would violate the non-delegable authority boundary. The challenge probe mechanism (above) serves as a partial mitigation by generating objective evidence of engagement quality.* Regression is not failure. It is the system working correctly — recognizing that the preconditions for the current autonomy level are no longer met.
+
+### 16.12 Tier 2+ Architecture Considerations `[ROBUST]`
+
+Phases 1-6 (§16.1) produce a Tier 1 system — single orchestrator, single scope, database-backed state, basic automation. Tier 2+ extends this foundation with architectural properties that Tier 1 does not require: concurrency safety, operational monitoring, and scale patterns. This section specifies what a Tier 2+ implementation must address beyond the Tier 1 build.
+
+**Concurrency model.** At Tier 2+, multiple processes may operate concurrently: orchestrator running action cycles while a health computation is in progress, multiple scopes sharing infrastructure, or background validation running alongside production execution. The implementation must guarantee:
+
+- **OD state isolation:** OD mutations use optimistic concurrency control — each mutation carries the OD version number it was computed against. If the OD has been modified since the mutation was computed (by another process or a concurrent Governor decision), the mutation is rejected with `concurrency_conflict: {expected_version, actual_version}` and recomputed. This prevents lost updates where two concurrent processes read the same OD state, compute different mutations, and the second silently overwrites the first.
+- **Signal store append-only guarantee:** Signal writes are idempotent — duplicate `signal_id` submissions are detected and deduplicated. Concurrent signal writers (e.g., multiple executors completing actions simultaneously) do not corrupt each other. Implementation: use database-level unique constraints on `signal_id` or write-ahead logging with deduplication at flush time.
+- **Health computation snapshot isolation:** Health computation reads a consistent point-in-time view of the signal store. Signals arriving during computation do not affect the current computation — they are included in the next cycle. Implementation: timestamp-based snapshots or transaction isolation levels that prevent phantom reads.
+
+**Operational monitoring.** At Tier 1, the system reports its status through health reports at review cadences. At Tier 2+, the system monitors itself continuously:
+
+- **System health dashboard:** Real-time visibility into: orchestrator cycle status (running, completed, failed), signal ingestion rate (signals per minute, by source), health computation latency (time from signal arrival to health report update), contract violation rate (violations per cycle, by contract type), Governor decision queue depth (pending decisions, average wait time).
+- **Alerting thresholds:** Configurable alerts for: orchestrator cycle failure (immediate), signal ingestion rate drop >50% from baseline (pipeline degradation §7.13.1), health computation latency exceeding 2× average (compute bottleneck), contract violation rate exceeding 5% (data quality degradation), Governor decision queue depth exceeding declared capacity (governance overload §6.1).
+- **Audit logging:** All state mutations (OD changes, signal writes, decision applications, graduation changes) are logged to an append-only audit log with: timestamp, actor (orchestrator/executor/Governor/system), operation, before-state, after-state, and trace context (which cycle, which decision triggered this). The audit log is the forensic record for debugging, compliance, and Governor review. Retention: minimum 12 months or the scope's full lifecycle, whichever is longer.
+
+**Scale patterns.** As the number of concurrent scopes, tactics, or signals grows, the Tier 1 architecture encounters bottlenecks. Tier 2+ addresses these:
+
+- **Multi-scope orchestration:** When a single Governor oversees multiple scopes (each with its own OD), the orchestrator can run scope cycles independently or coordinate shared resources. Cross-scope coordination is needed when: (a) scopes share a Governor and total governance load must be managed (§6.1 capacity validation sums across scopes), (b) scopes share a resource pool and allocation decisions affect all scopes, or (c) scopes share domain models and a model update must propagate (§18.2.7 shared memory). Implementation: each scope has its own orchestrator instance (or thread), with a coordination layer for cross-scope concerns.
+- **Signal volume management:** At high signal volumes (>1000 signals/cycle), health computation becomes a bottleneck. Tier 2+ mitigations: (a) signal triage at ingestion (§7.4) reduces store volume, (b) incremental health computation (only recompute for tactics whose input signals changed), (c) materialized views for frequently-queried aggregations (tactic health history, strategy portfolio health). The triage filter (§7.4) saves downstream cost — ingestion is O(n) per signal, but health computation is O(n × m) where m is the number of tactics. Filtering at ingestion prevents quadratic growth.
+- **Memory tier management:** At Tier 2+, the memory architecture (§18) implements physical separation between storage tiers: working memory (fast, ephemeral — in-memory or Redis), episodic memory (medium, append-only — database), structural memory (slow, curated — versioned store). The context shedding protocol (§7.13.4) operates at defined thresholds per tier. Implementation: each memory tier has its own storage backend with appropriate performance characteristics. Cross-tier promotion (episodic → structural) is a governed operation requiring strategy review approval.
+
+**Deployment and recovery.** Tier 2+ systems operate continuously and must handle deployment, upgrade, and recovery scenarios:
+
+- **Rolling upgrades:** When the orchestrator logic is updated (new version deployed), in-flight cycles must complete before the new version takes effect. Implementation: drain the current cycle, apply the upgrade, resume with the next cycle. If the upgrade changes computation definitions (§20), the first post-upgrade health report should note `computation_version_change` so the Governor is aware that health scores may not be directly comparable to pre-upgrade scores.
+- **Disaster recovery:** The minimum recovery point is the last completed cycle — all state as of that cycle can be reconstructed from the signal store (append-only), decision log (append-only), and OD (versioned). Working memory is ephemeral and does not need backup. Recovery procedure: restore signal store and decision log from backup, replay the most recent OD version, regenerate the bootstrap from the restored state. Signal store and decision log backups should be taken at least daily; OD is versioned and self-recovering.
+
+---
+
+## 17. Data Architecture
+
+### 17.1 Purpose
+
+The framework defines logical data flows: guardrails flow downward, signals flow upward, attribution connects execution to strategy. But logical flows require physical infrastructure. Data must be stored, queried, attributed, and aggregated — and it must survive the runtime environment it operates in.
+
+This section specifies the data architecture requirements that any implementation of GOSTA must satisfy. It does not prescribe specific technologies (PostgreSQL, Redis, file systems). It specifies what must be persisted, how data relates across layers, what access patterns the system requires, and what durability guarantees are non-negotiable.
+
+**Why this matters:** Most production environments are ephemeral. Containers restart. Deployments replace running instances. Local file systems reset. Any data stored only in memory or on local disk is lost on the next deployment cycle. A GOSTA implementation that stores its operating document as a local markdown file, computes signal aggregation in memory, or caches health reports in process state will lose its entire feedback loop on every restart. The system will execute but never learn — which is worse than not having a framework at all, because it creates the illusion of strategic execution without the substance.
+
+### 17.2 Five Data Stores
+
+A GOSTA implementation requires five logically distinct data stores. They may share a physical database but serve different purposes and have different access patterns.
+
+**Tier 0 note:** At Tier 0 (stateless file-based execution), the five data stores are markdown files in directories: Operating Document → `operating-document.md`, Signal Store → `signals/`, Domain Model Store → `domain-models/`, Reference Pool → `reference/`, Health Report Store → `health-reports/`. Schema enforcement is cognitive — the AI validates format at read time against the execution protocol's format specifications. The Governor should periodically audit file formats against templates (e.g., at each strategy review, spot-check that signal entries follow the signal entry format). This is weaker than programmatic validation but sufficient for Tier 0 scale.
+
+#### 17.2.1 Operating Document Store
+
+**What it holds:** The current operating document for each scope — goals, guardrails, objectives, strategies (with rationale and what-must-be-true conditions), tactics (with hypotheses and kill conditions), and review schedules. Also holds the version history of each document and the decision log.
+
+**Persistence requirement:** Durable. Must survive deployments, restarts, and infrastructure changes. The operating document is the system's primary input — losing it is equivalent to losing the strategy itself.
+
+**Access patterns:**
+
+- **Orchestrator reads** the full document at the start of each execution cycle to generate work plans.
+- **Executor agents read** the relevant tactic and action specifications when executing tasks.
+- **Governor writes** at each review cadence (tactic updates at tactic review, strategy revisions at strategy review, goal revisions at goal review).
+- **Version history is append-only.** Previous versions are never deleted or modified. The ability to correlate "what changed in the document" with "what changed in the metrics" is a diagnostic tool (Section 7.5).
+
+**Structure:** The operating document can be stored as structured data (tables with foreign key relationships) or as a versioned document (markdown/JSON). The choice depends on the implementation. Either way, the following must be queryable: all tactics under a given strategy, all strategies under a given objective, all guardrails inherited by a given tactic, and the full attribution chain for any item.
+
+**Decision log indexing.** The decision log must support querying by decision type (kill, pivot, persevere, rebalance, pause, resume, revise_objective, resolve_conflict, graduation, wmbt_refinement, pivot_override, portfolio_rebalance `[ROBUST]`, governor_succession `[ROBUST]`, guardrail_recovery `[ROBUST]`, precondition_override `[ROBUST]`, child_scope_disposition `[ADVANCED]`, decision_reversal `[ADVANCED]`), by target entity (tactic, strategy, objective), and by date range. At scope conclusion or at Governor request, the orchestrator generates a decision log summary: total decisions by type, key turning points, and a timeline of strategic direction changes. For long-running scopes, the decision log is the primary audit artifact — its queryability is not optional.
+
+**Decision reversal schema** `[ADVANCED]`: entries with `decision_type: decision_reversal` carry additional fields: `original_decision_id` (ID of decision being reversed), `original_decision_type` (kill | pivot | rebalance), `reversal_reason` (human-readable), `new_evidence` (evidence contradicting original, with `evidence_confidence` per §16.11.1 formula), `reversal_type` (orchestrator_autonomous | governor_override), and — for orchestrator-autonomous reversals — `eligibility_check` (kill_window_valid, pivot_window_valid, confidence_threshold_met: booleans). Reversals and original decisions are cross-linked via `original_decision_id` for audit queries.
+
+**Authorization tracking** `[ROBUST]` **(§8.2):** OD elements that can be created or modified autonomously (tactics at Stage 3+, allocation weights after renormalization, guardrail recovery adjustments) carry an `authorized_by` field: `DEC-[id]` for decision-backed changes, `GOV-[session]` for bulk authoring, `SYSTEM-[mechanism]` for automated adjustments. This field enables the reconciliation check (§8.2.3) at strategy review. At Tier 0, `authorized_by` is a text annotation in the OD file. At Tier 1+, it is a queryable field on OD elements supporting reconciliation queries.
+
+**Staleness and Update Triggers:**
+
+The operating document is a living configuration, not a historical artifact. The following events trigger a mandatory OD review (not necessarily a change, but an explicit assessment of whether the OD still reflects current reality):
+
+- **Scoring reveals unexpected pattern:** When feature/tactic scoring (§20.10) produces rankings that contradict the OD's strategy rationale or WMBT assumptions.
+- **Governor makes a sequence/priority decision:** When the Governor selects a build sequence or reprioritizes tactics, the OD's strategy and tactic layers must reflect this choice.
+- **Kill condition is evaluated:** When a kill condition is assessed (met or not), the OD's tactic specification should record the assessment result.
+- **External event changes constraints:** When a regulatory change, competitive move, or market shift alters the operating environment described in the OD's guardrails or strategy rationale.
+
+The orchestrator should flag OD staleness when the operating document has not been reviewed for more than 2 phase gates (finite scope) or 2 strategy review cycles (ongoing scope). Staleness is not an error — it is a signal that should be surfaced to the Governor.
+
+#### 17.2.2 Signal Store
+
+**What it holds:** Every signal emitted by every action, with full attribution. This is the raw data that the feedback loop operates on.
+
+**Persistence requirement:** Durable and append-only. Signals are never modified or deleted. They are the ground truth for tactic health, strategy validation, and objective progress. Losing signals means the system cannot compute health, cannot evaluate kill conditions, and cannot compare A/B tests. The feedback loop is destroyed.
+
+**Schema per signal:**
+
+```
+signal_id:        Unique identifier
+action_id:        Which action emitted this signal (null for milestone signals)
+tactic_id:        Parent tactic (inherited from action; null for organic milestones)
+strategy_id:      Parent strategy (inherited from tactic; null for organic milestones)
+objective_id:     Parent objective (inherited from strategy)
+goal_id:          Parent goal (inherited from objective)
+signal_type:      completion | metric | blocker | status | knowledge_flag |
+                  milestone | absence [ROBUST] | stakeholder_interaction [ROBUST] |
+                  environmental [ROBUST] |
+                  agent_degradation | signal_pipeline_degradation [ROBUST] |
+                  signal_pipeline_failure [ROBUST]
+timestamp:        When the signal was emitted
+source:           Which system the data came from (Section 14.3.3),
+                  OR: external_milestone (for milestone signals),
+                  OR: organic (for unattributed milestone signals, §7.4)
+source_timestamp: When the data was retrieved from the source system
+method:           How the metric was calculated (if derived)
+confidence:       complete | partial | estimated
+payload:          Signal-specific data (completion status, metric value,
+                  blocker description, etc.)
+```
+
+The full attribution chain (action → tactic → strategy → objective → goal) is denormalized onto every signal. This is deliberate — it allows aggregation at any level without joins across the operating document store, and it survives even if the operating document is restructured between review cycles.
+
+**Access patterns:**
+
+- **Executor agents write** signals after each action completion.
+- **Orchestrator reads** signals per tactic_id for tactic health computation.
+- **Orchestrator reads** signals per strategy_id for strategy validation.
+- **Orchestrator reads** signals per objective_id for objective progress.
+- **A/B comparison queries** filter two sets of signals by their respective tactic_ids or strategy_ids and compare on shared metrics.
+- **Time-windowed queries** are common: "all signals for tactic X since last review date."
+
+**Volume:** Signal volume scales with action volume. A system executing 50 actions/week generates ~50-200 signals/week (some actions emit multiple signals). This is modest for any production database.
+
+#### 17.2.3 Domain Model Store
+
+**What it holds:** The structured domain models for each domain — core concepts, relationships, guardrail vocabulary, hypothesis libraries, quality principles, anti-patterns. See Section 13.3 for the schema.
+
+**Persistence requirement:** Durable, versioned. Domain models evolve as the organization learns — new concepts added, anti-patterns updated, hypothesis libraries expanded based on A/B test results. Every version must be preserved.
+
+**Schema per domain model record:**
+
+```
+model_id:           Unique identifier
+domain_name:        Human-readable domain name (e.g., "marketing", "content-operations")
+version:            Integer, monotonically increasing per domain_name
+created_at:         Timestamp when this version was created
+created_by:         Governor ID or "structural_memory_transfer"
+change_summary:     What changed from the previous version
+                    (e.g., "Added anti-pattern: feature-listing posts.
+                    Calibrated engagement norm from 3% to 4.2%.")
+predecessor_id:     model_id of the previous version (null for v1)
+content:
+  core_concepts:    [] (see Section 13.3)
+  relationships:    [] (see Section 13.3)
+  guardrail_vocab:  [] (see Section 13.3)
+  hypothesis_lib:   [] (see Section 13.3)
+  quality_principles: [] (see Section 13.3)
+  anti_patterns:    [] (see Section 13.3)
+  regression_tolerance: { cycles: N, documented_patterns: [] }
+                        (optional, [ROBUST] — see Section 20.3)
+component_counts:
+  core_concepts:    N
+  relationships:    N
+  guardrail_vocab:  N
+  hypothesis_lib:   N
+  quality_principles: N
+  anti_patterns:    N
+```
+
+The `component_counts` field enables completeness validation (see below) without parsing the full content. The `predecessor_id` chain provides version history without requiring a separate versioning table.
+
+**Access patterns:**
+
+- **Orchestrator reads** relevant domain models when generating work plans (to apply hypothesis templates and validate against anti-patterns).
+- **Executor agents read** quality principles and anti-patterns when generating content or validating output at the action level.
+- **Schema validator reads** anti-patterns when checking agent output.
+- **Domain experts write** when curating or updating domain knowledge. This is infrequent — typically at strategy review cadence or less.
+- **Structural memory transfer writes** proposed updates at strategy review cadence (see evolution protocol below).
+- **Version queries** retrieve the domain model version that was active at a given timestamp — required for post-hoc analysis of why a tactic produced specific output.
+
+**Retrieval protocol:** Domain models are primarily consumed by LLM-based agents as context. They are loaded into the agent's context window when the agent operates within that domain. The store must support two retrieval modes:
+
+1. **Full retrieval** — the complete domain model by domain name. Used by the orchestrator at strategy review (when evaluating what-must-be-true conditions against domain fundamentals) and by executors when generating high-stakes deliverables. Models are text-heavy and relatively small (30-50KB each) — they can be stored as structured documents or as database rows, depending on how the agent pipeline consumes them.
+
+2. **Section retrieval** — specific components by domain name and component type. Used by the orchestrator at action cycle (loads only hypothesis library and anti-patterns, not the full model) and by the schema validator (loads only anti-patterns). This reduces context consumption when the agent doesn't need the full model.
+
+The retrieval mode is determined by the context loading protocols in Section 18.4. The orchestrator's action cycle loads domain model summaries; detailed sections are fetched on demand using the Summary/Full pattern from Section 18.3. The orchestrator's strategy review loads full domain models because it must evaluate domain fundamentals holistically.
+
+When domain model stacking is required (Section 13.7), the orchestrator retrieves all relevant domain models and loads them into the same context. The store must support retrieval of multiple domain models in a single query by providing a list of domain names.
+
+**Evolution protocol:** Domain models evolve through three enrichment vectors within structural memory transfer (Section 19.8): internal failure learning, internal success learning, and external knowledge acquisition. Each vector produces domain model change proposals — not direct writes. The schema for a change proposal:
+
+```
+proposal_id:        Unique identifier
+domain_name:        Which domain model this proposes to change
+proposed_by:        "structural_memory_transfer" or Governor ID
+proposed_at:        Timestamp
+enrichment_vector:  internal_failure | internal_success | external_knowledge
+trigger:            What prompted this proposal
+                    (e.g., "strategy_review:S-2026-Q1",
+                    "tactic_kill:T-A2", "tactic_success:T-A1",
+                    "ab_winner:T-A1_vs_T-A2", "knowledge_flag:KF-42",
+                    "governor_manual", "domain_gap_detected")
+changes:
+  - component:      Which component (e.g., "anti_patterns", "hypothesis_lib",
+                    "quality_principles", "core_concepts")
+    action:         add | modify | remove | calibrate | validate
+    target:         Identifier of existing item (for modify/remove/calibrate/validate)
+    content:        The new or modified item
+    evidence:       What signals, kills, successes, or external sources support
+                    this change. For internal vectors: signal data, health reports,
+                    A/B results. For external vector: source reference, relevance
+                    assessment, note that this is untested internally.
+                    (e.g., "Tactic A2 killed: thread posts outperformed
+                    short-form 3:1 over 6 weeks. Tactic B1 confirmed same
+                    pattern independently."
+                    OR "Tactic A1 completed with hypothesis exceeded:
+                    practitioner-insight posts averaged 5.2% engagement vs
+                    3% target over 8 weeks."
+                    OR "Industry report [source]: new best practice for
+                    [topic]. Not yet tested internally.")
+status:             proposed | approved | rejected
+decided_by:         Governor ID (null while proposed)
+decided_at:         Timestamp (null while proposed)
+decision_note:      Governor's reasoning for approve/reject (null while proposed)
+```
+
+**Critical rule:** Change proposals require Governor approval before being applied to the domain model (Section 6.1, authority #7). The Governor evaluates each proposal against three criteria: (a) **accuracy** — does the proposed change reflect what actually happened or what the evidence shows, not a generalization or misinterpretation? (b) **source quality** — for internal vectors, is the evidence based on sufficient data (2+ cycles, statistically meaningful signal)? For external vectors, is the source authoritative and current? (c) **scope applicability** — does the change apply to this domain model's scope, or is it an artifact of a specific tactic/context that should not be generalized? A proposal that fails any criterion should be rejected with a `decision_note` explaining which criterion failed and why. When a proposal is approved, the store creates a new version of the domain model with the changes applied, increments the version number, and links to the predecessor version. The proposal record is retained as an audit trail.
+
+Multiple proposals can be batched into a single version increment — if a strategy review produces three change proposals and the Governor approves all three, one new version is created with all three changes applied.
+
+**Completeness validation:** A domain model without all six components (Section 13.3) is structurally incomplete. The store should enforce minimum completeness at write time:
+
+| Component | Tier 0 Minimum | Minimum for v1 | Required by strategy review 2 |
+|-----------|----------------|----------------|-------------------------------|
+| Core Concepts | 3+ entries | 3+ entries | 5+ entries |
+| Concept Relationships | 0 | 0 (can be empty initially) | 3+ entries |
+| Guardrail Vocabulary | 0 | 2+ entries | 3+ entries |
+| Hypothesis Library | 0 | 2+ entries | 3+ entries |
+| Quality Principles | 3+ entries | 3+ entries | 5+ entries |
+| Anti-Patterns | 2+ entries | 2+ entries | 5+ entries |
+
+**Tier 0 note:** At Tier 0 (stateless file-based execution), the minimum viable domain model requires only Core Concepts (3+), Quality Principles (3+), and Anti-Patterns (2+). The remaining three components (Concept Relationships, Guardrail Vocabulary, Hypothesis Library) add rigor but are not essential for manual scoring and decision-making. Execution protocols (Section 22) operating at Tier 0 may use this reduced minimum. The full 6-component schema remains required at Tier 1+. **If extending a 3-component model to 4 components, add the Hypothesis Library first** — simulation testing demonstrated it is the single highest-value component above the floor, generating non-obvious strategic recommendations (e.g., compliance-positioning insights) that the other three components cannot produce alone. Never run analysis against a keyword-only or name-only domain model — these produce zero analytical value (no tensions, no reframing, only summaries indistinguishable from general-purpose AI output).
+
+A domain model that fails minimum completeness for v1 is flagged to the Governor but not rejected — the first cycle may produce an incomplete model that gets enriched through structural memory transfer. A domain model that still fails the "strategy review 2" thresholds after two full strategy cycles should be escalated: the system is accumulating execution history without codifying what it learns.
+
+**Cross-domain conflict resolution:** When stacked domain models (Section 13.7) produce conflicting guidance, the conflict must be recorded and surfaced rather than silently resolved:
+
+```
+conflict_id:        Unique identifier
+detected_at:        Timestamp
+detected_during:    Which cycle or process detected it
+                    (e.g., "action_cycle:2026-W10", "work_plan_generation")
+domain_a:           First domain model name
+domain_b:           Second domain model name
+component_a:        Specific item in domain A
+                    (e.g., "quality_principle: post when insight is fresh")
+component_b:        Specific item in domain B
+                    (e.g., "quality_principle: post at optimal engagement windows")
+conflict_type:      timing | priority | constraint | approach
+description:        Human-readable explanation of the conflict
+resolution:         pending | domain_a_priority | domain_b_priority |
+                    context_dependent | merged
+resolved_by:        Governor ID or strategy owner ID
+resolution_note:    How and why this was resolved
+applies_to:         Which strategies/tactics this resolution covers
+                    (a resolution may apply only within a specific
+                    strategy's scope, not globally)
+```
+
+Resolved conflicts are persisted and checked on subsequent cycles. If the same conflict recurs in a different strategy scope, the previous resolution is surfaced as precedent but not automatically applied — the strategy owner may resolve it differently based on context.
+
+**Volume:** Domain model volume scales with the number of domains the system operates in, not with execution volume. A typical system has 2-5 domain models, each versioned infrequently (once per strategy review cycle or less). Storage requirements are minimal — the evolution protocol and conflict resolution records are the primary growth vectors, and these grow at strategy review cadence (quarterly or less).
+
+#### 17.2.4 Reference Pool
+
+**What it holds:** Raw reference materials that agents need to produce deliverables — source articles, brand assets, images, audio files, video clips, documents, URLs, discovered items, prior deliverables, templates, competitor examples, regulatory texts, and any other unstructured material that is too raw for domain models, too large for working memory, and too varied for signals.
+
+The Reference Pool fills a gap between the other stores. Domain models hold codified knowledge (concepts, principles, anti-patterns). Signals hold structured execution data. The operating document holds strategic logic. Health reports hold computed assessments. But none of these hold the raw materials an agent needs to actually produce work — the article that an executor references when writing a commentary post, the brand voice guide that constrains tone, the competitor screenshot that informs positioning, the research paper that a knowledge flag pointed to, the Governor's notes from a conference.
+
+**Persistence requirement:** Durable. Reference materials are consumed repeatedly across cycles — a brand voice guide is referenced on every content action, not just once. Losing the reference pool degrades output quality silently: the system continues executing but produces work without consulting its source materials.
+
+**Schema per reference item:**
+
+```
+item_id:            Unique identifier
+title:              Human-readable name
+item_type:          text | image | audio | video | document | url |
+                    prior_deliverable | template | dataset
+consumption_role:   options-universe | context
+                    options-universe = material containing the items
+                    being evaluated, sequenced, or prioritized by the
+                    session (e.g., feature inventory, product backlog,
+                    strategy alternatives). The orchestrator MUST read
+                    these before generating tactics in the OD.
+                    context = background material informing understanding
+                    (e.g., market research, competitive analysis, brand
+                    guides). Read as needed during execution.
+                    Default: context.
+media_type:         MIME type (e.g., "text/markdown", "image/png",
+                    "application/pdf", "video/mp4")
+content:            The actual content (inline for text; storage
+                    reference for binary files)
+storage_ref:        URI/path for binary content (null for inline text)
+source:             Where this item came from
+                    (e.g., "governor_upload", "executor_discovery",
+                    "external_url", "prior_action:A-42",
+                    "knowledge_flag:KF-17")
+source_url:         Original URL if applicable
+added_by:           Governor ID, executor agent ID, or orchestrator
+added_at:           Timestamp
+scope:
+  goal_id:          Which goal this relates to (optional)
+  objective_id:     Which objective (optional)
+  strategy_id:      Which strategy (optional)
+  tactic_id:        Which tactic (optional)
+  domain_name:      Which domain (optional)
+tags:               [] (free-form tags for retrieval)
+relevance_status:   active | archived | superseded
+superseded_by:      item_id of replacement (null unless superseded)
+last_accessed:      Timestamp of last retrieval by an agent
+access_count:       Number of times retrieved
+notes:              Human or agent annotations about the item
+```
+
+The `scope` fields are optional and cumulative — a reference item may be scoped to a specific tactic (narrow) or only to a goal (broad). Items scoped to a strategy are available to all tactics under that strategy. Items with no scope fields are available system-wide (e.g., brand guidelines, organizational style guides).
+
+**Access patterns:**
+
+- **Governor writes** reference items at any time — uploading source material, brand assets, reference documents, conference notes. This is the primary intake path.
+- **Executor agents write** when they discover relevant external material during action execution. An executor researching a topic may find a competitor article, a research paper, or a regulatory update worth preserving. The executor stores it in the Reference Pool and may also emit a `knowledge_flag` signal if the material suggests domain model changes (Section 7.4).
+- **Orchestrator reads** when generating work plans — selects reference items relevant to each action and includes them (or pointers to them) in the action specification. Items with `consumption_role: options-universe` must be read before tactic generation — they contain the items being evaluated and are the source for candidate tactics. Items with `consumption_role: context` are selected per-action based on relevance scoring.
+- **Executor agents read** reference items specified in the action specification, plus any items they retrieve on demand by scope or tag during execution.
+- **Orchestrator reads** prior deliverables when computing health and evaluating quality trends.
+
+**Retrieval protocol:** The Reference Pool must support four retrieval modes:
+
+1. **By scope** — all active items for a given strategy, tactic, or domain. Used by the orchestrator when assembling action specifications.
+2. **By type** — all items of a specific `item_type` within a scope. Used when an executor needs, e.g., all images for a content piece.
+3. **By tag** — keyword-based retrieval. Used for ad-hoc lookups during execution.
+4. **By source** — all items from a specific source (e.g., all prior deliverables from a completed tactic). Used during strategy review to assess output quality trends.
+
+**Relevance scoring:** When a retrieval query returns more items than the agent's context budget allows, items are ranked by a composite score combining three factors. Default weights (implementations may adjust):
+
+1. **Scope specificity** (weight: 0.5). Items scoped to the current tactic score 1.0; parent strategy scores 0.7; objective scores 0.4; unscoped (system-wide) scores 0.2. A brand voice guide (unscoped) is always available but yields priority to a tactic-specific reference article.
+
+2. **Recency of last access** (weight: 0.3). Score = 1.0 if accessed in the current strategy cycle, 0.5 if accessed in the previous cycle, 0.2 if older. Items not accessed in the current strategy cycle are deprioritized but not excluded.
+
+3. **Access frequency** (weight: 0.2, tiebreaker). Score = min(1.0, access_count / 10). Items accessed more often across cycles have demonstrated repeated utility. This breaks ties when scope and recency are equal.
+
+Composite score = (0.5 × scope_score) + (0.3 × recency_score) + (0.2 × frequency_score). Items are returned in descending composite score order.
+
+The orchestrator applies this scoring when assembling action specifications (selecting which reference items to include). Executors apply it when retrieving additional items on demand during execution. The scoring is advisory — the orchestrator may override it when domain context suggests a rarely-accessed item is critical for a specific action (e.g., a regulatory text accessed once per quarter but mandatory for compliance-sensitive content).
+
+Items with `relevance_status: archived` or `superseded` are excluded from scoring entirely — they do not appear in ranked results unless explicitly requested.
+
+**Lifecycle:**
+
+- **Intake:** Items enter through Governor upload, executor discovery, or orchestrator archival of prior deliverables. Every item gets a scope assignment (even if broad) and at least one tag.
+- **Deduplication at intake:** Before adding a new item, the store checks for existing items with matching content. Two items are considered duplicates if any of the following match: (a) identical `source_url`, (b) identical `title` within the same `scope` and `item_type`, or (c) content hash match for inline text items. When a duplicate is detected, the existing item is retained and its metadata is updated (tags merged, scope broadened if the new submission has a wider scope, `notes` appended). The new submission is not created as a separate entry. This prevents silent accumulation of identical reference materials across intake paths — particularly when multiple executors independently discover the same external source, or when a Governor re-uploads material already in the pool.
+- **Active use:** Active items are available for retrieval. The `last_accessed` and `access_count` fields track usage. Items not accessed for two full strategy cycles are candidates for archival.
+- **Archival:** Archived items remain in the store but are excluded from default retrieval queries. They can be restored if needed. Archival is triggered by: scope completion (tactic killed or completed), relevance decay (not accessed across multiple strategy cycles), or Governor decision.
+- **Supersession:** When a newer version of a reference item replaces an older one (updated brand guide, revised regulatory text), the old item is marked `superseded` and points to the replacement. Both remain in the store for historical reference.
+
+**Relationship to other stores:**
+
+- **Signal Store → Reference Pool:** When an executor emits a signal with `signal_type: knowledge_flag`, the referenced external material should be stored in the Reference Pool if it has lasting value. The knowledge flag is the signal; the Reference Pool item is the material itself.
+- **Reference Pool → Domain Model Store:** Reference material that gets codified into a domain model change proposal (Section 17.2.3, evolution protocol) retains its Reference Pool entry as the source evidence. The change proposal's `evidence` field can reference the `item_id`.
+- **Reference Pool → Signal Store:** Prior deliverables produced by executors (the output of actions) can be archived into the Reference Pool for future reference. The signal's `deliverable_reference` field points to the deliverable; the Reference Pool preserves it for cross-cycle access.
+- **Operating Document Store → Reference Pool:** The operating document may reference specific Reference Pool items (e.g., "see brand voice guide [RP-12]" in a guardrail description). These references are informational, not structural — the operating document remains self-contained.
+
+**Volume:** Reference Pool volume scales with execution volume and Governor input, not with framework cycles. A content-heavy scope might accumulate 50-200 reference items per strategy cycle. Binary files (images, audio, video) should use object storage (S3, GCS) with the Reference Pool storing only metadata and a `storage_ref` pointer. Text-based items can be stored inline.
+
+#### 17.2.5 Health Report Store
+
+**What it holds:** Computed health reports at tactic, strategy, objective, and goal levels. These are derived from signals — they are not raw data but computed aggregations.
+
+**Persistence requirement:** Durable. Health reports are the Governor's primary review input. They must survive between review cadences. Losing health reports between cycles means the orchestrator must recompute from raw signals, which is possible but wasteful, and the Governor loses the ability to track health trends across cycles.
+
+**Schema per tactic health report:**
+
+```
+report_id:              Unique identifier
+tactic_id:              Which tactic this evaluates
+strategy_id:            Parent strategy
+cycle_date:             When this report was computed
+hypothesis_status:      holding | weakening | disproven
+metric_current:         Current values for each success metric
+metric_target:          Target values for each success metric
+metric_trend:           improving | flat | declining (per metric)
+actions_completed:      N of M planned actions completed
+actions_blocked:        Count and descriptions of blocked actions
+kill_condition_status:  safe | approaching | met
+human_creative_input:   planned vs. actual input rate (Section 4.4)
+effectiveness_adjusted: metrics computed over executed actions only
+underperformance_source: capability_issue | autonomy_issue | mixed | not_applicable
+                        (Section 6.5; populated only when hypothesis_status
+                        is weakening or disproven)
+signal_divergence:      null | { diverging_metrics: [], direction: [],
+                        hypothesized_cause: capability_shift | lag_effect |
+                        approach_drift | audience_quality_shift,
+                        (Selection tree: if action parameters changed
+                        since last review → approach_drift. Else if
+                        leading indicator changed direction within last
+                        2 cycles but lagging has not → lag_effect. Else
+                        if volume metric improving but conversion metric
+                        flat/declining → audience_quality_shift. Else →
+                        capability_shift as default.)
+                        diagnostic_metric: [the metric closest to
+                        objective success metric] }
+                        (Section 4.1; populated when leading indicators
+                        diverge directionally within the tactic)
+recommended_decision:   persevere | pivot | kill
+reasoning:              Why the orchestrator recommends this decision
+computation_trace:      [ROBUST] See §20.1 computation trace requirement.
+                        Includes: signals_included, signals_excluded,
+                        intermediate_scores, thresholds_applied,
+                        recommendation_basis.
+```
+
+**Schema per strategy health report:**
+
+```
+report_id:              Unique identifier
+strategy_id:            Which strategy this evaluates
+objective_id:           Parent objective
+cycle_date:             When this report was computed
+what_must_be_true:      Status of each condition (assumed | holding | confirmed | at_risk | falsified)
+tactic_portfolio:       Summary of all tactics (active, killed, succeeding, failing)
+approach_validation:    confirmed | uncertain | disproven
+resource_efficiency:    How effectively resources are converting to results
+recommended_decision:   persevere | pivot | kill
+reasoning:              Why the orchestrator recommends this decision
+computation_trace:      [ROBUST] See §20.1 computation trace requirement.
+coherence_check:        [ROBUST] See §8.1. Results of semantic coherence
+                        validation run at this review cycle.
+                        { invariants_checked: [list],
+                          flags: [{ invariant, entity, detail, response }],
+                          reconciliation: { decisions_checked: N,
+                            state_mismatches: N, unauthorized_elements: N } }
+```
+
+**Schema per goal health report `[ROBUST]`:**
+
+```
+report_id:              Unique identifier
+goal_id:                Which goal this evaluates
+cycle_date:             When this report was computed
+objective_portfolio:    Status of each objective (on_track | at_risk | failing | exceeded)
+portfolio_assessment:   strong | moderate | weak (from §20.12)
+environmental_alignment: aligned | drifting | misaligned (from §20.12)
+environmental_inputs:   List of environmental signals and sources used
+goal_health:            healthy | at_risk | reassess (from §20.12)
+recommendation:         maintain | investigate | reassess
+reasoning:              Why the orchestrator recommends this assessment
+computation_trace:      [ROBUST] See §20.1 computation trace requirement.
+```
+
+**Access patterns:**
+
+- **Orchestrator writes** after each aggregation cycle (action cycle for tactics, tactic cycle for tactic summaries, strategy cycle for strategies, goal review for goals).
+- **Governor reads** at each review cadence via the approval UI.
+- **Trend queries** compare reports across cycles: "show me tactic X's health over the last 6 weeks."
+- **Trace queries** `[ROBUST]` retrieve the computation trace for a specific report: "show me why tactic X was recommended for kill in cycle 12."
+- **Coherence queries** `[ROBUST]` retrieve coherence check results: "show me all invariant flags from the last 3 strategy reviews." **Reconciliation queries** `[ROBUST]` (§8.2.3): "show me OD elements without valid `authorized_by` references."
+
+### 17.3 Relationships and Attribution
+
+The data architecture enforces the five-layer hierarchy through foreign key relationships. Every item in the system traces upward to a goal.
+
+```
+goal
+  └── objective (FK: goal_id)
+        └── strategy (FK: objective_id)
+              └── tactic (FK: strategy_id)
+                    └── action (FK: tactic_id)
+                          └── signal (FKs: action_id, tactic_id,
+                                       strategy_id, objective_id, goal_id)
+```
+
+**Denormalization on signals:** Signals carry the full attribution chain, not just the parent action_id. This is intentional:
+
+- Aggregation by tactic doesn't require joining through the action table.
+- Aggregation by strategy doesn't require joining through the tactic table.
+- If the operating document is restructured (a tactic is moved from one strategy to another), historical signals retain their original attribution. The system can answer "what happened under the old structure" without retroactive reassignment.
+- In ephemeral environments, minimizing join complexity reduces the chance of inconsistent state during partial restarts.
+
+**Cascading implications:** When a tactic is killed, its actions stop executing but its signals remain. When a strategy is killed, its tactics are wound down but all historical signals, health reports, and decision log entries remain. Nothing is deleted — the decision log (Section 9.2) records what was killed and why, and the signal history provides the evidence base for why the kill was correct.
+
+### 17.4 Durability Requirements
+
+| Store | Durability | Reason |
+|-------|-----------|--------|
+| Operating Document | Must survive deployment | Loss = loss of strategy. System cannot function. |
+| Signals | Must survive deployment | Loss = feedback loop destroyed. System executes but cannot learn. |
+| Domain Models | Must survive deployment | Loss = domain knowledge gone. Agents produce structurally valid but substantively empty output. |
+| Reference Pool | Must survive deployment | Loss = source material gone. Agents produce deliverables without reference grounding. Quality degrades silently. |
+| Health Reports | Must survive deployment | Loss = Governor loses review inputs. Recomputable from signals but wasteful. |
+
+**Non-negotiable:** All five stores must use durable, external persistence. In-memory storage, local file systems on ephemeral containers, and process-local caches are insufficient for any of these stores.
+
+**Acceptable implementations:** Managed databases (PostgreSQL, MySQL), managed document stores (MongoDB Atlas, Firestore), managed object storage (S3 for domain models, operating documents, and Reference Pool binary items), managed Redis with persistence (for caching, not as primary store). The specific choice depends on the implementation environment — the requirement is durability, not technology.
+
+**Caching is permitted but not sufficient:** Health reports, domain models, and frequently accessed reference items can be cached in memory or in Redis for fast access during an execution cycle. But the cache is a performance optimization, not the system of record. The durable store is the system of record. Cache invalidation must occur when the underlying data changes.
+
+### 17.5 Data Flow Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                   DURABLE DATA STORES                           │
+│                                                                 │
+│  ┌──────────────┐  ┌──────────────┐  ┌────────────────────────┐ │
+│  │  Operating   │  │  Domain      │  │  Signal Store          │ │
+│  │  Document    │  │  Models      │  │  (append-only)         │ │
+│  │  Store       │  │  Store       │  │                        │ │
+│  └──────┬───────┘  └──────┬───────┘  └───────────┬────────────┘ │
+│         │                 │                      │              │
+│  ┌──────┴──────┐   ┌──────┴──────────────────────┴────────────┐ │
+│  │  Reference  │   │            Health Report Store            │ │
+│  │  Pool       │   │                                          │ │
+│  └──────┬──────┘   └────────────────────┬─────────────────────┘ │
+└─────────┼───────────────────────────────┼───────────────────────┘
+          │                               │
+        ┌─┴─────────────────────┬─────────┘
+        │                       │                       │
+        ▼                       ▼                       ▼
+┌───────────────┐    ┌──────────────────┐    ┌──────────────────┐
+│  Orchestrator │    │  Executor Agents │    │  Governor /      │
+│               │    │                  │    │  Approval UI     │
+│ Reads:        │    │ Reads:           │    │ Reads:           │
+│ - Op Doc      │    │ - Op Doc (tasks) │    │ - Health Reports │
+│ - Signals     │    │ - Domain Models  │    │ - Work Plans     │
+│ - Domain Mdls │    │ - Ref Pool items │    │ - Decision Log   │
+│ - Ref Pool    │    │                  │    │ - DM proposals   │
+│               │    │ Writes:          │    │                  │
+│ Writes:       │    │ - Signals        │    │ Writes:          │
+│ - Health Rpts │    │ - Ref Pool items │    │ - Op Doc changes │
+│ - Work Plans  │    │   (discoveries)  │    │ - Decisions      │
+│ - DM change   │    │                  │    │ - DM approvals   │
+│   proposals   │    │                  │    │ - Ref Pool items │
+└───────────────┘    └──────────────────┘    └──────────────────┘
+```
+
+### 17.6 Implementation Sequence Integration
+
+The data architecture maps to the implementation phases from Section 16:
+
+- **Phase 0 (Operating Document):** Create the operating document store. Persist the first operating document.
+- **Phase 1 (Attribution):** Add the attribution fields (tactic_id, strategy_id, objective_id, goal_id) to the data model. This is a schema change on the signal store and the content/output tables.
+- **Phase 2 (Signal Emission):** Build the signal store. Implement signal writing from executor agents with full attribution and provenance.
+- **Phase 3 (Schema Validation):** Implement validation against the operating document store — every agent-produced object must conform to the framework structure before being persisted.
+- **Phase 4 (Orchestrator):** Build the health report store. Implement the orchestrator's read-aggregate-compute-write cycle.
+- **Phase 5 (Domain Store + Reference Pool):** Build the domain model store with versioning, retrieval (full and section-level), evolution protocol (change proposals with Governor approval), completeness validation, and cross-domain conflict resolution. Load domain models and make them retrievable by domain name for agent context injection. Implement domain model stacking for multi-domain scopes. Build the Reference Pool with scope-based retrieval, lifecycle management (active/archived/superseded), and intake paths for Governor uploads, executor discoveries, and prior deliverable archival. Connect Reference Pool items to action specifications so executors receive relevant source material with each task.
+- **Phase 6 (Approval UI):** Build the read interface for health reports, work plans, and decision logs. Build the write interface for operating document changes, decision recording, and reference material upload.
+
+---
+
+## 18. Memory Architecture `[ROBUST]`
+
+### 18.1 Purpose
+
+Section 17 specifies where data lives so it survives deployments. This section specifies how agents *use* that data — how they remember across time, at what granularity, and how they load only what they need instead of everything.
+
+The core problem: agents operating within the GOSTA framework are stateless. Each orchestrator cycle, each executor run, each review computation starts with an empty context. The agent has no built-in memory of previous cycles. Everything it knows must be loaded from the data stores defined in Section 17. But loading everything is impractical — a full operating document, all historical signals, all domain models, and all health reports will exceed any agent's context window.
+
+The memory architecture solves this with a principle: **every memory entity has a summary form and a full form.** The summary is compact — a few lines that fit in context alongside hundreds of other summaries. The full form is complete — the detailed record that loads on demand when the summary indicates relevance. Summaries are the index. Full forms are the content. Context holds the index; stores hold the content.
+
+This is the same pattern used in retrieval-augmented generation, document indexing, and human memory itself: you don't hold every detail in working memory. You hold pointers and fetch details when triggered.
+
+### 18.2 Memory Taxonomy
+
+The memory architecture distinguishes six memory types organized into three storage tiers (working, episodic, structural) and three functional types that cross-cut the tiers (procedural, prospective, meta-memory). At Tier 3 with multi-scope hierarchies, a seventh type — shared memory — enables cross-scope learning. Sections 18.2.1–18.2.3 define the storage tiers. Sections 18.2.4–18.2.7 define the functional types.
+
+#### Storage Tiers
+
+#### 18.2.1 Working Memory (Short-Term, Per-Cycle)
+
+**What it is:** The agent's context window during a single execution cycle. Built fresh every cycle from the data stores. Discarded after the cycle completes.
+
+**What it holds:** Only what the current cycle requires.
+
+For an **orchestrator action cycle**:
+- Operating document summary: goals (names + guardrails), objectives (names + metrics + deadlines), strategies (names + what-must-be-true status), tactics (names + hypothesis status + kill condition status)
+- Signals since last cycle (full, because these are the new data being processed)
+- Latest health report summaries for all active tactics and strategies
+- Domain model summaries (concept list + key guardrails, not full definitions)
+- Last 5 decision log entries (full)
+
+For an **executor cycle** (per-action):
+- The specific action specification (full)
+- The parent tactic's hypothesis, success metrics, and guardrails (full)
+- The parent strategy's rationale and what-must-be-true conditions (summary — executor needs to know the approach constraint but not the full competitive analysis)
+- Relevant domain model quality principles and anti-patterns (full — these are the quality gate for output)
+- Inherited guardrails from all layers (full — these are hard constraints)
+- Reference materials specified in the action specification (from Reference Pool — source articles, brand guides, templates, prior deliverables selected by the orchestrator for this action)
+
+For a **health computation cycle** (tactic review / strategy review):
+- All signals for the target tactic or strategy within the review window (full)
+- Previous health reports for the target (last 3-4 cycles, full — for trend detection)
+- Kill condition / what-must-be-true definitions (full)
+- Decision log entries related to this tactic/strategy (full)
+
+**Persistence:** None. Working memory is the context window. It exists for the duration of one agent invocation and is discarded.
+
+**Loading protocol:** Each agent type has a defined loading sequence — what it loads, from which store, in what order. See Section 18.4.
+
+#### 18.2.2 Episodic Memory (Medium-Term, Cross-Cycle)
+
+**What it is:** Summarized records of what happened in recent cycles. Not raw signals — those are in the signal store. Episodic memory is the *interpreted* record: what was decided, what was observed, what changed.
+
+**What it holds:**
+
+**Tactic episode summaries:** One per tactic per cycle. Contains: hypothesis status, key metric values and trends, actions completed, blockers encountered, notable observations. 3-5 sentences maximum. Generated by the orchestrator at the end of each cycle.
+
+Example:
+```
+TACTIC: Expert Content Series (A1)
+CYCLE: Week 6 of 8
+STATUS: Holding. Follower MoM at 16.2% (target: 15%).
+KEY SIGNAL: Thread-format posts generating 3x engagement vs. standard posts.
+BLOCKER: Governor input rate at 40% of planned (2 of 5 observations delivered).
+DECISION: Persevere. Effectiveness strong despite low input. No action required.
+```
+
+**Strategy episode summaries:** One per strategy per strategy cycle. Contains: what-must-be-true assessment, tactic portfolio status, approach validation signal. 5-8 sentences.
+
+Example:
+```
+STRATEGY: Thought Leadership Positioning (A)
+QUARTER: Q1 2026
+STATUS: Confirmed. Two tactics tested; Expert Content Series outperforming
+  Deep-Dive Threads 2.3:1 on follower growth.
+WHAT-MUST-BE-TRUE: (1) Expertise differentiated — HOLDING, engagement data confirms.
+  (2) Target audience on platform — HOLDING, follower analysis shows 72% EU security
+  professionals. (3) Founder input sustainable — AT RISK, input rate averaging 45%
+  of planned across both tactics.
+DECISION: Persevere strategy. Kill Tactic A2 (threads). Expand Tactic A1 (content
+  series). Address founder input constraint at next review.
+```
+
+**Decision episode summaries:** One per kill/pivot/persevere decision. Contains: what was decided, what evidence supported it, what alternatives were considered.
+
+**Persistence:** Durable. Stored in the health report store (Section 17.2.5) alongside the full health reports. Episode summaries are the compact form; full health reports are the detail form.
+
+**Maintenance:** The orchestrator generates episode summaries automatically at the end of each cycle. This is not optional — it is part of the orchestrator's write obligations. Without episode summaries, the next cycle must re-derive the interpretation from raw signals, which is wasteful and risks inconsistent interpretation across cycles.
+
+#### 18.2.3 Structural Memory (Long-Term, Cross-Quarter)
+
+**What it is:** Accumulated knowledge that outlives individual tactics and strategies. This is organizational learning — what the system has discovered about how its domains work, what approaches succeed, and what patterns lead to failure.
+
+**What it holds:**
+
+**Domain models** are the primary structural memory. When a tactic discovers that thread-format posts outperform short-form posts 3:1 for cybersecurity audiences, that learning should eventually be codified in the marketing domain model — perhaps as a new entry in the hypothesis library or a refinement of an existing quality principle. Domain models evolve based on what A/B tests reveal.
+
+**Operating document version history** is structural memory. It records how the strategy evolved — what goals changed, what strategies were added or killed, what objectives were revised. This is the organization's strategic autobiography.
+
+**Three growth vectors.** Domain models grow through three distinct enrichment vectors, each producing different types of knowledge:
+
+**Vector 1 — Internal failure learning.** Every killed tactic and disproven strategy is a potential anti-pattern. When patterns emerge across multiple kills — "we keep failing when we try broad-audience content" — the pattern should be codified in the relevant domain model's anti-pattern list. Structural memory converts episodic pain into permanent protection. This vector produces: new anti-patterns, calibrated norms (what "normal" failure looks like), and revised hypothesis templates (marking approaches as disproven with context). Triggered at strategy review from killed tactics and disproven strategies.
+
+**Vector 2 — Internal success learning.** Every successful tactic and validated strategy is a potential confirmed hypothesis. When a tactic succeeds — thread-format posts consistently outperform short-form 3:1 across multiple cycles — that pattern should be codified as a validated entry in the hypothesis library, a refined quality principle, or a calibrated norm. Without success extraction, the domain model accumulates knowledge about what doesn't work but not about what does. Over time, this produces a domain model that is defensively strong (good at rejecting bad output) but offensively empty (unable to guide the orchestrator toward approaches that have been proven to work in this specific context). This vector produces: validated hypothesis templates (promoted from "theoretical" to "proven with evidence"), new or refined quality principles (what "good" looks like based on actual results), and calibrated norms (what "normal" success looks like — typical engagement rates, conversion rates, growth rates for this organization in this domain). Triggered at strategy review from successful tactics and validated A/B test winners.
+
+**Vector 3 — External knowledge acquisition.** The domain model starts as a codification of the Governor's existing knowledge and established domain references (Section 21.11). But domains evolve. New research is published, industry standards change, competitors reveal new approaches, regulatory environments shift. A domain model that only learns from its own execution history becomes progressively stale relative to the state of domain knowledge. This vector produces: new core concepts (emerging domain terminology or frameworks), new hypothesis templates (approaches discovered from external sources, not yet tested internally), updated quality principles (revised best practices from the field), and new anti-patterns (failure modes observed externally, not experienced firsthand). Triggered by: executor agents flagging relevant external knowledge discovered during action execution, the orchestrator detecting repeated quality principle violations that don't match any known anti-pattern (suggesting the domain model is incomplete), Governor-initiated domain model review (bringing in new reference material), or scheduled domain freshness checks at goal review cadence.
+
+**Norm calibration.** What does "normal" look like for this organization in this domain? The first kill condition thresholds are guesses. After several strategy cycles of data, the system knows what typical MoM growth looks like, what typical engagement rates are, what typical input rates the Governor sustains. These norms should be recorded in the domain models and used to calibrate future kill conditions. Norm calibration draws from both Vector 1 (what failure rates are typical) and Vector 2 (what success rates are typical).
+
+**Persistence:** Durable, versioned. Domain models and operating document history are already in the stores defined in Section 17. Structural memory doesn't need a new store — it needs maintenance processes that transfer learning from all three vectors into structural memory.
+
+**Maintenance:** At each strategy review, the orchestrator reviews all tactics and strategies from the past strategy cycle — not just kills — and asks five questions:
+
+1. **Failure patterns:** Is there a recurring failure mode that should become an anti-pattern? (Vector 1)
+2. **Success patterns:** Is there a validated approach that should become a confirmed hypothesis or quality principle? (Vector 2)
+3. **Norm calibration:** Should kill condition thresholds or success benchmarks be recalibrated based on observed data? (Vectors 1 + 2)
+4. **Knowledge gaps:** Did any tactic or action reveal a domain question the model cannot answer? (Signals need for Vector 3)
+5. **External relevance:** Has any executor flagged external domain knowledge that should be evaluated for inclusion? (Vector 3)
+
+This is the organizational learning loop — it's how the system gets smarter over time, not just more experienced. A domain model fed by all three vectors grows in both defensive capability (rejecting bad output) and offensive capability (guiding toward proven approaches with current domain knowledge).
+
+#### Functional Types
+
+The three storage tiers above define *where* memories live and *how long* they persist. The four functional types below define *what kind of knowledge* the memory encodes. Functional types cross-cut storage tiers — procedural memory lives partly in structural memory (the framework document) and partly in working memory (loaded protocol instructions). Each functional type has a distinct failure mode when absent.
+
+#### 18.2.4 Procedural Memory (How to Operate)
+
+**What it is:** Knowledge of how to perform operations — the execution loop steps, health computation formulas, signal emission protocols, session lifecycle procedures, review cadence rules. Procedural memory encodes *how* the system operates, as distinct from *what* it knows (structural) or *what happened* (episodic).
+
+**Where it lives:** Procedural memory is architecturally distributed across the framework itself:
+
+- The **framework document** (this document) defines abstract procedures: the execution loop (§7.2), health computation (§20), kill/pivot/persevere logic (§4.3), grounding checks (§14.3).
+- The **execution protocol** (e.g., Cowork Protocol) translates abstract procedures into operational steps: session lifecycle, signal format, review cadence mechanics.
+- The **deliberation protocol** defines multi-agent coordination procedures: round structure, artifact templates, termination conditions.
+
+At Tier 0, procedural memory is reconstituted every session — the AI reads the protocol file into its context window, which loads the procedures. At Tier 1+, procedural memory is encoded in software: the orchestrator's code IS the procedural memory, executing the loops defined in §7.2 programmatically.
+
+**Why it matters as a named type:** Procedural memory is invisible when it works — agents follow the correct procedures without anyone noticing. Its absence surfaces as procedural drift: the orchestrator skips steps in the execution loop, omits grounding checks, forgets to emit signals, or applies health computation incorrectly. At Tier 0, procedural drift is the highest-risk memory failure because the AI may "remember" a simplified version of the protocol from its training data rather than following the actual loaded protocol. The cite-then-apply discipline (§14.3.2) applies to procedures as well as domain concepts — the AI should reference protocol section numbers when performing procedural steps, not rely on general knowledge of "how GOSTA works."
+
+**Failure mode when absent:** Procedural drift. The system appears to operate but subtly deviates from defined procedures. Health computations use wrong formulas. Grounding checks are skipped. Review cadences slip. The output looks reasonable but wasn't produced by the defined process.
+
+**Maintenance:** Procedural memory updates when the framework or protocol is revised. At Tier 0, the AI loads the current protocol version each session — procedural memory is always fresh. At Tier 1+, code deployments update procedural memory. The risk is at Tier 0 during long-running scopes where the AI may begin relying on cached understanding rather than re-reading the protocol.
+
+#### 18.2.5 Prospective Memory (What Needs to Happen When)
+
+**What it is:** Knowledge of future commitments — scheduled reviews, pending decisions, upcoming deadlines, deferred actions, and triggered conditions that haven't fired yet. Prospective memory encodes *what the system has committed to doing* and *when those commitments come due*.
+
+**Where it currently lives:** Prospective memory is scattered across multiple locations in the framework:
+
+| Commitment Type | Where It Lives | Example |
+|----------------|---------------|---------|
+| Review cadences | Operating document (§9, §6.4) | "Tactic review every 2 weeks, strategy review monthly" |
+| Next review dates | Bootstrap file (Next Reviews Due) | "Next tactic review: 2026-03-28" |
+| Kill condition deadlines | Tactic specification (§10) | "If metric hasn't reached X by April 15, kill" |
+| Pending Governor decisions | Bootstrap file (What Is Pending) | "Governor needs to decide on TAC-3 pivot" |
+| Deferred preconditions | Execution loop (§7.2, Step 3) | "TAC-5 waiting for TAC-3 to complete bootstrap" |
+| Bootstrap cycle countdowns | Tactic state | "TAC-2: bootstrap cycle 2 of 3" |
+| Staleness thresholds | Temporal validity (§14.3.3) | "SIG-042 stale after 2 review cycles" |
+| Scheduled domain freshness checks | Structural memory maintenance (§18.2.3) | "Domain model review at goal review cadence" |
+| A/B test decision deadlines | Tactic specification | "Conclude A/B comparison by May 1" |
+| Wind-down deadlines | Kill decision (§4.3) | "External deadline for in-flight deliverables" |
+
+**The problem:** No single mechanism aggregates these commitments. The orchestrator must scan multiple sources — OD, bootstrap, tactic specs, signal store — to assemble a complete picture of what's due. At Tier 0, the AI does this by reading files in sequence. Missing one file means missing a commitment. At Tier 1+, an automated scheduler could aggregate, but the framework doesn't define one.
+
+**Prospective memory by tier:**
+
+- *Tier 0:* The bootstrap file's "Next Reviews Due" and "What Is Pending" sections are the primary prospective memory. The AI reads these at session start and knows what's due. At each session end, the AI updates these sections — computing next review dates from the OD's cadence definitions, carrying forward unresolved decisions, and noting any new deadlines from tactic specifications or kill conditions. This is manual but workable for single-scope operation. **The AI's session-end obligation:** when updating the bootstrap, the AI must scan all active tactics for approaching deadlines (kill conditions within 1 review cycle of their deadline, A/B test decision dates, deferred precondition timeouts) and surface them in "What Is Pending." Deadlines that exist only inside tactic specs are invisible until it's too late. Additionally, the AI must update the "Tier 0 State Persistence" section of the bootstrap (retry counters, kill deadline proximity, recovery oscillation tracking, deferred decisions, signal absence tracking) — these fields carry cross-session state that would be automatic at Tier 1+. **Premature termination risk:** At Tier 0, the Governor controls session termination. If the Governor closes the session without prompting a wrap-up, the bootstrap is not updated and the next session starts from stale state. *Mitigations:* (1) The AI should proactively offer a session-end update when it detects the conversation is winding down or when substantive state changes have occurred mid-session. (2) At session start, the AI checks the bootstrap's "Last Updated" date against the expected session cadence — a gap longer than one review cycle triggers: "Bootstrap appears stale (last updated [date], expected update by [date]). State carried forward from [N] sessions ago may be outdated. Recommend reviewing 'What Is Pending' and 'Tier 0 State Persistence' for accuracy before proceeding." (3) The Governor should be advised during scope setup that ending sessions with "let's wrap up" rather than abruptly closing allows the AI to persist state. This is a Tier 0 operational discipline, not a framework guarantee — the framework cannot enforce session-end behavior on a platform it does not control.
+- *Tier 1:* The system maintains a **commitment queue** — a time-ordered list of all scheduled reviews, pending decisions, approaching deadlines, and deferred actions. The orchestrator checks this queue at each cycle start and surfaces items that are due or approaching. The queue is populated automatically from OD review cadences, tactic kill deadlines, precondition timeout counters, and staleness thresholds.
+- *Tier 2+:* The commitment queue becomes proactive. The system projects forward: "At the current trajectory, TAC-3's kill condition will trigger in 2 cycles. STR-1's WMBT #2 is approaching falsification. SIG-042 will go stale before next tactic review." Projections are surfaced in health reports alongside current state, giving the Governor advance warning. Deferred preconditions are tracked with probability estimates: "TAC-5 is waiting on TAC-3; TAC-3's bootstrap completes in 1 cycle, so TAC-5 will likely activate next cycle."
+
+**Failure mode when absent:** Missed commitments. Kill condition deadlines pass unnoticed. A/B tests run past their decision date. Stale signals accumulate without flagging. Governor decisions sit pending across sessions because no mechanism surfaces them. The system operates reactively (responding to problems when they manifest) rather than proactively (anticipating commitments before they come due).
+
+**Relationship to the execution loop (§7.2):** The execution loop defines what the orchestrator does each cycle. Prospective memory tells it what's *due* this cycle. Without prospective memory, the orchestrator follows the loop steps but doesn't know which tactics need review, which deadlines are approaching, or which deferred actions should be re-evaluated. The loop is the procedure; prospective memory is the agenda.
+
+#### 18.2.6 Meta-Memory (Memory About Memory Quality)
+
+**What it is:** Knowledge about the reliability, completeness, and accuracy of the system's own memory. Meta-memory tracks whether the summary/full compression is lossy, whether episode summaries consistently capture decision-relevant information, and whether the system's memory retrieval is faithful to what actually happened.
+
+**Why it matters:** The summary/full pattern (§18.3) is a lossy compression by design — summaries are 3-8 sentences representing full reports that may be pages long. This compression is necessary (context windows are finite) but introduces a failure mode: if summaries consistently omit a category of information, downstream decisions are based on an incomplete picture. The system doesn't know what it doesn't know — it operates on summaries and has no mechanism to detect that the summaries are systematically missing something.
+
+**Three dimensions of meta-memory:**
+
+1. **Summary fidelity.** Are episode summaries faithful to their full-form counterparts? When the orchestrator generates a tactic episode summary, does it capture the information that will matter at the next review? A summary that reports "Tactic holding, metrics on track" but omits "engagement quality declining despite volume increase" loses a leading indicator that could change the next kill/pivot decision.
+
+2. **Retrieval completeness.** When the orchestrator loads context for a cycle, does it load everything it needs? The loading protocols (§18.4) define what to load, but they can't anticipate every decision context. A cycle that evaluates a kill decision needs different context than a routine action cycle. If the loading protocol is too narrow, the orchestrator makes decisions with insufficient history.
+
+3. **Memory consistency.** Do different memory sources agree? The operating document says TAC-3 is active, but the latest health report says it was killed. A signal references a tactic_id that doesn't exist in the current OD version. These inconsistencies indicate memory corruption — one store was updated without updating others.
+
+**Meta-memory by tier:**
+
+- *Tier 0:* Meta-memory is the Governor's responsibility. The Governor reads the AI's episode summaries and health reports and can challenge: "You said TAC-3 is holding, but last session we discussed declining engagement quality — why isn't that in the summary?" At Tier 0, every output passes through Governor review, so summary fidelity is checked by a human reader. Memory consistency is checked at session start when the AI reads the bootstrap and OD — contradictions between files surface naturally during context loading. **Practical check:** At each strategy review, the Governor picks 1-2 recent tactic episode summaries and compares them against the full health reports. If the summaries systematically omit a category of information (e.g., never mention blockers, never mention input rate), that's a meta-memory gap to flag in learnings.md.
+- *Tier 1:* Automated fidelity checks. After the orchestrator generates an episode summary, a verification pass compares it against the full health report using key-field extraction: does the summary mention every metric that changed status (on_track→at_risk, at_risk→failing)? Does it mention every blocker? Does it mention kill condition proximity? Missing fields are flagged, and the summary is regenerated with the missing information. Memory consistency checks run at cycle start: cross-reference OD state against health report state against signal store state.
+- *Tier 2+:* Meta-memory becomes a feedback loop. The system tracks summary quality over time: which information categories are most frequently omitted in first-pass summaries? Which decisions were made based on summaries that, in retrospect, missed relevant context from the full reports? This produces a **summary quality profile** that calibrates the summarizer: "Summaries of marketing tactics consistently omit human creative input rate — add this as a required summary field for marketing-domain tactics." Retrieval completeness is tracked by logging what context was loaded for each decision and, post-decision, auditing whether additional context would have changed the outcome.
+
+**Failure mode when absent:** Silent information loss. The system compresses memory through the summary/full pattern but never checks whether the compression is faithful. Decisions are made on incomplete summaries. The Governor trusts the AI's episode summaries without verifying them against full reports. Inconsistencies between memory stores accumulate until a decision is made on contradictory state.
+
+**Relationship to confidence calibration (§14.6):** Confidence calibration checks whether signal *values* are accurate (did "complete" confidence signals actually prove correct?). Meta-memory checks whether memory *compression* is faithful (did summaries preserve the information that mattered?). Both are calibration mechanisms, but operating on different targets: signals vs. summaries.
+
+#### 18.2.7 Shared Memory (Cross-Scope Learning) `[ADVANCED]`
+
+**What it is:** Knowledge that is accessible across multiple concurrent scopes. In single-scope operation (Tier 0-2), each scope has its own working, episodic, and structural memory — fully isolated. In multi-scope hierarchies (Tier 3), scopes share organizational context: a domain model validated in Scope A may be relevant to Scope B; a failure pattern discovered in Scope C may protect Scope D from the same mistake.
+
+**Why it matters:** Without shared memory, each scope learns independently. If the organization runs three concurrent scopes all using the marketing domain model, and Scope A discovers that "broad-audience content never works for our audience," Scopes B and C will learn the same lesson the hard way — wasting tactic cycles on the same failing approach. Shared memory prevents redundant learning across the scope portfolio.
+
+**What is shared vs. what remains isolated:**
+
+| Memory Type | Shared? | Rationale |
+|------------|---------|-----------|
+| Working memory | Never | Per-cycle, per-agent. No sharing possible or desirable. |
+| Episodic memory | Selective | A scope's tactic episodes are its own. But cross-scope patterns (recurring failures, validated approaches) are extracted and shared as structural memory. Raw episodes are not shared — doing so would pollute each scope's context with irrelevant operational history. |
+| Structural memory (Domain Models) | Yes | Domain models are the primary shared memory vehicle. A marketing domain model refined by Scope A is available to Scope B because both reference the same domain model file/store. Domain model versioning (§17.2.3) ensures scopes see updates when they occur. |
+| Structural memory (OD History) | Never | Each scope's operating document is its own strategic context. Cross-scope strategy sharing happens through the Governor's decision-making, not through memory sharing. |
+| Procedural memory | Yes | All scopes share the same framework and execution protocol. This is inherent — there's one framework document, not one per scope. |
+| Prospective memory | Selective | Each scope has its own commitments. But cross-scope dependencies (Scope A's deliverable feeds Scope B's tactic) require shared visibility into commitment timelines. |
+| Meta-memory | Selective | Summary quality patterns may transfer across scopes using the same domain — if marketing tactic summaries consistently omit input rate in Scope A, the same pattern will likely recur in Scope B. |
+
+**Shared memory by tier:**
+
+- *Tier 0–2:* Shared memory is not applicable. Single-scope operation means there is no second scope to share with. Domain models may be reused across sequential scopes (Scope A concludes, Scope B starts using the same domain model), but this is scope succession (§7.10), not concurrent sharing.
+- *Tier 3:* Shared memory activates through three mechanisms:
+  1. **Domain model sharing.** Multiple concurrent scopes reference the same domain model store. When Scope A's strategy review produces a domain model update (new anti-pattern, calibrated norm, validated hypothesis), the update is available to all scopes using that model. The change proposal protocol (§17.2.3) manages version conflicts: if Scope A and Scope B both propose changes to the same concept, the Governor resolves the conflict. Domain model versioning ensures scopes can pin to a specific version if an update would disrupt an in-flight tactic.
+  2. **Cross-scope pattern extraction.** At the portfolio level (above individual scopes), the Governor or a portfolio orchestrator reviews structural memory transfers from all active scopes and identifies patterns: "Three scopes tried X and failed" → organizational anti-pattern. "Two scopes validated Y independently" → high-confidence hypothesis. These cross-scope patterns are codified in the domain models with a `[CROSS-SCOPE]` provenance tag, distinguishing them from single-scope observations.
+  3. **Cross-scope dependency tracking.** When Scope A's deliverable feeds Scope B's tactic (declared via dependency fields in §10), both scopes' prospective memory must be visible to each other — Scope B needs to know when Scope A's deliverable will be ready. At Tier 3, a portfolio-level commitment queue aggregates cross-scope dependencies and surfaces conflicts: "Scope A's deliverable is delayed 2 cycles; Scope B's tactic TAC-4 depends on it and will miss its kill deadline."
+
+**Failure mode when absent:** Redundant learning. Each scope in a multi-scope portfolio discovers the same domain lessons independently, wasting tactic cycles. Cross-scope dependencies are invisible until one scope's delay breaks another scope's timeline. Domain model improvements in one scope don't propagate to other scopes using the same domain, creating version fragmentation where different scopes operate on different vintages of the same domain knowledge.
+
+**Relationship to scope conclusion (§7.10):** Scope conclusion transfers memory from a concluding scope to its successor. Shared memory operates between *concurrent* scopes, not sequential ones. Both mechanisms ensure learning doesn't die with the scope that produced it — scope conclusion handles the sequential case, shared memory handles the parallel case.
+
+### 18.3 The Summary/Full Pattern
+
+Every memory entity exists in two forms:
+
+| Entity | Summary Form (in context) | Full Form (in store, loads on demand) |
+|--------|--------------------------|--------------------------------------|
+| Operating Document | Goal names + guardrail keywords, objective names + metrics + deadlines, strategy names + what-must-be-true status, tactic names + hypothesis status + kill status | Complete document with all fields, rationale text, full guardrail descriptions |
+| Signal | Not summarized — signals are small enough to load in full for the current cycle window | N/A |
+| Health Report (Tactic) | Episode summary: 3-5 sentences covering status, key metric, notable observation, decision | Full report: all metric values, signal-by-signal data, trend charts, blocker log, full reasoning |
+| Health Report (Strategy) | Episode summary: 5-8 sentences covering what-must-be-true status, tactic portfolio, decision | Full report: all what-must-be-true evidence, tactic comparison data, resource efficiency, full reasoning |
+| Decision Log Entry | "Tactic A2 killed Feb 10 — below 5% threshold at week 8" | Full entry: evidence cited, alternatives considered, Governor override notes if any, context at decision time |
+| Domain Model | Concept count + key guardrail keywords + hypothesis library count | Full model: all concepts with definitions, all relationships, full hypothesis templates, all quality principles, all anti-patterns |
+| Reference Pool Item | Title + type + scope + tags | Full content (text inline or binary via storage_ref), source, notes, access history |
+| Position Paper (Level 3) | Agent ID + recommendation (verbatim) + top 3 domain concepts + confidence score | Full paper: complete reasoning, domain concept table, guardrail assessment, confidence basis, dissent from prior cycle |
+| Response Paper (Level 3) | Agent ID + position change (shifted/held/conceded) + new confidence score + 1-sentence rationale | Full paper: complete response to Coordinator's challenge, updated reasoning, new domain concepts introduced |
+| Interim Assessment (Level 3) | Agreement count + hard disagreement IDs + agents prompted for next round | Full assessment: all agreements, soft/hard disagreements with agent citations, novel arguments, Round N+1 prompts with verbatim quotes |
+| Synthesis Report (Level 3) | Consensus strength + recommendation (verbatim) + unresolved disagreement count + Governor action required (yes/no) | Full report: agreement map, resolved/unresolved disagreements, confidence distribution, groupthink check, synthesis verification status, cost report |
+
+**When to fetch full form:** The agent loads summaries into working memory at cycle start. During processing, if the agent needs detail — to draft content (needs full quality principles), to make a kill recommendation (needs full health history), to validate output (needs full anti-patterns) — it fetches the full form from the store. The summary tells the agent *whether* to fetch. The full form provides *what* was fetched.
+
+**Who maintains summaries:** The orchestrator generates summaries as part of its write cycle. Every time it writes a health report, it also writes the episode summary. Every time the operating document is updated, the summary is regenerated. This is automated, not manual. Summary maintenance is a first-class obligation of the orchestrator, not an afterthought.
+
+### 18.4 Context Loading Protocols
+
+Each agent type follows a defined loading sequence. This ensures consistent, minimal context loading across all cycles.
+
+**Tier 0 Context Loading:** At Tier 0, context loading is the AI reading files at the start of each session. The sequence is defined by the `00-BOOTSTRAP.md` file's Context Loading Order field (see Cowork Protocol §5): read bootstrap → read OD → read domain models → read recent signals and health reports → read deliberation artifacts if deliberation is active. The protocols below formalize this for Tier 1+ agents with programmatic loading. At Tier 0, the AI follows the same logical sequence by reading files in order, and the Governor can adjust what gets loaded by updating the Context Loading Order in the bootstrap file.
+
+#### Orchestrator — Action Cycle
+
+```
+1. LOAD operating document summary (from Operating Document Store)
+   → Goals, objectives, strategies, tactics — names and status only
+2. LOAD signals since last cycle (from Signal Store)
+   → Full signals, filtered by timestamp > last_cycle_date
+3. LOAD latest episode summaries for all active tactics (from Health Report Store)
+   → Last cycle's summary per tactic
+4. LOAD latest episode summaries for all active strategies (from Health Report Store)
+   → Last strategy cycle's summary per strategy
+5. LOAD last 5 decision log entries (from Operating Document Store)
+   → Full entries — recent decisions inform current reasoning
+6. LOAD domain model summaries (from Domain Model Store)
+   → Concept lists and key guardrails only
+7. EXECUTE: aggregate signals, compute health, compare A/B tests,
+   generate work plan
+8. For each action in the work plan:
+   LOAD relevant reference items (from Reference Pool)
+   → By tactic/strategy scope and action type
+   → Attach item_ids (and inline text for small items) to action spec
+9. ON DEMAND: fetch full health reports, full domain models, or full
+   operating document sections as needed during reasoning
+10. WRITE: new episode summaries, new health reports, work plan
+   (to Health Report Store)
+```
+
+#### Executor — Per-Action Cycle
+
+```
+1. LOAD action specification (from Operating Document Store)
+   → Full action: assignee, deliverable, deadline, constraints,
+     reference_items (pointers to Reference Pool items)
+2. LOAD parent tactic specification (from Operating Document Store)
+   → Hypothesis, success metrics, guardrails
+3. LOAD parent strategy summary (from Operating Document Store)
+   → Rationale summary, what-must-be-true keywords, approach constraints
+4. LOAD inherited guardrails — full chain (from Operating Document Store)
+   → All guardrails from goal through strategy through tactic
+5. LOAD relevant quality principles and anti-patterns
+   (from Domain Model Store)
+   → Full — these are the quality gate for output
+6. LOAD reference materials specified in action specification
+   (from Reference Pool)
+   → Full content for text items; storage_ref for binary items
+   → Source articles, brand guides, templates, prior deliverables
+7. EXECUTE: produce deliverable within constraints, using reference
+   materials as source/grounding
+8. WRITE: signal with full attribution (to Signal Store)
+9. IF deliverable has lasting reference value:
+   WRITE: deliverable to Reference Pool (item_type: prior_deliverable)
+10. IF external domain-relevant material discovered during execution:
+   WRITE: material to Reference Pool (source: executor_discovery)
+   WRITE: knowledge_flag signal if material suggests domain model
+   changes (to Signal Store)
+```
+
+#### Health Computation — Tactic Review Prep
+
+```
+1. LOAD target tactic specification (from Operating Document Store)
+   → Full: hypothesis, kill condition, success metrics
+2. LOAD all signals for target tactic within review window
+   (from Signal Store)
+   → Full — this is the data being analyzed
+3. LOAD previous 3-4 episode summaries for target tactic
+   (from Health Report Store)
+   → Full summaries — for trend detection
+4. LOAD previous full health reports if trend is ambiguous
+   (from Health Report Store)
+   → On demand — only when summaries don't provide enough detail
+5. LOAD related decision log entries (from Operating Document Store)
+   → Any previous decisions about this tactic
+6. EXECUTE: compute health, assess kill condition, generate recommendation
+7. WRITE: new health report + episode summary (to Health Report Store)
+```
+
+#### Health Computation — Strategy Review Prep
+
+```
+1. LOAD target strategy specification (from Operating Document Store)
+   → Full: rationale, what-must-be-true, kill signal
+2. LOAD all tactic episode summaries under this strategy for this strategy cycle
+   (from Health Report Store)
+   → Summaries — portfolio-level view
+3. LOAD latest full health report for each tactic under this strategy
+   (from Health Report Store)
+   → Full — for detailed comparison
+4. LOAD signals aggregated by tactic_id for comparative A/B analysis
+   (from Signal Store)
+   → Aggregated metrics per tactic
+5. LOAD previous strategy episode summaries (last 2-3 strategy cycles)
+   (from Health Report Store)
+   → For strategic trend detection
+6. LOAD relevant domain model sections
+   (from Domain Model Store)
+   → Hypothesis library (to suggest new tactics if pivoting)
+   → Anti-patterns (to validate strategy isn't matching known failures)
+7. LOAD new reference materials added since last strategy review
+   (from Reference Pool)
+   → Governor uploads and executor discoveries for Vector 3
+     external knowledge acquisition
+8. EXECUTE: assess what-must-be-true conditions, validate approach,
+   compare strategy-level A/B results, generate recommendation
+9. WRITE: strategy health report + episode summary (to Health Report Store)
+```
+
+#### Coordinator — Deliberation Round (Level 3 only)
+
+The Coordinator is a synthesis agent that manages multi-agent deliberation (§7.1, §14.7). It has no domain model. Its working memory must hold all agent outputs for the current deliberation while staying within context limits. The core tension: the Coordinator needs comprehensive awareness of all positions but faces linear context growth with agents × rounds.
+
+```
+1. LOAD evaluation target (from Operating Document Store)
+   → The specific question being deliberated: what is being decided,
+     what constraints apply, what the Governor needs
+2. LOAD operating document summary (from Operating Document Store)
+   → Goals, objectives, strategies — names and status only.
+     The Coordinator needs strategic context to frame synthesis
+     but not operational detail
+3. LOAD domain model summaries — ALL active models (from Domain Model Store)
+   → Concept lists and key terms only (NOT full definitions).
+     The Coordinator must understand domain vocabulary to
+     accurately characterize agent positions but must not
+     develop domain opinions
+4. LOAD Round 1 position papers — ALL agents (full)
+   → These are the primary data. The Coordinator reads every
+     position paper in full. No summaries — the Coordinator
+     must see exact recommendations, exact reasoning, exact
+     concept citations to produce accurate synthesis
+5. EXECUTE: identify agreements, soft disagreements, hard
+   disagreements, novel arguments. Produce Interim Assessment
+   with verbatim quotes from each position paper (§9.3
+   synthesis verification requirement)
+6. WRITE: Interim Assessment (to deliberation artifact store)
+
+FOR EACH SUBSEQUENT ROUND (Round 2+):
+7. LOAD previous Interim Assessment (full — this is the
+   Coordinator's own prior output, compact enough to reload)
+8. LOAD Round N response papers — ALL responding agents (full)
+   → Responding agents are a subset; not all agents are
+     prompted in every round
+9. LOAD Round 1 position papers — SUMMARY FORM ONLY
+   → By Round 2+, position papers shift to summary form
+     to manage context growth. The summary contains:
+     agent ID, recommendation (verbatim), top 3 domain
+     concepts cited, confidence score
+   → If the Coordinator needs to verify a specific claim,
+     it fetches the full position paper ON DEMAND
+10. EXECUTE: assess convergence, detect stuck patterns (§5.4),
+    check synthesis verification (§9.3). Produce updated
+    Interim Assessment or final Synthesis Report
+11. WRITE: Interim Assessment or Synthesis Report
+    (to deliberation artifact store)
+```
+
+**Context budget rule:** At Round N, the Coordinator's working memory holds: evaluation target + OD summary + domain model summaries + Round 1 position summaries + all interim assessments + Round N response papers (full). The full-form items are Round N papers and interim assessments. Everything else is summary form. This keeps context growth manageable: each additional round adds only the new response papers (subset of agents) and one interim assessment, not the full history.
+
+**No episodic memory.** The Coordinator does not maintain cross-deliberation memory. Each deliberation starts fresh. If the same evaluation target is deliberated again in a subsequent cycle, the Coordinator loads the prior Synthesis Report as a reference document (from the deliberation artifact store), but does not carry forward internal state. Cross-deliberation learning flows through the standard episodic → structural path: the Governor or orchestrator extracts patterns from synthesis reports and codifies them in domain models or the operating document.
+
+#### Domain Agent — Deliberation Round (Level 3 only)
+
+Domain Agents are temporary, stateless agents grounded in a single domain model (§7.1). They produce position papers (Round 1) and response papers (Round 2+). Their context is narrow by design — they see only their domain, not other agents' domains.
+
+```
+ROUND 1:
+1. LOAD §8.5 three-element framing (protocol context, Governor
+   oversight, domain scope boundary)
+   → This is the prompt preamble that prevents agent refusals
+2. LOAD assigned domain model (full)
+   → The agent's entire grounding. Full concepts, quality
+     principles, anti-patterns, hypothesis library.
+     Unlike the orchestrator (which loads summaries of
+     multiple models), the Domain Agent loads ONE model
+     completely
+3. LOAD evaluation target (from Operating Document Store)
+   → What is being evaluated — same as Coordinator receives
+4. LOAD relevant signals for evaluation target
+   (from Signal Store, filtered by domain relevance)
+   → Signals that relate to this domain's scoring criteria.
+     Full signals, not summaries
+5. LOAD inherited guardrails relevant to this domain
+   (from Operating Document Store)
+   → The agent assesses guardrail status from its domain's
+     perspective
+6. LOAD prior Synthesis Report if this is a recurring
+   deliberation (from deliberation artifact store)
+   → Summary form only: what was recommended last cycle,
+     what the consensus was, what disagreements persisted
+7. LOAD own prior Position Paper if this is a recurring
+   deliberation (from deliberation artifact store)
+   → Summary form: this agent's prior recommendation,
+     confidence score, top 3 domain concepts cited.
+     This gives the agent continuity — it can assess
+     whether its prior position was validated or
+     contradicted by new signals. Without this, the
+     agent re-evaluates from scratch each cycle and
+     cannot track its own prediction accuracy.
+   → The "Dissent from Prior Cycle" field in the
+     Position Paper template (§4.1) requires this input
+8. EXECUTE: produce Position Paper per §4.1 template.
+   All reasoning must cite domain model concepts by name.
+   If prior position paper was loaded (step 7), the agent
+   must address whether its prior recommendation still
+   holds given new signals, or has changed and why.
+9. WRITE: Position Paper (to deliberation artifact store)
+
+ROUND 2+:
+1. LOAD §8.5 three-element framing (same as Round 1)
+2. LOAD assigned domain model (full — same as Round 1)
+3. LOAD own Round 1 Position Paper (full)
+   → The agent needs its own prior position to respond
+     coherently to challenges
+4. LOAD Coordinator's targeted prompt for this agent
+   (from Interim Assessment — the specific question or
+   challenge directed at this agent)
+5. LOAD Coordinator's summary of challenging agent's position
+   (from Interim Assessment — only the positions that
+   challenge this agent, not all positions)
+   → The agent does NOT load other agents' full papers.
+     It sees only the Coordinator's characterization.
+     This maintains isolation but creates the synthesis
+     verification dependency (§9.3)
+6. EXECUTE: produce Response Paper per §4.3 template.
+   Address the Coordinator's specific challenge. May
+   shift position, hold with new arguments, or concede.
+7. WRITE: Response Paper (to deliberation artifact store)
+```
+
+**No lateral memory.** Domain Agents never load other agents' position papers or domain models. All inter-agent information flows through the Coordinator's interim assessment. This isolation is the design guarantee that prevents domain contamination and groupthink — but it is also the vector for synthesis hallucination (§14.3.5). The tradeoff is deliberate: isolation protects domain reasoning purity at the cost of requiring synthesis verification.
+
+**No persistent memory — but cross-cycle continuity.** Domain Agents are discarded after the deliberation concludes. They carry no internal state between deliberations. If the same domain model participates in a subsequent deliberation cycle, a fresh Domain Agent is created. However, cross-cycle continuity comes from three sources: (a) the domain model itself (which may have been updated based on prior deliberation outcomes via Vector 1-3 learning), (b) the prior Synthesis Report summary (loaded in Round 1 step 6), and (c) the agent's own prior Position Paper summary (loaded in Round 1 step 7). Sources (b) and (c) together give the agent awareness of what it previously recommended, what the consensus was, and what changed — enabling it to track its own prediction accuracy across cycles and populate the "Dissent from Prior Cycle" field meaningfully.
+
+### 18.5 Memory Flow Between Layers
+
+Memory flows vertically through the framework via summaries, not via full records.
+
+**Downward (context narrowing):** The orchestrator holds the full system view (all strategies, all tactics). When it generates a work plan for a specific executor, it extracts only the relevant slice: one action spec, one tactic context, one strategy summary, relevant guardrails. The executor receives a narrow, focused context — not the orchestrator's full view. This is lossy by design. The executor doesn't need to know about other strategies or other tactics. It needs to execute one action well.
+
+**Upward (signal aggregation):** The executor emits a raw signal after action completion. The orchestrator aggregates multiple signals into a tactic episode summary. Multiple tactic episodes aggregate into a strategy episode summary. Multiple strategy episodes aggregate into an objective progress report. Each upward step compresses: raw signals → tactic health → strategy validation → objective progress. The Governor reads the most compressed form at the top; the system retains the full detail at the bottom.
+
+**Lateral (cross-tactic, cross-strategy):** Tactics under the same strategy share context only through the orchestrator's A/B comparison. The orchestrator loads episode summaries for both tactics, compares metrics, and surfaces the comparison. Tactics don't read each other's signals directly — the orchestrator mediates. Same pattern for strategies under the same objective.
+
+**Deliberation (mediated lateral, Level 3 only):** Domain Agents share context only through the Coordinator's interim assessment. Agent A never reads Agent B's position paper — it reads the Coordinator's characterization of Agent B's position. This is the same mediation pattern as the orchestrator's lateral flow above, but with a critical difference: in the orchestrator pattern, the mediator (orchestrator) reads raw data (signals) and produces summaries. In the deliberation pattern, the mediator (Coordinator) reads agent *interpretations* (position papers) and produces characterizations of those interpretations — a summary of a summary. This double-indirection is why synthesis verification (§14.3.5) is necessary: each mediation step is a potential distortion point.
+
+Memory flows in deliberation follow a hub-and-spoke pattern:
+
+```
+Domain Agent A ──Position Paper──→ Coordinator ──Interim──→ Domain Agent A
+Domain Agent B ──Position Paper──→     ↓        Assessment  Domain Agent B
+Domain Agent C ──Position Paper──→     ↓          ↓     ──→ Domain Agent C
+                                  Synthesis Report
+                                       ↓
+                                   Governor / Orchestrator
+                                       ↓
+                              (episodic → structural path)
+```
+
+The Coordinator is the only agent that reads all position papers. Domain Agents read only their own prior paper and the Coordinator's targeted challenge. The Governor reads the Synthesis Report and (per §9.3) verifies it against source position papers for hard disagreements. After the deliberation concludes, the Synthesis Report enters the standard episodic → structural learning path: patterns discovered in deliberation outcomes feed back into domain models and the operating document through the existing Vector 1/2/3 mechanisms (§18.2.3).
+
+### 18.6 Memory Maintenance Schedule
+
+| Memory Tier | Created By | Created When | Updated When | Transferred To Structural When |
+|-------------|-----------|-------------|-------------|-------------------------------|
+| Working | Agent (auto-loaded) | Every cycle start | Never (discarded after cycle) | Never |
+| Episodic (Tactic) | Orchestrator | Every action cycle | Never (append-only, new summary each cycle) | Anti-patterns/norms extracted at strategy review |
+| Episodic (Strategy) | Orchestrator | Every strategy cycle | Never (append-only) | Lessons extracted at goal review |
+| Episodic (Decision) | Orchestrator + Governor | Every kill/pivot/persevere decision | Never (append-only) | Patterns extracted at strategy review |
+| Structural (Domain Models) | Domain expert / Governor | Initial creation | At strategy review via change proposal approval (Section 17.2.3): norms, anti-patterns, hypothesis updates | N/A — this IS the long-term store |
+| Structural (Op Doc History) | System (auto-versioned) | Every document change | Never (append-only) | N/A — this IS the long-term store |
+| Episodic (Deliberation) | Coordinator | Every deliberation cycle (Level 3 only) | Never (append-only — position papers, response papers, interim assessments, synthesis reports) | Deliberation patterns extracted at strategy review: recurring disagreement types → domain model refinement, consensus patterns → escalation trigger calibration |
+| Reference Pool | Governor, executors, orchestrator | Governor upload, executor discovery, prior deliverable archival | relevance_status updated at tactic/strategy completion; archived when not accessed for 2 strategy cycles | Codifiable patterns → Domain Model via change proposals |
+
+**Functional memory type maintenance:**
+
+| Memory Type | Maintenance Trigger | Tier 0 Practice | Tier 1+ Practice |
+|-------------|-------------------|-----------------|------------------|
+| Procedural | Framework or protocol revision | AI reloads protocol file each session — always fresh. Risk: reliance on cached understanding in long-running scopes | Code deployments update procedural memory. Version-controlled by definition |
+| Prospective | Every session end; every review event | AI updates bootstrap "Next Reviews Due" and "What Is Pending" — scans all active tactics for approaching deadlines | Commitment queue auto-populated from OD cadences, kill deadlines, staleness thresholds. Queue checked at cycle start |
+| Meta-memory | Strategy review (spot-check); continuous at Tier 1+ | Governor picks 1-2 tactic episode summaries per strategy review and compares against full health reports. Inconsistencies flagged in learnings.md | Automated fidelity checks after every summary generation. Memory consistency checks at cycle start. Summary quality profiles updated continuously at Tier 2+ |
+| Shared `[ADVANCED]` | Strategy review (cross-scope pattern extraction); continuous for domain model sharing | N/A — single-scope operation only | Tier 3: Domain model updates propagate automatically. Cross-scope patterns extracted at portfolio review. Cross-scope dependency queue updated when commitments change |
+
+**The critical transfer:** Episodic → Structural. This is where organizational learning happens. If the system kills 3 tactics with the same pattern ("broad-audience content never works for us"), that pattern must move from episodic memory (individual kill records) to structural memory (a new anti-pattern in the domain model). Without this transfer, the system makes the same mistakes across strategy cycles. The strategy review is the designated moment for this transfer — the orchestrator or Governor reviews recent kills and asks: "Is there a pattern that should be codified?"
+
+### 18.7 Implementation Note for Ephemeral Environments
+
+In ephemeral production environments (containerized deployments, serverless functions, platforms like Railway):
+
+**Working memory requires no persistence.** It's the context window. It loads from stores and discards.
+
+**Episodic and structural memory require external durable stores** — as specified in Section 17.4. Summaries are small (typically < 1KB per episode) and should be stored alongside their full-form counterparts in the same durable store.
+
+**Summary generation is a write-time operation, not a read-time operation.** When the orchestrator computes a health report, it writes both the full report AND the summary in the same transaction. This ensures summaries are always consistent with their full forms and are available immediately for the next cycle's loading protocol.
+
+**Cache warming is acceptable but not required.** On startup in an ephemeral environment, the agent loads summaries from the durable store. This is a cold start. If the environment supports a warm cache (Redis, in-memory store that survives container restarts but not deployments), summaries can be cached for faster loading. But the cache is never the system of record — the durable store is.
+
+**Reference Pool requires external durable storage.** Like domain models, reference materials are consumed repeatedly across cycles and must survive deployments (Section 17.4). Binary files (images, audio, video) should use object storage (S3, GCS) with the Reference Pool database storing metadata and `storage_ref` pointers. Text-based items can be stored inline. Frequently accessed items (brand guides, active templates) can be cached for performance, but the durable store is the system of record.
+
+---
+
+## 19. Knowledge Requirements per Process `[ROBUST]`
+
+### 19.1 Purpose
+
+Sections 7 and 18 describe what the system's agents do — execute action cycles, compute health, write memory. This section defines **what each agent must have access to** during each process type. These are checklists, not prompts. Each app implements its own context management strategy (summarization, filtering, prompt engineering), but the knowledge requirements are framework-level — every GOSTA implementation must satisfy them.
+
+Cadences (how often each process runs) are **not fixed by the framework**. The Governor defines review cadences in the operating document. An action cycle might run daily, a tactic review every two weeks, a strategy review monthly. The definitions below describe WHAT happens during each process, not WHEN it runs.
+
+### 19.2 OD Authoring
+
+The agent guiding a Governor through operating document creation must have access to:
+
+| # | Requirement | Source |
+|---|-------------|--------|
+| 1 | The five-layer hierarchy: what belongs at each layer, what doesn't | Sections 2–5 |
+| 2 | Structural integrity rules: no layer contamination, guardrails accumulate downward | Section 8 |
+| 3 | What must NOT be in the operating document | Section 9.3 |
+| 4 | The seed action concept: initial actions bootstrap the first cycle only, not permanent | Section 10 |
+| 5 | Required fields per layer: goals need guardrails, objectives need metrics + thresholds + deadlines, strategies need rationale + what-must-be-true + kill signal, tactics need hypothesis + kill condition + success metrics | Sections 9–10 |
+| 6 | The domain model for the relevant domain | Domain model files |
+| 7 | What good looks like for each layer (examples, anti-patterns) | Section 21 (authoring guide) |
+| 8 | (Optional) Existing reference materials the Governor provides to anchor tone, approach, or examples (e.g., "write in the style of this article," "here's a competitor approach to match") | Reference Pool (Section 17.2.4) |
+
+**Not required:** Signal data, episodic memory, health reports. The OD authoring agent creates the document before execution begins. When revising at a strategy review, health context is provided separately as part of the strategy review process (Section 19.5).
+
+### 19.3 Action Cycle
+
+The orchestrator generating the next work plan must have access to:
+
+| # | Requirement | Source |
+|---|-------------|--------|
+| 1 | The current operating document summary (names, statuses, guardrails, metrics — see Section 18.2.1) | Operating Document Store |
+| 2 | All signals since last cycle | Signal Store |
+| 3 | Latest tactic episode summaries (compact health status per active tactic — see Section 18.2.2) | Health Report Store |
+| 4 | Approaching kill conditions (which tactics, how close) | Computed from signals + kill condition definitions (Section 20.3) |
+| 5 | Active A/B test configuration (which variants, shared metrics) | Operating document |
+| 6 | Guardrail inheritance rules: constraints accumulate downward, never relax | Section 5 |
+| 7 | Seed action list (first cycle) or previous cycle's plan (subsequent cycles) | Operating document / previous plan |
+| 8 | The domain model for the scope's domain | Domain Model Store |
+| 9 | Relevant episodic memory (recent tactic episodes) | Health Report Store (Section 18.2.2) |
+| 10 | Cross-domain conflict detection rules (if scope spans multiple domains) | Section 4.5, Section 13.7 |
+| 11 | Reference Pool item index for active tactics/strategies (item summaries — titles, types, scopes) | Reference Pool (Section 17.2.4) |
+
+The orchestrator must also know the computation definitions (Section 20) to correctly assess the current state before generating a plan.
+
+### 19.4 Tactic Review
+
+The orchestrator computing tactic health and generating kill/pivot/persevere recommendations must have access to:
+
+| # | Requirement | Source |
+|---|-------------|--------|
+| 1 | The tactic specification (hypothesis, success metrics, kill condition) | Operating document |
+| 2 | All signals attributed to the tactic since its start | Signal Store |
+| 3 | The computation definitions for: tactic health, hypothesis status, kill condition assessment, metric evaluation | Section 20 |
+| 4 | Previous tactic health reports (trend) | Health Report Store |
+| 5 | A/B variant comparison data (if tactic is part of a test) | Signal Store (both variants) |
+| 6 | Human creative input rate (if applicable) | Signal Store (completion signals) |
+| 7 | The domain model (to evaluate quality of outputs, not just quantity) | Domain Model Store |
+| 8 | Relevant episodic memory for this tactic | Health Report Store (Section 18.2.2) |
+| 9 | The agency/autonomy diagnostic separation (capability profile vs. autonomy profile) for classifying underperformance source when hypothesis is weakening or disproven | Section 6.5, Section 20.5.1 |
+
+The orchestrator must also know: what constitutes a good recommendation — kill requires evidence of failure, pivot requires evidence of a better direction, persevere requires evidence of progress.
+
+### 19.5 Strategy Review
+
+The orchestrator computing strategy health and performing structural memory transfer must have access to:
+
+| # | Requirement | Source |
+|---|-------------|--------|
+| 1 | The strategy specification (rationale, what-must-be-true conditions, kill signal, not-doing list) | Operating document |
+| 2 | All tactic health reports under this strategy | Health Report Store |
+| 3 | The computation definitions for: strategy health, WMBT validation, approach validation | Section 20 |
+| 4 | All killed tactics and the reasons they were killed | Health Report Store + decision log |
+| 5 | Strategy-level A/B comparison data (if applicable) | Signal Store (both strategies) |
+| 6 | The domain model | Domain Model Store |
+| 7 | All episodic memory for this strategy's tactics | Health Report Store (Section 18.2.2) |
+| 8 | Current structural memory for this scope | Domain Model Store (Section 18.2.3) |
+| 9 | Memory transfer requirements: what to extract from kills, how to propose domain model updates | Section 19.8 |
+| 10 | Reference Pool items added since last strategy review (Governor uploads and executor discoveries) — for Vector 3 external knowledge acquisition | Reference Pool (Section 17.2.4) |
+| 11 | `[ROBUST]` Stakeholder interaction patterns — aggregated stakeholder_interaction signals since last review (for human-participant domains) | Signal Store (filtered by signal_type: stakeholder_interaction) |
+| 12 | `[ROBUST]` Absence signal summary — unresolved absence signals and their severity | Signal Store (filtered by signal_type: absence) |
+
+### 19.6 Executor (Per-Action)
+
+The executor agent producing a deliverable must have access to:
+
+| # | Requirement | Source |
+|---|-------------|--------|
+| 1 | The action specification (deliverable, deadline, constraints, reference_items) | Orchestrator work plan |
+| 2 | Parent tactic hypothesis and success metrics | Operating document |
+| 3 | Parent strategy rationale summary and approach constraints | Operating document |
+| 4 | Inherited guardrail chain (full — from goal through tactic) | Operating document |
+| 5 | Relevant domain model quality principles and anti-patterns | Domain Model Store |
+| 6 | Reference materials specified in the action specification (source articles, brand guides, templates, prior deliverables) | Reference Pool (Section 17.2.4) |
+
+The executor does NOT need: signals, health reports, episodic memory, structural memory, or other tactics' data. Executors are stateless — they receive a complete action specification with attached reference materials, produce a deliverable, and emit a signal. If the executor discovers external domain-relevant material during execution, it stores the material in the Reference Pool and may emit a knowledge_flag signal (Section 7.4). See Section 7.3 for the full executor loop.
+
+### 19.7 Episodic Memory Writing
+
+When creating an episodic memory entry after a tactic or strategy decision, the agent must have access to:
+
+| # | Requirement | Source |
+|---|-------------|--------|
+| 1 | What happened: the decision made (kill/pivot/persevere) and why | Health report + Governor decision |
+| 2 | What to capture: the hypothesis tested, what signals showed, what was learned, what should change | Framework requirement |
+| 3 | What to omit: raw signal data (already in signal store), operational details, anything reconstructible from other stores | Framework requirement |
+| 4 | Target length: 3–5 sentences for tactic episodes, 5–8 sentences for strategy episodes | Section 18.2.2 |
+
+### 19.8 Structural Memory Transfer
+
+Structural memory transfer operates across three enrichment vectors (see Section 18.2.3). The agent performing the transfer at a strategy review must have access to:
+
+**Vector 1 — Internal failure learning:**
+
+| # | Requirement | Source |
+|---|-------------|--------|
+| 1 | All killed tactics since last transfer | Health Report Store |
+| 2 | All disproven strategies since last transfer | Health Report Store |
+| 3 | The pattern to look for: recurring failure modes across kills | Framework requirement |
+| 4 | What to produce: new anti-patterns (with evidence), revised hypothesis templates (marked disproven with context), calibrated failure norms | Framework requirement |
+
+**Vector 2 — Internal success learning:**
+
+| # | Requirement | Source |
+|---|-------------|--------|
+| 5 | All tactics that completed with hypothesis holding or exceeded | Health Report Store |
+| 6 | All A/B test winners with clear_winner status (Section 20.9) | Health Report Store |
+| 7 | All strategies with approach_validation = confirmed | Health Report Store |
+| 8 | The pattern to look for: validated approaches that should be promoted from theoretical to proven | Framework requirement |
+| 9 | What to produce: validated hypothesis templates (with performance evidence), refined quality principles (what "good" looked like in practice), calibrated success norms | Framework requirement |
+
+**Vector 3 — External knowledge acquisition:**
+
+| # | Requirement | Source |
+|---|-------------|--------|
+| 10 | Any external knowledge flags emitted by executors during action execution | Signal Store (signal_type: knowledge_flag) |
+| 11 | Quality principle violations that don't match any known anti-pattern (suggesting the domain model is incomplete) | Health Report Store |
+| 12 | Governor-provided reference material (new books, industry reports, standard updates) | Reference Pool (source: governor_upload, added since last strategy review) |
+| 13 | Executor-discovered reference material stored during action execution | Reference Pool (source: executor_discovery, added since last strategy review) |
+| 14 | What to produce: new core concepts, new hypothesis templates (untested, sourced externally), updated quality principles, new anti-patterns from external observation | Framework requirement |
+
+**Common to all vectors:**
+
+| # | Requirement | Source |
+|---|-------------|--------|
+| 15 | The current domain model (to avoid proposing duplicates or contradictions) | Domain Model Store |
+| 16 | The output format: domain model change proposals following the schema in Section 17.2.3 | Domain Model Store (evolution protocol) |
+| 17 | That proposed changes to the domain model require Governor approval | Section 6.1 |
+
+The agent produces one or more change proposals per the schema defined in Section 17.2.3 (evolution protocol). Each proposal specifies which component to change (anti-patterns, hypothesis library, quality principles, core concepts, etc.), the action (add, modify, remove, calibrate), the content, the evidence, and the enrichment vector that sourced it. Proposals from Vector 1 (failures) and Vector 2 (successes) are evidence-grounded in internal execution data. Proposals from Vector 3 (external) are reference-grounded in external sources and should be clearly distinguished — they represent domain knowledge the system has not yet tested internally. All proposals are surfaced to the Governor at Step 6 of the strategy cycle (Section 7.2) and applied only after approval.
+
+**External knowledge flags from executors:** During action execution, an executor agent may encounter domain-relevant information from external sources — a new industry report, a competitor's approach, a regulatory change, a research finding. The executor cannot modify the domain model (Section 6.1), but it can emit a signal with `signal_type: knowledge_flag` containing: the source, a summary of the relevant knowledge, and which domain model component it might affect. These flags are collected in the Signal Store and reviewed during structural memory transfer at the next strategy review. Not all flags will produce change proposals — the orchestrator evaluates relevance and quality before proposing changes.
+
+### 19.9 Learning-Triggered Domain Model Changes `[ROBUST]`
+
+The knowledge tables in §19.2–19.8 define what the orchestrator needs to know for each process. This section defines when accumulated knowledge should trigger a proposal to modify the domain model — the mechanism by which the system learns from its own experience.
+
+#### Trigger Conditions
+
+The orchestrator should propose a domain model change when ANY of the following occur:
+
+1. **Repeated pattern:** The same observation appears in 3+ tactic review health reports across different tactics. Example: "D1 retention is consistently 10-15% lower than domain model norms suggest for this game category." This suggests the norm needs recalibration.
+
+2. **Kill condition recalibration signal:** A tactic is killed, and the post-mortem reveals that the kill condition threshold was miscalibrated relative to domain reality (too aggressive or too lenient), not that the tactic's approach failed. Example: "We killed at 20% D1 but the domain model's 25% norm appears to be unrealistic for AI-generated games — 18% may be the actual achievable baseline." This suggests a norm update.
+
+3. **Missing concept:** The orchestrator encounters a domain-specific pattern that has no corresponding concept, anti-pattern, or hypothesis in any loaded domain model. Example: the product roadmap experiment discovered "trigger-event acquisition" as a pattern that inverted all feature priorities — a concept not present in any domain model but critical to the scope's reasoning.
+
+4. **Contradicted anti-pattern:** A tactic succeeds despite following a pattern listed as an anti-pattern in the domain model. Example: the domain model says "never ship MVP with fewer than 3 features" but a 1-feature MVP succeeds. The anti-pattern may need qualification.
+
+5. **Success/failure correlation:** At a strategy review, the orchestrator identifies a factor that correlates with tactic success or failure across 3+ tactics but is not captured in the domain model. Example: "All tactics that included a free trial converted better than those that didn't, but the domain model doesn't include 'free trial' as a hypothesis library entry."
+
+#### Proposal Format
+
+Domain model change proposals are surfaced to the Governor as part of strategy review health reports. Each proposal specifies:
+- **Target:** Which domain model, which section (core concepts, anti-patterns, hypothesis library, norms).
+- **Change type:** Add concept, modify norm, qualify anti-pattern, add hypothesis template, add relationship.
+- **Evidence:** Which signals, health reports, or decision log entries support the change.
+- **Impact:** How the change would affect current or future tactic design, scoring criteria, or kill condition calibration.
+
+The Governor approves or rejects each proposal. Approved changes are applied to the domain model file and logged in the decision log with `decision_type: approve_domain_model_change`.
+
+#### Why This Matters
+
+Without this mechanism, the system accumulates experience without codifying what it learns. The domain model represents the system's durable knowledge. If it doesn't evolve based on operational evidence, the system makes the same miscalibrated judgments indefinitely. The trigger conditions above ensure that proposals are evidence-based (not speculative) and that the Governor retains control over what the system "learns."
+
+---
+
+## 20. Computation Definitions
+
+### 20.1 Purpose
+
+Multiple sections of this spec reference computations — "compute tactic health," "assess kill condition," "determine A/B winner" — without defining the precise logic. This section provides unambiguous definitions for every named computation. These are **framework-level definitions**: every GOSTA implementation must compute these the same way, otherwise "tactic health" means different things in different apps and the framework loses coherence.
+
+Apps choose HOW to implement these computations (deterministic code, LLM with structured output, hybrid). The definitions below specify WHAT each computation means and WHAT the valid outputs are.
+
+**Default normalization for composite scores:** When computing composite health scores from categorical metric statuses, use this normalization: `exceeded=90, on_track=70, at_risk=40, failing=10`. Composite = Σ(weight_i × normalized_status_i) / Σ(weight_i) × 100. Weights default to equal unless the OD specifies otherwise. Implementations may override with a declared alternative normalization function, but the default ensures cross-implementation consistency.
+
+**Definition of "majority":** Throughout §20, "majority" means **strict majority: more than half** (> 50%) of the items in the set. For sets with an even count where exactly half meet the condition, the condition is NOT satisfied — the threshold is strictly greater than 50%, not equal to it. Example: if a tactic has 4 metrics and 2 are `failing`, "majority of metrics are failing" is false; 3 of 4 must be `failing` for it to be true. This definition applies to all health computation rules in §20.4 through §20.12 that use the word "majority." The deliberation protocol defines its own voting thresholds separately (see Deliberation Protocol §10).
+
+**Decomposed scoring requirement:** Alongside the composite score, health reports must show per-component scores (per-domain, per-metric, or per-tactic as appropriate). If the variance across components exceeds σ > 20, the health report must flag the distribution as "bimodal" and explain: which components are strong, which are failing, and why the composite is misleading. A composite of 62/100 from "all domains mediocre" is a fundamentally different situation from 62/100 from "one domain excellent, one domain failing" — the composite alone hides this distinction. For analytical scopes with domain-model-quality variance, assessments from 6-component models should carry higher confidence weighting (1.0) than assessments from 3-component models (0.6) in synthesis.
+
+**Computation trace requirement `[ROBUST]`:** Every health computation must produce a trace alongside its output. The trace records the intermediate steps that transformed input signals into the final health assessment and recommendation. Without a trace, the Governor cannot answer "why did the system recommend kill?" without asking the orchestrator to reconstruct its reasoning — which may produce a post-hoc rationalization rather than the actual computation.
+
+A computation trace includes:
+- `signals_included`: List of signal IDs used as input, with their values
+- `signals_excluded`: List of signal IDs excluded and the reason (stale, below confidence threshold, triaged out)
+- `intermediate_scores`: Per-metric status, per-WMBT status, composite score before rounding
+- `thresholds_applied`: Which kill thresholds, decision boundaries, or normalization values were used
+- `recommendation_basis`: Which specific intermediate result drove the final recommendation (e.g., "kill recommended because kill_condition_status = met, driven by metric X at value Y against threshold Z")
+
+**Persistence:** Computation traces are stored alongside health reports in the Health Report Store (§17.2.5). At Tier 0, the trace is the AI's reasoning visible in the session transcript — no separate persistence needed. At Tier 1+, traces are structured records attached to each health report. At Tier 2+, traces support replay — given the same input signals and computation definitions, the trace can be independently verified by re-running the computation and comparing results. Trace storage is append-only (same as signals) and subject to the same Priority 3 shedding rules as historical health reports (§7.13.4) — retain recent traces, shed old ones to aggregates.
+
+### 20.2 Metric Evaluation
+
+For a single success metric on a tactic:
+
+```
+Given: current_value (from most recent signal), target_value (from tactic spec)
+
+Progress ratio = current_value / target_value
+
+Status:
+  on_track     → progress ratio ≥ 0.8 (within 80% of target)
+  at_risk      → progress ratio ≥ 0.5 and < 0.8
+  failing      → progress ratio < 0.5
+  exceeded     → progress ratio > 1.0
+
+If metric is inverse (lower is better, e.g., cost):
+  Progress ratio = target_value / current_value
+```
+
+For trending metrics (measured over time):
+
+```
+Given: signal values over last N cycles
+
+Trend: improving | stable | declining
+  improving → last 3 values show consistent increase toward target
+  declining → last 3 values show consistent decrease away from target
+  stable    → neither (fluctuating or flat)
+```
+
+### 20.3 Kill Condition Assessment
+
+For a tactic's kill condition:
+
+```
+Given: kill_metric, kill_threshold, kill_deadline, current_value, current_date
+       total_kill_period = kill_deadline - tactic_start_date
+       remaining_time = kill_deadline - current_date
+
+Status:
+  safe        → current_value above kill_threshold,
+                OR remaining_time > 50% of total_kill_period
+                AND trend is improving
+  approaching → current_value within 20% of kill_threshold
+                AND remaining_time < 25% of total_kill_period,
+                OR current_value below kill_threshold but trend is improving
+                AND remaining_time > 10% of total_kill_period
+  met         → current_value below kill_threshold
+                AND kill_deadline has passed
+
+When status is "met":
+  The orchestrator MUST recommend kill or pivot. "Persevere" is not valid
+  when a pre-committed kill condition is met — that defeats the purpose
+  of pre-commitment. The Governor can override, but the recommendation
+  must be kill or pivot.
+
+Metric prerequisite override:
+  Before assessing kill status, check if the tactic specification
+  declares METRIC_PREREQUISITES (Section 10). If any declared
+  prerequisite is unmet (the prerequisite condition evaluates to false),
+  kill condition assessment is SUSPENDED — status is "suspended —
+  prerequisite gap: [unmet prerequisite]" regardless of metric values.
+  The orchestrator reports the prerequisite gap in the tactic health
+  report so the Governor can address the upstream dependency. When all
+  prerequisites are met, kill condition assessment resumes normally
+  using the current metric values (no clock reset — elapsed time still
+  counts against the kill deadline).
+
+Bootstrap mode override:
+  If the tactic is still within its bootstrap_cycles period (Section 10),
+  kill condition assessment is SUSPENDED — status is always "safe"
+  regardless of metric values. This prevents premature kills when
+  insufficient data exists. Guardrail violations are still enforced
+  during bootstrap (guardrails are not kill conditions — they are
+  hard boundaries that apply from cycle 0).
+  Exception: early kill triggers (see below) bypass bootstrap suspension.
+
+Multi-phase signal production [ROBUST]:
+  Some tactics have multiple sequential phases before producing their
+  target metric signal (e.g., recruit → train → deploy, or build →
+  test → launch). Bootstrap covers only the first phase. For tactics
+  where the target metric signal is not produced until a later phase,
+  the tactic specification may declare signal_production_phase: N
+  (1-indexed, where N is the phase that produces the target metric).
+  Phases before signal_production_phase are treated as extended bootstrap
+  for A/B comparison and kill condition purposes — the tactic is assessed
+  on phase-specific progress indicators (recruitment count, training
+  completion rate) rather than the target metric. Competing strategy
+  comparison (§20.9) is deferred until both strategies have produced
+  target-metric signals for ≥2 post-signal-production cycles. Before
+  that, each strategy is assessed independently, not comparatively.
+  Default: signal_production_phase: 1 (target signal produced
+  immediately after bootstrap).
+
+Metric lag adjustment [ROBUST]:
+  Some tactics produce signals immediately but their target metric
+  responds with a known delay (e.g., training completes in week 1
+  but competency improvement is measurable only after 6 months of
+  practice; marketing spend in Q1 affects brand awareness in Q3).
+  This is distinct from signal_production_phase (which models phases
+  before any signal is produced) — here the signal IS produced, but
+  the causal chain from intervention to outcome has a measurable lag.
+
+  The tactic specification may declare metric_lag: {duration} (e.g.,
+  "metric_lag: 12_weeks"). When declared:
+    (a) The kill_deadline is extended by the metric_lag duration. A
+        tactic with a 90-day kill deadline and 12-week metric lag has
+        an effective kill deadline of 90 days + 84 days = 174 days.
+        The original deadline is preserved as kill_deadline_nominal
+        for reporting. The extended deadline is kill_deadline_effective.
+    (b) During the lag window (between kill_deadline_nominal and
+        kill_deadline_effective), the orchestrator reports: "Metric lag
+        window active — intervention complete, awaiting outcome signal.
+        Lag remaining: [N cycles]." Kill condition assessment uses
+        kill_deadline_effective, not kill_deadline_nominal.
+    (c) Leading indicators declared in the tactic's Success Metrics
+        are still assessed during the lag window. If leading indicators
+        are failing during the lag window, the orchestrator surfaces
+        this as a risk signal: "Leading indicators suggest outcome
+        metric may not respond as expected after lag."
+    (d) A/B comparison (§20.9) between tactics with different
+        metric_lag values uses time-since-intervention-complete, not
+        calendar time, as the comparison baseline.
+    (e) A/B kill deadline synchronization: when two tactics with
+        non-zero metric_lag are A/B-paired (declared via A/B_VARIANT
+        in §10), the orchestrator synchronizes their kill deadlines
+        to max(kill_deadline_effective) across both variants. This
+        ensures both produce post-signal data before kill assessment
+        begins. Without synchronization, the tactic with the shorter
+        effective deadline would be killed before the comparison can
+        occur. The synchronized deadline applies only to A/B-paired
+        tactics — non-paired tactics use their own
+        kill_deadline_effective independently.
+  Default: metric_lag: 0 (outcome tracks intervention immediately).
+
+Interaction with signal_production_phase: when a tactic declares both
+  signal_production_phase and metric_lag, the lag clock starts at the
+  completion of the signal_production_phase (end of that phase's work),
+  not at tactic start or bootstrap end. Phases before
+  signal_production_phase are extended bootstrap (per above). The
+  metric_lag window begins after signal_production_phase completes.
+  Example: recruit(1)→train(2)→deploy(3)→measure(4) with
+  signal_production_phase=3 and metric_lag=26_weeks: bootstrap covers
+  phases 1-2; phase 3 is the signal-producing phase; metric_lag clock
+  starts when phase 3 completes; outcome metrics are expected 26 weeks
+  after phase 3 completion. kill_deadline_effective = max(
+  kill_deadline_nominal, phase_3_completion_date + 26 weeks).
+
+Signal Sufficiency Gate (pivot-before-kill):
+  When status is "approaching" (not yet "met"), the AI MUST recommend
+  pivot before kill. A kill at "approaching" is only valid if:
+    (a) A prior pivot was already attempted for this tactic AND the
+        pivot failed to improve the metric within 1 review cycle, OR
+    (b) An early kill trigger (see below) is active — these bypass
+        the gate entirely.
+  If the AI issues a kill at "approaching" without meeting either
+  condition, the kill recommendation is treated as invalid and is
+  returned to the AI as "insufficient basis — pivot required first."
+  This gate exists because "approaching" means the tactic is not yet
+  dead — data is ambiguous and a single pivot attempt costs less than
+  a premature kill.
+
+Evidence Confidence Score and Early Kill Triggers:
+  Kill timing need not be calendar-driven only. Three early triggers
+  can force kill status regardless of schedule or bootstrap period:
+
+  1. Structural zero — net growth at or below zero for 5 or more
+     consecutive action cycles: the tactic is generating no output
+     signal whatsoever. This is not a trend — it is an absence of
+     evidence that the approach can work at all. Kill immediately.
+     Counter reset rule: any single action cycle where net growth is
+     positive resets the consecutive counter to 0. This is strict
+     consecutive counting — a single positive cycle clears the trigger,
+     even if the next cycle reverts to zero.
+
+  2. Severe deviation — primary metric below 0.5× the kill threshold
+     for 3 or more consecutive action cycles: the tactic is not just
+     approaching the threshold, it is performing at half the minimum
+     viable level. Recovery to threshold within a review window is
+     statistically implausible. Kill immediately.
+
+  3. A/B divergence — when two parallel tactics (or strategies)
+     targeting the same objective produce primary metric ratios
+     exceeding 2× for a sustained period: the lagging approach is
+     not competitive and should be killed in favor of the winning
+     approach. Kill the lagging tactic.
+
+     Cadence scaling: the consecutive-cycle threshold should
+     represent approximately 30-50% of the tactic's expected
+     lifetime in review cycles, with a minimum of 3 cycles.
+     Examples: for a tactic with a 12-week lifetime and weekly
+     reviews, 4-6 consecutive cycles of divergence is appropriate.
+     For a tactic with daily reviews over 30 days, 10-15 cycles.
+     Default if lifetime is unknown: 7 cycles.
+
+  These triggers bypass both bootstrap suspension and the Signal
+  Sufficiency Gate. When an early trigger fires, the kill
+  recommendation includes the trigger name and its evidence
+  (e.g., "structural_zero_5d: net growth ≤0 for 5 days").
+
+  Domain model regression tolerance: In domains with documented
+  cyclical or developmental variance (education, health, seasonal
+  markets), normal regression can trigger structural_zero or severe
+  deviation falsely. Domain models may define a `regression_tolerance`
+  field specifying a window (in cycles) that suspends early kill
+  triggers when a regression pattern matches the domain's documented
+  variance. Requirements: (a) the tolerance MUST be pre-committed in
+  the domain model before the scope begins — it cannot be invoked
+  retroactively to rescue a failing tactic; (b) the domain model
+  must document what "normal regression" looks like in this domain
+  (duration, magnitude, recovery pattern); (c) when the tolerance
+  window expires without recovery, the early kill trigger fires
+  normally. During a tolerance window, the orchestrator still
+  reports the regression in health reports but annotates it as
+  "within domain regression tolerance (N of M cycles elapsed)"
+  rather than recommending kill.
+```
+
+### 20.4 Hypothesis Status
+
+For a tactic's hypothesis:
+
+```
+Given: all success metrics and their statuses (from Section 20.2)
+
+holding    → majority of metrics are on_track or exceeded,
+             AND no metric is failing,
+             AND trend is not declining on any metric
+weakening  → any metric is at_risk with declining trend,
+             OR one metric is failing while others are on_track
+disproven  → majority of metrics are failing,
+             OR kill condition is met (Section 20.3),
+             OR any single critical metric (marked as critical in tactic spec)
+             is failing with declining trend
+```
+
+### 20.5 Tactic Health (Composite)
+
+```
+Given: hypothesis_status (20.4), kill_condition_status (20.3),
+       metric_statuses[] (20.2), trend_data
+
+Tactic health:
+  healthy    → hypothesis holding, kill condition safe,
+               majority metrics on_track
+  at_risk    → hypothesis weakening, OR kill condition approaching,
+               OR any metric failing
+  critical   → hypothesis disproven, OR kill condition met
+  completed  → tactic timeline ended with hypothesis holding
+               and metrics met
+
+Recommendation logic:
+  healthy    → persevere (with evidence summary)
+  at_risk    → persevere with adjustments, OR pivot
+               (specify what to change and why)
+  critical   → kill (if no viable pivot direction)
+               OR pivot (if evidence suggests a specific alternative).
+               Must include evidence.
+  completed  → archive as successful. Extract learnings for
+               episodic memory.
+```
+
+### 20.5.1 Underperformance Diagnostic Classification `[ROBUST]`
+
+When a tactic's hypothesis status is `weakening` or `disproven` (Section 20.4), the orchestrator classifies the underperformance source using the agency/autonomy separation (Section 6.5).
+
+```
+Given: hypothesis_status (weakening or disproven),
+       action_signal_quality (deliverable quality assessments — sourced
+         from domain model quality principles and anti-pattern checks
+         per Section 13. If no domain model quality assessment is
+         available, default: "not_assessed" and classification falls
+         through to not_applicable),
+       autonomous_decision_log (orchestrator decisions since last review),
+       guardrail_compliance_record
+
+Classification:
+  capability_issue  → Action outputs consistently fail quality standards
+                      (domain model quality principles, anti-patterns) despite
+                      correct autonomous decisions (right tactics chosen, right
+                      actions sequenced, guardrails respected). The system is
+                      making good decisions but producing poor output.
+                      Response: improve tools, models, domain models, or
+                      reference materials.
+
+  autonomy_issue    → Action outputs meet quality standards when produced, but
+                      the orchestrator made poor autonomous decisions: wrong
+                      tactic sequencing, missed pivot signals, ignored
+                      approaching kill conditions, or generated work plans
+                      misaligned with tactic hypothesis. The system produces
+                      good output but directs it poorly.
+                      Response: regress graduation stage or tighten guardrails.
+
+  mixed             → Both quality failures and decision failures are present.
+                      Response: address both — capability improvements AND
+                      autonomy regression.
+
+  not_applicable    → Underperformance is due to external factors (market
+                      change, human input shortfall, dependency failure) rather
+                      than system capability or autonomy. Evidence: external
+                      signals or human_creative_input_rate < 0.5.
+                      Response: address the external factor, not the system.
+
+Default: not_applicable (when evidence is insufficient to classify).
+```
+
+### 20.6 Strategy Health `[ROBUST]`
+
+```
+Given: WMBT_conditions[], tactic_health_reports[],
+       strategy_kill_signal
+
+WMBT validation (per condition):
+  assumed     → no evidence either way (default at start)
+  holding     → evidence supports the condition being true
+  confirmed   → strong supporting evidence, no contradictory signals.
+                Transition criteria: all related tactic hypothesis_status
+                values are `holding` or better for ≥2 consecutive tactic
+                review cycles, AND no signals contradict the condition.
+                [ADVANCED: surface transition to confirmed as positive
+                event per Section 7.2; at CORE tier, confirmed and
+                holding are functionally equivalent for decision-making]
+  at_risk     → evidence is mixed or weakening.
+                Operationalization: a WMBT transitions from holding to
+                at_risk when (a) any supporting metric has been below the
+                WMBT's predicted threshold for 1 consecutive strategy
+                review cycle, OR (b) 2+ supporting signals are
+                directionally opposed to the WMBT's prediction within
+                a single strategy review cycle. Transition from assumed
+                to at_risk follows the same criteria (evidence appeared
+                but was negative from the start).
+  falsified   → evidence contradicts the condition
+                Operationalization: a WMBT is falsified when (a) a metric
+                that the WMBT predicts should be above threshold X is below
+                X for 2+ consecutive strategy review cycles, OR (b) the
+                Governor explicitly declares the assumption false based on
+                external evidence. Falsification is ALWAYS surfaced to the
+                Governor for confirmation before triggering strategy-level
+                consequences (approach → disproven).
+
+If ANY WMBT is falsified → strategy is disproven regardless of tactic
+performance. A strategy built on false assumptions produces misleading
+results even if tactics appear to succeed.
+
+Approach validation (aggregate):
+  confirmed   → all WMBTs holding or assumed,
+                 tactic portfolio healthy
+  uncertain   → any WMBT at_risk,
+                 OR majority of tactics at_risk
+  disproven   → any WMBT falsified,
+                 OR strategy kill signal met,
+                 OR 2+ tactics killed under this strategy
+                 without successful pivot
+
+Strategy health:
+  healthy     → approach confirmed, tactic portfolio healthy
+  at_risk     → approach uncertain,
+                OR majority of tactics at_risk
+  failing     → approach disproven,
+                OR strategy kill signal met
+```
+
+### 20.7 Objective Progress
+
+Computed at strategy review. Aggregates strategy-level data into objective-level assessment.
+
+```
+Given: objective_metric, objective_threshold, objective_deadline,
+       strategy_health_reports[], strategy_count_active,
+       strategy_count_killed
+
+Metric progress: use Section 20.2 (metric evaluation) on the
+  objective's metric against its threshold.
+
+Portfolio health score:
+  strong    → majority of strategies healthy,
+              objective metric on_track or exceeded
+  moderate  → any strategy at_risk,
+              OR objective metric at_risk
+  weak      → any strategy failing,
+              OR objective metric failing,
+              OR all strategies killed without replacement
+
+Trend: use Section 20.2 (trending metrics) on the objective's
+  metric values over the last N strategy review cycles.
+
+Self-loading detection [ROBUST]: after computing metric progress,
+  check whether the objective exhibits self-loading — achieving
+  the objective creates proportional maintenance cost that competes
+  for the same Governor/resource capacity as further progress.
+  Indicators:
+    - Objective metric tracks a cumulative stock (e.g., active
+      contributors, paying customers, enrolled students) rather
+      than a rate or milestone
+    - Each unit of the stock requires ongoing Governor attention
+      (e.g., each new contributor needs PR reviews, each customer
+      needs support)
+    - Governor capacity ceiling (Section 7.2, Step 4b) is being
+      approached (≥80% of declared capacity) or exceeded as the
+      metric grows
+  If self-loading is detected:
+    - Flag in the objective health report:
+      "Self-loading objective detected — maintenance burden growing
+      proportionally with [metric]. Current maintenance load: [X hrs].
+      Projected at target: [Y hrs] vs. Governor capacity [Z hrs]."
+    - The orchestrator MUST surface this at the next strategy review
+      as a structural constraint, NOT a tactic failure
+    - Resolution options: (a) revise_objective to include a
+      maintenance capacity plan, (b) add a strategy specifically
+      for scaling maintenance (automation, delegation), (c) revise
+      the target to a sustainable level
+  Self-loading is not a defect — it is a property of objectives
+  that track growing stocks. The framework's job is to detect it
+  early enough for the Governor to plan for it.
+
+Controllable vs. uncontrollable metric decomposition [ROBUST]:
+  When an objective's metric is influenced by factors outside
+  the scope's control (market conditions, external actors, policy
+  changes, natural events, law enforcement outcomes), the OD
+  should decompose the metric into:
+    - Controllable component: factors the scope's strategies
+      can directly influence (e.g., opportunity crime reducible
+      through environmental design)
+    - Uncontrollable component: factors outside the scope's
+      influence (e.g., drug-related crime driven by regional
+      networks, macroeconomic effects on revenue)
+  The orchestrator reports both components. Kill conditions and
+  health assessments evaluate the controllable component. The
+  uncontrollable component is reported as context, not as
+  performance.
+  If the decomposition is not declared at authoring time, the
+  orchestrator should flag it when: (a) the objective metric
+  moves in the opposite direction from strategy signals (strategies
+  healthy but objective failing), or (b) a known external event
+  is affecting the metric. The diagnostic question: "Are strategies
+  producing the expected effects on the factors they control?"
+  If yes, the problem is the objective's metric design, not the
+  strategic approach — route to revise_objective (metric
+  decomposition) rather than strategy kill.
+  Note: this check is the objective-level equivalent of the
+  tactic-level input/effectiveness separation (Section 4.4).
+  Section 4.4 separates human creative input availability from
+  tactic effectiveness. This check separates controllable metric
+  components from uncontrollable ones at the objective level.
+
+Output: objective_metric_status, portfolio_health_score,
+        objective_trend (improving | stable | declining)
+```
+
+### 20.8 Human Creative Input Adjustment `[ROBUST]`
+
+For tactics with mixed dependencies (some actions require human creative input, some don't). See Section 4.4.
+
+```
+Given: all actions for the tactic in the review period,
+       each action's dependency_type (execution | external | human_creative),
+       each action's status (complete | blocked | failed)
+
+human_creative_input_rate =
+  human_creative_actions_completed / human_creative_actions_planned
+
+effectiveness_adjusted metrics:
+  Compute metric values ONLY over actions that received their
+  required inputs. Exclude actions blocked due to missing
+  human creative input.
+
+Purpose: Separate "the tactic isn't working" from "the tactic
+  isn't getting the inputs it needs." A tactic that performs
+  well on actions that received input but has low input rate
+  is an input problem, not a tactic problem. The orchestrator
+  must surface the input gap to the Governor, not recommend
+  killing the tactic.
+
+When human_creative_input_rate < 0.5:
+  Flag in health report. Recommendation must note that tactic
+  health cannot be reliably assessed due to insufficient input.
+```
+
+### 20.9 A/B Comparison
+
+**Action cycle vs review:** During an action cycle, A/B comparison is observational — note current metric differences and flag significant divergence. The full comparison with winner determination and recommendations below applies at tactic review (for tactic-level A/B) and strategy review (for strategy-level A/B).
+
+#### Tactic-Level
+
+```
+Given: variant_A metrics, variant_B metrics, shared_metric,
+       comparison_period
+
+Winner determination:
+  clear_winner → one variant exceeds the other by ≥ 2x
+                 on shared metric over the comparison period
+  leaning      → one variant exceeds the other by 1.3–2x
+                 on shared metric
+  inconclusive → difference is < 1.3x (within noise)
+
+Minimum evidence floor: winner determination requires that both
+  variants have completed at least 2 review cycles of post-bootstrap
+  data. If either variant has fewer than 2 cycles, the comparison
+  is automatically "inconclusive — insufficient data" regardless of
+  the ratio. Additionally, if both variants' absolute metric values
+  are below 10% of the shared metric's kill_threshold (from the
+  tactic specification's kill conditions, Section 10), ratio
+  comparisons are unreliable — small absolute numbers produce
+  misleading ratios. Report "inconclusive — below minimum meaningful
+  threshold (10% of kill_threshold)" and extend the comparison period.
+  If the tactic specification declares an explicit
+  `minimum_meaningful_threshold` field, use that value instead of the
+  10%-of-kill_threshold default.
+
+Recommendation:
+  clear_winner → shift resources to winner, reduce loser to minimum
+  leaning      → continue both, extend comparison period by one cycle
+  inconclusive → continue both, extend comparison period by two cycles,
+                  consider whether the shared metric is the right
+                  comparison
+```
+
+#### Strategy-Level
+
+Same as tactic-level, but:
+- Compared on shared metrics across strategies under the same objective
+- Decision is made at strategy review, not tactic review
+- A strategy-level kill based on A/B comparison requires Governor approval (it's a strategy decision)
+
+#### Resource-Normalized Comparison `[ROBUST]`
+
+When competing strategies (or tactics) have received materially different resource allocations — defined as >20% difference from their original allocation or from each other — the A/B comparison must present both raw comparison and resource-normalized comparison. Raw: absolute metric values per variant. Normalized: metric per unit of resource (e.g., awareness points per €1K spent, conversions per Governor-hour invested). The Governor assesses which comparison is more diagnostic. A strategy whose budget was cut by 50% via `portfolio_rebalance` and subsequently underperforms its competitor may be resource-starved, not strategically inferior. The normalized comparison surfaces this distinction. If the normalized comparison shows the resource-starved strategy is more efficient per unit of resource, the Governor should consider restoring its allocation before making a kill decision.
+
+### 20.10 Feature/Tactic Scoring Protocol `[ROBUST]`
+
+**Purpose:** When prioritizing features, tactics, or any set of options across multiple domain models, the scoring methodology must be explicit and reproducible.
+
+**Scale Definition:**
+- Use a 1-10 integer scale per criterion. No half-points (false precision).
+- **1-2:** Absent or negligible. The option does not address this criterion.
+- **3-4:** Weak. Marginal relevance, significant gaps.
+- **5-6:** Moderate. Functional but not differentiated.
+- **7-8:** Strong. Clear advantage, well-aligned.
+- **9-10:** Exceptional. Dominant on this criterion, rare.
+
+**Aggregation Method:**
+- Default: Simple average across criteria within a domain, then simple average across domains (equal domain weighting).
+- If the operating document specifies domain weighting (e.g., Sales 0.5, Marketing 0.25, Value Creation 0.25), apply weighted average instead.
+- Domain weighting rationale must be documented in the OD with a "because" clause.
+
+**Spread Reporting:**
+- For every scored option, report the spread (max domain score − min domain score).
+- Spread > 2.0 flags a tension that must be surfaced per Step 3b of the session protocol (if using GOSTA-Cowork Protocol).
+- Composite scores hide domain disagreement. A feature scoring 6.5 with spread 0.2 is fundamentally different from one scoring 6.5 with spread 3.0.
+
+**Regulatory/External Adjustment:**
+- External mandates (regulatory, contractual, compliance) may add 0.0-0.4 bonus to composite scores.
+- The adjustment cap must be declared in the operating document. Default: 0.4.
+- Adjustment > 0.0 requires citation of specific mandate (article, clause, regulation).
+
+**Calibration:**
+- Scoring is only meaningful relative to other options in the same batch. Do not compare scores across experiments.
+- When scoring >20 options, score in batches of 10 and include 2-3 "anchor" options in each batch for consistency checking.
+
+### 20.11 Dependency Validation `[ROBUST]`
+
+**Purpose:** When sequencing features, tactics, or actions that have prerequisite relationships, dependency constraints must be formally represented and validated.
+
+**Dependency Graph Specification:**
+- Every sequenceable item declares its dependencies as a list of item IDs.
+- Dependencies form a Directed Acyclic Graph (DAG). Circular dependencies are a structural error — the orchestrator must detect and reject them.
+- Items with no dependencies are "roots" — eligible for position 1 in any sequence.
+
+**Validation Rules:**
+1. No item may appear in a sequence before all its dependencies.
+2. Items sharing no dependency relationship may be parallelized (if capacity exists).
+3. Transitive dependencies are implicit — if A depends on B and B depends on C, then A depends on C.
+
+**Sequence Generation:**
+- Generate candidate sequences by topological sort of the DAG, then rank within each dependency tier by scoring (§20.10).
+- When multiple valid orderings exist (items at the same dependency depth), scoring determines position.
+- Document which constraints are binding (forced by dependencies) vs. elective (chosen by scoring) for each position in the sequence.
+
+### 20.12 Goal Health `[ROBUST]`
+
+Computed at goal review. Aggregates objective-level data into a goal-level assessment. Unlike tactic and strategy health — which evaluate hypotheses and what-must-be-true conditions — goal health evaluates directional progress and environmental alignment. Goals do not have kill conditions, hypotheses, or deadlines; they are directional. The computation reflects this.
+
+```
+Given: objective_health_reports[] (from §20.7),
+       goal_guardrails[],
+       environmental_signals (external changes since last goal review),
+       time_since_last_goal_review
+
+Objective portfolio assessment:
+  strong    → majority of objectives on_track or exceeded,
+              no objectives failing
+  moderate  → any objective at_risk,
+              OR any objective's portfolio_health_score = weak
+  weak      → majority of objectives failing,
+              OR all strategies under any objective killed
+              without replacement
+
+Environmental alignment:
+  aligned     → no environmental signals contradict the goal's
+                direction or guardrails
+  drifting    → environmental signals suggest the goal's
+                direction may be less viable than when set
+                (e.g., market shift, regulatory change,
+                competitive landscape change). Evidence is
+                directional, not conclusive.
+  misaligned  → environmental signals directly contradict the
+                goal's premises or render guardrails
+                operationally untenable
+
+Goal health (composite):
+  healthy     → objective portfolio strong,
+                environmental alignment aligned
+  at_risk     → objective portfolio moderate,
+                OR environmental alignment drifting
+  reassess    → objective portfolio weak,
+                OR environmental alignment misaligned,
+                OR all objectives under this goal are failing
+                AND have been for ≥2 consecutive strategy
+                review cycles
+
+Recommendation logic:
+  healthy     → maintain (with objective-level highlights)
+  at_risk     → investigate: surface the specific objectives
+                or environmental factors driving the risk.
+                Governor may revise objectives, add strategies,
+                or adjust guardrails.
+  reassess    → goal-level reassessment: the Governor should
+                evaluate whether the goal itself remains the
+                right direction. Present: environmental analysis,
+                cross-objective performance, and the question
+                "Is this still where we should be going?"
+```
+
+**What "reassess" is NOT:** It is not a kill recommendation. Goals are directional — they don't have pass/fail thresholds. "Reassess" means the evidence warrants the Governor re-examining the goal's direction, not that the goal has failed. The Governor may reaffirm the goal with full awareness of the current state, which is a valid and valuable outcome of a goal review.
+
+**Multi-goal scope status aggregation.** When a scope contains multiple goals (e.g., a municipal emergency scope with safety, infrastructure, and economic goals), the scope's overall health is not the average of goal health values — it is determined by the worst-performing goal with a weighting for goal priority. The aggregation rule: (a) if any goal is `reassess`, the scope health is `reassess` regardless of other goals; (b) if any goal is `at_risk`, the scope health is at minimum `at_risk`; (c) the scope is `healthy` only when all goals are `healthy`. The Governor may declare goal priorities in the operating document (`priority: critical | high | standard`); a `critical` goal at `at_risk` status triggers an immediate scope-level review (§7.9 event-triggered), while a `standard` goal at `at_risk` is handled at the next scheduled goal review. If no priorities are declared, all goals are treated as `critical` — the safe default. Multi-goal scope status is reported in a scope-level dashboard section of the status report, showing each goal's status alongside the aggregate.
+
+**Cross-objective tradeoff governance** `[ROBUST]` — When optimizing one objective structurally degrades another objective under the same goal (e.g., optimizing delivery speed degrades customer satisfaction; optimizing cost efficiency degrades service quality), the independent per-objective health computation in §20.7 does not detect the interference — each objective is assessed in isolation, so the degrading objective simply appears to be underperforming without diagnosing the cause. The orchestrator must detect and surface cross-objective tradeoffs using this protocol: (1) **Detection:** At each strategy review, the orchestrator checks whether any objective's declining metrics are temporally correlated with another objective's improving metrics under the same goal. Correlation is not causation, but temporal co-movement with a plausible causal mechanism (shared resource pool, shared customer base, shared operational capacity) warrants flagging. (2) **Surfacing:** When a cross-objective tradeoff is detected, the orchestrator presents it to the Governor as a structured finding: `{tradeoff_detected: true, improving_objective: [ID], declining_objective: [ID], correlation_window: [cycles], hypothesized_mechanism: [description]}`. This is presented alongside objective health reports, not as a separate alarm. (3) **Resolution options:** The Governor chooses: (a) `accept_tradeoff` — the improving objective's gains are worth the declining objective's losses, log the accepted tradeoff and adjust the declining objective's target or timeline via `revise_objective` (§4.3); (b) `constrain_improvement` — add a guardrail to the improving objective's strategies limiting the mechanism causing interference (e.g., "speed optimization must not reduce per-order quality check time below X"); (c) `rebalance_portfolio` — shift resources between strategies via `portfolio_rebalance` (§4.3) to find a Pareto-improving allocation; (d) `decompose_metric` — revise both objectives' metrics to separate the shared factor, enabling independent optimization. The tradeoff finding and Governor resolution are logged in the decision log as `decision_type: cross_objective_tradeoff`. Unresolved tradeoffs escalate: if detected at two consecutive strategy reviews without Governor resolution, the scope health report flags `unresolved_cross_objective_tradeoff` and the goal health assessment factors it into the objective portfolio assessment.
+
+**Environmental signal sourcing:** Environmental alignment assessment requires input beyond the upward signal flow. Sources include: Governor observations reported at reviews, knowledge_flag signals from executors (§7.4), milestone signals with external origin, environmental scanning feeds (§7.14, if implemented), and the orchestrator's own observations from domain model currency checks. The orchestrator should explicitly cite which environmental inputs informed its alignment assessment.
+
+**Implementation by tier:**
+
+- *Tier 0:* The AI computes goal health as part of the goal review session. It reads all objective health reports, reviews any environmental changes the Governor has mentioned or that appeared in signals, and presents the assessment. The Governor reviews and decides whether to maintain, adjust, or fundamentally reassess the goal.
+- *Tier 1:* Automated goal health report generated at the goal review cadence. Environmental alignment requires manual Governor input (the system prompts: "Before I compute goal health, have there been any significant external changes since last goal review?").
+- *Tier 2+:* Goal health computation includes automated environmental scanning inputs (if available). Environmental alignment assessment cross-references external data feeds against the goal's guardrails and directional assumptions. Trend analysis across multiple goal review cycles detects slow drift that individual reviews might miss.
+
+### 20.13 Responsibility Boundaries
+
+This section clarifies the boundary between what the GOSTA framework defines and what each app/product owns.
+
+**Framework responsibility (this spec):**
+
+| What | Why |
+|------|-----|
+| Knowledge requirements per process (Section 19) | Defines what agents must know — the checklist |
+| Computation definitions (this section) | Defines what each computation means — precisely and unambiguously |
+| Memory capture requirements (Section 18) | What episodic and structural memory must contain |
+| OD structure and required fields (Sections 9–10) | What the operating document looks like |
+| Graduation stages and autonomy boundaries (Section 16.11) | What changes at each stage |
+| Non-delegable decisions per stage (Section 6.3) | What always requires Governor approval at every stage |
+
+**App/product responsibility (each implementation):**
+
+| What | Why |
+|------|-----|
+| Actual agent prompts | Written during development, tuned in production, model-specific |
+| Context management strategy | How to fit knowledge into the context window — what to summarize, what to load raw |
+| Domain model injection format | How domain knowledge is formatted for the specific LLM |
+| Reasoning guardrails | How to validate that LLM output matches evidence — prompt engineering + post-generation checks |
+| Signal collection mechanics | How signals are collected from external sources (APIs, webhooks, manual entry) |
+| Governor interface | How decisions are surfaced and recorded — UI, chat, email, etc. |
+| Production tuning | Prompt refinement, context optimization, performance tuning |
+
+**The line:** GOSTA defines WHAT agents need to know and WHAT computations mean. Apps define HOW knowledge is delivered and HOW computations are implemented.
+
+---
+
+## 21. Operating Document Authoring Guide
+
+### 21.1 Purpose
+
+Section 9 defines *what* an operating document contains — its structure, required fields, and lifecycle. This section addresses the prior question: *how do you think through writing one?*
+
+The operating document is the single input to the entire GOSTA system. If it is poorly reasoned, every layer below it inherits that weakness. No amount of orchestrator sophistication or domain model richness compensates for a badly decomposed goal, a vague strategy, or a kill condition set by gut feel. This guide walks the Governor through the reasoning process, layer by layer.
+
+**Who is the Governor?** Throughout this guide and the broader framework, the Governor is the person with decision authority over the scope being governed. This may be the CEO governing company-wide strategy, a VP governing a department, a Director governing a program, or a Project Lead governing a specific initiative. The framework does not assume a particular organizational level. It assumes a person with the authority to set goals, allocate resources, make kill/pivot/persevere decisions, and approve strategy for the scope in question. Earlier sections of this document use "CEO" and "Founder" in many places — this reflects the framework's origin context (a founder-led startup). The correct general term is Governor.
+
+### 21.2 Before You Begin: Scope Definition
+
+Before writing a single goal, the Governor must answer one question clearly: **What is this operating document governing?**
+
+This is not a formality. The scope boundary determines everything that follows — which goals are relevant, which metrics matter, which domain models apply, and critically, what is *outside* the boundary and therefore someone else's problem.
+
+**The scoping discipline:**
+
+Define the scope as narrowly as you can while still capturing the strategic decisions that belong together. A scope that's too broad forces you to manage unrelated goals in a single document. A scope that's too narrow fragments decisions that should be coordinated.
+
+**Good scope boundaries:**
+- A product line (all strategic decisions about product X)
+- A brand identity (all content, audience, and positioning decisions for identity Y)
+- A business function for a specific entity (marketing for product X)
+- A project with a defined mission and end state (hiring a senior engineer)
+- A department's operational mandate (engineering team operations)
+
+**Bad scope boundaries:**
+- "Everything" — too broad, forces unrelated goals into one document
+- "Q1 tasks" — too narrow and time-bound, this is a work plan not a governing document
+- "Marketing" without specifying for whom or what — ambiguous scope bleeds into everything
+
+**Test your scope:** Can you name 1-3 goals that are all clearly within this scope and that a single Governor can own? If you can't reduce to under 4 goals, your scope may be too broad. If you can only think of one goal that's really a disguised objective (measurable, time-bound), your scope may be too narrow.
+
+Once the scope is clear, declare it using the template from Section 9.1 (Identity and Scope).
+
+### 21.3 Layer 1: Deriving Goals
+
+**The question:** Where are we going within this scope?
+
+**The reasoning process:**
+
+Start with dissatisfaction. Goals emerge from the gap between where you are and where you want to be. Ask yourself: *What about the current state of [scope] is unacceptable or insufficient? What would "good" look like in 2-3 years?*
+
+Do not start with activities ("we should do more content marketing") or metrics ("we need 10,000 followers"). These are methods and targets respectively. Start with the desired state: "We need to be recognized as a trusted authority in our domain." That's a goal.
+
+**The derivation steps:**
+
+1. **List your dissatisfactions.** What's wrong or missing right now? "We have no brand presence." "Our engineering team can't ship fast enough." "We're losing deals we should win." Write 5-10 of these in plain language.
+
+2. **Cluster by domain.** Group dissatisfactions that share a common domain. Brand-related dissatisfactions cluster together. Engineering productivity dissatisfactions cluster together. Each cluster is a candidate goal.
+
+3. **For each cluster, write the destination.** Convert the dissatisfaction cluster into a desired future state. "We have no brand presence" becomes "Build a recognized and trusted brand presence." Strip all timelines, numbers, and methods. If you catch yourself writing "by Q3" or "through content marketing" or "reach 5,000," you've contaminated the goal with an objective, strategy, or tactic. Pull those out — you'll use them later.
+
+4. **Check for overlap.** No two goals should compete for the same resources or metrics. If they do, they're either the same goal stated twice, or the scope is too broad. Merge or split.
+
+5. **Write guardrails for each goal.** For every goal, ask: *What would be an unacceptable way to achieve this?* "Build brand presence" without guardrails invites purchased followers, off-brand viral content, or engagement bots. Guardrails are the "not like this" declarations. They protect the goal from being achieved in ways that damage the organization.
+
+**Guardrail derivation questions:**
+- What methods are ethically or legally off-limits?
+- What existing assets (brand, reputation, relationships) must not be damaged in pursuit of this goal?
+- What cost constraints exist (not budget numbers — categories of cost that are unacceptable)?
+- What audience or stakeholder expectations must be maintained?
+
+**Quantity check:** 4-8 goals for a full organization. 1-3 for a focused scope (single product, single project, single department). If you have more than 8, your scope is too broad or you're listing objectives disguised as goals. If you have fewer than 1, you may not have a scope worth governing — it might be a tactic.
+
+### 21.4 Layer 2: Deriving Objectives from Goals
+
+**The question:** What concrete result, delivered by when, would constitute real progress toward this goal?
+
+**The reasoning process:**
+
+An objective takes the directional aspiration of a goal and converts it into something you can pass or fail. This is the *measurement transformation* (Section 2.4). You're answering: if we could measure progress toward this goal, what metric would we watch, what value would constitute success, and by when?
+
+**The derivation steps:**
+
+1. **For each goal, ask: How would I know we're making progress?** What would change in the world that I could observe and measure? "Build a recognized brand presence" — how would you know? Follower count? Inbound inquiry rate? Brand mention frequency? Speaking invitation count? Write down every candidate metric.
+
+2. **Select the metrics that are closest to the goal's intent.** Vanity metrics are metrics that move without meaning. If the goal is "trusted authority," follower count might move without trust. Engagement rate or inbound inquiry rate might be closer to "trusted." Choose metrics where improvement genuinely signals goal progress.
+
+3. **Set a threshold that defines success.** This is where most people get vague. "Increase engagement" is not an objective. "Reach 4% average engagement rate by Q3 2026" is. The threshold must be specific enough that both the Governor and the orchestrator can compute pass/fail unambiguously.
+
+**How to set thresholds when you have no data:** This is the most common problem, especially for new scopes. Use three reference points:
+- **Industry benchmark:** What's typical in your space for this metric? (The domain model's norm calibration, if it exists, provides this.)
+- **Baseline:** Where are you right now? (You'll record this in the operating document.)
+- **Ambition calibration:** Is this threshold aggressive, moderate, or conservative? You don't need the "right" number on day one. You need a number that's defensible enough to act on and will be recalibrated at the first strategy review with real data.
+
+4. **Set a deadline.** Every objective needs a date. Without a date, the objective has no urgency and no review trigger. The horizon depends on the scope — a 90-day sprint has objectives at the 30/60/90-day marks, while a multi-year strategic scope might have annual objectives. If the deadline extends across many strategy review cycles with no intermediate checkpoints, you probably need intermediate objectives.
+
+5. **Check upward alignment.** Does achieving this objective genuinely advance the parent goal? If you achieved the metric by the deadline, would the goal be closer to realized? If the answer is "sort of," the metric may be wrong.
+
+6. **Add objective-level guardrails.** These inherit from the goal's guardrails and may add specifics. If the goal guardrail says "no purchased engagement," the objective guardrail might add "no engagement pods or reciprocal engagement schemes."
+
+**Aspiration-floor pattern** `[ROBUST]` — When the same metric has both an objective target (what success looks like) and a guardrail floor (what unacceptable deterioration looks like), declare both explicitly. The objective target is the aspiration; the guardrail floor is the safety boundary. The gap between them is the acceptable-partial-success zone — the objective is missed but the situation is safe. Example: objective target = 50-year flood defense, guardrail floor = 40-year defense. Below 40 = guardrail violation. 40-49 = objective missed but safe. 50+ = objective met. This pattern is particularly useful when the Governor adds a guardrail mid-scope to lock in a minimum acceptable outcome while preserving the original aspirational target. When using this pattern, ensure the guardrail floor follows the calibration rules in §5.3 — it represents the maximum acceptable deterioration, not the objective target.
+
+**Maintain-baseline objective fragility** `[ROBUST]` — A special case where the objective target equals or nearly equals the guardrail floor. "Maintain current lab safety rating" has a target of X and a floor of X (or X minus noise tolerance). This collapses the acceptable-partial-success zone to zero — any shortfall is simultaneously an objective miss and a guardrail violation. This creates three problems:
+
+1. **Kill condition ambiguity.** Standard kill conditions ("if metric hasn't reached target by deadline") are designed for growth objectives. For maintenance objectives, the metric starts at the target and the question is whether it stays there. The kill condition should be inverted: "if metric drops below floor for N consecutive cycles, kill" — but killing a maintenance tactic often means abandoning the maintenance function entirely, which may be unacceptable. Use `kill_requires: governor_approval` (§10) for maintenance tactics where killing would leave the baseline unprotected.
+
+2. **A/B comparison inapplicability.** Competing strategies for a maintenance objective are not "which grows faster" but "which sustains more reliably at lower cost." The A/B comparison metric should be cost-efficiency or stability variance, not absolute metric level (which should be identical between variants). When authoring A/B tests for maintenance objectives, declare an explicit comparison metric distinct from the maintenance target.
+
+3. **Tactic health misleading signals.** A maintenance tactic with a stable metric produces no signal variation — hypothesis status is perpetually "holding" and kill condition is perpetually "safe." This looks healthy but may mask degradation in the maintenance mechanism itself (e.g., the safety protocol is being followed but the equipment is aging). Maintenance tactics should declare at least one **process health leading indicator** in addition to the outcome metric — a metric that tracks the health of the maintenance mechanism, not just the maintained state. Example: "lab safety rating = X" (outcome) plus "safety audit completion rate" and "equipment calibration currency" (process health).
+
+**A/B comparison for maintenance objectives:** The ratio-based winner determination in §20.9 (clear_winner at ≥2x, leaning at 1.3-2x) is designed for growth metrics. For process health metrics (stability variance, cost-efficiency, cycle time), replace ratio-based determination with threshold-based determination declared explicitly in A/B_VARIANT:
+- `comparison_mode: threshold` (vs. default `comparison_mode: ratio`)
+- `winner_condition`: e.g., "first strategy to achieve 95% audit completion and maintain for 2 consecutive review cycles"
+- `inconclusive_condition`: e.g., "both strategies within 5% of each other on shared metric for 3+ cycles"
+When `comparison_mode: threshold` is declared, §20.9's ratio logic is bypassed entirely — the declared conditions are used instead. This prevents misapplying ratio logic to metrics where 2x differences are meaningless.
+
+When the Governor identifies a maintain-baseline objective, the OD validation checklist (§21.8) should verify: (a) kill condition is inverted or uses `kill_requires: governor_approval`, (b) A/B comparison metric is distinct from maintenance target and uses `comparison_mode: threshold` if competing strategies exist, and (c) at least one process health leading indicator is declared per maintenance tactic.
+
+**Guardrail-as-autonomy-override pattern** `[ROBUST]` — A guardrail can effectively override the per-stage autonomy table by preventing the orchestrator from executing a decision autonomously. This is an emergent interaction, not a bug. Example: at Stage 4, the orchestrator has full tactic-level autonomy including kills. But if a guardrail states "no research protocol changes without ethics board review," and killing a tactic constitutes a protocol change, the guardrail forces escalation to the Governor — overriding the Stage 4 auto-kill permission for that specific tactic. This pattern is structurally equivalent to `kill_requires: governor_approval` (§10) but arises dynamically from guardrail content rather than static tactic configuration. When the orchestrator detects that an autonomous decision would violate or interact with a guardrail, the decision is escalated regardless of stage. The orchestrator should log these escalations as `escalation_reason: guardrail_autonomy_override` with the specific guardrail cited, so the Governor can assess whether the guardrail is functioning as intended or is over-constraining autonomy. If a guardrail consistently overrides autonomy for routine decisions, the Governor should consider whether to: (a) tighten the guardrail wording to exempt routine cases, (b) add `kill_requires: governor_approval` to the relevant tactic and relax the guardrail, or (c) accept the escalation load as appropriate given domain risk.
+
+**Quantity check:** 2-5 objectives per goal. If you have more than 5, you're either over-decomposing (some objectives are really tactics) or the goal is too broad. If you have only 1, that's fine for a focused scope — but verify it's genuinely an objective and not just the goal restated with a number.
+
+### 21.5 Layer 3: Deriving Strategies from Objectives
+
+**The question:** Why this approach and not others?
+
+**The reasoning process:**
+
+This is the layer where most Governors struggle, because it requires making the implicit explicit. You probably already have an intuition about how to achieve the objective. Strategy derivation forces you to articulate *why* that intuition is correct — and what alternatives you're rejecting.
+
+**The derivation steps:**
+
+1. **Generate at least two candidate approaches.** This is the single most important discipline in strategy derivation. If you can only think of one way to achieve the objective, you haven't thought hard enough. The exercise of generating alternatives forces you to examine your assumptions.
+
+   Ask: *What are fundamentally different approaches to achieving [objective]?* Not variations on the same theme — genuinely different theories of how success happens.
+
+   For "reach 5,000 followers by Q3": Approach A might be "position as thought leader through original expert content." Approach B might be "build community through conversation and engagement." Approach C might be "leverage paid amplification to bootstrap organic growth." These are different theories, not different tactics.
+
+2. **For each candidate, articulate the rationale.** Why would this approach work? What structural advantage does it exploit? What evidence or logic supports it? This is not a business case — it's a reasoning statement. "Thought leadership works because our domain expertise is deep and our competitors mostly produce generic content. Original insight is scarce and therefore valuable for audience building."
+
+3. **For each candidate, define what-must-be-true.** These are the assumptions that must hold for the strategy to work. They're not metrics — they're preconditions. "For thought leadership to work, it must be true that: (1) our expertise is genuinely differentiated, (2) the target audience is on the platform, (3) the Governor can sustain the required input rate."
+
+   **How to derive what-must-be-true conditions:** Take the rationale and ask: *What could make this reasoning wrong?* Each answer is a what-must-be-true condition (stated in the positive). If the rationale says "expert content is scarce and valuable," the what-must-be-true is "our expertise is genuinely differentiated" — because if it isn't, the rationale collapses.
+
+   **WMBT vs. guardrail decision tree.** When drafting constraints, Governors often conflate WMBTs (assumptions about the world that the strategy depends on) with guardrails (operational boundaries the strategy must not violate). The distinction: a WMBT is a *belief* that, if falsified, means the strategic reasoning is wrong — it triggers a strategy kill or pivot. A guardrail is a *constraint* that, if violated, means the execution went out of bounds — it triggers an immediate halt or recovery, regardless of whether the strategy is working. Decision tree: (1) Does this constraint describe something that must be true *about the world* for the strategy to work? → WMBT. (2) Does this constraint describe a *boundary the system must not cross* during execution? → Guardrail. (3) If both — the world condition and the execution boundary — split it: the world condition is a WMBT ("patient SMS contact data is reliable at ≥85%"), and the execution boundary is a guardrail ("no patient contact outside registered preferences"). A single concern often decomposes into one WMBT and one guardrail, which is correct — they serve different functions and are evaluated at different cadences.
+
+   **WMBT abstraction level check** `[ROBUST]` — A common authoring error is writing WMBTs that test a specific implementation rather than the strategic reasoning. The test: *If we pivoted the tactic but kept the strategy, would this WMBT still be relevant?* If no, it belongs at the tactic level (as a kill condition), not the strategy level. Example: Strategy reasoning is "lower barrier to first play increases conversions." Bad WMBT: "Players accept F2P model" (tests one implementation of lower barrier). Good WMBT: "Players respond positively to lower-barrier access models" (tests the reasoning). Misplaced WMBTs cause false strategy kills — when the WMBT is falsified, the framework triggers a strategy kill, but the strategic reasoning may still be valid under a different implementation. The orchestrator should flag WMBTs that name specific tactic approaches during OD validation (Section 21.8) as potentially misplaced. If a WMBT is falsified but the Governor argues the strategic reasoning survives, the first check is whether the WMBTs were at the right abstraction level — if they weren't, the correct action is to rewrite them (using `wmbt_refinement`, Section 4.3) rather than issue a kill or a `pivot_override`.
+
+4. **Define what you're NOT doing.** Every strategy implies rejected alternatives. Make the rejection explicit. "This strategy deliberately does NOT pursue paid amplification because we believe organic authority is more durable for our audience." The not-doing declaration prevents scope creep and gives the orchestrator a clear boundary.
+
+5. **Define the strategy-level kill signal.** Under what conditions is the reasoning itself disproven? This is harder than tactic-level kill conditions because strategies require more evidence to validate or invalidate. Typical strategy kill signals:
+   - A what-must-be-true condition is definitively falsified
+   - Multiple tactics implementing this strategy all fail (suggesting the approach is wrong, not just the implementation)
+   - External environment change invalidates the rationale
+
+6. **Select which strategies to run.** You generated at least two candidates. Now decide: run one (if the evidence strongly favors it), or run two as a strategy-level A/B test (if genuinely uncertain). Running more than 3 strategies per objective simultaneously is resource overextension — the Scaling section (Section 12) and Section 4.2 provide limits. In practice, 2 is typical for A/B testing; 3 is the hard maximum.
+
+**The strategy selection decision:**
+- **High conviction in one approach:** Run one strategy, but document the alternatives you rejected and why. If the strategy fails, you have a pre-reasoned fallback.
+- **Genuine uncertainty between two approaches:** Run both as a strategy-level A/B test. Define the shared metric, the comparison timeline, and the decision rule.
+- **No conviction in any approach:** You may not understand the problem well enough. Consider running a short exploratory tactic under a "learn first" strategy before committing to an approach.
+
+**Quantity check:** 1-3 strategies per objective. More than 3 dilutes focus and makes A/B comparison impractical.
+
+### 21.6 Layer 4: Deriving Tactics from Strategies
+
+**The question:** How do we test whether this strategy's reasoning is correct?
+
+**The reasoning process:**
+
+A tactic is a specific, testable implementation of a strategy. The strategy says "thought leadership through expert content." The tactic says "publish a weekly expert article series on LinkedIn, measuring follower growth and engagement over 8 weeks." The tactic makes the strategy's theory concrete enough to test.
+
+**The derivation steps:**
+
+1. **Ask: What is the simplest experiment that would test this strategy's core assumption?** Not the biggest, not the most complete — the simplest. If the strategy is "thought leadership through expert content," the simplest test might be: publish 8 expert posts and measure whether expertise-level content generates meaningfully higher engagement than generic content.
+
+2. **Formulate the hypothesis.** Every tactic has one. Structure: "If we [do this specific thing], we expect [this measurable outcome], because [this is how it connects to the strategy's reasoning]." The "because" clause is critical — it links the tactic back to the strategy. Without it, the tactic becomes an isolated activity disconnected from the strategic logic.
+
+3. **Define success metrics.** What leading indicators will you track? These should be measurable within the tactic's timeline. If the only metric that matters moves on a longer horizon than the tactic runs, you need a proxy metric that moves faster and correlates with the outcome you care about.
+
+4. **Set the kill condition.** This is the line below which the tactic is considered failed. The kill condition prevents planning inertia — the tendency to keep running something because you started it, not because it's working.
+
+   **How to set kill conditions:** The kill condition should be the minimum viable signal that the tactic is on a path to success. Not the success threshold itself — that's the objective. The kill condition is: "If we haven't seen at least [this much] progress by [this date], the experiment has failed."
+
+   Common mistakes in kill conditions:
+   - **Too generous:** "If we haven't seen any growth at all by week 8." This tolerates 7 weeks of wasted effort.
+   - **Too aggressive:** "If we haven't hit our full target by week 4." This kills experiments before they have time to generate signal.
+   - **Too vague:** "If it doesn't seem to be working." This is not a condition — it's a feeling.
+
+   Good kill condition: "If follower MoM growth hasn't reached 10% by week 6 (two-thirds of the experiment duration), kill or pivot."
+
+5. **Identify human creative dependencies.** Does this tactic require input that only the Governor or a specific human can provide? (Section 4.4 addresses this in detail.) If so, declare the dependency explicitly: what input, how many per cycle, and what happens if the rate is below plan. This prevents a common failure mode where tactics fail not because the approach was wrong but because the human input wasn't supplied.
+
+6. **Design A/B pairs if testing within a strategy.** If you're running two tactics under the same strategy, they must share a metric for comparison. Define the shared metric, the comparison timeline, and what constitutes a meaningful difference.
+
+**Quantity check:** 1-5 tactics per strategy. If you have more than 5, some are probably action-level details disguised as tactics. If you have only 1, that's acceptable for early testing but means you have no tactic-level A/B comparison.
+
+### 21.7 Layer 5: Specifying Actions from Tactics
+
+**The question:** What exactly needs to happen, by whom, by when?
+
+**The reasoning process:**
+
+Actions are the execution layer. They don't require strategic reasoning — they require clear specification. The primary failure mode at the action level is ambiguity: tasks that are defined loosely enough that the executor (human or agent) has to guess what "done" looks like.
+
+**The derivation steps:**
+
+1. **Decompose the tactic into discrete deliverables.** What outputs must be produced for the tactic to run its experiment? If the tactic is "publish 8 expert articles on LinkedIn over 8 weeks," the deliverables might be: content calendar, 8 article drafts, 8 published posts, weekly engagement report.
+
+2. **For each deliverable, specify:**
+   - **Assignee:** Who produces this? (Person or agent)
+   - **Deliverable definition:** What does "done" look like? Be specific enough that the assignee doesn't need to ask.
+   - **Deadline:** By when?
+   - **Constraints:** What inherited guardrails apply? What quality standards? What format requirements?
+   - **Dependencies:** Does this action require another action's output first? Does it require human input?
+   - **Preconditions** `[ROBUST]`: Conditions that must be true before this action executes. *Choosing the right mechanism:* Use a **dependency** if the action cannot execute at all without the upstream output. Use a **precondition** if the action could technically execute but would be wasteful or premature without a condition being true. Use a **guardrail** if the boundary governs *how* the action executes, not *when*. The orchestrator checks preconditions during work plan generation (§7.2, Action Cycle Step 4); if any precondition is false, the action is excluded from the work plan and logged as `precondition_not_met: {action_id, precondition, current_value}` in the decision log. Deferred actions are re-evaluated at the next action cycle. Preconditions are distinct from dependencies (which specify ordering) and guardrails (which specify constraints). Examples: "survey data from A1 exists and has ≥20 responses," "playtester count ≥ 15," "previous build deployed without crash bugs." Default: no preconditions (action dispatches when scheduled). Preconditions prevent wasted execution — dispatching a pricing survey before enough playtesters exist to make it statistically useful.
+   - **Commitment cost:** `reversible` (can be undone or iterated quickly — e.g., draft a post, send an email), `committed` (locks resources for a defined period — e.g., plant a crop, sign a contract, book a venue), or `irreversible` (cannot be undone — e.g., send a legal filing, publish a retraction). Default: `reversible`. Actions tagged `committed` or `irreversible` should be flagged to the Governor with the commitment duration and what would be lost if the action's premise turns out to be wrong. At Stage 1, all actions require Governor approval regardless; at Stage 2+, committed/irreversible actions should require explicit Governor approval even when other actions are auto-approved.
+
+3. **Check for completeness.** Walk through the tactic's timeline mentally. If every action completes on time, does the tactic have what it needs to test its hypothesis? If there's a gap — "we need engagement data but nobody's assigned to collect it" — add the missing action.
+
+**Actions are generated, not permanent.** Unlike the other four layers, actions are routinely generated by the orchestrator based on the tactic specification. The Governor defines initial actions in the operating document to seed the first cycle, but subsequent actions are proposed by the orchestrator and approved (or auto-approved if the graduation level permits — see Section 16.11). Don't over-specify the action list in the operating document. Provide enough to start the first cycle.
+
+### 21.8 Validation: The Authoring Checklist
+
+After completing all five layers, validate the operating document against these checks:
+
+**Structural checks:**
+- Every objective traces to exactly one goal. No orphan objectives.
+- Every strategy traces to exactly one objective. No orphan strategies.
+- Every tactic traces to exactly one strategy. No orphan tactics.
+- No layer contains content that belongs to an adjacent layer (Section 8, Rule 2).
+- Guardrails propagate downward — every tactic's guardrails include its parent strategy's, objective's, and goal's guardrails.
+
+**Reasoning checks:**
+- Every strategy has at least one what-must-be-true condition. If you can't think of any, the strategy may be too vague.
+- Every strategy has a not-doing declaration. If everything is in scope, the strategy has no boundary.
+- Every tactic has a hypothesis with a "because" clause linking it to the strategy.
+- Every kill condition is specific enough that a third party (or an agent) could evaluate it without asking the Governor for interpretation.
+- Every strategy WMBT tests the approach reasoning, not a specific tactic implementation. Validation: for each WMBT, ask "If we pivoted the tactic but kept the strategy, would this WMBT still be relevant?" If no, move it to the tactic level as a kill condition and write a strategy-level WMBT that tests the reasoning. WMBTs that name a specific tactic approach (e.g., "players accept F2P") are red flags — the strategy WMBT should be abstracted to the reasoning level (e.g., "players respond to lower-barrier access models"). See Section 21.5 for derivation guidance.
+
+**Completeness checks:**
+- Baselines are recorded for all metrics referenced in objectives and tactics. Each baseline declares source, methodology, and seasonal notes (Section 9.1, Baseline methodology validation).
+- Review dates are set for all tactics, strategies, and objectives.
+- Human creative dependencies are declared for all tactics that require Governor input.
+- A/B test pairs are clearly labeled with shared metrics and decision rules.
+- Domain models are declared (Section 9.2, Domain Context).
+- Reference Material Anchors are declared for scopes that depend on foundational materials (Section 9.2).
+- `[ROBUST]` Metric prerequisite dependencies contain no circular references (metric A requires B which requires A). The orchestrator should detect cycles at OD load time and surface as a specification error.
+- `[ROBUST]` Multiple strategies under the same objective declare their relationship as `competing` or `complementary` (Section 4.2).
+- `[ROBUST]` If the objective's metric is influenced by factors outside the scope's control, the metric is decomposed into controllable and uncontrollable components (Section 20.7).
+- `[ROBUST]` If Governor has a capacity constraint, it is declared in the operating document so the resource ceiling check (Section 7.2, Step 4b) can operate.
+- `[ROBUST]` Every soft constraint (`severity: soft`) declares a `recovery` field. Each recovery specification satisfies all three properties: (a) executable without Governor input, (b) within the guardrail chain (the recovery itself does not violate a higher-level guardrail), and (c) reversible. Soft constraints without a recovery specification are flagged — they will behave as hard constraints at runtime (Section 5.2). Note: at Stage 1-2, recovery specifications do not auto-execute (all violations escalate to Governor). Write them as forward commitments for Stage 3+ graduation — they define the orchestrator's autonomous response once the Governor grants that autonomy.
+- `[ROBUST]` All tactics with `metric_lag > 0` that are part of A/B tests have synchronized kill deadlines (Section 20.3, A/B kill deadline synchronization).
+- `[ROBUST]` All tactics with `signal_production_phase > 1` declare `bootstrap_cycles` sufficient to cover pre-signal phases, or explicitly document why bootstrap covers fewer phases (Section 20.3).
+- `[ROBUST]` All maintain-baseline tactics (per Section 21.4) explicitly declare `kill_requires: governor_approval` (Section 10). Tactics using the `autonomous` default for maintenance objectives are flagged as a warning.
+- `[ROBUST]` All maintain-baseline A/B tests declare `comparison_mode: threshold` with explicit winner and inconclusive conditions (Section 21.4).
+- `[ADVANCED]` All safety-critical tactics (regulatory compliance, safety baselines, institutional obligations) declare `kill_requires: governor_approval`.
+- `[ROBUST]` Every action with declared `preconditions` specifies conditions that are evaluable by the orchestrator at dispatch time — no subjective judgments, no conditions requiring Governor input. Each precondition references one of: (a) a signal or metric in the Signal Store with a numeric threshold, (b) an action completion status in the decision log, or (c) external data availability via declared data sources. Preconditions requiring interpretation of sentiment, quality, or readiness must be rewritten as thresholds.
+
+- `[ROBUST]` **G-6 deliberation calibration:** If Deliberation Mode = enabled and an agent roster is declared, verify that the traceability guardrail threshold equals the agent roster size (N domain agents, excluding COORD-1). A threshold lower than N with no declared proxy-fallback allowance is a blocking authoring error — it allows the guardrail to pass while missing domain perspectives that deliberation was specifically configured to provide. The §14.7 multi-domain minimum of ≥3 applies only when deliberation mode is disabled.
+
+**Readability check:**
+- Could someone who didn't write this document — a new team member, an implementing agent, a replacement Governor — read it and understand the full strategic logic from goals through actions? If not, the rationale sections are insufficient.
+
+### 21.9 Common Authoring Mistakes
+
+**Starting with tactics.** The most common mistake. The Governor already knows what they want to do ("we should post more on LinkedIn") and works backward to justify it. This produces goals and strategies that are reverse-engineered to support a predetermined tactic rather than genuinely reasoned. If you catch yourself writing the tactic first, stop. Go back to goals. The tactic you had in mind might still survive — but it needs to earn its place through the decomposition, not be assumed.
+
+**Writing strategies that are actually tactics.** "Post three times a week on LinkedIn" is not a strategy. It's a tactic (or even an action). The strategy is *why* LinkedIn, *why* this type of content, *why* this audience. If the strategy section reads like a to-do list, it's contaminated with lower-layer content.
+
+**Writing objectives that are actually goals.** "Become the leading voice in our industry" sounds like an objective but has no metric, no threshold, and no deadline. It's a goal. Add the measurement to make it an objective: "Achieve top-3 ranking in industry analyst reports by Q4 2026."
+
+**Setting kill conditions by gut.** "Kill if it doesn't feel right" is not a condition. "Kill if MoM growth is below 5% at week 6" is. If you can't set a numeric kill condition, you may not have measurable success metrics — which means the tactic isn't testable, which means it isn't a valid tactic in this framework.
+
+**Omitting the not-doing declaration.** Every strategy that doesn't declare what it's not doing is vulnerable to scope creep. The not-doing declaration is what allows the orchestrator to reject work that falls outside the strategic boundary. Without it, any activity that could plausibly serve the objective gets absorbed into the strategy.
+
+**Writing for yourself alone.** The operating document serves two readers: the Governor and the implementing system. If the rationale sections use shorthand that only the Governor understands ("the usual approach" or "like we discussed"), the implementing agent will either hallucinate an interpretation or flag the ambiguity. Write as if the reader has no prior context — because in an agentic system, they don't.
+
+### 21.10 The Iterative Path: Starting Imperfect
+
+The operating document does not need to be perfect on the first draft. The framework's review cadence (Section 9.4) is designed to accommodate imperfect starting conditions:
+
+- **First draft:** Get the structure right. Goals that are directional, objectives that are measurable, at least one strategy per objective, at least one tactic per strategy. Kill conditions can be rough estimates. What-must-be-true conditions can be your best current guess. Baselines may be incomplete.
+
+- **After first tactic review:** You now have signal data from the first action cycles. Recalibrate kill conditions based on actual observed rates. Fill in missing baselines. Adjust tactic specifications based on what you learned in the first cycle.
+
+- **After first strategy review:** You now have meaningful data. Validate or revise strategies based on what-must-be-true evidence. Adjust objective thresholds if the originals were miscalibrated. Make your first kill/pivot/persevere decisions with real evidence.
+
+- **After several strategy cycles:** The operating document is now a mature, data-calibrated instrument. Goals have been tested against reality. Strategies have been validated or killed. Domain model norms have been calibrated from actual performance data. The document at this point is qualitatively different from the first draft — not because the structure changed, but because every field is now grounded in evidence rather than assumption.
+
+The worst operating document is one that's never written because the Governor wanted it to be perfect. Write the imperfect version. The framework's feedback loops will improve it.
+
+### 21.11 Operating Outside Existing Domain Models
+
+The framework includes five example domain models (Value Creation, Marketing, Sales, Value Delivery, and Finance) that demonstrate the schema. These are examples, not requirements — the framework is domain-agnostic. Most real-world operating documents will govern scopes that fall partially or entirely outside these five examples — hiring, engineering operations, product development, partnerships, customer support, compliance, and countless others.
+
+**What you lose without a domain model:**
+
+When no domain model exists for your scope, the implementing agent operates without grounding in four critical areas:
+
+- **Vocabulary.** The agent has no authoritative definitions for domain-specific terms. "Qualified candidate" in hiring, "production-ready" in engineering, "compliant" in regulatory work — without a domain model, these terms mean whatever the agent's training data suggests, which may not match your organization's meaning. This is domain hallucination (Section 14.2).
+
+- **Quality principles.** The agent has no definition of what "good" looks like in this domain. It can follow the operating document's structural constraints and guardrails, but it cannot evaluate whether the *substance* of its output meets domain standards.
+
+- **Anti-patterns.** The agent has no knowledge of known failure patterns specific to this domain. It will make mistakes that an experienced practitioner would recognize immediately — because those patterns aren't codified anywhere it can access.
+
+- **Hypothesis library.** The agent has no pre-built templates for tactics in this domain. Every hypothesis must be generated from scratch by the Governor, rather than selected and customized from a library of proven approaches.
+
+**How to compensate in the first cycle:**
+
+For the first operating cycle without a domain model, the Governor's judgment substitutes for all four missing components. This is acceptable for one cycle. The Governor knows what "qualified candidate" means, knows what bad interview processes look like, knows which sourcing approaches have worked before. This knowledge lives in the Governor's head — it's not yet codified.
+
+**What to do after the first cycle:**
+
+After the first cycle completes (or after the first strategy review, whichever comes first), the Governor or implementing agent should build a domain model for the scope. The inputs are:
+
+1. **What you learned.** Which tactics worked? Which failed? Why? The decision log and health reports from the first cycle contain the raw material.
+2. **What the Governor already knew.** The implicit knowledge that guided the first cycle — definitions, quality standards, known pitfalls — should be made explicit and codified using the schema in Section 13.3.
+3. **Domain reference material.** Established knowledge from the field — books, industry standards, professional frameworks. These become the source material for core concepts, just as book chapters or industry standards can source domain model concepts. Store these source materials in the Reference Pool (Section 17.2.4) so they remain accessible for future domain model revisions and executor reference.
+
+The resulting domain model doesn't need to be comprehensive on day one. Start with core concepts (what words mean in this domain), quality principles (what "good" looks like), and anti-patterns (known failure modes). Hypothesis libraries and detailed concept relationships can be added over subsequent cycles as the system accumulates experience. The minimum completeness thresholds for a v1 domain model are defined in Section 17.2.3: at least 3 core concepts, 2 guardrail vocabulary entries, 2 hypothesis library entries, 3 quality principles, and 2 anti-patterns. Concept relationships can be empty initially. By the second strategy review, the model should meet the higher thresholds — if it doesn't, the system is accumulating execution history without codifying what it learns.
+
+**The mandate:** If you are implementing the GOSTA framework for a scope that lacks a domain model, treat domain model creation as a required output of the first cycle — not an optional enhancement. An operating document without domain grounding works for one cycle through Governor judgment. It degrades from the second cycle onward as the Governor's attention moves elsewhere and the agent must make domain judgments independently. The domain model is what converts the Governor's implicit knowledge into durable, reusable system knowledge.
+
+---
+
+## 22. Execution Protocols
+
+GOSTA defines mechanisms abstractly — guardrails, signals, health computation, kill/pivot/persevere decisions. These mechanisms must be **translated** into concrete operations for each execution environment. This translation layer is an **execution protocol**.
+
+### 22.1 Why Execution Protocols Exist
+
+The framework specifies *what* must happen (signals flow upward, guardrails propagate downward, kill conditions are evaluated). It does not specify *how* — whether signals are database rows, markdown files, or conversation messages; whether the orchestrator is a persistent process, a stateless session, or a human with a checklist. The execution protocol bridges this gap.
+
+Each execution tier (§16) needs its own protocol. A Tier 0 manual/AI-assisted implementation operates with markdown files and conversation sessions. A Tier 2 coded implementation operates with databases and automated pipelines. Both implement the same GOSTA mechanisms — through different operational translations.
+
+### 22.2 Minimum Requirements for an Execution Protocol
+
+Any execution protocol claiming conformance with GOSTA must:
+
+1. **Map all CORE mechanisms** — Every mechanism tagged `[CORE]` in the framework must have a concrete operational equivalent in the protocol.
+2. **Define a session lifecycle** — How sessions start, what context is loaded, how work progresses, how state is persisted.
+3. **Specify state management** — Where the five data stores live, how they are read and written, what durability guarantees apply.
+4. **Include a self-update mechanism** — How the protocol detects drift from the framework, accumulates feedback, and propagates improvements.
+5. **Declare its tier** — Which CORE/ROBUST/ADVANCED mechanisms it implements, and which it explicitly omits with justification.
+
+### 22.3 The Finite Stateless Pattern
+
+The most common Tier 0 pattern combines a Finite Analytical Scope (§3.6) with a Stateless Orchestrator (§7.11). This pattern is used for bounded projects (roadmaps, assessments, audits) executed via conversation sessions with no persistent infrastructure.
+
+**Lifecycle:**
+
+```
+Bootstrap → Phase Execution → Phase Gate → Governor Decision →
+Phase Execution → Phase Gate → Governor Decision → ... →
+Final Deliverable → Mandatory Retrospective → Closeout
+```
+
+**Key properties:**
+- All state lives in files (operating document, signals, decisions, session logs, bootstrap)
+- The bootstrap file is the continuity mechanism between sessions
+- Phase gates replace time-based review cadences
+- Graduation is capped at Stage 3 (no autonomous decisions without persistent memory)
+- The Governor is present throughout every session (not called upon at escalation points)
+- A/B testing is sequential (no parallel instrumentation)
+
+This pattern is implemented by the GOSTA-Cowork Protocol (see `cowork/` directory in the repository).
+---
+
+## Appendix B: Vocabulary & Taxonomy Index
+
+This appendix is a centralized reference for every named vocabulary, enum, and type classification in the framework. Definitions live in their source sections — this index provides the canonical value list and cross-reference.
+
+### B.1 Entity Status Vocabularies
+
+| Entity | Values | Source | Tag |
+|--------|--------|--------|-----|
+| Goal | `active`, `healthy`, `drifting`, `suspended`, `retired`, `partially_achieved` | §3.1 | ROBUST |
+| Objective | `active`, `on_track`, `at_risk`, `achieved`, `failed`, `partially_met`, `revised` | §3.2 | CORE |
+| Strategy | `active`, `paused`, `completed`, `exhausted`, `killed`, `killing` | §4.3 | CORE |
+| Tactic | `pending`, `active`, `paused`, `killed`, `killed_winding_down`, `completed`, `graduated`, `exhausted` | §4.3, §7.8 | CORE |
+| Action | `pending`, `active`, `completed`, `blocked`, `failed` | §3.4 | CORE |
+| A/B Variant | `active`, `leading`, `trailing`, `inconclusive`, `winner`, `voided` | §4.2 | ROBUST |
+
+Terminal states: Goal — `retired`, `partially_achieved`. Strategy — `completed`, `exhausted`, `killed`. Tactic — `killed`, `completed`, `graduated`, `exhausted`. `graduated` is irreversible (§7.8).
+
+### B.2 Decision Type Vocabulary
+
+**Core decisions** (§4.3): `kill`, `pivot`, `persevere`
+
+**Standard decisions** (§4.3, ROBUST): `rebalance`, `pause`, `resume`, `revise_objective`, `resolve_conflict`, `portfolio_rebalance`
+
+**Finite scope decisions** (§3.6, CORE): `phase_advance`, `iterate`, `restructure`, `accept_deliverable`
+
+**Specialized decisions** (ROBUST/ADVANCED): `wmbt_refinement`, `challenge_probe`, `graduation` (subtype: `re_graduation`), `pivot_override`, `governor_succession`, `guardrail_recovery`, `guardrail_reclassify`, `precondition_override`, `informed_override`, `restructure`, `cross_objective_tradeoff`, `approve_domain_model_change`, `kill_deferred`, `decision_reversal` `[ADVANCED]`, `child_scope_disposition` `[ADVANCED]`
+
+### B.3 Signal Type Vocabulary
+
+| Signal Type | Description | Tag |
+|-------------|-------------|-----|
+| `completion` | Action completed with deliverable reference | CORE |
+| `metric` | Quantitative performance measurement | CORE |
+| `blocker` | Impediment to action execution | CORE |
+| `status` | Current entity state report | CORE |
+| `knowledge_flag` | External knowledge relevant to domain model | CORE |
+| `milestone` | External event affecting objective metric | ROBUST |
+| `stakeholder_interaction` | Human dynamics (subtypes: `collaboration`, `conflict`, `mentoring`, `disengagement`, `governance_act`) | ROBUST |
+| `absence` | Expected event failed to occur (severity: `early_warning`, `significant`, `critical`) | ROBUST |
+| `environmental` | Watch list condition changed (severity: `informational`, `significant`, `critical`) | ROBUST |
+| `cost_exceeded` | Execution cost budget breached | ROBUST |
+| `cost_data_missing` | Cost data unavailable for tracking | ROBUST |
+| `agent_degradation` | System-level operational degradation | ROBUST |
+| `signal_pipeline_degradation` | >50% signal staleness in pipeline | ROBUST |
+| `signal_pipeline_failure` | Signal pipeline unavailable | ROBUST |
+| `bootstrap_anomaly` | State conflict detected during session bootstrap (e.g., OD vs. decision log inconsistency) | ROBUST |
+| `guardrail_interpretation` | Interpretive guardrail produced ambiguous result requiring Governor judgment | ROBUST |
+| `monitoring_gap` | Expected monitoring data unavailable for a watched condition | ROBUST |
+| `domain_model_feedback` | Deliberation-originated refinement proposal for a domain model | ROBUST |
+
+Source: §7.4, §7.13, §7.14, §13.3, §14.3.9, §17.2.2
+
+### B.4 Kill Reason Vocabulary
+
+| Kill Reason | Learning Vector | Description | Source |
+|-------------|----------------|-------------|--------|
+| `disproven` | Vector 1 (internal failure) | WMBT falsified or kill signal triggered | §7.8 |
+| `resource_reallocation` | Vector 3 (external) | Terminated for resource concentration; hypothesis untested | §7.8 |
+| `superseded` | Vector 2 (internal success) | Replacement strategy incorporates learnings | §7.8 |
+| `external_constraint` | Vector 3 (external) | Force majeure; hypothesis untested against own merits | §7.8 |
+
+Tag: ROBUST
+
+### B.5 Scope, Guardrail, and Governance Vocabularies
+
+**Scope types** (§3.5-3.6): `ongoing`, `finite`, `analytical`, `child` — CORE (child: ADVANCED)
+
+**Guardrail severity** (§5.1): `hard`, `soft` — CORE
+
+**Guardrail violation cause** (§5.2): `external_event`, `capacity_structural`, `execution_failure`, `unknown` — CORE
+
+**Kill timer modes** (§7.7, §8.5.1): `normal`, `pause`, `infrastructure_outage`, `recovery` — ROBUST
+
+**Kill condition status** (§7.8): `safe`, `approaching`, `met`, `suspended` — CORE
+
+**Precondition status** (§7.2): `met`, `unmet`, `deferred`, `overridden` — ROBUST
+
+**Bootstrap status** (§4.3): `in_bootstrap`, `post_bootstrap`, `never_tested` — CORE
+
+**Child scope disposition** (§7.10, §4.3): `concluded`, `transferred`, `independent` — ADVANCED
+
+**Scope conclusion type** (§7.10): `achieved`, `partially_met`, `failed`, `killed`, `expired`, `transferred` — ROBUST
+
+**Guardrail evaluation mode** (§5.1): `mechanical` (numeric threshold, deterministic), `interpretive` (qualitative, requires AI judgment) — CORE
+
+### B.6 Hypothesis and Health Vocabularies
+
+**WMBT status** (§3.3, §7.2): `assumed`, `holding`, `at_risk`, `falsified`, `confirmed` — CORE
+
+**Hypothesis status** (§4.3): `holding`, `weakening`, `disproven` — CORE
+
+**Metric direction** (§20): `exceeding_target`, `on_track`, `below_projection`, `failed` — CORE
+
+**Objective portfolio alignment** (§20.12): `aligned`, `drifting`, `misaligned` — ROBUST
+
+**Semantic coherence validation** (§8.1-8.2): `passed`, `flagged`, `blocked` — ROBUST
+
+### B.7 Architecture Vocabularies
+
+**Autonomy stages** (§6.3): Stage 1 (human-driven), Stage 2 (orchestrator-suggested), Stage 3 (orchestrator-managed with exceptions), Stage 4 (full tactic autonomy), Stage 5 (full autonomy within strategies) — CORE
+
+**Review levels** (§6.4): `action_review`, `tactic_review`, `strategy_review`, `goal_review` — CORE
+
+**Implementation tiers** (§0.3): Tier 0 (file-based), Tier 1 (minimum coded), Tier 2 (robust operations), Tier 3 (production-hardened) — CORE
+
+**Feature complexity tags** (§0.3): `[CORE]`, `[ROBUST]`, `[ADVANCED]` — N/A (these ARE the tagging system)
+
+**Memory types — storage tiers** (§18.2): `working`, `episodic`, `structural` — ROBUST
+
+**Memory types — functional** (§18.2): `procedural`, `prospective`, `meta-memory`, `shared` `[ADVANCED]` — ROBUST
+
+**Learning vectors** (§18.2.3): Vector 1 (internal failure), Vector 2 (internal success), Vector 3 (external knowledge) — ROBUST
+
+### B.8 Grounding and Failure Vocabularies
+
+**Hallucination taxonomy** (§14.2, 5 categories): Form corruption (structural), Substance corruption (domain, capability), Signal corruption (metric/data, status, temporal), Continuity corruption (synthesis, memory confabulation), Reasoning corruption (shallow application, concept omission, chain gap) — ROBUST
+
+**Grounding components** (§14.3, 7 + 1 prerequisite): Schema Validation, Domain Knowledge Store, Data Grounding, Capability Validation, Synthesis Verification, Reasoning Depth Validation + Memory Architecture + Attribution (prerequisite) — ROBUST
+
+**Reasoning depth scores** (§14.3.7, Tier 1+): 1 (concept named only), 2 (concept defined and applied), 3 (concept's internal distinctions used to narrow recommendation), 4 (multiple concepts synthesized with interaction effects) — ROBUST
+
+**Systemic failure modes** (§7.13): signal pipeline failure, recovery oscillation, context/memory corruption, capacity overload, cascading failure, semantic Governor error — ROBUST (cascading: ADVANCED)
+
+**Failure recovery states** (§7.13.2): `NORMAL`, `FAILED`, `RECOVERING`, `VERIFIED` — ROBUST
+
+### B.9 Domain Model and Cost Vocabularies
+
+**Execution cost categories** (§13.3): `api_calls`, `compute_time`, `search_queries`, `external_data`, `custom` — ROBUST
+
+**Domain model change types** (§19.9): `add_concept`, `modify_norm`, `qualify_anti_pattern`, `add_hypothesis_template`, `add_relationship` — ROBUST
+
+**Confounder types** (§8.4): `allocation_change`, `pause_inequality`, `schedule_override`, `environmental_confounder` — CORE (ROBUST extension)
+
+**Decision reversal types** (§4.3): `orchestrator_autonomous`, `governor_override` — ADVANCED
+
+**Feature interaction pairs** (§8.5): pause/kill, A/B/rebalance, strategy/tactic kill ordering, cross-strategy kill sequencing, data carryover, cold start, committed action on pivot, API outage kill timer, complementary strategy synergy — ROBUST
+
+---
+
+### B.10 Finding Classification Vocabulary
+
+**Epistemic classification** (§14.3.8): `confirmed` (evidence supports conclusion — Governor can act), `information_gap` (insufficient data — Governor should collect specified data before irreversible decisions), `conditional` (conclusion depends on testable assumption — Governor should monitor condition) — ROBUST
+
+**Classification precedence** (§14.3.8): When a finding qualifies as both `conditional` and `information_gap`, classify as `information_gap` — missing data takes priority over conditional logic. — ROBUST
+
+**Autonomy constraint** (§14.3.8, §6.3): `information_gap` kill/pivot recommendations at Stage 3+ are not eligible for autonomous execution — must escalate to Governor. Hard guardrail violations classified as `information_gap` still halt (safety default) but classification informs post-halt Governor assessment. — ROBUST
+
+### B.11 Sycophancy Detection Vocabulary
+
+**Sycophancy flags** (§14.3.9): `generic_risk_section` (health report Risk Factors section empty or boilerplate for 2+ reports), `recommendation_divergence` (signal trend direction contradicts recommendation without explicit justification), `kill_proximity_silent` (metric within threshold of kill condition but not prominently surfaced), `round1_unanimity` (all domain agents agree in Round 1 before cross-examination — suspicious anchoring), `low_dissent_frequency` (deliberation agents never disagree across 3+ cycles), `narrative_quantitative_divergence` (signal narrative contradicts signal quantitative data) — ROBUST
+
+**Sycophancy self-check** (§14.3.9): Orchestrator-performed check at health report generation. Two components: (1) risk section completeness — is the adversarial section substantive or generic? (2) recommendation-signal alignment — does the recommendation direction match the signal trend direction? Divergence requires explicit justification citing specific countervailing evidence. — ROBUST
+
+**Convergence probe** (§14.3.9, Deliberation Protocol §4.5): Directed adversarial prompt issued when Round 1 unanimity is detected. All domain agents must construct the strongest counter-argument from their domain perspective. Three outcomes: `substantive_dissent` (genuine disagreement surfaced), `weak_dissent` (token dissent without genuine engagement), `genuine_alignment` (agents cannot construct counter-arguments and explain why). — ROBUST
+
+**Position independence indicators** (§14.3.9, Deliberation Protocol §3.1): `reasoning_diversity` (diverse / homogeneous), `od_anchoring_level` (low / moderate / high — based on ratio of OD citations to domain model citations in position papers). — ROBUST
+
+---
+
+## Appendix A: Version History
+
+### Changelog (v5.1 → v5.2)
+
+| Change | Type | Sections Affected | Summary |
+|--------|------|-------------------|---------|
+| Implementation Tiers | Add | 0 (new subsection) | Three-tier progressive disclosure system (CORE / ROBUST / ADVANCED) with minimum viable implementation guide, feature dependency graph, and version selection guide. |
+| Progressive disclosure markers | Add | Throughout | Every section tagged with `[CORE]`, `[ROBUST]`, or `[ADVANCED]` so implementers can skip sections irrelevant to their current build phase. |
+| Document Map tier column | Enhance | 0 | Document Map table now includes a Tier column showing which tier each section belongs to. |
+| Feature dependency graph | Add | 0 | ASCII dependency graph showing which features require which prerequisites, organized by tier. |
+| Version selection guide | Add | 0 | Decision table mapping implementation characteristics to recommended tier scope. |
+| Tier assignment fix: revise_objective, resolve_conflict | Fix | 0 | Moved from Tier 3 (ADVANCED) to Tier 2 (ROBUST). A Governor with a miscalibrated objective needs revise_objective at Stage 1, not Stage 3+. Cross-domain conflicts arise with domain model stacking, which is Tier 2. |
+| Changelogs moved to appendix | Move | 0, Appendix A | Version history moved from document header to end-of-document appendix to reduce scroll distance to framework content. |
+| Partial-section reading guidance | Add | 0 | Guidance for reading sections that contain both CORE and tagged (ROBUST/ADVANCED) content. |
+| **Production readiness audit fixes (below)** | | | |
+| All-paused strategy state | Fix | 4.3 | Defined explicit `all_tactics_paused` state: exhaustion protocol does not trigger; Governor presented resume/pause-strategy/kill at next review. |
+| ALLOCATION_WEIGHT constraint | Fix | 4.3 | Weights must sum to 1.0 across active tactics. Orchestrator normalizes if needed. Use `pause` to set allocation to zero. |
+| Wind-down timeout escalation | Fix | 4.3 | If Governor non-responsive during wind-down with imminent external deadline, escalate to alternate Governor or apply safe default (release with notification). |
+| Best-performing tactic selection | Fix | 7.8 | Replaced uncomputable "highest composite health score" with concrete criteria: hypothesis_status = holding, most metrics at on_track/exceeded, Governor breaks ties. |
+| Milestone signals for killed tactics | Fix | 7.4 | Clarified: milestone signals for killed/winding-down tactics contribute to objective metrics but don't affect kill decision. Pattern of positive post-kill milestones logged as episodic learning. |
+| Scope conclusion vs. wind-down precedence | Fix | 7.10 | Scope conclusion held until wind-down completes or Governor forces conclusion. Unfulfilled commitments marked in episodic memory. |
+| WMBT confirmed tier boundary | Fix | 20.6 | Clarified: `confirmed` is valid at all tiers (stored in WMBT state); surfacing confirmation events is ADVANCED. At CORE tier, `confirmed` and `holding` are functionally equivalent. |
+| Tier 2 content markers in CORE sections | Fix | 7.2 | Added [ROBUST] markers to paused-strategy skip and cross-domain conflict lines within the CORE execution loop. |
+| **Friction fix: Category A — Computable defaults (below)** | | | |
+| Challenge probe confidence computation | Add | 16.11.1 | `confidence = 1.0 - (margin_to_boundary / boundary_value)`. Qualitative fallback: 1.0 agreement, 0.5 split, 0.0 contradiction. |
+| A/B minimum evidence floor | Add | 7.2 | Both variants need 2+ post-bootstrap cycles; absolute values must exceed minimum meaningful threshold before comparative analysis. |
+| Governance integrity modification definition | Add | 16.11.1 | Defined what counts as a "modification": changing recommended_decision, adding conditions, rejecting proposals, or requesting more data. |
+| Cross-strategy guardrail evaluation order | Add | 5.1 | Cross-strategy guardrails evaluated BEFORE individual strategy K/P/P decisions. |
+| Stale child signal verification protocol | Add | 3.5 | Flag as `trust: unverified`, emit `verification_request`, present Governor with accept/request-review/exclude options. |
+| **Friction fix: Category B — LLM evaluation criteria (below)** | | | |
+| Most diagnostic metric selection | Add | 7.2 | Fewest conversion stages to objective metric; longest consistent trend as tiebreaker. |
+| Knowledge flag relevance criteria | Add | 7.4 | Four conditions: contradicts domain model, evidence for/against hypothesis, uncovered pattern, external change affecting WMBT. |
+| Signal divergence cause selection tree | Add | 17.2.5 | Decision tree: approach_drift → lag_effect → audience_quality_shift → capability_shift (default). |
+| WMBT falsification operationalization | Add | 20.6 | Metric below WMBT-predicted threshold for 2+ consecutive strategy review cycles, or Governor explicit declaration. Always surfaced for Governor confirmation. |
+| Domain model approval criteria | Add | 17.2.3 | Three evaluation criteria for change proposals: accuracy, source quality, scope applicability. |
+| **Friction fix: Category C — Governor judgment annotations (below)** | | | |
+| Safe default domain appropriateness annotation | Annotate | 7.7 | Documented: domain-appropriate safe default content requires domain knowledge outside spec scope. Framework provides structure, Governor provides content. |
+| Graduation regression self-assessment annotation | Annotate | 16.11.1 | Documented: system provides indicators and deep-dive format; honesty of self-assessment is outside spec control. Challenge probes serve as partial mitigation. |
+| Decision batching fatigue annotation | Annotate | 7.2 | Documented: "may optionally defer" is Governor's call. System provides grouping and volume signal; Governor decides when to stop. |
+| Bootstrap strong priors attestation annotation | Annotate | 7.2 | Documented: attestation path (c) requires decision log documentation but soundness of Governor's basis is their judgment. Paths (a) and (b) are system-verifiable. |
+| **Simulation-driven fixes (Tier 1 tabletop — consulting/sales domain)** | | | |
+| First-cycle quality assessment | Add | 13.6 | Before domain model exists, agent output is presented as draft; Governor edits constitute initial quality signal. Domain model derived from Governor's correction patterns. |
+| Pivot checklist | Add | 4.3 | Structured checklist of 6 OD fields that MUST be updated on pivot: approach, action plan, kill condition deadline, kill condition threshold, bootstrap status, review date. |
+| Organic/unattributed milestone signals | Add | 7.4, 17.2.2 | Milestone signals with `tactic_id: null` and `source: organic` for events outside tactic hierarchy. Count toward objective but excluded from tactic health and A/B. |
+| Deferred conversions (pipeline carry-forward) | Add | 7.10 | At scope conclusion, in-progress items classified as converted/deferred/lost. Deferred items carry forward to successor scope with pipeline stage and expected date. |
+| **Simulation-driven fixes (Tier 2 tabletop — education/homeschool domain)** | | | |
+| Anti-pattern exception conditions | Add | 13.6 | Anti-patterns must include exception conditions to prevent false positives (e.g., "level-jumping" excludes "overlapping progression"). |
+| Domain model regression tolerance | Add | 20.3 | Domain models may define `regression_tolerance` (in cycles) that suspends early kill triggers for documented cyclical/developmental variance. Must be pre-committed, not retroactive. |
+| Guardrail-timeline conflict guidance | Add | 4.3 | When guardrail conflicts with timeline, `revise_objective` is the correct resolution — guardrails never relax, objectives adjust. |
+| Complementary strategy declaration | Add | 4.2 | Strategies declared `competing` or `complementary`. Complementary strategies assessed for combined contribution, not head-to-head. A/B divergence trigger does not apply to complementary pairs. |
+| WMBT refinement protocol | Add | 4.3, 17.2.1 | New decision type `wmbt_refinement` for narrowing/clarifying a WMBT without kill or pivot. Logged with old/new wording and evidence. Dependent tactics re-assessed. |
+| **Simulation-driven fixes (Tier 2 tabletop — agriculture/farm domain, 3 stacked models)** | | | |
+| Guardrail violation cause classification | Add | 5.1 | Violation signals include `violation_cause`: external_event, capacity_structural, execution_failure, unknown. External events with recovery plan weighted as temporary in health computation. |
+| Crisis-aware graduation assessment | Add | 16.11 | If no crisis occurred during assessment window, Governor issues a challenge scenario (hypothetical disruption) to test cross-domain reasoning before granting graduation. |
+| Action commitment cost tag | Add | 21.7 | Actions tagged `commitment_cost: reversible \| committed \| irreversible`. Committed/irreversible actions flagged to Governor with commitment duration. Require explicit approval at Stage 2+. |
+| Cross-domain synthesis as capability indicator | Add | 6.5 | Orchestrator cross-domain resolution ability is a capability indicator. Baseline: detect only. Advanced: propose integrated resolutions. Evidence for Stage 2+ readiness in multi-domain scopes. |
+| **Simulation-driven fixes (Tier 3 tabletop — open source maintainer domain, volunteer Governor)** | | | |
+| Global resource ceiling | Add | 7.2 | Step 4b checks total Governor-hours across all tactics against declared capacity ceiling. Exceeding ceiling triggers priority-based trimming and deferral with status report surfacing. Propagates across scopes in multi-scope configurations. |
+| Self-loading objective detection | Add | 20.7 | Detects objectives where achieving the metric creates proportional maintenance cost competing for same capacity. Flags with projected maintenance load vs. Governor capacity. Resolution: revise_objective, add scaling strategy, or adjust target. |
+| Absence-based signals | Add | 7.4 | New signal type for expected-but-missing events. Orchestrator maintains expected_events register from domain models and patterns. Severity: early_warning, significant, critical. Particularly important for silent disengagement in human-participant domains. |
+| Cross-strategy portfolio rebalance | Add | 4.3 | New decision type `portfolio_rebalance` for shifting resources between strategies under the same objective. Adds `STRATEGY_ALLOCATION_WEIGHT` field (0.0–1.0) to strategies. Non-delegable at all graduation stages. |
+| Stakeholder interaction signals | Add | 7.4 | New signal type for human-to-human dynamics among objective subjects (contributors, customers, students). Types: collaboration, conflict, mentoring, disengagement, governance_act. Feeds tactic health as contextual factor. |
+| Delegated reviewers | Add | 6.3 | Formal concept for trusted human participants performing governance-like acts within Governor-defined scope. Logged as `decision_source: delegated_reviewer:[id]`. Non-delegable decisions excluded. Informal governance detection flags unauthorized acts. |
+| Metric prerequisite relationships | Add | 9.1 | SUCCESS METRICS may declare prerequisite dependencies between metrics. Prerequisite gap suspends dependent metric's kill condition clock. Circular dependencies flagged as specification error at OD validation. |
+| **Simulation-driven fixes (Tier 3 tabletop — indie game dev domain, competing strategies + Governor override)** | | | |
+| WMBT abstraction level validation | Add | 4.3, 21.5, 21.8 | WMBTs must test strategic reasoning, not tactical implementation. Pivot test: "If we pivoted the tactic but kept the strategy, would this WMBT still be relevant?" Misplaced WMBTs cause false strategy kills. Abstraction check added to strategy kill decision, authoring guidance, and validation checklist. |
+| Override accountability gradient | Refine | 4.3 | pivot_override outcomes classified as justified (override improved outcome), moot (no material impact), or unjustified (override worsened outcome). Only unjustified triggers escalation. Replaces binary justified/escalate. |
+| **Simulation-driven fixes (Tier 3 tabletop — community safety domain, objective failure + Governor succession)** | | | |
+| Baseline methodology validation | Add | 9.1 | Baselines must declare source, time period, and methodology (annual average, trailing N-period, seasonally adjusted, raw). Orchestrator compares against same-period baselines when seasonal variation exists. Ambiguous methodology flagged at OD validation. |
+| Controllable vs. uncontrollable metric decomposition | Add | 20.7 | Objective metrics influenced by external factors decomposed into controllable and uncontrollable components. Kill conditions evaluate controllable component. Uncontrollable reported as context. Objective-level equivalent of §4.4 input/effectiveness separation. |
+| Governor succession protocol | Add | 6.1 | Permanent Governor transfer: incoming Governor reads full OD/decision log/domain model, may accept/revise/reject elements. Graduation stage resets to Stage 1. Domain model preserved as institutional knowledge. Transition logged as governor_succession event. |
+| Guardrail spirit vs. letter interpretation | Add | 5.1 | When outcome may violate guardrail intent but not literal wording, orchestrator emits guardrail_interpretation signal. Governor resolves: within bounds, tighten wording, or document as edge case. Precedent logged for future reference. |
+| Objective failure without strategy failure (alternative escalation path) | Add | 4.3 | When strategies show positive signal on controllable metrics but objective fails on total metric, escalation routes to revise_objective (metric redesign) rather than strategy kill. Diagnostic: "Are strategies producing expected effects on factors they control?" |
+| **Production readiness audit (internal consistency)** | | | |
+| Signal schema enum expansion | Fix | 17.2.2 | Added `absence` and `stakeholder_interaction` (both `[ROBUST]`) to signal_type enum. Added `external_milestone` and `organic` to source enum. |
+| Decision type enum completion | Fix | 17.2.1 | Added `portfolio_rebalance` and `governor_succession` (both `[ROBUST]`) to decision log indexing enum. |
+| Strategy template fields | Fix | 9.1 | Added RELATIONSHIP (`competing \| complementary`) and STRATEGY_ALLOCATION_WEIGHT fields to strategy template. |
+| resolve_conflict decision type | Add | 4.3 | Formal definition added: cross-domain signal conflict resolution, logged with conflict_id, precedence ruling. `[ROBUST]`. |
+| Rebalance/Pause tier markers | Fix | 4.3 | Added `[ROBUST]` markers to rebalance and pause decision types (were unmarked despite being Tier 2). |
+| commitment_cost in OD template | Fix | 9.1 | Added action-level commitment_cost field documentation to tactic template section. |
+| revise_objective generic fields | Fix | 4.3 | Replaced domain-specific field names (targetFollowers etc.) with generic specification (target value, deadline, metric definition, statement). |
+| Section reference corrections | Fix | 3.5, 4.3 | Fixed "standard action signal fields" orphan ref (added §7.4 cross-ref). Fixed "max 3 strategies" ref from §4.2 to §3.3. |
+| WMBT confirmed transition criteria | Fix | 20.6 | Added explicit criteria: ≥2 consecutive tactic review cycles with holding+ hypothesis status and no contradictory signals. |
+| All-paused state escalation | Fix | 4.3 | Added Governor non-response escalation for all-paused state (escalate per §7.7 after one strategy review cadence). |
+| Validation checklist expansion | Fix | 21.8 | Added 4 `[ROBUST]` completeness checks: circular metric prerequisites, strategy relationships, metric decomposition, Governor capacity declaration. |
+| Domain model schema: regression_tolerance | Fix | 17.2.3 | Added regression_tolerance field to domain model content schema. |
+| Strategy review knowledge requirements | Fix | 19.5 | Added stakeholder interaction patterns and absence signal summary to strategy review knowledge table. |
+| Baseline methodology in validation | Fix | 21.8 | Added baseline methodology declaration check to completeness checks. |
+
+### Changelog (v5.6 → v5.7)
+
+| Change | Type | Sections Affected | Summary |
+|--------|------|-------------------|---------|
+| Scoring Protocol | Add | 20.10 (new) | Explicit methodology for scoring features/tactics across multiple domain models: 1-10 scale definition, aggregation method, spread reporting, regulatory adjustment caps, calibration guidance. Addresses gap where each experiment reinvented scoring methodology. |
+| Dependency Validation | Add | 20.11 (new) | Formal DAG-based dependency representation and validation rules for sequencing features/tactics. Topological sort + scoring for candidate sequence generation. Prevents invalid sequences where items appear before their prerequisites. |
+| Phase Gate Protocol Enhancement | Enhance | 3.6 | Phase gate assessments now require structured decision templates with exit criteria evidence, key findings, decision options, tensions, and iteration scope. Addresses rubber-stamp phase gates observed in product roadmap experiments. |
+| Operating Document Update Triggers | Add | 17.2.1 | Defined staleness triggers for the operating document: unexpected scoring patterns, Governor priority decisions, kill condition evaluations, external constraint changes. OD flagged as stale after 2 ungated phases or review cycles. |
+| Parallelism Rules | Add | 7.12 (new) | Fork/merge protocol for parallel work execution: validity criteria, fork protocol, conflict resolution at merge. Codifies ad-hoc parallelism patterns observed in multi-domain scoring experiments. |
+
+### Changelog (v5.5 → v5.6)
+
+*Simulation-driven: product roadmap experiment (finite-scope protocol validation with GOSTA-Cowork Protocol). First simulation testing Tier 0 manual/AI-assisted implementation, file-based state management, session-based execution, and finite-scope phase gates. Deliberation requirements validated on roadmap feature prioritization scenario (2 decisions without deliberation vs. 8 with deliberation producing fundamentally different outputs).*
+
+| Change | Type | Sections Affected | Summary |
+|--------|------|-------------------|---------|
+| Tier 0: Manual/AI-Assisted implementation | Add | 0 | New implementation tier for file-based, no-code GOSTA operation using session-based AI. Defines minimum file structure, session lifecycle, graduation limits (Stage 1-3), and upgrade criteria. References GOSTA-Cowork Protocol companion document. |
+| Scope type distinction | Add | 3.6 | Formal definition of ongoing operational scope vs. finite analytical scope. Finite scopes use phase gates with entry/exit criteria instead of calendar-based review cadences. Phase gate assessment produces advance/iterate/restructure recommendations. Adds decision types: phase_advance, iterate, accept_deliverable. |
+| Stateless orchestrator variant | Add | 7.11 | Defines how the §7.2 execution loop operates without a persistent process. Covers state reconstitution from files, mapping execution loops to sessions, session types, and Tier 0 limitations. |
+| Deliberation requirements | Add | 7.11 | `[ROBUST]` Orchestrator must surface tensions (competing domain model interpretations) at every Governor decision point. Addresses observed failure mode where orchestrator operates as document factory without meaningful deliberation. |
+| Multi-domain consultation pattern | Add | 14.7 | `[ROBUST]` Defines independent per-domain assessment, disagreement surfacing, and when multi-domain consultation is required. Includes cross-hierarchy impact detection: decisions at one layer that alter priorities at another must be flagged. |
+| Learning-triggered domain model changes | Add | 19.9 | `[ROBUST]` Defines 5 trigger conditions for proposing domain model changes based on operational evidence. Specifies proposal format surfaced at strategy reviews. Addresses observed gap where learning loops never activated in simulation testing. |
+| Strategy kill trigger clarity | Clarify | 4.3 | Explicit enumeration of the 3 conditions that trigger strategy kills: all tactics killed/exhausted, WMBT falsified, or declared kill signal triggered. Addresses simulation finding where strategy kills never fired across 14 runs. |
+| Feature dependency graph: Tier 0 | Add | 0 | Tier 0 dependency chain added to feature dependency graph. |
+| Version selection guide: Tier 0 | Add | 0 | New row for Tier 0 use cases. |
+| product roadmap experiment | Reference | 0 | Added to simulation-tested list as finite-scope protocol validation. |
+
+### Changelog (v5.4 → v5.5)
+
+*Simulation-driven: University Research Lab (18-month scope, Stage 4 autonomy stress test, multi-domain research portfolio with safety-critical baselines). First simulation testing high-stage autonomous decision-making, metric lag, decision reversal, and maintenance-objective dynamics. 6 shortfalls identified, all actionable.*
+
+| Change | Type | Sections Affected | Summary |
+|--------|------|-------------------|---------|
+| **Simulation-driven fixes** | | | |
+| Metric lag modeling | Add | 10, 20.3 | `[ROBUST]` Tactics may declare `metric_lag: {duration}` for known intervention-to-outcome delays. Kill deadline extended by lag duration (`kill_deadline_effective`). Leading indicators still assessed during lag window. A/B comparison uses time-since-intervention-complete. |
+| Decision reversal | Add | 4.3, 17.2.1 | `[ADVANCED]` New `decision_reversal` type for undoing completed autonomous decisions. Eligibility windows per decision type (kill: 2 cycles, pivot: 1 cycle, rebalance: any time). Authorization: Governor-only at Stage 3, orchestrator-eligible at Stage 4-5 with confidence ≥0.8. Kill reversals always escalated. Anti-abuse: 3+ reversals triggers stability warning and pause. |
+| Non-killable entity tagging | Add | 10, 7.2 | `kill_requires` field in tactic template: `autonomous` (default) or `governor_approval`. Tactics with `governor_approval` are never auto-killed regardless of stage. Wired into §7.2 Step 5 at both Stage 3 and Stage 4-5 auto-execute logic. For safety-critical baselines, regulatory compliance, institutional obligations. |
+| Guardrail-as-autonomy-override pattern | Add | 21.4 | `[ROBUST]` Named pattern documenting emergent interaction where guardrail content prevents autonomous execution, forcing escalation regardless of stage. Logged as `escalation_reason: guardrail_autonomy_override`. Governor guidance for managing persistent overrides. |
+| Maintain-baseline objective fragility | Add | 21.4 | `[ROBUST]` Guidance for objectives where target ≈ guardrail floor (zero acceptable-partial-success zone). Covers: inverted kill conditions, cost-efficiency A/B comparison metrics, and process health leading indicators. OD validation checklist additions. |
+| Re-graduation evidence requirements | Add | 16.11.1 | `[ADVANCED]` Re-graduation after regression requires: doubled observation window, explicit failure-mode evidence, targeted challenge scenario, extended probation (4-6 cycles). 2+ regressions from same stage flagged as structural limitation. Logged with `graduation_subtype: re_graduation`. |
+| **Production readiness audit fixes** | | | |
+| B1: Soft constraint blocked recovery safe default | Fix | 7.2 | When soft constraint recovery is blocked by hard constraint AND Governor unavailable, safe default = treat as hard (halt action, preserve state, wait). |
+| B2: Child scope staleness cadence | Fix | 3.5 | Staleness threshold "2 strategy review cadences" specified as child scope's own cadence, not parent's. |
+| B4: Partial exhaustion escalation | Fix | 7.8 | Coverage gaps unresolved after 2 strategy review cycles escalate per §7.7. Safe default: accept partial coverage with logged justification. |
+| B5: Governor decision reversal | Fix | 4.3 | Governor may reverse their own prior decisions without eligibility window constraints. No confidence threshold — Governor exercises judgment directly. Logged as `reversal_type: governor_override`. |
+| B6: Metric lag A/B synchronization | Fix | 20.3 | A/B-paired tactics with metric_lag synchronize kill deadlines to max(kill_deadline_effective) across variants. Prevents killing before comparison data exists. |
+| B7: Re-graduation metric lag evidence | Fix | 16.11.1 | "2 review cycles" means 2 cycles after lag window passes. Governor may substitute leading indicator evidence for impractically long windows. |
+| B8: Maintain-baseline A/B comparison mode | Fix | 21.4 | Added `comparison_mode: threshold` for process health metrics. Bypasses ratio-based logic in §20.9 when declared. Winner/inconclusive conditions declared explicitly in A/B_VARIANT. |
+| F1: Composite objective signal divergence | Fix | 4.1 | Conversion stage counting uses shortest path to nearest component of composite metrics. |
+| F3: Kill-vs-Pivot precedence | Fix | 4.3 | Decision table now has explicit precedence order (first matching row wins). 2+ failed pivots outranks all. |
+| F4: Completed-vs-exhausted 15% direction | Fix | 7.8 | Asymmetric: 85-99% of target = inconclusive (Governor decides); ≥100% = completed; <85% = exhausted. |
+| F5: Deadline warning measurement | Fix | 7.9 | 75% measured in elapsed calendar days from scope start to objective deadline. |
+| F6: Complementary strategy criteria location | Fix | 4.2 | Function-specific success criteria declared in strategy RATIONALE field and assessed via WMBT conditions. |
+| F7: Child scope initial graduation stage | Fix | 3.5 | Default: Stage 1 regardless of parent stage. Governor may override with evidence from sibling scopes. |
+| F8: kill_requires authoring safety | Fix | 10 | Authoring note added: `governor_approval` strongly recommended for maintain-baseline objectives. §21.8 flags `autonomous` default as warning for maintenance tactics. |
+| F9: signal_production_phase + metric_lag interaction | Fix | 20.3 | Clarified: lag clock starts at completion of signal_production_phase. Worked example added (recruit→train→deploy→measure). |
+| F11: Decision reversal anti-abuse resolution | Fix | 4.3 | Pause triggers diagnostic report with timeline and kill/pivot clarity analysis. Governor options specified. §7.7 escalation if Governor non-responsive. |
+| F12: Validation checklist v5.5 fields | Fix | 21.8 | Added 5 checks: metric_lag A/B synchronization, signal_production_phase bootstrap coverage, maintain-baseline kill_requires, maintain-baseline comparison_mode, safety-critical kill_requires. |
+| F13: Decision reversal log schema | Fix | 17.2.1 | Formal schema for decision_reversal entries: original_decision_id, original_decision_type, reversal_reason, new_evidence, evidence_confidence, reversal_type, eligibility_check. |
+
+### Changelog (v5.3 → v5.4)
+
+*Simulation-driven: Riverside City municipal emergency management (16-week scope, 2 goals, 3 child scopes at Stages 1/2/3, 6 decision points). First simulation testing parent/child scopes, multiple goals, and hard/soft guardrails under safety-critical pressure. 10 shortfalls identified, 9 actionable.*
+
+| Change | Type | Sections Affected | Summary |
+|--------|------|-------------------|---------|
+| **Spec changes (simulation-driven)** | | | |
+| Cross-goal portfolio rebalance | Extend | 4.3 | `portfolio_rebalance` scope extended from intra-objective to include cross-goal rebalance. Cross-goal rebalance requires explicit Governor justification logged as `rebalance_scope: cross_goal`. Non-delegable at all stages. |
+| Partial strategy exhaustion | Add | 7.8 | `[ROBUST]` When a tactic is killed but sibling tactics remain active, orchestrator assesses whether the killed tactic served a sub-component not covered by remaining tactics. Surfaces coverage gap in strategy health report. Governor decides: reassign, replace, or accept partial coverage. |
+| Precondition override | Add | 7.2 | `[ROBUST]` Governor may override a precondition deferral with justification via `precondition_override` decision. Override logged with justification. Post-execution validation: `override_validated` or `override_risk_accepted`. Feeds structural memory. |
+| Child scope lifecycle at parent conclusion | Add | 7.10 | `[ADVANCED]` When parent scope concludes, each child scope assessed: conclude with parent, transfer to successor scope, or convert to independent scope. Logged as `child_scope_disposition`. Default: concluded. |
+| Decision type enum expansion | Fix | 17.2.1 | Added `precondition_override [ROBUST]` and `child_scope_disposition [ADVANCED]` to decision log indexing enum. |
+| **Pattern additions (simulation-driven)** | | | |
+| Multi-phase signal production | Add | 20.3 | `[ROBUST]` Tactics with sequential phases (recruit→train→deploy) may declare `signal_production_phase: N`. Phases before N treated as extended bootstrap for A/B comparison and kill conditions. Competing strategy comparison deferred until both produce target-metric signals for ≥2 cycles. Subsumes bootstrap asymmetry gap. |
+| Aspiration-floor pattern | Add | 21.4 | `[ROBUST]` Named pattern for same-metric objective target + guardrail floor. Gap between them is acceptable-partial-success zone. Authoring guidance for mid-scope guardrail addition. |
+| Resource-normalized A/B comparison | Add | 20.9 | `[ROBUST]` When competing strategies have >20% resource allocation difference, A/B comparison presents both raw and resource-normalized (metric per unit of resource) comparisons. Prevents misattributing resource starvation as strategic inferiority. |
+| **Guidance notes (simulation-driven)** | | | |
+| Recovery second-order effects | Add | 5.2 | `[ROBUST]` After recovery, orchestrator assesses whether violation produced persistent second-order effects (trust damage, related-scope metric degradation). Detection via stakeholder_interaction signals or cross-scope metric correlation. Surfaced as separate status report finding. |
+| Cross-goal interference detection | Add | 4.5 | `[ROBUST]` Distinct from signal conflicts: side-effect interference where Goal X actions degrade Goal Y metrics without signal contradiction. Orchestrator monitors via cross-goal metric-activity correlation at goal review cadence. Governor may add cross-goal guardrails if causality confirmed. |
+| **Production readiness audit fixes** | | | |
+| B1: Stage-conditional execution loop | Fix | 7.2 | Tactic Cycle Steps 5-6 now branch on graduation stage: Stage 1-2 present-and-wait on all items; Stage 3 auto-executes unambiguous tactic decisions (kill with met condition, intra-strategy pivot, persevere, intra-strategy rebalance) and presents exceptions; Stage 4-5 auto-executes all tactic-level decisions. `decision_source: orchestrator_autonomous` field added. |
+| B2: Soft constraint auto-recovery step | Fix | 7.2 | Action Cycle Step 3 now includes violation processing substep: determine severity (hard/soft), apply recovery if soft + Stage 3+ + recovery spec exists + hard constraint validation passes, else escalate. Wires §5.2 recovery mechanism into execution loop. |
+| B3: pivot_override enum | Fix | 17.2.1 | Added `pivot_override [CORE]` to decision type enum. |
+| B4: agent_degradation enum | Fix | 17.2.2 | Added `agent_degradation [CORE]` to signal_type enum. |
+| B5: Metric prerequisite evaluation | Fix | 10, 20.3 | `Metric Prerequisites` field added to tactic template (§10). Kill condition assessment checks METRIC_PREREQUISITES before evaluating. Unmet prerequisites suspend kill assessment (status: "suspended — prerequisite gap"). No clock reset. |
+| B6: Computable graduation threshold | Fix | 16.11 | Stage 1→2 "minimal modification" defined: ≥80% plan acceptance rate, modifications limited to action-level adjustments (not structural changes). |
+| B7: WMBT holding→at_risk transition | Fix | 20.6 | Operationalized: transitions when any supporting metric below threshold for 1 strategy review cycle, OR 2+ signals directionally opposed within a single cycle. |
+| B8: A/B minimum meaningful threshold | Fix | 20.9 | Redefined using existing field: 10% of kill_threshold as default floor. Optional `minimum_meaningful_threshold` field overrides default. |
+| F3: Bootstrap after pivot | Fix | 4.3 | `bootstrap_cycles` counter behavior specified: completed bootstrap retained; mid-bootstrap Governor chooses restart (counter=0) or continue. Default: continue. |
+| F4: Conflict ID lifecycle | Fix | 4.5 | Counter stored in Signal Store, monotonically increasing per year. Resolved conflicts marked `status: resolved`, excluded from active reports, retained for audit. |
+| F5: Portfolio rebalance terminology | Fix | 4.3 | Canonical decision type name `portfolio_rebalance` declared; prose variants ("portfolio rebalancing", "objective rebalancing") mapped to same mechanism. |
+| F6: Tier coherence for RELATIONSHIP/ALLOCATION_WEIGHT | Fix | 9.1 | Tier notes added: RELATIONSHIP required at CORE when 2+ strategies exist; STRATEGY_ALLOCATION_WEIGHT required at CORE when rebalancing. |
+| F7: Human creative dependency canonical name | Fix | 3.5 | Canonical name `human_creative_dependency` declared with cross-references to signal metric (`human_creative_input_rate`, §7.4) and template field (`HUMAN CREATIVE DEPENDENCIES`, §10). |
+| F8: Structural zero counter reset | Fix | 20.3 | Strict consecutive counting: any single positive cycle resets counter to 0. |
+| F9: Challenge probe confidence normalization | Fix | 16.11.1 | Unit normalization added: cross-metric comparison uses percentage margin (`margin_to_boundary / boundary_value`), not raw confidence score. |
+| F10: Underperformance diagnostic default | Fix | 20.5.1 | `action_signal_quality` input sourced from domain model quality checks. Default when unavailable: `not_assessed`, classification falls through to `not_applicable`. |
+| F11: Self-loading capacity threshold | Fix | 20.7 | "Approaching capacity" quantified: ≥80% of declared Governor capacity ceiling. |
+| F12: Reference Pool relevance weights | Fix | 17.2.4 | Composite scoring formula quantified: scope specificity (0.5), recency (0.3), access frequency (0.2). Ordinal scores defined for each factor. |
+| F14: Non-delegable count | Fix | 6.1 | Removed hard-coded "nine things" count (was incorrect vs. §6.3's 10-item list). §6.1 now references §6.3 for the full operational list. |
+
+### Changelog (v5.2 → v5.3)
+
+*Informed by: Agent Behavioral Contracts (ABC) (arXiv, 2026). Enhancement cycle executed via the GOSTA Framework Enhancement Runbook (14-step prompt chain). Simulation-tested: Mercy Clinic healthcare operations domain (24 weeks, 2 rounds, Stage 1→2 graduation).*
+
+| Change | Type | Sections Affected | Summary |
+|--------|------|-------------------|---------|
+| **ABC-informed structural additions (Steps 1-6)** | | | |
+| Constraint severity classification (hard/soft) | Add | 5.1, 9.1 | Each guardrail carries `severity: hard \| soft`. Hard = zero-tolerance, immediate halt. Soft = recoverable, auto-recovery at Stage 3+. Default: hard. Informed by ABC distinction between persistent and recoverable constraints. |
+| Per-guardrail recovery specification | Add | 5.2 | Soft constraints declare a `recovery` field specifying concrete auto-recovery action. Must be executable without Governor, within guardrail chain, and reversible. Logged as `guardrail_recovery` in decision log. |
+| Violation response unified with severity | Refine | 5.2 | Violation escalation path now determined by severity: hard → immediate escalation + halt; soft → auto-recovery (Stage 3+) or escalation (Stage 1-2). Integrated with existing violation_cause classification. |
+| Action precondition specification | Add | 21.7, 7.2 | Actions may declare `preconditions` — conditions checked at work plan generation. False preconditions defer the action with `precondition_not_met` reason. Distinct from dependencies (ordering) and guardrails (constraints). |
+| **Production readiness audit (Step 7)** | | | |
+| guardrail_recovery in decision_type enum | Fix | 17.2.1 | Added `guardrail_recovery [ROBUST]` to decision log indexing enum. |
+| Recovery + precondition validation checks | Fix | 21.8 | Added 2 `[ROBUST]` checks: soft constraints must have recovery specs satisfying 3 properties; preconditions must reference evaluable state. |
+| Precondition section reference correction | Fix | 21.7 | Changed "dispatch time (§7.2, Step 4)" to "work plan generation (§7.2, Action Cycle Step 4)" and clarified deferral logging to decision log. |
+| Precondition-checking in execution loop | Add | 7.2 | Added explicit precondition-checking substep to Action Cycle Step 4 with log format. |
+| **Simulation-driven fixes (Steps 8-11: R1 healthcare clinic, R2 healthcare + child scope)** | | | |
+| Near-violation cross-reference | Fix | 7.2 | Step 3 now cross-references §5.3 (80% threshold) for near-violation definition. |
+| Recovery validation against hard constraints | Add | 5.2 | Runtime static validation: before executing recovery, orchestrator checks recovery effects against inherited hard constraints. Blocked recovery escalates to Governor. |
+| "Executable without Governor input" clarification | Fix | 5.2 | Clarified: orchestrator deploys recovery via normal dispatch without blocking on Governor approval; Governor notified but not gated. |
+| Mid-execution precondition failure | Add | 7.2 | `[ADVANCED]`: executor emits blocker signal if precondition becomes false after dispatch. Governor decides: wait, cancel, or substitute. |
+| Precondition deferral timeout | Add | 7.2 | `[ROBUST]`: 3-cycle default timeout. Governor escalation with wait/cancel/substitute options. Wait resets counter. Non-response follows §7.7. |
+| Recovery reversal tracking | Add | 5.2 | Orchestrator re-evaluates reversal condition each cycle. 2-cycle timeout triggers status report flag. Governor options: wait, accept as permanent (modifies OD), revise reversal path. |
+| Near-violation vs event-triggered review | Fix | 7.2 | Near-violations are informational warnings in status reports; they do NOT auto-trigger §7.9 event-triggered reviews. Actual violations (100% breach) do trigger. |
+| Child scope graduation guidance | Add | 3.5 | `[ADVANCED]`: Stage set at creation, typically fixed for short scopes (<2 strategy review cycles). Standard graduation criteria apply for longer-lived child scopes. |
+| **External review fixes (Step 12)** | | | |
+| Recovery validation algorithm | Fix | 5.2 | Specified as static check (effects vs. hard constraint bounds), not full simulation. |
+| Recovery normalization as Governor judgment | Fix | 5.2 | "Accept as permanent" explicitly marked as Governor-only decision that modifies OD. |
+| Precondition timeout Governor non-response | Fix | 7.2 | Cross-referenced §7.7 for Governor non-response protocol on precondition escalations. |
+| Stage 1-2 recovery spec authoring note | Fix | 21.8 | Recovery specs at Stage 1-2 are forward commitments for Stage 3+ graduation; they don't auto-execute. |
+| **Friction audit fixes (Step 13)** | | | |
+| Precondition evaluability rubric | Fix | 21.8 | Three acceptable precondition sources: signal/metric with threshold, action completion status, external data availability. Sentiment/quality preconditions must be rewritten as thresholds. |
+| Recovery reversibility definition | Fix | 5.2 | Reversible = declares a reversal condition OR modifies only additive/idempotent state that can be decremented or cleared. |
+| Precondition/dependency/guardrail decision rubric | Add | 21.7 | Three-line rubric: dependency = can't execute without upstream output; precondition = could execute but would be wasteful; guardrail = governs how, not when. |
+
+### Changelog (v5 → v5.1)
+
+| Change | Type | Sections Affected | Summary |
+|--------|------|-------------------|---------|
+| Tactic wind-down protocol | Add | 4.3, 7.8 | When killing a tactic with in-flight external commitments (candidates, orders, contracts), Governor defines wind-down scope. Tactic marked `killed_winding_down` until commitments fulfilled. |
+| Milestone signal type | Add | 7.4 | New signal type for external events (offer acceptance, contract signing) that affect objectives directly without originating from tactic actions. |
+| Domain-specific review triggers | Add | 7.9, 9.2 | Operating document may define custom event-triggered review conditions beyond framework defaults. |
+| Completed status (distinct from exhausted) | Add | 7.8 | Fourth tactic exhaustion option: strategy/tactic completed (work done successfully) vs. exhausted (implementation space consumed). Affects structural memory transfer vector routing. |
+| Domain-calibrated safe defaults | Extend | 7.7, 13.6 | Safe defaults must be reviewed for domain appropriateness. Action types where repetition is harmful use `skip` as safe default. |
+| Pause/Resume decision type | Add | 4.3, 7.2 | Governor may pause a strategy (suspend without killing). Paused strategies retain state, don't consume resources. Resume re-enters bootstrap. |
+| Rebalance decision type | Add | 4.3, 9.1 | Formal decision type for intra-strategy resource reallocation without changing hypotheses. Tactic template gains `ALLOCATION_WEIGHT` field. |
+| Staggered A/B time-normalization | Add | 4.2 | When parallel A/B variants have different effective start dates, orchestrator presents both absolute and time-normalized comparisons. |
+| Conversion funnel tracking | Add | 7.2 | Orchestrator tracks multi-stage conversion funnels when objective metric requires stages beyond tactic output. |
+| Scope conclusion protocol | Add | 7.10 (new) | Protocol for orderly closure of finite scopes: objective met, deadline reached with partial success, domain model transfer. |
+| Intra-tactic signal divergence | Add | 4.1, 17.2.5 | Structured diagnosis when a tactic's leading indicators diverge directionally. Health report gains `signal_divergence` field. |
+| Finite-scope graduation guidance | Add | 16.11 | Short scopes may not produce enough review cycles for graduation. Graduation evidence transfers to subsequent scopes. |
+| Governor time estimate recalibration | Fix | 6.4.3 | Stage 1-2 estimate revised to 5-8 hours/month total (was 3-5, which excluded deliverable review time). |
+| Challenge probe ambiguity heuristic | Add | 16.11.1 | Computable selection criteria for challenge probes: low confidence, signal-context divergence, or near decision boundaries. |
+| Early kill trigger cadence scaling | Fix | 20.6 | A/B divergence threshold scales with cadence (30-50% of tactic lifetime, minimum 3 cycles). |
+| Strategy review batching guidance | Add | 7.2 | Governor processes decisions in groups: strategy decisions, then OD revisions, then domain model proposals. |
+| Bootstrap calibration for sprints | Add | 7.2 | Governor may reduce bootstrap to 1 cycle for tactics with strong priors in compressed timelines. |
+| Cross-strategy guardrail evaluation | Add | 5.1 | Distribution-constrained guardrails evaluated at objective level using cross-strategy signal aggregation. |
+| WMBT confirmation event | Add | 7.2 | Orchestrator surfaces WMBT transitions to "confirmed" as positive events in strategy health reports. |
+| Child scope trust calibration | Add | 3.5 | Trust guidelines by child scope stage: Stage 1-2 high-confidence, Stage 3 moderate, Stage 4-5 with stale reviews warrant verification. |
+| Diagnostic classification stage note | Add | 6.5 | Classification is informational at Stage 1-2, operationally significant at Stage 3+. |
+| Decision log indexing | Add | 17.2.1 | Decision log must support querying by type, entity, and date range. Summary generation at scope conclusion. |
+| Alternate Governor designation | Add | 7.7, 9.2 | Operating document may designate alternate Governor for time-critical action-level decisions during primary Governor unavailability. |
+| **Production readiness audit fixes (below)** | | | |
+| Signal type enum completion | Fix | 17.2.2 | Added `milestone` to canonical signal_type enum in Signal Store schema. |
+| Decision type enum completion | Fix | 17.2.1 | Added `revise_objective` and `resolve_conflict` to decision log indexing query types. |
+| WMBT confirmed status | Fix | 20.6, 17.2.5 | Added `confirmed` to per-condition WMBT vocabulary in formal computation and health report schema. |
+| Bootstrap default alignment | Fix | 7.2 | Clarified "typically 2-3 cycles; template default is 3" to match Section 10 template. |
+| Governor time estimate alignment | Fix | 8 | Section 8 summary now references 5-8 hours/month total for Stage 1-2 per Section 6.4.3 recalibration. |
+| Bootstrap "strong priors" operationalized | Fix | 7.2 | Defined computable criteria for "strong priors" (validated hypothesis library, prior scope success data, Governor attestation). |
+| Pause/resume bootstrap re-entry | Fix | 4.3 | Specified: completed-bootstrap tactics do not re-bootstrap on resume; mid-bootstrap tactics resume where they left off. Paused tactics excluded from exhaustion detection. |
+| Governor non-response timeout | Fix | 7.7 | Specified escalation ladder: 1 cadence → escalation signal, 2 cadences → alternate Governor, 3 cadences → safe defaults only. Non-delegable decisions never auto-resolved. |
+| Graduation regression criteria | Fix | 16.11.1 | Replaced subjective "situational awareness" with computable indicators (tactic status recall, outcome surprise, challenge probe consistency). Self-assessed by Governor. |
+| A/B override state transition | Fix | 4.1 | Specified operational effect: voided overrides stop comparative reporting; compromised overrides flag confound. |
+| Child scope evaluation order | Fix | 3.5 | Specified one-directional dependency (child signals → parent health) to prevent circular computation. |
+| Completed vs. exhausted decision rule | Fix | 7.8 | Strategy is `completed` when metric meets target at terminal state; `exhausted` when below target. Governor decides if within 15%. |
+| Objective rebalancing clarification | Fix | 16.11 | Clarified "objective rebalancing" means resource reallocation among strategies, not modification of objective metrics/thresholds. |
+| Wind-down guardrail conflict | Fix | 4.3 | Specified escalation path when wind-down commitments conflict with guardrails: Governor decides relax, release, or transfer. |
+
+### Changelog (v4 → v5)
+
+| Change | Type | Sections Affected | Summary |
+|--------|------|-------------------|---------|
+| Per-stage autonomy table | Unify | 6.1, 6.3 | Three-zone autonomy model replaced with explicit per-stage autonomy table. Resolves contradiction between Section 6.3 ("always autonomous") and Section 16.11 (Stage 1 Governor approves everything). Section 6.1 item 5 clarified from "sole authority" to "final authority" on tactic portfolio. |
+| Stage-dependent review profiles | Unify | 6.4 | Review cadence now defaults based on graduation stage. Governor can override upward (more reviews) but not downward. |
+| Autonomous Governance Mode removed | Drop | 6.5 | Section removed from core spec. Contradicted non-delegable decisions. AI test harness for simulation relocated to Appendix A. |
+| Agency/autonomy diagnostic separation | Adopt | 6.5, 7.2 | Capability profile separated from autonomy profile. Health reports distinguish capability failures from autonomy failures. |
+| Autonomy metadata in scope delegation | Adopt | 3.5 | Child scope signal extended with `governance_stage` and `last_governor_review` fields. |
+| Governor disengagement mitigation | Adopt | 16.11 | Challenge probes and governance integrity warnings added at Stage 4+. |
+| Production-readiness consistency fixes | Fix | 7.7, 17.2.5, 19.4, 20.5.1 | Agent failure protocol updated (removed stale autonomous mode reference). Health report schema extended with `underperformance_source` field. Diagnostic classification computation defined (Section 20.5.1). Tactic review knowledge requirements updated to include diagnostic separation. |
+| Simulation-driven fixes | Fix | 6.1, 6.3, 9.1, 16.11, 16.11.1 | Graduation stage added as 9th Governor authority (6.1). Non-delegable list in 6.3 extended: graduation stage change added, domain model approval added (was enforced by 17.2.3 but missing from canonical list). Graduation stage added to OD template required fields (9.1). Graduation readiness indicators and probation period added (16.11). Governance integrity warning N given recommended default range (16.11.1). |
+
+### Changelog (v5.7 → v5.8)
+
+| Change | Type | Sections Affected | Summary |
+|--------|------|-------------------|---------|
+| Tier annotations for tactic fields | Add | 10 | All 17+ tactic specification fields annotated with `[CORE]`, `[ROBUST]`, or `[ADVANCED]` tier tags. Execution protocols may omit ROBUST/ADVANCED fields at lower tiers. |
+| Tier 0 domain model minimum | Add | 17.2.3 | Tier 0 minimum: Core Concepts (3+), Quality Principles (3+), Anti-Patterns (2+). Full 6-component schema at Tier 1+. |
+| Rule 7 Tier 0 note | Add | 8 | Feedback Obligation at Tier 0 is per-session; cross-session silence tracked by bootstrap staleness. |
+| Finite scope review cadence mapping | Add | 6.4.3 | Four review levels mapped to phase gates for finite analytical scopes. |
+| Stateless graduation limit | Add | 7.11 | Stateless orchestrators limited to Stages 1-3. Stage 4+ requires persistent state. |
+| A/B testing Tier 0 adaptation | Add | 4.2 | At Tier 0, A/B testing is sequential by default. Parallel only for independently measurable signals. |
+| Data store Tier 0 note | Add | 17.2 | At Tier 0, data stores are markdown files. Schema enforcement is cognitive. |
+| Execution Protocols acknowledged | Add | 22 | New section: GOSTA mechanisms require a translation layer (execution protocol) for each execution tier. Defines minimum requirements for protocols. |
+
+### Changelog (v5.8 → v5.9)
+
+| Change | Type | Sections Affected | Summary |
+|--------|------|-------------------|---------|
+| Quality Criterion guardrail type | Add | 5.1 | 6th guardrail type for analytical scopes — structural quality requirements on deliverables, checked at completion. |
+| Qualitative kill conditions | Add | 3.5 | Kill conditions may be structural tests ("if [observable condition]") for analytical scopes, not just metric+date. |
+| Analytical scope adaptations | Add | 3.6 | 5 explicit ways analytical scopes differ: quality guardrails, compound signals, qualitative kills, quality health, reasoning deliverables. |
+| Tension semantics by scope type | Add | 3.6 | "Blocking" means halt execution (operational) vs. framing decision needed (analytical). |
+| Signal granularity definition | Add | 7.4 | One signal = one assessable claim from one source. Compound signals for multi-claim sources. |
+| Signal triage | Add | 7.4 | Relevance, credibility, currency, and dedup filtering before formal recording. Required for high-volume sources. |
+| Temporal validity | Add | 7.4 | Signals declare validity windows. Expired signals marked stale and excluded from health computation. |
+| Composite score normalization | Add | 20.1 | Default normalization: exceeded=90, on_track=70, at_risk=40, failing=10. Ensures cross-implementation consistency. |
+| Domain completeness check | Add | 13.6 | At bootstrap, AI assesses whether declared domains cover all relevant analytical dimensions. Flags missing standard dimensions. |
+
+### Changelog (v5.9 → v6.0)
+
+| Change | Type | Sections Affected | Summary |
+|--------|------|-------------------|---------|
+| Deliberation Protocol integration | Add | 7.1 | Coordinator and Domain Agent component types defined as optional deliberation components. Activated when cross-domain evaluation requires structured multi-agent debate. |
+| Deliberation escalation in Strategy Cycle | Add | 7.2 | Strategy Cycle STEP 3 gains a DELIBERATION ESCALATION CHECK: triggers multi-agent deliberation when 3+ domain models produce materially different recommendations on high-stakes decisions. |
+| Cross-domain deliberation path | Add | 4.5 | Step 5 added: orchestrator may invoke the Deliberation Protocol for high-stakes cross-domain conflicts involving 3+ domain models, replacing inline escalation with structured multi-agent debate. |
+| Domain model stacking at scale | Add | 13.7 | Deliberation referenced as the formal mechanism for resolving domain model stacking conflicts when inline resolution is inadequate. |
+| Three-level multi-domain escalation model | Add | 14.7 | Level 1 (inline), Level 2 (sequential isolation), Level 3 (multi-agent deliberation) formalized with explicit escalation triggers. Escalation levels are distinct from implementation tiers (§0/§16). |
+| Deliberation autonomy by graduation stage | Add | 6.3 | Stage 3: full-consensus deliberation outcomes auto-accepted. Stage 4+: full and strong-consensus auto-accepted. Splits always escalate to Governor. Split resolution added to non-delegable list. |
+| Synthesis hallucination type | Add | 14.2 | 5th hallucination type: Coordinator misrepresents agent positions during multi-agent deliberation. Cascading — corrupts all downstream rounds. |
+| Synthesis Verification grounding component | Add | 14.3.5 | 5th grounding component (active at Level 3 only). Three vectors: position misrepresentation, consensus inflation, cross-domain concept drift. Tier-specific mitigations from Governor direct-read (Tier 0) to automated semantic comparison (Tier 2+). |
+| Grounding architecture updated for deliberation | Fix | 14.4, 14.5 | Integration diagram, interaction paths, and build sequence table expanded to include Synthesis Verification as 5th component. |
+| Coordinator memory loading protocol | Add | 18.4 | Context loading sequence for Coordinator during deliberation rounds. Defines summary/full transitions across rounds, context budget rule, and no-episodic-memory design. |
+| Domain Agent memory loading protocol | Add | 18.4 | Context loading sequence for Domain Agents in Round 1 and Round 2+. Fixed-size context, no lateral memory, no persistent memory. |
+| Deliberation artifacts in summary/full table | Add | 18.3 | Position Paper, Response Paper, Interim Assessment, and Synthesis Report added to the summary/full pattern table with both forms defined. |
+| Deliberation memory flow pattern | Add | 18.5 | Hub-and-spoke mediated lateral flow pattern defined for Level 3 deliberation. Double-indirection noted as synthesis verification dependency. |
+| Deliberation episodic memory tier | Add | 18.6 | New row in maintenance schedule: deliberation artifacts as append-only episodic memory with structural transfer at strategy review. |
+| Domain Agent cross-cycle continuity | Fix | 18.4 | Domain Agent loading protocol gains step 7: load own prior Position Paper summary. "No persistent memory" policy updated to "No persistent memory — but cross-cycle continuity" with three sources: domain model updates, prior Synthesis Report summary, own prior Position Paper summary. |
+| Synthesis verification scale limit | Fix | 14.3.5 | Tier 0 Governor direct-read obligation capped at max 5 agents. Spot-check protocol defined for larger deliberations: read at least 2 position papers per round (rotating), always read dissenting agents. |
+| Two-dimension reading model | Fix | 0.3 | Separated feature complexity (`[CORE]`/`[ROBUST]`/`[ADVANCED]`) from implementation mode (Tier 0/1/2/3) into two independent dimensions. Rewrote §0.3 reading guide with two-step selection (tier first, then feature complexity). Removed false 1:1 mapping that previously implied `[CORE]` = Tier 1, `[ROBUST]` = Tier 2, `[ADVANCED]` = Tier 3. |
+| Dependency graph de-conflation | Fix | 0.3 | Removed parenthetical complexity tags from tier labels in the feature dependency graph (`Tier 1 (CORE)` → `Tier 1 — Minimum viable coded implementation`). Added note clarifying graph describes implementation mode, not feature complexity. |
+| Tactic field annotations de-conflation | Fix | 10 | Rewrote tier annotation paragraph to describe field markers as feature complexity indicators, not tier requirements. A Tier 0 user adopting `[ROBUST]` features (e.g., A/B testing) should include `[ROBUST]` fields. |
+| Schema Validation tier progression | Add | 14.3.1 | Added tier-specific behavior: Tier 0 (AI self-checks), Tier 1 (deterministic code), Tier 2+ (cross-object consistency, pre-commit hooks). |
+| Data Grounding tier progression | Add | 14.3.3 | Added tier-specific behavior and Governor-provided data as source type. Tier 0 (file-based, Governor-provided), Tier 1 (API connections), Tier 2+ (continuous data push, cross-source validation). |
+| Retrieval Faithfulness | Add | 14.3.2 | New grounding sub-component under Domain Knowledge Store. Three distortion vectors: narrowing, broadening, semantic drift. Tier-specific mitigations: cite-then-apply (Tier 0), automated semantic similarity (Tier 1), concept-level attribution (Tier 2+). |
+| Temporal Validity | Add | 14.3.3 | Staleness detection added to Data Grounding. Tier 0 (manual timestamp check, `[STALE]` flag), Tier 1 (automated staleness detection), Tier 2+ (proactive refresh management). |
+| Confidence Calibration | Add | 14.6 | Feedback loop quality tracking added to Grounding as a Living System. Tier 0 (manual learnings.md table), Tier 1 (auto-generated reports), Tier 2+ (automatic confidence weighting). |
+| Execution loop Tier 0 note | Add | 7.2 | Clarified that at Tier 0, the "orchestrator" is the AI in conversation. Cross-references Cowork Protocol v3.4. |
+| Kill/Pivot/Persevere Tier 0 note | Add | 4.3 | Governor makes decisions in conversation after AI presents health computation at Tier 0. |
+| Implementation Sequence Tier 0 note | Add | 16 | Only definition stage applies at Tier 0; Phases 1-6 are Tier 1+ builds. |
+| Context Loading Tier 0 note | Add | 18.4 | At Tier 0, context loading is AI reading files per bootstrap's Context Loading Order. |
+| Hallucination taxonomy restructure | Rewrite | 14.2 | Restructured flat 5-type list into 4-category taxonomy organized by what each hallucination corrupts in the control system: Form (structural), Substance (domain, capability), Signal (metric/data, status, temporal), Continuity (synthesis, memory confabulation). Each category maps to its mitigation layer. Includes taxonomy summary table and tier severity notes. |
+| Temporal hallucination type | Add | 14.2 | New hallucination type under Signal Corruption. Agent treats outdated information as current. Distinct from metric/data fabrication — the data was once real but has expired. Mitigated by Temporal Validity checks (§14.3.3). |
+| Capability hallucination type | Add | 14.2 | New hallucination type under Substance Corruption. Agent proposes actions that are structurally valid and domain-appropriate but operationally infeasible. Widest gap at Tier 0, narrowing at higher tiers. |
+| Memory confabulation type | Add | 14.2 | New hallucination type under Continuity Corruption. Agent falsely recalls events from prior sessions. Mitigated architecturally by file-based state reconstitution (§7.11) at Tier 0 and database-backed state at Tier 1+. No dedicated grounding component needed. |
+| Capability Validation grounding component | Add | 14.3.6 | 6th grounding component. Checks action feasibility against system's actual operational boundaries. Five check dimensions: tool/platform access, data source availability, scale feasibility, human resource requirements, execution authority. Tier 0: AI self-check against bootstrap capability declaration. Tier 1: registry-based check. Tier 2+: dynamic registry with capability upgrade path proposals. |
+| Grounding integration diagram update | Fix | 14.4 | Expanded ASCII diagram to include Capability Validation and architectural memory confabulation mitigation. Updated 6 interaction paths with hallucination category annotations. |
+| Build sequence update | Fix | 14.5 | Added Category column. Added Capability Validation as 6th build priority. Added architectural row for memory confabulation. Updated build rationale paragraph. |
+| Bootstrap capability awareness section | Add | Template: 00-BOOTSTRAP.md | New "Execution Capabilities" section declaring tools/platforms available, Governor-provided data sources, actions requiring Governor execution, and scale constraints. Referenced by Capability Validation (§14.3.6). |
+| Cowork Protocol capability validation | Add | Protocol: §12.6 | Operationalizes Capability Validation for Tier 0. Five enforcement rules: pre-proposal feasibility check, reformulate-not-include discipline, Governor as second check, capability change tracking, scale checks. |
+| Memory Taxonomy restructure | Rewrite | 18.2 | Changed §18.2 heading from "Three Memory Tiers" to "Memory Taxonomy." Added organizational intro distinguishing 3 storage tiers (Working, Episodic, Structural) from 4 functional types (Procedural, Prospective, Meta-memory, Shared). Added "Storage Tiers" and "Functional Types" subheadings. |
+| Procedural Memory | Add | 18.2.4 | Named and acknowledged procedural memory as architecturally present across framework, execution protocol, and deliberation protocol documents. Defines procedural drift as failure mode. Tier 0: reconstituted from protocol files each session. Tier 1+: encoded in software. |
+| Prospective Memory | Add | 18.2.5 | Mapped all 10 scattered commitment locations (review cadences, kill deadlines, pending decisions, deferred preconditions, bootstrap countdowns, staleness thresholds, domain freshness, A/B decision dates, wind-down deadlines, scheduled checks). Defines AI session-end obligation. Tier 0: bootstrap "Next Reviews Due" / "What Is Pending." Tier 1: commitment queue. Tier 2+: proactive projections. |
+| Meta-Memory | Add | 18.2.6 | Three dimensions: summary fidelity, retrieval completeness, memory consistency. Tier 0: Governor spot-check at strategy review. Tier 1: automated fidelity checks. Tier 2+: summary quality profiles and calibration feedback loops. Relates to confidence calibration (§14.6) — signals vs. summaries. |
+| Shared Memory | Add | 18.2.7 | `[ADVANCED]` Tier 3 cross-scope learning. Table defining shared vs. isolated for each memory type. Three mechanisms: domain model sharing, cross-scope pattern extraction with `[CROSS-SCOPE]` provenance tag, cross-scope dependency tracking. |
+| Functional memory maintenance schedule | Add | 18.6 | Added table for 4 functional memory types (Procedural, Prospective, Meta-memory, Shared) with maintenance triggers and tier-specific practices. Complements existing storage tier maintenance table. |
+| Prospective memory session-end obligation | Add | Protocol: §5.1 Step 5 | AI scans active tactics for approaching deadlines (kill conditions, A/B decision dates, deferred precondition timeouts) when updating bootstrap "What Is Pending." |
+| Summary fidelity audit template | Add | Template: learnings.md | Added Summary Fidelity Audit section for meta-memory Governor spot-checks at strategy review. Includes comparison table and systematic omission pattern tracking. |
+| Sync manifest entries for memory types | Add | sync-manifest.md | Added C22 (Capability Validation → §12.6), C23 (Prospective Memory → §5.1 Step 5), C24 (Meta-Memory → learnings.md template). |
+| Signal confidence terminology alignment | Fix | Protocol: §6.1, §12.3; Template: signal-entry.md | Aligned Cowork Protocol and signal template confidence levels with Framework §17.2.2: `verified/estimated/inferred` → `complete/partial/estimated`. learnings.md Confidence Calibration table already used Framework terms. |
+| Autonomy Safeguards | Add | 6.7 | New section defining four cross-cutting safeguards that modify stage behavior: degraded-mode autonomy (§6.7.1), decision reversibility (§6.7.2), risk-magnitude thresholds (§6.7.3), conditional autonomy grants (§6.7.4). Safeguards never grant more autonomy — only narrow it. |
+| Degraded-mode autonomy | Add | 6.7.1 | When grounding health degrades, system constrains to previous stage's approval requirements. Degradation table maps each grounding component to its impact on autonomous decisions. Tier 0: AI self-checks at session start. Tier 1: automated routing to approval queue. Tier 2+: predictive degradation detection. Temporary constraint, not stage regression. |
+| Decision reversibility | Add | 6.7.2 | Three-level reversibility classification (fully/partially/irreversible). At Stage 3+, irreversible decisions require Governor approval regardless of stage. Reversibility constraint table defines behavior per stage × reversibility level. Tactic specs should declare irreversibility factors at creation time. |
+| Risk-magnitude thresholds | Add | 6.7.3 | Governor-defined thresholds in OD guardrail section: resource cost, timeline impact, stakeholder visibility, external commitment. Decisions exceeding any threshold require approval. Generalizes existing "spend above threshold" non-delegable item. At least one threshold required at OD creation. |
+| Conditional autonomy grants | Add | 6.7.4 | Four condition types: time-bounded, event-triggered, metric-triggered, scope-bounded. Declared in OD, checked at cycle start. Conditions fire automatically and narrow autonomy. Lifecycle: declaration → monitoring → firing → resolution. Conditions never widen autonomy above current stage. |
+| Autonomy safeguards operationalization | Add | Protocol: §11.1 | Tier 0 operationalization of all four safeguards: grounding health check at session start (degraded-mode), reversibility assessment before autonomous decisions, OD threshold checks, condition monitoring. Safeguard stacking rule: most restrictive wins. |
+| OD template autonomy fields | Add | Template: operating-document.md | Magnitude Thresholds section (4 dimensions) and Autonomy Conditions section (COND-N entries with trigger, scope, reversion, expiry). |
+| Bootstrap autonomy constraints field | Add | Template: 00-BOOTSTRAP.md | Autonomy Constraints field in Current State tracking active degraded-mode or fired condition constraints. |
+| Sync manifest entries for autonomy safeguards | Add | sync-manifest.md | Added C25-C28: Autonomy Safeguards → §11.1, Magnitude Thresholds → OD template, Conditional Grants → OD template, Degraded-Mode → bootstrap template. |
+| Autonomy safeguards Tier 2+ progressions | Add | 6.7.2, 6.7.3, 6.7.4 | Added Tier 2+ behavior: reversibility learning from historical misclassifications (§6.7.2), dynamic threshold calibration recommendations (§6.7.3), proactive condition proposals based on environmental monitoring (§6.7.4). All three now have explicit Tier 0, Tier 1, Tier 2+ progressions matching §6.7.1. |
+| Conditional Autonomy Grants complexity marker | Fix | 6.7.4 | Added `[ROBUST]` marker — conditions are only relevant at Stage 3+ (which is itself ROBUST/ADVANCED). At Stage 1-2, all decisions require approval, making conditions meaningless. |
+| Reading guide completeness audit | Fix | 0.3 | Added §22 (Execution Protocols) to Document Map and Tier 1 section table — was entirely missing. Added §6.6 (Simulation Test Harness) to Tier 2 section table and §7.12 (Parallelism Rules) to Tier 2 section table — both ROBUST but unlisted. Updated §6 and §7 Document Map descriptions to mention simulation test harness and parallelism rules. |
+| Reading guide automated audit fixes | Fix | 0.3, 20 | Tier 1 table: changed "20.7–20.9" to "20.7, 20.9" — §20.8 is `[ROBUST]` and was incorrectly included in CORE range. Tier 2 table: added §20.10 (Scoring Protocol) and §20.11 (Dependency Validation) — both `[ROBUST]` but missing. Document Map §20 tier annotation: added 20.10, 20.11. Cowork Protocol: added §0.3 reading guide back-reference in header. |
+| Failure Resilience Architecture | Add | 7.13 (new) | New §7.13 with 6 subsections extending §7.7 to systemic failure modes: §7.13.1 Signal Pipeline Failure — freshness monitoring, pipeline degradation/failure classification, halt protocol, `signal_pipeline_degradation` and `signal_pipeline_failure` signal types, 3-tier progression. §7.13.2 Recovery Verification — stability window protocol, NORMAL→FAILED→RECOVERING→VERIFIED state machine, relapse escalation (double window, chronic instability flag, permanent degradation). §7.13.3 Context and Memory Failure — 6-type memory failure taxonomy, 5-step session-start integrity check protocol, bootstrap corruption reconstruction, learnings contradiction resolution. §7.13.4 Graceful Capacity Degradation — 4-priority load-shedding protocol, context utilization monitoring (Tier 0 specific), Governor bandwidth management with decision batching. §7.13.5 Cascading Failure Propagation `[ADVANCED]` — scope-level circuit breakers, cascade detection (>50% child scope failure = correlated), independent operation mode for isolated child scopes, reconciliation protocol. §7.13.6 Governor Decision Validation `[ROBUST]` — 6 semantic consistency checks (kill condition, WMBT, budget, guardrail contradiction, temporal, graduation-state), flag vs block response types, override learning. |
+| Failure resilience Cowork operationalization | Add | Cowork §14.4 | Five mechanisms operationalized for Tier 0: signal freshness, recovery verification, context/memory integrity, capacity management, Governor decision validation. §7.13.5 (cascading) N/A at Tier 0. |
+| Failure resilience template updates | Add | templates | Bootstrap template: Session-Start Integrity section (6 checks AI fills at session start). Health report template: System Health section (pipeline status, recovery status, context utilization, decision validations). |
+| Failure resilience sync manifest entries | Add | sync-manifest.md | Added C29-C31: Failure Resilience → §14.4, Context/Memory Failure → bootstrap template, Failure Resilience → health report template. |
+| Failure resilience signal taxonomy | Fix | 7.4, 17.2.2 | Added `signal_pipeline_degradation` and `signal_pipeline_failure` to system signals paragraph (§7.4) with full field schemas. Added both to Signal Store schema enum (§17.2.2) with `[ROBUST]` markers. Updated Cowork Protocol §6.2 signal type table and attribution line. Updated signal-entry.md template type enum. |
+| Failure resilience template propagation | Add | templates | Session-log.md: added System Resilience section (5 fields). Learnings.md: added Failure Resilience Observations section (4 subsections with examples). Operating-document.md: added Failure Resilience Thresholds section (4 configurable fields). Bootstrap: added recovery status field to Session-Start Integrity. |
+| Failure resilience graduation prerequisites | Add | 16.11 | Added failure resilience prerequisites paragraph: signal pipeline health, recovery stability, integrity checks, and Governor decision validation must be operational before Stage 3+ graduation. |
+| Failure resilience sync manifest entries | Add | sync-manifest.md | Added C32-C36: signal taxonomy → §6.2, session-log template, learnings template, OD template, graduation §16.11. |
+| Failure resilience reading guide updates | Fix | 0.3 | Document Map §7: added failure resilience to description, 7.13 to ROBUST/ADVANCED annotation. ROBUST description: added failure resilience. Tier 1 "What you skip": added failure resilience mechanisms. Tier 2 table: added §7.13.1-7.13.4, 7.13.6. Tier 3 table: added §7.13.5 (cascading). Feature dependency graph: added failure resilience → requires §7.7, recovery verification → requires §7.13.1, cascading failure → requires multi-scope + failure resilience. |
+| Reading guide comprehensive update | Fix | 0.3 | Document map: §14 description expanded to mention 4-category hallucination taxonomy and 6 grounding components; §18 description expanded to mention 3 storage tiers + 4 functional types with `[ADVANCED]` shared memory. ROBUST description: added hallucination prevention, memory taxonomy, autonomy safeguards. Tier 0 feature complexity: added Stage 3 autonomy safeguards as ROBUST trigger. Tier 0 graduation note: safeguards become relevant at Stage 3. Tier 1 "What you skip": added autonomy safeguards and memory functional types. Tier 2 section table: added §6.7. Tier 3 section table: added §18.2.7 Shared Memory. Feature dependency graph: added autonomy safeguards and conditional grants (Tier 2), shared memory (Tier 3). Selection Guide Step 2: added Stage 3 autonomy safeguards to ROBUST row. |
+| Goal health computation | Add | 20.12 (new) | `[ROBUST]` Goal-level health computation completing the five-layer health chain. Objective portfolio assessment (strong/moderate/weak), environmental alignment (aligned/drifting/misaligned), goal health composite (healthy/at_risk/reassess). "Reassess" is explicitly not a kill — goals are directional. Environmental inputs sourced from §7.14 watch list and Governor reports. Tier 0: Governor qualitative assessment; Tier 1: structured computation; Tier 2+: continuous monitoring with trend detection. Previous §20.12 (Responsibility Boundaries) renumbered to §20.13. |
+| Cadence evaluation mechanism | Add | 6.4.4 (new) | `[ROBUST]` Three diagnostic indicators: signal-to-review ratio (threshold >2.0 signals accumulating between reviews), event-triggered review frequency (>1.0 ratio over 3 cycles), decision staleness (>30% of decisions stale). Orchestrator produces cadence diagnostic in strategy review report. Cadence changes remain non-delegable Governor decisions. Tier 0: qualitative at strategy review; Tier 1: automated ratios; Tier 2+: adaptive cadence with projected impact. |
+| Constraint propagation verification | Add | 7.13.7 (new) | `[ROBUST]` Downward-flow counterpart to §7.13.1 upward signal pipeline monitoring. `constraint_version` counter on OD incremented on any guardrail/constraint modification. Three verification check points: executor receives action spec, orchestrator begins cycle, Governor decision applied. Invalidation broadcast for mid-cycle guardrail changes. Relates to §8 Rule 6 (guardrails never relax). Not needed at Tier 0 (file re-reading handles it); Tier 1: counter-based verification; Tier 2+: constraint changelog with impact analysis. |
+| Environmental signal architecture | Add | 7.14 (new) | `[ROBUST]` Three subsections: §7.14.1 Environmental Watch List (OD-defined entries with condition, relevance, monitoring method, check cadence, change threshold; seeded from WMBT conditions and goal-level guardrails), §7.14.2 Environmental Signal Processing (new `environmental` signal type with severity classification: informational/significant/critical; critical triggers §7.9 event-triggered reviews; feeds §20.12 goal health), §7.14.3 Implementation by Tier (Tier 0: AI checks at strategy review; Tier 1: automated for API conditions; Tier 2+: active monitors with NLP-based change detection). Design boundary: monitoring tool, not prediction tool. |
+| Signal processing throughput | Add | 7.13.4 (extension) | Paragraph extending capacity degradation with throughput guidance across all tiers. Tier 0: not a concern (conversational processing, Governor-bounded signal volume). Tier 1: rarely saturates (moderate tactic count). Tier 2+: detection (health computation exceeds 80% of action cycle for 2 consecutive cycles) and four-step response protocol: (1) aggregation escalation, (2) parallel health computation, (3) tiered computation cadence, (4) scope partitioning. Each step more architecturally invasive than the last. |
+| Health computation auditability | Add | 20.1 (extension) | `[ROBUST]` Computation trace requirement: signals_included, signals_excluded, intermediate_scores, thresholds_applied, recommendation_basis. Persisted alongside health reports in §17.2.5. Tier 0: visible reasoning in session; Tier 1+: structured records; Tier 2+: replay-capable traces. Health report store schema updated with `computation_trace` field for tactic, strategy, and goal health reports. Goal health report schema added to §17.2.5. |
+| Environmental signal type | Add | 7.4, 17.2.2 | Added `environmental` to signal type taxonomy (§7.4) with full field schema (condition_id, previous_state, current_state, source, affected_entities, severity). Added to Signal Store schema enum (§17.2.2) with `[ROBUST]` marker. Updated Cowork Protocol §6.2 signal type table and attribution line. Updated signal-entry.md template type enum. |
+| Feedback architecture template updates | Add | templates | Health report: goal health section updated to full §20.12 computation format; computation trace section added. Operating document: environmental watch list section added. Signal entry: `environmental` type added to enum. |
+| Feedback architecture sync manifest entries | Add | sync-manifest.md | Added C37-C41: environmental signal → §6.2 signal taxonomy, environmental watch list → OD template, goal health → health report template, computation trace → health report template, environmental signal → signal-entry template. |
+| Graduation prerequisites for constraint propagation | Fix | 16.11 | Added item (e) to failure resilience prerequisites: constraint propagation verification (§7.13.7) must execute without unresolved constraint version mismatches before Stage 3+ graduation. |
+| Environmental watch list in Strategy Cycle | Fix | 7.2 | Added `[ROBUST]` STEP 1b — Environmental Watch List Check to Strategy Cycle. Loads environmental watch list and recent environmental signals in STEP 1 context. STEP 1b checks each watch list entry at strategy review cadence, emits environmental signals if thresholds exceeded, flags critical signals for STEP 3. |
+| Goal feedback table cross-references | Fix | 4.1 | Goal row updated: "Receives" column now references §7.14 environmental signals explicitly; "Emits" references §20.12; "Feedback Trigger" adds critical environmental signal (§7.14.2) as trigger. |
+| Cadence calibration in learnings template | Add | Template: learnings.md | Added Cadence Calibration subsection under Failure Resilience Observations (from §6.4.4): review cycle effectiveness observations, signal-to-review ratio patterns, event-triggered review frequency, cadence adjustment decisions with examples. |
+| Feedback architecture sync manifest entries (batch 2) | Add | sync-manifest.md | Added C43: cadence evaluation → learnings.md template. |
+| Semantic Coherence Validation | Add | 8.1 (new) | Three-tier semantic invariant checking: §8.1.1 Core Invariants (kill condition evaluability, allocation arithmetic, temporal ordering — all CORE), §8.1.2 Cross-Entity Invariants `[ROBUST]` (hypothesis-domain coherence, WMBT-objective alignment, guardrail logical consistency, guardrail inheritance compatibility), §8.1.3 Advanced Invariants `[ADVANCED]` (WMBT-kill condition coupling, cross-domain concept consistency). §8.1.4 Validation Timing: authoring-time (blocking for C1, flags for others) and review-time (flags in strategy health report). Tier 0/1/2+ implementation guidance for each invariant. |
+| Decision-to-State Traceability | Add | 8.2 (new) | `[ROBUST]` Three mechanisms: §8.2.1 Authorization Field (`authorized_by: DEC-N / GOV-session / SYSTEM-mechanism` on OD elements), §8.2.2 Atomic Decision-Mutation Requirement (decision entry created before OD mutation, reversing post-hoc pattern), §8.2.3 Reconciliation Check (forward: decisions→state, reverse: state→decisions, parameter drift). Reconciliation runs at strategy review. Unauthorized state is a flag, not blocking. Tier 0/1/2+ implementation. |
+| Authorization tracking in OD store | Add | 17.2.1 (extension) | `[ROBUST]` `authorized_by` field on autonomously-modifiable OD elements (tactics at Stage 3+, renormalized allocations, guardrail recovery adjustments). Enables reconciliation queries. |
+| Coherence check in health report schema | Add | 17.2.5 (extension) | `[ROBUST]` `coherence_check` field added to strategy health report schema: invariants_checked, flags, reconciliation results. Coherence queries added to access patterns. |
+| Semantic coherence Cowork operationalization | Add | Protocol: §12.7, §12.8 | §12.7: Tier 0 operationalization of all invariants — AI checks C1-C3 at authoring, R1-R4 at strategy review, reconciliation at strategy review. §12.8: Decision-to-state traceability protocol — decision-first writes, GOV/SYSTEM authorization sources, cross-session gap mitigation. |
+| Integrity template updates | Add | templates | Health report: Semantic Coherence section with invariant check results and reconciliation summary. Decision entry: Authorization field. Bootstrap: kill condition evaluability check in Session-Start Integrity. |
+| Integrity sync manifest entries | Add | sync-manifest.md | Added C44-C48: semantic coherence → §12.7, decision traceability → §12.8, coherence → health-report template, traceability → decision-entry template, C1 evaluability → bootstrap template. |
+| Reading guide integrity updates | Fix | 0.3 | Document Map §8: added semantic coherence and decision traceability to description, ROBUST/ADVANCED tier annotation. ROBUST description: added semantic coherence and decision traceability. Tier 1 table: §8.1.1 core invariants included. Tier 1 "What you skip": added semantic coherence. Tier 2 table: added §8.1.2-8.1.4, §8.2. Tier 3 table: added §8.1.3 advanced invariants. Feature dependency graph: added semantic coherence and decision traceability (Tier 2), advanced invariants (Tier 3). Selection Guide: added semantic coherence to ROBUST row. |
+| Stage 3+ decision logging alignment | Fix | 6.1, 6.3, 7.2 | Replaced "post-hoc reporting" language for Stage 3+ autonomous tactic decisions with "concurrent decision logging per §8.2.2" — aligning §6.3's autonomy description with §8.2's atomic decision-mutation requirement. Post-hoc summary reports still provided to Governor, but individual decisions are logged at decision time, not afterward. |
+| Schema Validation ↔ Semantic Coherence relationship | Fix | 14.3.1 | Added paragraph explaining relationship to §8.1: Schema Validation checks structural correctness (fields present, layers nest); Semantic Coherence checks cross-entity meaning (values make sense together). Both required — structural foundation + semantic layer. |
+| Governor Decision Validation ↔ Semantic Coherence relationship | Fix | 7.13.6 | Added paragraph explaining complementary roles: §7.13.6 is reactive (fires at decision time), §8.1 is proactive (fires at authoring/review time). Together they form a two-layer integrity net. |
+| Coherence check in Strategy Cycle | Fix | 7.2 | Added STEP 2b — Semantic Coherence Check `[ROBUST]` between health computation and recommendations. Runs C1-C3 core invariants, R1-R4 cross-entity invariants, and §8.2.3 reconciliation (forward, reverse, parameter drift). Results included in strategy health reports and inform STEP 3 recommendations. Tier 0/1/2+ implementation guidance included. |
+| Graduation prerequisites for semantic coherence | Fix | 16.11 | Added item (f): semantic coherence validation (§8.1) must be running at authoring and review time — core invariants operational, and for ROBUST adopters, cross-entity invariants and reconciliation checks producing results. |
+| Guardrail recovery coherence checks | Fix | 5.2 | Added paragraph: after any recovery action that modifies guardrails, R3 (logical consistency) and R4 (inheritance compatibility) checks should run. At Tier 0: AI mental check. At Tier 1+: automatic post-modification check. |
+| Reading guide consistency fix | Fix | 0.3 | Document Map: §5 description adds "guardrail coherence checks" (from §5.2 R3/R4 addition). §7 description adds "Strategy Cycle semantic coherence check" and tier annotation adds 7.2 STEP 2b as ROBUST. §16 description adds "prerequisites include semantic coherence validation" (from §16.11 item f). |
+| OD State Versioning | Add | 8.3 (new) | `[ROBUST]` Three mechanisms: §8.3.1 Decision Context Snapshot (target spec, prior_authorized_by, key signals, environmental context captured in decision entries — makes each decision self-contained for post-mortem audit), §8.3.2 Authorization Chain Preservation (prior_authorized_by creates backward-linked chain enabling forward/backward traversal of element history), §8.3.3 Cross-Session Edit Detection (OD structural fingerprint in bootstrap compared across sessions, detects manual Governor edits between sessions). Required snapshot fields defined per decision type. Tier 0/1/2+ implementation: Tier 0 = structured markdown fields; Tier 1 = database triggers; Tier 2+ = event sourcing. |
+| Causal Context at Kill Decisions | Add | 8.4 (new) | `[CORE]` for kill decisions, `[ROBUST]` for pivots/strategy kills/A/B. §8.4.1 Confounder Surface: 6-point checklist (environmental change, sibling interference, input starvation, data quality, bootstrap insufficiency, allocation change) run before every kill recommendation. §8.4.2 Confounder Recording: decision entry gains confounders section with disposition (dismissed/acknowledged/not applicable) per confounder. §8.4.3 Extension beyond kills: at ROBUST, same checks apply to pivots, strategy kills, A/B declarations. Tier 0/1/2+ implementation: Tier 0 = AI conversational check (~3 min); Tier 1 = automated detection; Tier 2+ = statistical confounder adjustment with adjusted vs raw metric values. |
+| Verification fixes for §8.3/§8.4 | Fix | 8.4, 0.3 | Added `[CORE]` complexity marker to §8.4 main heading (subsection 8.4.3 already had `[ROBUST]`). Added §8.3–8.4 to Tier 2 reading guide "Sections to add" table (previously only listed 8.1.2–8.1.4, 8.2). |
+| Tier/complexity audit fixes for §8.3/§8.4 | Fix | 8.3.4, 8.4.1, Cowork §12.10 | Added summary tier implementation paragraph after §8.3.4 (Tier 0: markdown fields, Tier 1: database schemas, Tier 2+: event sourcing with replay). Added tier guidance forward-reference at end of §8.4.1 pointing to §8.4.3 for tier-specific confounder detection. Added `[CORE]` marker to Cowork Protocol §12.10 heading for parallelism with §12.9's `[ROBUST]` marker. |
+| Reading guide updates for §8.3/§8.4 | Fix | 0.3 | Tier 1 table: added §8.4 to "Sections to implement" (was `8, 8.1.1`, now `8, 8.1.1, 8.4`) since kill decisions are Tier 1 core and §8.4 is `[CORE]`. Tier 0 feature complexity guidance: explicitly calls out §8.4 as included in `[CORE]` default. ROBUST feature list: added "OD state versioning" and "causal context assessment beyond kill decisions". Tier 1 "What you skip" list: added "OD state versioning §8.3" to skipped items. Cowork Protocol reference: updated v2.8 → v3.0, added §12.9 (OD state versioning) and §12.10 (confounder assessment) to feature list. |
+| Reading guide comprehensive audit | Fix | 0.3 | 11 fixes from systematic coverage/accuracy audit: (1) Tier 2 table: split §8.1.2–8.1.4 → §8.1.2, 8.1.4 to exclude §8.1.3 [ADVANCED] (Tier 3 only). (2) Tier 1 table: §4.1 range clarified — "base feedback loop only, skip intra-tactic signal divergence." (3) Tier 2 table: §4.2 "full, including staggered A/B" → "skip staggered-start scheduling, which is ADVANCED/Tier 3." (4) Tier 1 skip list: added ADVANCED overlays within read sections (§4.1 signal divergence, §7.2 conversion funnels/decision batching/WMBT confirmation, §7.4 milestone signals). (5) Tier 2 table: §9.2 entry now explicitly says "skip Custom Review Triggers and Alternate Governor." (6) Tier 1 table: added §20.13 (Responsibility Boundaries, [CORE]). (7) ROBUST feature list: added deliberation cross-references (§7.1, §14.7). (8) Document Map: added Appendix A row. (9) Document Map §7: replaced cryptic "STEP 2b" with "Strategy Cycle §8.1 check" and noted ADVANCED overlays in 7.2, 7.4. (10) Tier 2 table: §6.4 expanded to "all subsections 6.4.1–6.4.4" with cadence evaluation. (11) Root pattern fixed: range notation across CORE/ROBUST/ADVANCED boundaries now has explicit skip guidance at each tier. |
+
+### Changelog (v6.0 production readiness fixes)
+
+| Change | Type | Sections Affected | Summary |
+|--------|------|-------------------|---------|
+| **Production readiness assessment (8-check systematic evaluation)** | | | |
+| Forward reference tier guards | Fix | 7.2, 8.4 | Added tier-conditional guidance to 3 BLOCKING forward references where CORE/Tier 1 sections referenced ROBUST/Tier 2+ content (§8.4→§7.14, §7.2 STEP 2b tier note). Tier 0–1 implementers no longer encounter unresolvable references. |
+| Feature interaction rules | Add | 8.5 (new) | New §8.5 specifying deterministic behavior for 3 HIGH-severity feature interaction pairs: pause/resume + kill timer (timer suspends), A/B testing + rebalance (comparison validity rules), strategy kill + tactic kill (ordering and cascade rules). `[ROBUST]` |
+| Simultaneous sibling decisions | Add | 4.3 | Specifies precedence order (kills first, then pivots, then persevere) and resource-aware re-evaluation when processing concurrent sibling tactic recommendations. |
+| Kill during bootstrap exception | Add | 7.2 | Documents two exceptions to suspended kill assessment during bootstrap: hard guardrail violations and Governor explicit kill orders. |
+| Only-remaining-tactic compound decision | Add | 7.8 | Kill and exhaustion protocol presented as single compound decision to Governor when killing the last active tactic under a strategy. |
+| Confounder disposition quality guard | Add | 8.4.1 | Requires substantive reasoning in confounder dispositions; formulaic dismissals flagged for elaboration. |
+| Strategy kill with child scopes | Add | 4.3 | `[ADVANCED]` Cascade rules for child scope disposition when parent strategy is killed: conclude, transfer, or convert to independent. |
+| Revise-vs-kill precedence | Add | 4.3 | Diagnostic determines whether to revise objective or kill strategy when both are under consideration. Controllable metric assessment drives precedence. |
+| WMBT refinement loop guard | Add | 4.3 | Maximum 2 refinements per WMBT before triggering strategy-level reassessment. Third refinement flagged as `wmbt_instability`. |
+| Objective status vocabulary | Add | 3.2 | Formal state table: `active`, `on_track`, `at_risk`, `achieved`, `failed`, `revised`, `partially_met` with transitions and triggers. |
+| Goal status vocabulary | Add | 3.1 | `[ROBUST]` Formal state table: `active`, `healthy`, `drifting`, `achieved`, `suspended`, `retired` with transitions. |
+| A/B variant status vocabulary | Add | 4.2 | `[ROBUST]` 9-state lifecycle: `proposed` through `winner`/`killed`/`voided`. Non-sticky assessment states (`leading`/`trailing`/`inconclusive`) reassessed each review. |
+| Strategy terminal status vocabulary | Add | 7.8 | Formal table distinguishing `active`, `exhausted`, `completed`, `killed`, `paused` with distinguishing criteria and transition rules. |
+| Retry limits | Add | 7.7 | Maximum 3 retries with exponential backoff. Escalation to Governor after 2 consecutive cycle failures. Governor-overridable per action type. |
+| Silent failure detection | Add | 7.7 | Expected signal window heuristic. Progressive severity escalation (informational → significant → critical). Integrates with tactic health as `data_quality: degraded`. |
+| Infrastructure failure recovery | Add | 7.7 | `[ROBUST]` Mid-cycle crash atomicity, signal store degraded mode, OD corruption safe mode. |
+| Review level capture | Add | 9.1 | `[ROBUST]` REVIEW LEVEL ASSIGNMENTS template field recording Governor's chosen review level per review type. |
+| Scope conclusion record | Add | 7.10 | SCOPE CONCLUSION template capturing conclusion type, final metrics, rationale, child dispositions, deferred items. |
+| Event-triggered review record | Add | 7.9 | EVENT-TRIGGERED REVIEW template capturing trigger condition, evidence, level, outcome, and scheduled review impact. |
+| Graduation stage tracking | Add | 9.2 | `[ROBUST]` GRADUATION TRACKING template with current stage, prerequisites, assessment history, challenge probe results. |
+| Challenge probe records | Add | 9.2 | Decision log format for `challenge_probe` entries with scenario, response, confidence, outcome. Failed probes block advancement. |
+| **Simulation-driven fixes (GreenGrow, EduPath, TalentForge, MedSupply tabletop sims)** | | | |
+| Strategy kill two-phase state | Fix | 8.5.3 | Strategy kill transitions through `killing` intermediate state before `killed`. Prevents state inconsistency of terminal parent with non-terminal children during wind-down. |
+| Kill deadline extension during infra outage | Add | 7.7 | Kill deadlines extended by signal store outage duration. Absence detection suspended during outage with catch-up check on reconnection. |
+| A/B pause inequality confound | Add | 8.5.1 | Pausing one A/B variant flags subsequent comparisons with `confound: pause_inequality`. Raw and time-normalized metrics reported. |
+| Kill reason classification | Add | 7.8 | Strategy `killed` status includes `kill_reason` subfield: `disproven`, `resource_reallocation`, or `superseded`. Routes structural memory transfer to correct learning vector. |
+| Winner declaration with confounds | Add | 4.2 | Governor may declare A/B winner despite active confounds with acknowledged rationale. Voided tests require explicit `winner_despite_void` override. |
+| Exhaustion reactivation clarity | Fix | 7.8 | Last-tactic compound decision explicitly limits reactivation to completed tactics with hypothesis_status = holding. Killed tactics not reactivatable. |
+| Confounder disposition quality exemplars | Add | 8.4.1 | Minimum quality bar for confounder dispositions with sufficient/insufficient exemplars. One re-elaboration attempt; minimal quality flagged for structural memory. |
+| Kill assessment under degraded data | Add | 7.7 | `data_quality: degraded` triggers mandatory caveat on kill recommendations. Governor may defer kill once per degradation event with one-cycle deadline extension. |
+| `partially_achieved` goal status | Add | 3.1 | New terminal goal status for mixed objective portfolios (some achieved, some partially met/failed). Split from previous `achieved` definition. |
+| `voided→winner` A/B transition | Fix | 4.2 | A/B variant can transition from `voided` to `winner` via Governor override. `voided` reclassified as not fully terminal. |
+| **Experiment-based simulation fixes (audience-growth, shop-sim, municipal-emergency, geopolitical-sim4, ABC-healthcare)** | | | |
+| Autonomous action loop guard | Add | 5.1 | `[ROBUST]` Stage 3+ autonomous action chain depth limit of 2. Prevents unbounded escalation loops (recovery→violation→recovery). Third action in chain escalates to Governor. Governor-adjustable per scope. |
+| Upward cascade governance | Add | 4.3 | `[ADVANCED]` Child scope autonomous kill does not auto-cascade to parent tactic. Parent treats child kill as `at_risk` signal. All parent-level decisions remain with parent Governor. |
+| Analytical scope extensions | Add | 3.6 | `[ROBUST]` Four extensions: tactic-level dependency chains (structural sequential dependencies), first-use guardrail calibration (observation mode for novel guardrails), qualitative kill condition validation (observable/binary/timed authoring check), sequential isolation / independence levels (Level 1-3 for multi-domain assessment). |
+| Cross-strategy kill sequencing | Add | 8.5 | Batch presentation mandatory when 2+ strategies recommended for kill in same review. Governor decides order; resource reallocation implications shown. |
+| Sequential tactic data carryover | Add | 8.5.4 | Clean vs. inherited baseline policy for sequential tactics. Default: clean_baseline. Killed predecessor noted as confound. |
+| Sequential A/B cold start default | Add | 8.5.5 | Documented adjustment period (one bootstrap cycle) for sequential A/B transitions. Override options: immediate or reset. |
+| Committed actions on pivot | Add | 8.5.6 | Governor disposition required for committed actions conflicting with pivot direction. Orchestrator flags conflicts. |
+| API outage kill timer | Add | 8.5.7 | Per-tactic kill deadline extension when external API outage blocks ≥50% of kill condition input signals. Threshold Governor-adjustable. |
+| Complementary strategy synergy assessment | Add | 8.5.2 | Combined contribution check for complementary portfolios. Synergy (>15% above independent) or interference (<15% below) detected and reported. Persistent interference triggers reclassification recommendation. |
+| Guardrail reclassification protocol | Add | 5.1 | `[ROBUST]` Governor-only severity reclassification (soft→hard, hard→soft). Validation against guardrail chain. Active recovery handling on reclassification. |
+| `kill_reason: external_constraint` | Add | 7.8 | New kill reason for strategies terminated by external events outside system control. Routes to Vector 3 (external learning). |
+| Recovery vs. pause kill timer distinction | Fix | 7.7 | Clarifies three kill timer modes: pause (suspended, no execution), infrastructure outage (extended, execution continues with data gap), recovery (continues, tactic still executing). |
+| Multi-goal scope status aggregation | Add | 20.12 | Worst-goal-drives-scope-status rule. Goal priority levels (critical/high/standard). Critical+at_risk triggers immediate scope review. |
+| `graduated` strategy terminal status | Add | 7.8 | New terminal state for tactics transitioning from experimental to permanent operations. Distinct from `completed` (work done) — `graduated` means work continues as operational baseline. |
+| WMBT vs. guardrail authoring decision tree | Add | 21.5 | Three-step decision tree: world-condition→WMBT, execution-boundary→guardrail, both→split. Prevents conflation of assumptions with constraints. |
+| Runtime domain model quality detection | Add | 13.3 | `[ROBUST]` Two heuristics: convergence detection (>80% semantic overlap between models) and vacuity detection (no falsifiable claims). Flags surface in tactic health. |
+| Source credibility in signal attribution | Add | 13.3 | `[ROBUST]` OD declares source attribution policy: credibility tiers, diversity requirements, signal weighting. Default: equal treatment with Governor judgment. |
+| Informed user override protocol | Add | 6.1 | `[ROBUST]` Structured `informed_override` decision with mandatory risk acknowledgment. Auditable trail. Signal contradictions surfaced at review. |
+| Reading guide updates for experiment sims | Fix | 0.3 | Document Map §3 (analytical extensions), §8 (expanded feature interactions). ROBUST feature list updated with all new mechanisms. |
+| **Experiment-based simulation fixes (ddd-update-post, GreenRoute, product-build, product-roadmap, ABC-R2, geopolitical-sim1)** | | | |
+| Execution-completion kill condition default | Add | 8.1.1 | `[ROBUST]` Execution-only tactics must declare completion-based kill conditions. Default: `deliverable not accepted after 3 revision cycles`. Additional forms: deadline_exceeded, cost_exceeded, scope_exceeded. Prevents C1 violations from `Kill Condition: N/A`. |
+| Cross-objective tradeoff governance | Add | 20.12 | `[ROBUST]` Detection (temporal correlation + causal mechanism), surfacing (structured finding), and resolution (accept/constrain/rebalance/decompose). Unresolved tradeoffs escalate after 2 consecutive reviews. |
+| External dependency pre-kill viability check | Add | 4.3 | `[ROBUST]` Dependency inventory at tactic creation (`dependencies: [{entity, type, exit_cost, exit_notice}]`). Pre-kill impact assessment. Kill timing respects notice periods. Orchestrator flags undeclared dependencies. |
+| Governor attention capacity validation | Add | 6.1 | `[ROBUST]` Projected review load computation at tactic creation and strategy review. Sustainability threshold (default: 5/week part-time, 15/week full-time). Governor-configurable via `governor_capacity` OD field. |
+| Execution cost tracking | Add | 13.3 | `[ROBUST]` Per-tactic cost accumulation across declared categories (api_calls, compute_time, search_queries, external_data). Cost guardrail per cycle. Scope-level cost summary at strategy review. |
+| Reading guide updates for Phase H sims | Fix | 0.3 | ROBUST feature list updated with all 5 new mechanisms. |
+| **Reading guide coverage, accuracy, and completeness audit** | | | |
+| ROBUST list: 5 missing mechanisms added | Fix | 0.3 | Added Governor succession (§6.1), delegated reviewers (§6.3), precondition validation/deferral/override (§7.2), learning-triggered domain model changes (§19.9), signal pipeline degradation/failure signals (§7.4, §17.2.2). |
+| ROBUST list: 3 under-specified entries expanded | Fix | 0.3 | Expanded goal health computation with §20.3 multi-phase signal production/metric lag and §20.9 resource-normalized A/B. Expanded OD authoring from §21.5-only to include aspiration-floor (§21.4) and preconditions (§21.7). |
+| ROBUST→ADVANCED reclassification | Fix | 0.3 | Moved upward cascade governance (§4.3) from ROBUST to ADVANCED list — framework body tags it `[ADVANCED]`. |
+| ADVANCED list: mechanism enumeration | Fix | 0.3 | Replaced generic description with 14 specific mechanism references (decision reversal, upward cascade, child scope disposition, conversion funnels, cascading failure, advanced invariants, shared memory, etc.). |
+| Document Map §4 description expanded | Fix | 0.3 | Added decision reversal, upward cascade governance, child scope disposition to §4 row. |
+| Document Map §6 description expanded | Fix | 0.3 | Added Governor succession, delegated reviewers, Governor attention capacity validation to §6 row. |
+| Document Map §20 tier annotation corrected | Fix | 0.3 | Added §20.3 and §20.9 to ROBUST subsection list. |
+| **Reading guide persona routing audit** | | | |
+| Document Map: three-role model | Fix | 0.3 | Replaced two-role audience labels (Governor, AI implementer) with three-role model: Governor, AI system (running orchestrator), AI implementer (developer at Tier 1+). At Tier 0 the conversational AI fills both AI system and AI implementer roles. |
+| Document Map: 14 audience label corrections | Fix | 0.3 | §3-6, §8-10, §13, §20-21 broadened to "Everyone." §7 changed from "AI implementer" to "AI system + AI implementer (Governor: §7.7-7.14 at ROBUST+)." §14 changed to "AI system + AI implementer (Governor: health report interpretation)." §17-19 changed to "AI system + AI implementer." §22 changed to "AI system + AI implementer + Governor." |
+| Role clarification paragraph | Add | 0.3 | Added paragraph after Document Map table defining the three roles and explaining the Tier 0 role collapse where AI system = AI implementer. |
+| Tier 0 role collapse cross-reference | Add | 0.3 | Added sentence to Tier 0 description (§0.3) noting the AI fills both "AI system" and "AI implementer" Document Map roles. |
+| **Appendix B: Vocabulary & Taxonomy Index** | | | |
+| Unified vocabulary index | Add | Appendix B (new) | Centralized reference for all named vocabularies, enums, and type classifications. 9 categories: entity statuses (B.1), decision types (B.2), signal types (B.3), kill reasons (B.4), scope/guardrail/governance (B.5), hypothesis/health (B.6), architecture (B.7), grounding/failure (B.8), domain model/cost (B.9). Each entry lists canonical values, source section, and complexity tag. |
+| Document Map updated for Appendix B | Fix | 0.3 | Added Appendix B row to Document Map table. Audience: Everyone. |
+| **§8.6 Interface Contracts Between Components** | | | |
+| Interface contract specification | Add | 8.6 (new) | `[ROBUST]` 8 interface contracts covering every major producer→consumer boundary: signal emission (§8.6.1), health computation (§8.6.2), decision-to-OD mutation (§8.6.3), OD-to-work-plan (§8.6.4), memory loading (§8.6.5), learning vector routing (§8.6.6), environmental monitoring (§8.6.7), deliberation output (§8.6.8). Each contract specifies required validations, failure modes, and tier-specific behavior. Addresses 4 systematic gaps: schema enforcement at boundaries, cross-source consistency, computation verification, and silent failure detection in peripheral flows. |
+| Document Map §8 updated for interface contracts | Fix | 0.3 | Added §8.6 to §8 row description and tier annotation. Added interface contracts to ROBUST feature list. |
+| **NotebookLM Governor-perspective audit fixes** | | | |
+| Time commitment tier caveat | Annotate | 6.4.3 | Added tier qualification to the 3-5 hrs/month estimate: figures assume Tier 1+ with persistent orchestrator; Tier 0 Governors should expect 1.5–2× due to manual coordination burden. Cross-referenced §6.1 capacity validation. |
+| Strategy kill / Tactic Exhaustion Protocol relationship | Annotate | 4.3 | Added clarifying annotation to strategy kill trigger (a) explaining that §7.8 Tactic Exhaustion Protocol is the mechanism that determines whether "no remaining tactic candidates" is true. Governor who keeps spawning replacement tactics is asserting untested paths exist; WMBT conditions (trigger b) serve as structural check against indefinite tactic replacement. |
+| **§14.3.7 Reasoning Depth Validation** | | | |
+| Reasoning corruption taxonomy category | Add | 14.2 | Category 5 added to hallucination taxonomy: Reasoning corruption (shallow application, concept omission, chain gap). Distinct from substance corruption — domain content is correct but intellectual engagement is deficient. Taxonomy summary table and §14.3 component count updated. |
+| Reasoning Depth Validation component | Add | 14.3.7 (new) | `[ROBUST]` Three validation checks: depth check (concept engagement vs decoration), coverage check (relevant concept scan with `considered_not_material` audit trail), chain integrity check (inferential completeness). Decision-proportional activation — applies at decision points and recommendation generation, not routine cycles. Tier 0: AI self-checks with `[SHALLOW]` flag. Tier 1+: automated depth scoring rubric (1-4). Tier 2+: comparative depth trend analysis. Build priority seventh. |
+| Reasoning depth in Cowork Protocol | Add | Protocol §12.2.1 | Operational reasoning depth validation for Tier 0. Three self-check questions, interaction with tension surfacing, `[SHALLOW]` flag format. |
+| Appendix B grounding vocabulary updated | Fix | B.8 | Hallucination taxonomy updated to 5 categories, grounding components to 7+1. Reasoning depth score vocabulary added (1-4 scale). |
+| **Production Readiness Audit Fixes** | | | |
+| §0 subsection numbering | Fix | 0 | Numbered all §0 subsections: 0.1 (What GOSTA Produces), 0.2 (The Two Actors), 0.2.1 (Domain Models), 0.3 (Reading Guide) with sub-parts (Vocabulary Reference, Document Map, Implementation Tiers). Resolves broken §0.3 cross-references used throughout changelog and ecosystem. |
+| Computation trace required at Tier 0 | Fix | Template: health-report.md | Changed computation trace from "optional at Tier 0" to required. Without trace, Governor cannot answer "why did the system recommend kill?" — post-hoc reconstruction risks rationalization. Brief notes suffice. |
+| Reasoning depth template fields | Add | Template: health-report.md | Added `[SHALLOW]` flag, `considered_not_material` audit trail, and coverage gap fields to Grounding Status section. Reasoning depth validation (§14.3.7) output now has template fields. |
+| Tier 0 state persistence bootstrap section | Add | Template: 00-BOOTSTRAP.md | New "Tier 0 State Persistence" section carrying cross-session state: action retry counters (§7.7), kill deadline proximity, recovery oscillation tracking (§7.13.2), deferred decisions, signal absence tracking. At Tier 1+ these are automatic; at Tier 0 they must be persisted manually in bootstrap. |
+| Premature termination mitigation | Annotate | 18.2.5 | Added three mitigations to Tier 0 prospective memory: (1) AI proactive session-end offer, (2) bootstrap staleness detection at session start with gap warning, (3) Governor advised to use "let's wrap up" convention. Documented as operational discipline, not framework guarantee. |
+| Signal freshness bootstrap enhancement | Fix | Template: 00-BOOTSTRAP.md | Expanded signal freshness field with operational thresholds: tactic_gap (per-tactic staleness), pipeline_degradation (>50% stale), pipeline_failure (total blackout with autonomous decision halt). Maps directly to §7.13.1 response protocol. |
+| Failure resilience health report fields | Add | Template: health-report.md | Added recovery oscillation (§7.13.2 relapse tracking), silent failure detection (§7.7 consecutive silent completions), A/B test confound flags (§8.5) to System Health section. |
+| **P2/P3 Production Readiness: Tier Implementation Guidance** | | | |
+| Interface contract implementation by tier | Add | 8.6.9 (new) | Tier 0: cognitive validation (inline reasoning). Tier 1: programmatic validation per contract (JSON Schema, state machines, transaction semantics, scheduler queries, reconciliation queries, automated comparison). Tier 2+: continuous validation, cross-contract correlation, predictive monitoring, scale safety (optimistic locking, idempotent writes, snapshot isolation). Error handling pattern defined. |
+| Governance feature implementation by tier | Add | 6.1 | Tier 0/1/2+ guidance for Governor succession (handoff summary, structured workflow, transition risk assessment), capacity validation (mental check, automated blocking, predictive projection), delegated reviewers (decision log tagging, scoped permissions, anomaly detection), informed override (conversation logging, API enforcement, contradiction detection). |
+| Execution loop ROBUST feature implementation by tier | Add | 7.2 | Tier 0/1/2+ guidance for precondition validation/deferral/override (conversational, structured conditions, predictive), resource ceiling management (manual sum, automated trimming, predictive workload), allocation rebalancing (conversational, programmatic renormalization, impact simulation). |
+| Tier 2+ architecture considerations | Add | 16.12 (new) | `[ROBUST]` Concurrency model (OD optimistic concurrency, signal idempotency, health computation snapshot isolation). Operational monitoring (dashboard, alerting thresholds, audit logging). Scale patterns (multi-scope orchestration, signal volume management, memory tier physical separation). Deployment and recovery (rolling upgrades, disaster recovery from append-only stores). |
+| **§14.3.9 Sycophancy Detection** | | | |
+| Sycophancy Detection grounding component | Add | 14.3.9 (new) | `[ROBUST]` New grounding component: Sycophancy Detection — Prevents Systematic Positive Bias. Three attack surfaces (health report, deliberation, signal-level) with specific detection mechanisms. Six sycophancy flags: `generic_risk_section`, `recommendation_divergence`, `kill_proximity_silent`, `round1_unanimity`, `low_dissent_frequency`, `narrative_quantitative_divergence`. Sycophancy self-check at health report generation. Tier 0/1/2+ implementation guidance. Build priority ninth. |
+| Mandatory Risk Factors section in health reports | Add | Template: health-report.md | New `Risk Factors and Negative Signals` section with per-tactic risk assessment, kill proximity alerts, negative signal summary, and sycophancy self-check. Section is REQUIRED and must be non-empty. |
+| Signal-recommendation consistency check | Add | Cowork Protocol §7.1 | New computation step 6: count signal trends vs recommendation direction. Majority-negative + persevere requires explicit divergence justification. Flags `recommendation_divergence` without justification. |
+| Kill proximity alerting | Add | Cowork Protocol §7.1 | Kill Proximity Alerting added after Kill Condition Evaluation. Configurable threshold (default 20%). Tracks consecutive cycles at proximity. Flags `kill_proximity_silent` if recommendation doesn't address approaching metrics. |
+| Signal integrity check (narrative-quantitative divergence) | Add | Cowork Protocol §6.2, §7.1 | Quantitative-vs-narrative direction check on signals. Declining metric + positive narrative = `[DIVERGENCE]` tag. Health computation discounts qualitative framing for tagged signals. |
+| Position independence verification | Add | Deliberation Protocol §3.1 | Round 1 sycophancy check: recommendation alignment, reasoning diversity, OD-anchoring indicator. Triggers convergence probe on unanimity. |
+| Convergence Probe Protocol | Add | Deliberation Protocol §4.5 (new) | Directed adversarial prompt when Round 1 unanimity detected. All agents must construct strongest counter-argument from their domain. Three outcome categories: substantive_dissent, weak_dissent, genuine_alignment. |
+| OD-anchoring detection in groupthink checks | Add | Deliberation Protocol §9.1-9.2 | Unanimity + OD-aligned recommendation elevates flag from `groupthink_possible` to `sycophancy_possible`. Convergence Probe as mitigation. Governor option to redact OD strategy rationale. |
+| Sycophancy Assessment in Synthesis Report | Add | Deliberation Protocol §4.4 | New section: Round 1 independence, OD-anchoring level, Coordinator neutrality self-check, cross-cycle dissent trend. |
+| Cross-deliberation dissent frequency tracking | Add | Template: learnings.md | New `Sycophancy Indicators` subsection with dissent frequency table, running statistics, interpretation guidance. `low_dissent_frequency` flag when unanimity >60% across 3+ cycles. |
+| Independence Assessment in deliberation status | Add | Template: deliberation-status.md | New section: Round 1 unanimity, OD-anchoring indicator, convergence probe status, cumulative dissent rate. |
+| Sycophancy indicators in System Health | Add | Template: health-report.md | New field in System Health section listing active sycophancy flags with context. |
+| Signal-Recommendation Alignment fields | Add | Template: health-report.md | Per-tactic and per-strategy alignment field with divergence justification requirement. |
+| Kill proximity alert threshold in OD | Add | Template: operating-document.md | New field in Failure Resilience Thresholds section. Configurable, default 20%. |
+| Sycophancy flags in session log | Add | Template: session-log.md | New optional field under System Resilience. |
+| Sycophancy Detection vocabulary | Add | Appendix B.11 (new) | Sycophancy flags, self-check, convergence probe, position independence indicator vocabularies. All ROBUST. |
+| Graduation prerequisites for sycophancy detection | Add | 16.11 | Item (g): substantive Risk Factors for 3+ consecutive reports, signal-recommendation consistency active, Independence Assessment without `low_dissent_frequency` if deliberation enabled. |
+| Document Map updated for §14.3.9 | Fix | 0.3 | §14 row updated to include Sycophancy Detection (§14.3.9). |
+| Sycophancy awareness in OD drafting | Add | od-drafting-protocol.md §2.1 | Step 7: OD Architect awareness of OD strategy rationale as anchoring source. Write rationale without prescribing conclusion. Configure kill proximity threshold. |
+| Sycophancy rules in Code-mode directive | Add | CLAUDE.md | Two new Core Rules: surface risks explicitly (§14.3.9), check signal-recommendation alignment. |
+| Protocol assessment checklist updated | Fix | protocol-assessment-prompt.md | §1 External Consistency checklist now includes sycophancy detection (§14.3.9). |
+| Cross-deliberation dissent tracking in Cowork Protocol | Add | Cowork Protocol §7.5 | Low dissent frequency flag surfaced in health report System Health when deliberation mode active. Governor options for remediation. |
+| Sycophancy verification obligation | Add | Cowork Protocol §12.5 | Governor synthesis verification extended: check Coordinator framing for OD-strategy bias. |
+| Sync manifest sycophancy entries | Add | sync-manifest.md | 8 new entries (C38-C41, D24-D27) mapping §14.3.9 to Cowork Protocol and Deliberation Protocol operationalizations. |
+| **Reading Guide & Production Readiness Audit** | | | |
+| §14 component count corrected | Fix | §0.3 Document Map | Changed "7 grounding components" to "9 grounding components" with full enumeration of §14.3.1-14.3.9. |
+| ROBUST definition expanded | Fix | §0.3 Implementation Tiers | Added §14.3.8 (Finding Classification) and §14.3.9 (Sycophancy Detection) to the ROBUST feature list. |
+| Signal type vocabulary extended | Add | Appendix B.3 | Added 4 missing signal types: `bootstrap_anomaly`, `guardrail_interpretation`, `monitoring_gap`, `domain_model_feedback`. |
+| Bootstrap state conflict resolution | Add | Cowork Protocol §5.1 Step 1b | State conflict resolution protocol: decision log authoritative for decisions, OD authoritative for structure, bootstrap is informational summary. `bootstrap_anomaly` signal on conflict. |
+| §16.12 added to Tier 2 table | Fix | §0.3 Tier 2 Sections to add | Added missing row for Tier 2+ architecture considerations. |
+| §8 Tier 1 reference clarified | Fix | §0.3 Tier 1 Sections to implement | Changed ambiguous "8, 8.1.1, 8.4" to "8.1.1, 8.4" with explicit skip guidance for ROBUST subsections. |
+| Sycophancy feature interaction rules | Add | §8.5.9 | Interactions between sycophancy flags and kill decisions, pause, A/B testing, and Finding Classification. Flags are informational overlays. |
+| Semantic coherence × decision flow | Add | §8.5.8 | Interaction rules: C1-C3 halt decision execution, R1-R4 are warnings, reconciliation failures are logged. |
+| Circular dependency escalation | Add | §8.6.4 | Session-blocker escalation protocol: orchestrator proposes break point, Governor approves, non-cyclic work proceeds. |
+| Graduation prerequisite window fixed | Fix | §16.11 | Changed "at least 2 deliberation cycles" to "at least 3" to match `low_dissent_frequency` trigger threshold. Added Round 1 position diversity requirement. |
+| Sycophancy self-check timing specified | Add | Cowork Protocol §7.1 | Self-check executes after Signal Integrity Check, before output generation. Previous cycle's Risk Factors loaded for comparison. |
+| Convergence Probe response integration | Add | Deliberation Protocol §4.5 | Coordinator actions per outcome: substantive_dissent reopens round, weak_dissent flows to Sycophancy Assessment, genuine_alignment recorded with explanations. |
+| Finding Classification autonomy table | Add | §14.3.8 | Decision type × classification × autonomy matrix covering kill, pivot, persevere, rebalance, pause, and hard guardrail violations. |
+| Sycophancy vocabulary in Tier 2 | Add | §0.3 Tier 2 | Added vocabulary note for 6 sycophancy flags (B.11) and 3 epistemic classification values (B.10). |
+| §14 grounding dependency graph | Add | §0.3 Feature Dependency Graph | Added per-component dependency breakdown for §14.3.1-14.3.9 under Tier 2. |
+| Tier 1 implementation notes | Add | §0.3 Tier 1 | Consolidated guidance for how Tier 1 differs from Tier 0 and Tier 2: health computation, signal pipeline, schema validation, grounding, memory. |
+

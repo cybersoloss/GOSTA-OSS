@@ -1,0 +1,39 @@
+# Private / internal — never commit (case-insensitive git may vary; list both forms)
+/internal/
+/sessions/
+/experiments/
+/obligo/
+/Obligo/
+/tempposts/
+/older-versions/
+/OlderVersions/
+/Docs/
+/samples/
+.claude/
+
+# Uploaded files and commercial references
+*.pdf
+reference-pool*.yaml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Large model files (download separately, see tools/README.md)
+*.onnx
+
+# Node (for tools/)
+node_modules/
+package-lock.json
+
+# Python
+__pycache__/
+*.pyc
+.env

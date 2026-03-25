@@ -1,0 +1,332 @@
+# GOSTA: Governance Specification for Autonomous AI Agent Execution
+
+**Goals → Objectives → Strategies → Tactics → Actions**
+
+GOSTA is an open specification for governing autonomous AI agents. It defines a five-layer control hierarchy — Goals, Objectives, Strategies, Tactics, Actions — with anti-hallucination grounding, graduated autonomy safeguards, structured memory, failure resilience, formal sycophancy detection, and human oversight at every decision boundary. The entire framework lives in a single file — drop it into any AI conversation and the AI has the complete specification. It is published as open-source commons infrastructure because the rules that constrain autonomous AI should be auditable, adaptable, and not locked inside vendor platforms. It is runnable today at Tier 0 (file-based, any conversational AI) and designed to scale to coded implementations at Tier 1–3.
+
+Where orchestration frameworks (LangChain, LangGraph, CrewAI, AutoGen) define how agents execute tasks, GOSTA defines who decides what, within what bounds, what happens when things go wrong, and how the system proves its reasoning is sound. The distinction is not governance instead of orchestration — it is **orchestration with governance.**
+
+![GOSTA Walkthrough](docs/images/gosta-walkthrough.gif)
+
+**→ [Run your first GOSTA session in 10 minutes](docs/walkthrough.md)**
+
+**Reading this README:** You don't need to read the whole thing. Pick your path:
+
+| If you are... | Start with |
+|---|---|
+| **Using AI for decisions** (manager, founder, operator) | [Who Is It For](#who-is-it-for) → [Use Cases](#typical-use-cases) → [Quick Start](#quick-start) |
+| **Building AI products** (developer, architect) | [How GOSTA Works](#how-gosta-works) → [Protocol Stack](#the-protocol-stack) → [Reading the Spec](#reading-the-spec) |
+| **Evaluating the framework** (researcher, reviewer, funder) | [What's Novel](#whats-novel) → [Foundations](#foundations) → [Why Open Source](#why-open-source) → [Status](#status) → [What's Next](#whats-next) |
+| **Contributing** | [Status](#status) → [What's Next](#whats-next) → [Contributing](#contributing) |
+
+---
+
+## Who Is It For
+
+**Anyone using AI for decisions that matter.** If you're asking AI to help you decide something — what to build, who to hire, where to invest, which vendor to pick, how to allocate budget — and you need the reasoning to be traceable, grounded, and not hallucinated, GOSTA turns that conversation into a governed process.
+
+**Organizations facing AI regulation** (EU AI Act, NIS2, sector-specific requirements). GOSTA's human oversight model, audit trail, guardrail architecture, and kill discipline map directly to regulatory requirements for risk management, record-keeping, transparency, and human oversight. The framework doesn't implement specific provisions — it provides the architectural patterns that satisfy them.
+
+**Public sector and mission-driven organizations** where AI-assisted decisions carry public accountability — municipal planning, policy analysis, grant evaluation, NGO program design, healthcare governance. GOSTA makes the reasoning auditable: every recommendation traces to a domain concept, every trade-off is documented, and the decision record exists independently of the AI session that produced it.
+
+**Teams building AI-powered products** where the AI makes or recommends decisions that affect users, customers, or operations. GOSTA provides the governance layer — guardrails, autonomy controls, health monitoring, failure handling — so the AI operates within defined bounds rather than on raw prompts.
+
+**Founders and solo operators** who are their own strategist, product manager, and executor. You're using AI to figure out what to build next, how to enter a market, whether to hire or outsource, which features justify the investment. GOSTA turns scattered AI conversations into a structured decision process with grounded scoring, kill conditions on every bet, and session memory — so you can pick up next week where you left off.
+
+**Department leads and managers** using AI assistants in their daily work. A sales director using AI to score and prioritize leads. An HR manager screening candidates with AI while ensuring fairness guardrails. A finance controller using AI to flag anomalies in expense reports with defined thresholds. A marketing lead running AI-driven content with A/B testing and kill conditions. GOSTA gives these workflows structure, memory across sessions, and a decision trail.
+
+---
+
+## Typical Use Cases
+
+GOSTA provides the governance structure — you bring the domain. These are patterns validated at Tier 0 (conversational AI sessions):
+
+**Strategy and due diligence.** Evaluate a market entry, assess a technology stack, audit a vendor, analyze a policy — finite analytical scopes with phase gates, multi-agent deliberation across domains, and a formal decision record. The [feature-prioritization example](docs/examples/feature-prioritization/) shows a 12-feature evaluation with 4 domain agents and 5 hard disagreements.
+
+**Public sector and policy analysis.** Municipal budget allocation, grant program evaluation, sustainability planning, regulatory impact assessment — any public-accountability context where decisions must be traceable, reasoning must be auditable, and the record must survive beyond the session. GOSTA's governance architecture maps directly to the transparency and oversight requirements these contexts demand.
+
+**Product: feature roadmap and build-vs-buy.** Score candidate features across market fit, engineering cost, and regulatory compliance domains. Surface cross-domain tensions. Produce a ranked roadmap with every trade-off documented. The [walkthrough](docs/walkthrough.md) demonstrates this end-to-end.
+
+**Finance: budget allocation and investment analysis.** Assess competing initiatives with domain-grounded scoring (ROI potential, risk exposure, strategic alignment), kill conditions for underperforming investments, and A/B testing between allocation strategies.
+
+**Sales: pipeline and deal prioritization.** Score opportunities across domain models (buyer readiness, competitive positioning, deal economics), surface tensions between short-term revenue and strategic fit, produce a prioritized pipeline with every score grounded in defined criteria — not gut feel.
+
+**HR: hiring decisions and workforce planning.** Evaluate candidates across multiple dimensions (skill fit, culture alignment, compensation benchmarking) with guardrails preventing bias, domain models encoding your hiring principles, and a formal decision record showing why each recommendation was made.
+
+**Marketing and content operations.** Run AI-driven content with explicit goals, guardrails (brand voice, compliance), tactics with hypotheses, kill conditions, and health reports. A/B test content strategies at the tactic level. The Governor reviews what's working and kills what isn't.
+
+**Daily operations.** Run recurring workflows at whatever cadence you set — daily, weekly, hourly. The AI executes routine tasks within defined bounds (Stage 2–3 autonomy); you handle the exceptions. Guardrails persist across days, memory accumulates (Day 30 is informed by Day 1), health tracking catches degradation before failure, and every escalation follows a defined path instead of silent failure.
+
+**Personal decision-making.** Career moves, major purchases, relocation decisions, project planning — any personal decision complex enough to benefit from structured analysis across multiple dimensions with traceable reasoning instead of a single AI chat that you can't reconstruct a week later.
+
+---
+
+## What's Novel
+
+GOSTA was developed through systematic analysis of the emerging AI agent governance landscape. The frameworks analyzed during development span three layers:
+
+**Autonomy and constraint research** — Levels of Autonomy for AI Agents (Knight First Amendment Institute, 2025), Agent Behavioral Contracts (arXiv, 2026), Agent Contracts (arXiv, 2025), trust-based delegation (MIT Media Lab), HAIF on human-AI hybrid team governance (Bara, 2026), Institutional AI on governance graphs and mechanism design (Sapienza/VU Amsterdam, 2026), and SAGA on security architecture for multi-agent systems (Northeastern, NDSS 2026).
+
+**Industry and government governance** — Singapore's Model AI Governance Framework for Agentic AI (IMDA, 2026), Anthropic's Framework for Safe and Trustworthy Agents, and OpenAI's Bounded Autonomy model.
+
+**Orchestration** — LangGraph, AutoGen, and DeerFlow on stateful execution and multi-agent coordination.
+
+Each addresses a specific concern — autonomy classification, formal constraints, permission management, compliance checkpoints, hybrid team protocols, security infrastructure, or orchestration. GOSTA integrates across these concerns into a single operational architecture that connects strategic intent (goals, objectives) to execution governance (tactics, actions) through a five-layer control hierarchy. The following mechanisms reflect where that integration produces capabilities the individual approaches do not address:
+
+**Hallucination taxonomy.** GOSTA formalizes 5 categories and 11 distinct types — from fabricated metrics to confabulated memories across sessions to reasoning that cites correct concepts but applies them shallowly. Each type has different causes, different detection methods, and different prevention mechanisms.
+
+**Reasoning integrity as a first-class concern.** GOSTA checks the reasoning that produced outputs — not just the outputs themselves. Depth, coverage, chain integrity, and epistemic status of every claim. The system distinguishes between what it knows, what it doesn't know, and what it's assuming.
+
+**Kill discipline with mandatory confounder analysis.** GOSTA requires a formal 6-point confounder analysis before every kill decision. This prevents premature termination of tactics that failed for reasons unrelated to their hypothesis — the most common failure in iterative AI systems.
+
+**Sycophancy detection as a formal system risk.** Unlike grounding failures that produce incorrect content, sycophancy produces *correctly computed but misleadingly framed* content — the health score may be accurate while the narrative steers the Governor toward optimism. GOSTA formalizes six detection flags and treats this as the hardest bias to catch because it looks like good news.
+
+**Autonomy that degrades gracefully.** Five stages with automatic autonomy reduction when grounding health degrades — the system loses independence precisely when its ability to reason reliably is compromised. This extends the autonomy classification work (Knight, trust-based delegation) by tying autonomy levels to a strategic hierarchy and making degradation automatic rather than discretionary.
+
+**Bias treated as a structural taxonomy.** The framework identifies six distinct bias types — compliance bias (sycophancy), confirmation bias, pivot bias (loss aversion in kill decisions, measured at 4.3× pivot-over-kill in simulation), shared base-model bias in multi-agent deliberation, recency bias in sequential agent processing, and optimism bias in estimation — each with different causes, detection mechanisms, and architectural countermeasures.
+
+---
+
+## Foundations
+
+GOSTA is not designed from scratch. The specification (§15) makes its theoretical substrate explicit and maps each foundation to the framework mechanism it underpins.
+
+**Systems theory** — The five-layer hierarchy is a hierarchical control system. Stocks and flows model how signals accumulate and propagate. Balancing feedback loops drive tactics toward targets; reinforcing feedback loops are what the grounding architecture prevents from going negative. Constraints (deliberate guardrails vs. unintentional bottlenecks) shape throughput. Gall's Law — complex systems that work evolve from simple systems that worked — is why the implementation sequence builds incrementally and the autonomy model starts at Stage 1.
+
+**Control theory** — The Governor operates as a perceptual control system: goals externalize reference levels, the feedback loop compares current state to target, and the variance drives the next cycle. The entire architecture is a nested control loop where each layer controls the layer below.
+
+**Experimental design** — Hypothesis-driven execution applies the scientific method to every tactic. A/B testing isolates causal signal. Confounder analysis prevents correlation-causation errors at kill decisions. Pre-committed kill conditions and what-must-be-true conditions are the framework's equivalent of pre-registered hypotheses — decision rules declared before the data arrives.
+
+**Cognitive science** — The Governor's cognitive architecture (§15.5) is treated as part of the system, not external to it. Sycophancy detection exists because AI compliance bias exploits the human tendency toward confirmation bias. The autonomy model accounts for human attention as a finite resource — graduated autonomy is partly a response to the Governor's cognitive bandwidth.
+
+**Regulatory alignment** — The framework's human oversight model, audit trail, guardrail architecture, and kill discipline align structurally with EU AI Act requirements for risk management, record-keeping, transparency, and human oversight. Failure resilience and recovery verification align with NIS2 resilience and incident handling requirements. GOSTA does not implement specific regulatory provisions — it provides the architectural patterns that map to them.
+
+---
+
+## Why Open Source
+
+AI governance infrastructure should not be proprietary. When the rules that constrain autonomous AI are locked inside vendor platforms, organizations cannot audit them, modify them, or verify they work as claimed. The result is a trust dependency: you trust the AI to make decisions, and you trust the vendor's governance to constrain them, but you can inspect neither. GOSTA is open source because governance is a public interest problem — the infrastructure that makes AI trustworthy should be auditable, forkable, and owned by the organizations that depend on it.
+
+The practical consequence is sovereignty. Organizations and startups adopting AI need governance they can adapt to their own domain, regulatory context, and risk appetite — not a one-size-fits-all platform they rent. Open-sourcing GOSTA puts that capability in the hands of anyone who needs it, regardless of budget, vendor relationship, or jurisdiction. An EU startup facing AI Act compliance and a solo founder automating operations both get the same architecture, and both can shape it to their context.
+
+The final reason is validation. A governance framework for autonomous AI needs to be stress-tested against real-world scenarios its authors haven't imagined. Every organization that runs GOSTA against their own domain — their own edge cases, failure modes, and decision patterns — generates learnings that make the framework stronger. Open source turns users into contributors and real deployments into validation.
+
+---
+
+## Quick Start
+
+**[→ Walkthrough: Run your first session in 10 minutes](docs/walkthrough.md)** — clone, paste one prompt, answer 6 questions, watch the AI score features against domain models under your governance. No code, no setup beyond git clone.
+
+Or if you prefer to read first: start with `GOSTA-agentic-execution-architecture.md` §0 (Start Here) for the framework overview, then `cowork/gosta-cowork-protocol.md` §1–5 for the session lifecycle, then open any AI assistant and say: *"Read cowork/startup.md and start a new session."*
+
+See also: **[Quick Start Guide](docs/quick-start.md)** (architecture diagrams and concept reference) · **[Feature Prioritization Example](docs/examples/feature-prioritization/)** (12 features, 4 domain agents, 5 hard disagreements, Governor decisions).
+
+### Reference Pools
+
+The Governor curates reference pools — collections of source material (research documents, industry reports, raw data) that ground the AI's output in verified content rather than its training data. A bundled tool (`cowork/tools/pool-agent.py`) provides offline semantic search over any reference pool using a quantized embedding model — no external API calls required.
+
+You don't need to operate the tool directly. At Tier 0, the Cowork Protocol (`startup.md`) instructs the AI assistant to build and query reference pools during sessions automatically. You curate what goes in; the protocol handles the rest. At Tier 1+, the tool's query interface integrates programmatically into the grounding pipeline.
+
+<details>
+<summary>CLI reference for direct use</summary>
+
+```bash
+# Build a vector store from your reference material
+python3 pool-agent.py build --pool reference-pool.yaml --articles ./sources/ --store ./pool-store/
+
+# Search the pool during a session
+python3 pool-agent.py query "hospital cybersecurity incidents" --store ./pool-store/ --top 10
+
+# Add new material as your scope evolves
+python3 pool-agent.py update --pool reference-pool.yaml --dir ./new-reports/ --store ./pool-store/
+
+# Remove stale or irrelevant entries
+python3 pool-agent.py delete --pool reference-pool.yaml --store ./pool-store/ --ids RP-042 RP-107
+
+# See what's in your pool by tag
+python3 pool-agent.py tags --pool reference-pool.yaml
+```
+
+</details>
+
+---
+
+## How GOSTA Works
+
+### The Five Layers
+
+| Layer | Question | Transformation | Owner |
+|-------|----------|---------------|-------|
+| **Goal** | Where are we going? | Vision → Constraint | Governor |
+| **Objective** | What result, by when? | Direction → Measurement | Governor |
+| **Strategy** | Why this approach? | Measurement → Reasoning | Governor |
+| **Tactic** | How are we testing this? | Reasoning → Experimentation | AI / Tactic Lead |
+| **Action** | Who does what, by when? | Experimentation → Execution | AI / Assignee |
+
+Commands flow downward (goals constrain objectives, which constrain strategies). Feedback flows upward (actions emit signals, tactics aggregate them, strategies validate approach logic). Nine structural integrity rules enforce this hierarchy — no orphans, no layer contamination, single ownership, falsifiability, traceability, guardrail inheritance, feedback obligation, kill discipline, and layer boundary respect.
+
+Five design principles govern the architecture:
+
+- **Bidirectional information flow** — every layer both receives instructions and emits signals
+- **Separation of reasoning from experimentation** — strategies can outlive killed tactics
+- **Hypothesis-driven execution** — every tactic is a testable bet with a kill condition
+- **Separation of intent from method** — upper layers say what and why, lower layers say how
+- **Progressive autonomy with bounded risk** — each layer defines the decision space for the layer below
+
+### The Operating Document
+
+All five layers materialize in a single runtime artifact: the **Operating Document (OD)**. The OD contains the goal, objectives, strategies, tactics, actions, guardrails, domain models, health state, and decision log for a given scope. It is what the AI executes against, what the Governor reviews and steers, and what accumulates state across sessions. For analytical scopes (evaluate a vendor, prioritize a roadmap), the OD opens, runs through phases, and closes with a decision record. For operational scopes (daily sales outreach, weekly reporting), the OD persists indefinitely — tactics cycle, memory accumulates, health is tracked, but the scope keeps running.
+
+### The Nine Subsystems
+
+Beyond the five layers, nine subsystems make the control loop reliable:
+
+**Guardrail Architecture** — Typed, inheritable, evaluable constraints. Each guardrail declares severity (hard violations halt execution; soft violations trigger review) and evaluation type (mechanical or interpretive). Guardrails inherit downward through the hierarchy and never relax as they propagate. Calibration adjusts thresholds based on operational experience.
+
+**Grounding & Hallucination Prevention** — Ensures the system operates on reality, not plausible fiction. A 5-category hallucination taxonomy (Form Corruption, Substance Corruption, Signal Corruption, Continuity Corruption, Reasoning Corruption — 11 specific types) with 9 grounding components covering schema validation, domain knowledge, data grounding, attribution, synthesis verification, capability validation, reasoning depth, finding classification, and sycophancy detection. The Governor curates **reference pools** — collections of source material (research documents, industry reports, brand assets, raw data) that ground the AI's output in verified content rather than training data. A bundled **reference pool agent** (`cowork/tools/pool-agent.py`) provides offline semantic search over any GOSTA-compliant reference pool using a quantized embedding model — no external API calls required.
+
+**Reasoning Integrity** — GOSTA doesn't just check whether the AI's facts are right — it checks whether the AI's reasoning is right. Reasoning depth validation checks depth (actual analysis vs. surface-level pattern matching), coverage (all relevant factors vs. only the convenient ones), and chain integrity (logical chain from premises to conclusion). Finding classification forces the AI to tag every assessment as confirmed, information_gap, or conditional — making the epistemic status of every claim explicit. Sycophancy detection checks whether the AI's position is genuinely derived or socially compliant. Confounder analysis enforces structured reasoning about alternative explanations before any kill decision.
+
+**Decision Infrastructure** — Kill/pivot/persevere is the core decision framework: every tactic is evaluated against its kill condition at review, and no kill executes without mandatory confounder analysis. Health computation produces quantitative scores from aggregated signals, replacing narrative status updates with computed health. Decision-to-state traceability links every decision to the system state that motivated it. A/B testing at tactic and strategy levels is available for head-to-head comparisons. Multi-agent deliberation (see Protocol Stack below) handles decisions spanning multiple domains.
+
+**Autonomy Model** — Five graduation stages from human-driven (Stage 1) through full autonomy within strategies (Stage 5). Four safeguards constrain every stage: degraded-mode autonomy (auto-constrains when grounding health degrades), decision reversibility (irreversible decisions require Governor approval even at high stages), risk-magnitude thresholds, and conditional autonomy grants.
+
+**Memory Architecture** — Seven memory types across three storage tiers: working memory (per-cycle context), episodic memory (cross-cycle session records), and structural memory (long-term learnings). Three functional types cross-cut these tiers: procedural (how to operate), prospective (what needs to happen when), and meta-memory (memory about memory quality). Defined loading sequences per agent type ensure agents load only what they need.
+
+**Failure Resilience** — Six failure modes with detection, escalation, and restoration: signal pipeline failure, recovery verification, context and memory failure, capacity degradation, cascading failure propagation, and Governor decision validation.
+
+**Environmental Signal Architecture** — Watch lists monitoring external conditions (competitor moves, regulatory changes, market shifts, platform changes). Environmental signals carry distinct provenance and scale by tier — Tier 0 relies on Governor input, higher tiers integrate automated feeds.
+
+**Structural Integrity** — Nine structural rules, semantic coherence validation, decision-to-state traceability, OD state versioning, feature interaction rules, and eight interface contracts defining data flow between components.
+
+---
+
+## The Protocol Stack
+
+The specification defines what GOSTA is. Four operational protocols define how to run it.
+
+**Cowork Protocol** — The Tier 0 execution protocol. How to run GOSTA with a session-based AI (Claude, ChatGPT, or any conversational AI) as orchestrator and executor. Defines session lifecycle, file structure, signal format, health computation, decision recording, phase gates, retrospectives, context management, graduation stages, quality checks, parallelism rules, and scope closure. This is what makes GOSTA runnable at Tier 0 — without it, the spec is theory.
+
+**Deliberation Protocol** — Multi-agent coordination for cross-domain evaluation. Three roles: Domain Agents (each grounded in exactly one domain, advocates but does not resolve), Coordinator (manages agent lifecycle, identifies agreements and disagreements, does not advocate), and Governor (resolves disagreements, makes final decisions). Includes round mechanics, convergence and stall detection, cost tracking, and a 5-step graduated fallback for agent failures. Supports multi-model deliberation via MCP: domain agents can run on different LLM providers through Model Context Protocol servers, reducing shared base-model bias.
+
+**OD Drafting Protocol** — Translates vague Governor intent into a well-formed Operating Document through structured questions. Takes "I want to grow revenue" to a complete 5-layer document with guardrails, hypotheses, kill conditions, and domain model grounding.
+
+**Sync Manifest** — Tracks every derivation point between the specification and the protocols. When a spec section is updated, the manifest identifies which protocol sections need review. This keeps the specification and protocols consistent with each other.
+
+---
+
+## Reading the Spec
+
+The specification is 8,100+ lines covering 22 sections. It routes content to three reader roles:
+
+**Governor** — the human with decision authority. Focus: §0–6, §8, §9, §13, §20–21.
+
+**AI System** — the running orchestrator/executor. Focus: §7, §14, §17–20.
+
+**AI Implementer** — the developer building the system at Tier 1+. Focus: §7, §14, §16–20.
+
+**At Tier 0, the conversational AI IS both the AI System and the AI Implementer** — it simultaneously runs the system and constitutes its implementation.
+
+Sections are tagged by feature complexity: **`[CORE]`** (required at any tier — five layers, structural rules, guardrails, execution loops, OD format, domain models, health basics, kill/pivot/persevere with confounder analysis), **`[ROBUST]`** (where most differentiated capabilities live — grounding architecture, memory, autonomy safeguards, failure resilience, A/B testing, sycophancy detection, semantic coherence, interface contracts), and **`[ADVANCED]`** (multi-scope hierarchies, Stage 4–5 autonomy, cascading failure propagation, shared memory).
+
+Implementation tiers are independent of feature complexity:
+
+- **Tier 0** — File-based, no code. A conversational AI is the orchestrator. All state lives in markdown files. Start here.
+- **Tier 1** — Minimum viable coded product. Database, signal store, basic automation.
+- **Tier 2** — Robust operations. Full grounding infrastructure, automated verification.
+- **Tier 3** — Production-hardened. Multi-scope hierarchies, high autonomy, conversion funnels.
+
+A Tier 0 user running deliberation needs `[ROBUST]` sections. A Tier 1 user building a simple single-domain scope may only need `[CORE]`. The complexity tags tell you what features to adopt; the tier tells you how to implement them.
+
+---
+
+## Repository Structure
+
+```
+gosta/
+├── GOSTA-agentic-execution-architecture.md   ← The framework specification (8,100+ lines)
+├── cowork/                        ← Operational protocols and session infrastructure
+│   ├── gosta-cowork-protocol.md         Tier 0 execution protocol
+│   ├── deliberation-protocol.md         Multi-agent deliberation
+│   ├── od-drafting-protocol.md          Operating Document authoring
+│   ├── sync-manifest.md                Framework-to-protocol derivation map
+│   ├── startup.md                      Interactive session bootstrapper
+│   ├── session-launcher-template.md     Prompt template for session launch
+│   ├── simulation-protocol-prompt.md    Structured simulation runner
+│   ├── protocol-assessment-prompt.md    Six-dimension protocol assessment
+│   ├── CLAUDE.md                       Claude Code/Cowork directive
+│   ├── README.md                       Protocol directory overview
+│   ├── templates/                ← Session templates (13 files)
+│   └── tools/                    ← Reference pool agent (Python, offline semantic search, bundled ONNX model)
+├── domain-models/
+│   └── examples/                 ← Example domain models
+├── docs/
+│   ├── walkthrough.md            ← Run your first session in 10 minutes
+│   ├── quick-start.md            ← Architecture diagrams and concept reference
+│   ├── images/                   ← Diagrams and animated GIFs
+│   └── examples/                 ← Complete session examples with domain models
+├── LICENSE                        ← MIT
+├── README.md                      ← This file
+└── CONTRIBUTING.md
+```
+
+## Status
+
+**Specification stable. Tier 0 validated. Tier 1 implementation next.**
+
+GOSTA is a complete specification (8,100+ lines, 22 sections) with three operational protocols, 13 session templates, example domain models, and a simulation test harness. The Tier 0 implementation — file-based, conversational AI as orchestrator — is validated and usable today. You can run a governed session with any AI assistant by following the Cowork Protocol. No code, no infrastructure, no deployment.
+
+**What has been tested:** Eight simulation scenarios covering operational scopes, analytical scopes (product roadmap sequencing, policy analysis), multi-agent deliberation (up to 10 agents, 3 rounds), and failure injection.
+
+**What does not exist yet:** Tier 1+ coded implementations. There is no database, no signal store, no orchestration engine, no dashboard. The specification defines the exact build sequence for Tier 1 (7 phases) through Tier 3, but no code has been written. This is the next major milestone.
+
+## What's Next
+
+The roadmap is organized as milestone-based deliverables across three tracks.
+
+**Tier 0 improvements — making GOSTA easier to use today:**
+
+- **OD Drafting Protocol — full version** — The current release is a minimal guided process. The full version will give the Governor a structured, step-by-step experience for going from vague intent ("I want to grow revenue") to a complete Operating Document with guardrails, domain models, hypotheses, and kill conditions. This is the single highest-leverage improvement for adoption — it's where most new users will succeed or give up.
+- **Guided domain model and reference pool authoring** — Currently domain models must be written from scratch. Guided creation (templates, structured interviews, validation) and a growing library of reference domain models for common use cases will lower the barrier from "read the spec and figure it out" to "answer these questions and get a working domain model."
+- **Domain-specific worked examples** — End-to-end examples showing how a scope evolves across multiple sessions: a sales pipeline scope, an HR hiring scope, a daily operations scope. Examples teach faster than specification.
+- **Public sector and sustainability scenarios** — Complete worked examples for municipal governance, NGO program evaluation, and sustainability planning — domains where AI governance carries public accountability and auditability requirements beyond the commercial cases.
+- **EU AI Act compliance mapping** — A practical guide mapping GOSTA's architecture to EU AI Act requirements for risk management, record-keeping, transparency, and human oversight.
+- **Session continuity tooling** — Better tooling for context management across sessions: bootstrap file generation, context compression, memory loading. This is the main practical friction at Tier 0 for multi-session scopes.
+
+**Tier 1 reference implementation — making GOSTA programmable:**
+
+- **Phases 0–4** — Database-backed Operating Document, signal store, schema validation, orchestration engine. This turns GOSTA from a conversational protocol into infrastructure that code can build on.
+- **Deliberation Protocol — production release** — Maturing based on real-world multi-agent sessions. Round mechanics, stall detection, and cost management need production validation.
+- **Integration patterns** — Documented patterns for connecting GOSTA scopes to external data sources (CRM, analytics, financial feeds) — even at Tier 0, but especially at Tier 1 where signal collection can be automated.
+- **Ecosystem integration architecture** — Study and integration architecture documents for connecting GOSTA governance to existing open-source tools and platforms.
+
+**Community and ecosystem:**
+
+- **Domain model library** — Community-contributed domain models for common domains (sales, HR, finance, product, marketing, compliance, public sector).
+- **SME and startup adoption guides** — Practical step-by-step guides for small organizations adopting AI governance without dedicated AI teams.
+- **Contributed examples and templates** — Real-world scope examples and domain-specific session templates from practitioners.
+- **Tier 1 components** — Community-built modules for signal stores, health dashboards, and integration connectors.
+
+## Disclaimer
+
+GOSTA is a governance framework, not a guarantee. It provides the structure, mechanisms, and protocols for governing autonomous AI — but it does not warrant that any specific implementation will prevent hallucination, catch every failure, or produce correct decisions. The effectiveness of any GOSTA deployment depends on how the Governor configures it: the domain models, guardrails, kill conditions, and review cadence are human choices that the framework structures but does not make for you.
+
+GOSTA governs the process, not the model. The framework defines what the AI should do — grounding checks, reasoning validation, sycophancy detection — but it cannot override the capabilities or limitations of the underlying AI model. If the AI provider's model hallucinates, produces biased outputs, or fails to follow instructions, GOSTA's governance mechanisms may not catch every instance. The framework reduces risk; it does not eliminate it.
+
+GOSTA does not constitute compliance with any regulation, including the EU AI Act, NIS2, or sector-specific requirements. The framework's architecture aligns with common regulatory themes (human oversight, audit trails, risk management), but using GOSTA does not certify legal compliance. Organizations are responsible for their own regulatory assessment.
+
+GOSTA output is not professional advice. The use cases described in this document — including finance, HR, legal due diligence, and compliance — are governance patterns, not substitutes for professional judgment. Organizations should seek qualified legal, financial, or domain-specific counsel where appropriate.
+
+The Governor — the human with decision authority — retains full responsibility for all decisions made within the framework and all actions taken based on those decisions. Neither the framework authors nor contributors accept liability for outcomes resulting from the use of GOSTA. The framework is provided as-is under the MIT License, without warranty of any kind.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+## Authors
+
+GOSTA was created by [Cybersol B.V.](https://cybersol.nl), developed from production experience governing AI agents in cybersecurity and SaaS contexts. The specification, protocols, and tooling were authored collaboratively between human authors and AI systems — see [CONTRIBUTING.md](CONTRIBUTING.md#genai-disclosure) for the GenAI disclosure policy.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
