@@ -34,7 +34,7 @@ Run the GOSTA framework with any session-based AI (Claude, ChatGPT, or similar) 
 4. Open Claude Code in the session directory
 5. Say: "Bootstrap this session. Read the protocol and templates."
 
-**Note:** `sessions/` (at repo root) is the standard location for new scopes. Legacy scopes remain in `experiments/`.
+**Note:** `sessions/` (at repo root) is the standard location for new scopes.
 
 ## What's in the Box
 

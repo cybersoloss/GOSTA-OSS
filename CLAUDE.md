@@ -16,7 +16,7 @@ This triggers the interactive bootstrapper, which scaffolds `sessions/[name]/` a
 
 **Resuming an existing session:** Navigate to the session directory and read `00-BOOTSTRAP.md` first — it is the orientation file for every re-entry. Then load files in the Context Loading Order it specifies.
 
-**Session directories** are created under `sessions/` (new standard) or `experiments/` (legacy). Both are gitignored — they are working directories, not publishable content.
+**Session directories** are created under `sessions/` and are gitignored — they are working directories, not publishable content.
 
 ## Pre-commit Hook
 
@@ -27,17 +27,17 @@ cp .github/hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-com
 ```
 
 It blocks commits that:
-- Stage files from private directories (`internal/`, `sessions/`, `experiments/`, `obligo/`, `.claude/`, etc.)
-- Contain commercial/personal references (`Obligo`, `Cybersol`, `Progon`, `mhcandan`, `CIF-NL`) in any file except the allowlist (`LICENSE`, `.github/hooks/pre-commit`, `.gitignore`, `README.md`, `CONTRIBUTING.md`)
+- Stage files from private or working directories (sessions, internal tooling, etc.)
+- Contain references that belong in internal repositories rather than the public project
 
 Do not attempt to work around this hook. If it fires, remove the offending content before committing.
 
 ## Gitignore Rules (Key Ones)
 
-- `sessions/`, `experiments/` — working session directories, never committed
+- `sessions/` — working session directories, never committed
 - `*.onnx` — the embedding model file for pool-agent. Download separately; do not commit
-- `reference-pool*.yaml` — commercial reference materials
-- `*.pdf`, `.claude/` — private/uploaded content
+- `reference-pool*.yaml` — reference pool indexes (rebuild locally)
+- `*.pdf`, `.claude/` — uploaded content and local config
 
 ## Architecture and Document Relationships
 

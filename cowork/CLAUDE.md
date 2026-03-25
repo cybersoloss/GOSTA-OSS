@@ -60,7 +60,7 @@ Use the session launcher template to bootstrap a new GOSTA scope:
 2. **Paste** the filled prompt into a fresh Cowork or Code session
 3. The AI will scaffold `sessions/[name]/`, copy templates, load context, and begin Phase 0
 
-The `sessions/` directory (at repo root) is the standard location for new scopes. Legacy scopes remain in `experiments/`.
+The `sessions/` directory (at repo root) is the standard location for new scopes.
 
 ### Manual Bootstrap (alternative)
 

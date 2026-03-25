@@ -42,7 +42,7 @@ Before starting, skim these files (you don't need to memorize them — the AI re
 
 ## How a Session Works
 
-Every GOSTA session follows the same lifecycle. The [walkthrough](walkthrough.md) runs through this with a concrete scenario; here's the structure.
+Every GOSTA session follows the same lifecycle. The [walkthrough](walkthrough.md) runs through this with a concrete scenario — below is the structure underneath.
 
 ### Starting a Session
 
@@ -104,7 +104,7 @@ At each phase gate, you have three options for each tactic or strategy:
 
 The AI presents each decision with evidence, alternatives, and tensions. Your job is to decide — not to accept the AI's recommendation uncritically.
 
-Kill conditions exist to make kills mechanical: *"If metric X is below threshold Y after Z weeks, kill the tactic."* This prevents the sunk-cost fallacy from keeping failing approaches alive.
+Kill conditions exist to make kills mechanical — with bootstrap periods (don't evaluate too early), lag allowances (delayed metric impact), prerequisite checks (was the tactic actually executed?), and early triggers (kill before threshold if trajectory is unambiguous). This prevents both the sunk-cost fallacy and false kills from noisy or premature data.
 
 ### Session Closeout
 

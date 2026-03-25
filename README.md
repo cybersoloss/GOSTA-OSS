@@ -27,7 +27,7 @@ Where orchestration frameworks (LangChain, LangGraph, CrewAI, AutoGen) define ho
 
 **Organizations facing AI regulation** (EU AI Act, NIS2, sector-specific requirements). GOSTA's human oversight model, audit trail, guardrail architecture, and kill discipline map directly to regulatory requirements for risk management, record-keeping, transparency, and human oversight. The framework provides the architectural patterns that satisfy them.
 
-**Public sector, research, and mission-driven organizations** where AI-assisted decisions carry public accountability — municipal planning, policy analysis, grant evaluation, NGO program design, healthcare governance, academic research governance. Every recommendation traces to a domain concept, every trade-off is documented, and the decision record exists independently of the AI session that produced it. For research groups, GOSTA provides reproducible decision structure: the same governance protocol applied to the same inputs produces auditable reasoning chains, making AI-assisted research decisions transparent and peer-reviewable.
+**Public sector, research, and mission-driven organizations** where AI-assisted decisions carry public accountability — municipal planning, policy analysis, grant evaluation, NGO program design, healthcare governance, academic research governance. Every recommendation traces to a domain concept, every trade-off is documented, and the decision record exists independently of the AI session that produced it. For research groups, the same protocol applied to the same inputs produces auditable reasoning chains — making AI-assisted decisions reproducible and peer-reviewable.
 
 **Teams building AI-powered products** where the AI makes or recommends decisions that affect users, customers, or operations. GOSTA provides the governance layer — guardrails, autonomy controls, health monitoring, failure handling — so the AI operates within defined bounds rather than on raw prompts.
 
@@ -97,11 +97,11 @@ Beyond the five layers, nine subsystems make the control loop reliable:
 
 **Decision Infrastructure** — Kill/pivot/persevere as the core decision framework. Health computation produces quantitative scores from aggregated signals. Decision-to-state traceability links every decision to the system state that motivated it. A/B testing at tactic and strategy levels. Multi-agent deliberation for decisions spanning multiple domains.
 
-**Autonomy Model** — Five graduation stages from human-driven (Stage 1) through full autonomy within strategies (Stage 5). Four safeguards constrain every stage: degraded-mode autonomy reduction, decision reversibility requirements, risk-magnitude thresholds, and conditional autonomy grants.
+**Autonomy Model** — Five graduation stages from human-driven (Stage 1) through full autonomy within strategies (Stage 5). Nine categories of Governor authority are formally non-delegable at any stage — including goal changes, guardrail modification, kill overrides, and scope closure. Four safeguards constrain every stage: degraded-mode autonomy reduction, decision reversibility requirements, risk-magnitude thresholds, and conditional autonomy grants.
 
 **Memory Architecture** — Seven memory types across three storage tiers (working, episodic, structural) with three functional cross-cuts (procedural, prospective, meta-memory). Defined loading sequences per agent type ensure agents load only what they need.
 
-**Failure Resilience** — Six failure modes with detection, escalation, and restoration: signal pipeline failure, recovery verification, context and memory failure, capacity degradation, cascading failure propagation, and Governor decision validation.
+**Failure Resilience** — Six failure modes with detection, escalation, and restoration: signal pipeline failure, context and memory failure, capacity degradation, cascading failure propagation, Governor decision validation, and constraint propagation verification. A cross-cutting recovery verification mechanism prevents oscillation after any failure recovery.
 
 **Environmental Signal Architecture** — Watch lists monitoring external conditions (competitor moves, regulatory changes, market shifts). Environmental signals carry distinct provenance and scale by tier.
 
@@ -171,7 +171,7 @@ GOSTA was developed through systematic analysis of the emerging AI agent governa
 
 **Orchestration** — LangGraph, AutoGen, and DeerFlow on stateful execution and multi-agent coordination.
 
-Each addresses a specific concern — autonomy classification, formal constraints, permission management, compliance checkpoints, hybrid team protocols, security infrastructure, or orchestration. GOSTA integrates across these concerns into a single operational architecture that connects strategic intent (goals, objectives) to execution governance (tactics, actions) through a five-layer control hierarchy. The following mechanisms reflect where that integration produces capabilities the individual approaches do not address:
+Each addresses a specific concern — autonomy classification, formal constraints, permission management, compliance checkpoints, hybrid team protocols, security infrastructure, or orchestration. GOSTA integrates across these concerns into a single operational architecture that connects strategic intent (goals, objectives) to execution governance (tactics, actions) through a five-layer control hierarchy. That integration produces mechanisms none of the individual approaches address:
 
 **Hallucination taxonomy.** GOSTA formalizes 5 categories and 11 distinct types — from fabricated metrics to confabulated memories across sessions to reasoning that cites correct concepts but applies them shallowly. Each type has different causes, different detection methods, and different prevention mechanisms.
 
@@ -183,7 +183,7 @@ Each addresses a specific concern — autonomy classification, formal constraint
 
 **Autonomy that degrades gracefully.** Five stages with automatic autonomy reduction when grounding health degrades — the system loses independence precisely when its ability to reason reliably is compromised. This extends the autonomy classification work (Knight, trust-based delegation) by tying autonomy levels to a strategic hierarchy and making degradation automatic rather than discretionary.
 
-**Bias treated as a structural taxonomy.** The framework identifies six distinct bias types — compliance bias (sycophancy), confirmation bias, pivot bias (loss aversion in kill decisions, measured at 4.3× pivot-over-kill in simulation), shared base-model bias in multi-agent deliberation, recency bias in sequential agent processing, and optimism bias in estimation — each with different causes, detection mechanisms, and architectural countermeasures.
+**Bias treated as a structural concern.** The framework formally detects four bias types — compliance bias (sycophancy, six detection flags), pivot bias (loss aversion in kill decisions, measured at 4.3× pivot-over-kill in simulation), shared base-model bias in multi-agent deliberation, and recency bias in sequential agent processing — each with different causes, detection mechanisms, and architectural countermeasures. Confirmation bias and optimism bias are addressed indirectly through the sycophancy self-check and mandatory risk section rather than dedicated detection.
 
 ---
 
@@ -274,11 +274,11 @@ The final reason is validation. A governance framework for autonomous AI needs t
 
 **Beta — Specification complete. Tier 0 usable. Tier 1 implementation next.**
 
-GOSTA is a complete specification (8,100+ lines, 22 sections) with three operational protocols, 13 session templates, example domain models, and a simulation test harness. The Tier 0 implementation — file-based, conversational AI as orchestrator — is usable today. You can run a governed session with any AI assistant by following the Cowork Protocol. No code, no infrastructure, no deployment. The framework targets Tier 3 (production-hardened, multi-scope, high autonomy) — it is currently validated at Tier 0, making this a beta release.
+GOSTA is a complete specification (v6.1, 8,100+ lines, 22 sections) with three operational protocols, 13 session templates, example domain models, and a simulation test harness. The Tier 0 implementation — file-based, conversational AI as orchestrator — is usable today. You can run a governed session with any AI assistant by following the Cowork Protocol. No code, no infrastructure, no deployment. The framework targets Tier 3 (production-hardened, multi-scope, high autonomy) — it is currently validated at Tier 0, making this a beta release.
 
-**What has been tested:** Eight simulation scenarios run by the authors covering operational scopes, analytical scopes (product roadmap sequencing, policy analysis), multi-agent deliberation (up to 10 agents, 3 rounds), and failure injection. Simulations measured a 4.3× pivot-over-kill bias ratio, confirming that the mandatory confounder analysis mechanism catches a measurable and common failure mode in iterative AI systems. These are internal validation — no external deployments yet. The simulation protocol (`cowork/simulation-protocol-prompt.md`) is included so others can run their own.
+**What has been tested:** Eight simulation designs run by the authors covering operational scopes, analytical scopes (product roadmap sequencing, policy analysis), multi-agent deliberation (up to 10 agents, 3 rounds), and failure injection — 15 scenario runs producing 1,107 decisions total. Simulations measured a 4.3× pivot-over-kill bias ratio, confirming that the mandatory confounder analysis mechanism catches a measurable and common failure mode in iterative AI systems. These are internal validation — no external deployments yet. The simulation protocol (`cowork/simulation-protocol-prompt.md`) is included so others can run their own. The specification provides scaling guidance from simple scopes (20–40 items) through complex scopes (400–800 items across multiple domains).
 
-**What does not exist yet:** Tier 1+ coded implementations. There is no database, no signal store, no orchestration engine, no dashboard. The specification defines the exact build sequence for Tier 1 (7 phases) through Tier 3, but no code has been written. This is the next major milestone.
+**What does not exist yet:** Tier 1+ coded implementations. There is no database, no signal store, no orchestration engine, no dashboard. The specification defines the exact build sequence for Tier 1 (Phases 0–6) and graduation criteria for Tier 2–3, but no code has been written. This is the next major milestone.
 
 ---
 
@@ -297,7 +297,7 @@ The roadmap is organized as milestone-based deliverables across three tracks, sc
 
 **Tier 1 reference implementation — making GOSTA programmable:**
 
-- **Phases 0–4** — Database-backed Operating Document, signal store, schema validation, orchestration engine. This turns GOSTA from a conversational protocol into infrastructure that code can build on.
+- **Phases 0–6** — Database-backed Operating Document, signal store, schema validation, orchestration engine, domain knowledge store, and approval UI with governance loop. This turns GOSTA from a conversational protocol into infrastructure that code can build on.
 - **Deliberation Protocol — production release** — Maturing based on real-world multi-agent sessions. Round mechanics, stall detection, and cost management need production validation.
 - **Integration patterns** — Documented patterns for connecting GOSTA scopes to external data sources (CRM, analytics, financial feeds) — even at Tier 0, but especially at Tier 1 where signal collection can be automated.
 - **Ecosystem integration architecture** — Study and integration architecture documents for connecting GOSTA governance to existing open-source tools and platforms.

@@ -2,7 +2,7 @@
 # Pre-commit hook: block commits containing private/commercial files or content.
 # Install: cp .github/hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
 
-FORBIDDEN_PATHS="internal/|sessions/|experiments/|[Oo]bligo/|tempposts/|[Oo]lder-?[Vv]ersions/|[Dd]ocs/|samples/|\.claude/"
+FORBIDDEN_PATHS="internal/|sessions/|experiments/|[Oo]bligo/|tempposts/|[Oo]lder-?[Vv]ersions/|Docs/|samples/|\.claude/"
 FORBIDDEN_CONTENT="Obligo|obligo|OBLIGO|Cybersol|cybersol|Progon|progon|mhcandan|CIF-NL"
 
 # Files where controlled references are expected (LICENSE contains copyright holder name)

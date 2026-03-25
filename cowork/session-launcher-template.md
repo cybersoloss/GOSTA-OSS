@@ -234,7 +234,7 @@ Run quality gate on every domain model (reused or new):
 After running the gate on all models, compile all failures. Present options per failed model: fix now (AI-assisted), proceed with warning, or replace. Do not proceed to Step F until all models are resolved.
 
 **Step F — Check for sibling session learnings** (protocol §16.3):
-Scan `sessions/` and `experiments/` **recursively** (including nested subdirectories) for any `learnings.md` and `gosta-framework-feedback.md` files. *Code mode:* `find sessions experiments -name "learnings.md" -o -name "gosta-framework-feedback.md"`. *Cowork mode:* manually check each directory and subdirectory. For files with substantive content (>5 non-empty lines), identify the most relevant to this scope and surface those first.
+Scan `sessions/` **recursively** (including nested subdirectories) for any `learnings.md` and `gosta-framework-feedback.md` files. *Code mode:* `find sessions -name "learnings.md" -o -name "gosta-framework-feedback.md"`. *Cowork mode:* manually check each directory and subdirectory. For files with substantive content (>5 non-empty lines), identify the most relevant to this scope and surface those first.
 
 If deliberation is enabled for this scope, specifically look for these sections in prior learnings files:
 - **Deliberation Patterns** → Agent Behavioral Patterns, Recurring Disagreement Patterns, Deliberation Effectiveness, Threshold Calibration

@@ -61,7 +61,6 @@ Available domain models in this repo:
 
 Scan these directories and list all `.md` files found:
 - `domain-models/` (repo root — shared models)
-- `experiments/*/domain-models/` (legacy session models)
 - `sessions/*/domain-models/` (session models)
 
 For each, show: file path and first line (the model name).
@@ -119,12 +118,12 @@ Ask:
 
 **Group 5 — Prior Learnings (auto-detected):**
 
-Scan `sessions/` and `experiments/` **recursively** for `learnings.md` and `gosta-framework-feedback.md` files (including nested subdirectories like `experiments/geopolitical-sim/sim3/`). In Code mode use: `find sessions experiments -name "learnings.md" -o -name "gosta-framework-feedback.md"`. In Cowork mode: manually check each directory and subdirectory. For each file found, count substantive lines. If a file has more than 5 lines of substantive content (section headings or bullet points with actual text — excluding blank lines and placeholder text), show it:
+Scan `sessions/` **recursively** for `learnings.md` and `gosta-framework-feedback.md` files (including nested subdirectories). In Code mode use: `find sessions -name "learnings.md" -o -name "gosta-framework-feedback.md"`. In Cowork mode: manually check each directory and subdirectory. For each file found, count substantive lines. If a file has more than 5 lines of substantive content (section headings or bullet points with actual text — excluding blank lines and placeholder text), show it:
 
 ```
 Found prior learnings:
-1. sessions/example-project-v2/learnings.md (47 lines)
-2. experiments/geopolitical-sim/sim4/learnings.md (32 lines)
+1. sessions/my-first-session/learnings.md (47 lines)
+2. sessions/vendor-evaluation/learnings.md (32 lines)
 ...
 ```
 
@@ -132,12 +131,12 @@ Before asking, scan each file's section headings for topic relevance to the new 
 
 ```
 Most relevant to your scope:
-2. experiments/geopolitical-sim/sim3/learnings.md — domain model quality + analytical confidence calibration
-4. experiments/geopolitical-sim/sim4/learnings.md — informed user patterns + guardrail firing conditions
+1. sessions/vendor-evaluation/learnings.md — domain model quality + analytical confidence calibration
+2. sessions/policy-analysis/learnings.md — informed user patterns + guardrail firing conditions
 
 All prior learnings:
-1. sessions/example-project/learnings.md (18 lines)
-2. experiments/geopolitical-sim/sim3/learnings.md (82 lines) ← recommended
+1. sessions/my-first-session/learnings.md (18 lines)
+2. sessions/vendor-evaluation/learnings.md (82 lines) ← recommended
 ...
 ```
 
