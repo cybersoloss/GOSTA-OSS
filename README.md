@@ -6,7 +6,7 @@ GOSTA is an open specification for governing autonomous AI agents. It defines a 
 
 Where orchestration frameworks (LangChain, LangGraph, CrewAI, AutoGen) define how agents execute tasks, GOSTA defines who decides what, within what bounds, what happens when things go wrong, and how the system proves its reasoning is sound. The distinction is not governance instead of orchestration — it is **orchestration with governance.**
 
-![GOSTA Walkthrough](docs/images/gosta-walkthrough.gif)
+![GOSTA Session Bootstrap](docs/images/gosta-session-demo.gif)
 
 **→ [Run your first GOSTA session in 10 minutes](docs/walkthrough.md)**
 
@@ -276,13 +276,13 @@ gosta/
 
 GOSTA is a complete specification (8,100+ lines, 22 sections) with three operational protocols, 13 session templates, example domain models, and a simulation test harness. The Tier 0 implementation — file-based, conversational AI as orchestrator — is validated and usable today. You can run a governed session with any AI assistant by following the Cowork Protocol. No code, no infrastructure, no deployment.
 
-**What has been tested:** Eight simulation scenarios covering operational scopes, analytical scopes (product roadmap sequencing, policy analysis), multi-agent deliberation (up to 10 agents, 3 rounds), and failure injection.
+**What has been tested:** Eight simulation scenarios run by the authors covering operational scopes, analytical scopes (product roadmap sequencing, policy analysis), multi-agent deliberation (up to 10 agents, 3 rounds), and failure injection. These are internal validation — no external deployments yet. The simulation protocol (`cowork/simulation-protocol-prompt.md`) is included so others can run their own.
 
 **What does not exist yet:** Tier 1+ coded implementations. There is no database, no signal store, no orchestration engine, no dashboard. The specification defines the exact build sequence for Tier 1 (7 phases) through Tier 3, but no code has been written. This is the next major milestone.
 
 ## What's Next
 
-The roadmap is organized as milestone-based deliverables across three tracks.
+The roadmap is organized as milestone-based deliverables across three tracks, scoped for incremental delivery with defined acceptance criteria per milestone.
 
 **Tier 0 improvements — making GOSTA easier to use today:**
 
