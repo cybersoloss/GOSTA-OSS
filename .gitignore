@@ -1,0 +1,30 @@
+# Session working directories (created by startup.md, never committed)
+/sessions/
+/experiments/
+
+# Uploaded files and reference pools (rebuild locally)
+*.pdf
+reference-pool*.yaml
+
+# Large model files (download via: python3 cowork/tools/pool-agent.py setup-model)
+*.onnx
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Node (for tools/)
+node_modules/
+package-lock.json
+
+# Python
+__pycache__/
+*.pyc
+.env
