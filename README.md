@@ -123,9 +123,23 @@ The specification defines what GOSTA is. Four operational protocols define how t
 
 ### Reference Pools
 
-The Governor curates reference pools — collections of source material (research documents, industry reports, raw data) that ground the AI's output in verified content rather than its training data. A bundled tool (`cowork/tools/pool-agent.py`) provides offline semantic search over any reference pool using a quantized embedding model — no external API calls required.
+The Governor curates reference pools — collections of source material (research documents, industry reports, raw data) that ground the AI's output in verified content rather than its training data. A bundled tool (`cowork/tools/pool-agent.py`) provides offline semantic search over any reference pool using a quantized embedding model — no external API calls required. It also supports indexing single large documents (specifications, regulatory texts) by section headings for targeted retrieval.
 
 You don't need to operate the tool directly. At Tier 0, the Cowork Protocol (`startup.md`) instructs the AI assistant to build and query reference pools during sessions automatically. You curate what goes in; the protocol handles the rest. At Tier 1+, the tool's query interface integrates programmatically into the grounding pipeline.
+
+<details>
+<summary>First-time setup</summary>
+
+The embedding model (~22MB) is not included in the repository. Run once after cloning:
+
+```bash
+pip install numpy pyyaml onnxruntime tokenizers huggingface-hub
+python3 cowork/tools/pool-agent.py setup-model
+```
+
+This downloads all-MiniLM-L6-v2 from Hugging Face and quantizes it locally. No API keys needed. The startup bootstrapper (`startup.md`) checks for this automatically and will prompt you if it's missing.
+
+</details>
 
 <details>
 <summary>CLI reference for direct use</summary>
@@ -134,7 +148,10 @@ You don't need to operate the tool directly. At Tier 0, the Cowork Protocol (`st
 # Build a vector store from your reference material
 python3 pool-agent.py build --pool reference-pool.yaml --articles ./sources/ --store ./pool-store/
 
-# Search the pool during a session
+# Index a single large document by section headings
+python3 pool-agent.py index-doc --doc spec.md --store ./spec-store/ --heading-level 2
+
+# Search the pool or document store during a session
 python3 pool-agent.py query "hospital cybersecurity incidents" --store ./pool-store/ --top 10
 
 # Add new material as your scope evolves

@@ -50,6 +50,9 @@
 - **Round 1 unanimity:** [yes/no]
 - **OD-anchoring indicator:** [low / moderate / high]
 - **Convergence probe:** [not triggered | triggered — result: substantive_dissent / weak_dissent / genuine_alignment]
+  - `substantive_dissent`: Agent produced a materially different assessment when prompted adversarially — original unanimity was premature. Continue deliberation with the new position.
+  - `weak_dissent`: Agent raised concerns but did not change its overall recommendation — original alignment may be genuine. Log and proceed with caution.
+  - `genuine_alignment`: Agent defended its original position with independent reasoning under adversarial prompt — convergence is authentic. Safe to terminate.
 - **Cumulative dissent rate (this scope):** [N hard disagreements across M deliberation cycles = N/M average]
 
 ## Artifacts This Deliberation

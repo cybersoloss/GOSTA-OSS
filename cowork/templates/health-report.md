@@ -19,6 +19,8 @@
 - **Hypothesis Status:** [holding | weakening | falsified]
 - **Human Creative Input Rate:** [N/M cycles with input] (if applicable)
 - **Composite Health Score:** [0-100]
+- **Tournament Status (if applicable):** [not_active | in_progress (N of M candidates generated) | completed (winner: [deliverable_ref], cell: [assignment])]
+  - Health computed on selected deliverable only. Cross-cell score patterns inform the health narrative but do not change the computation formula.
 - **Pivot Count:** [N] (if >0, note: 2+ pivots with no improvement → kill per §7.1)
 - **Recommendation:** [kill | pivot | persevere] | **Classification:** [confirmed | information_gap | conditional]
 - **Classification Basis:** [For confirmed: cite signals and attribution. For information_gap: specify missing data. For conditional: specify assumption and test.]

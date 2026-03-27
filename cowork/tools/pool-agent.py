@@ -19,6 +19,12 @@ python3 pool-agent.py query "hospital cybersecurity incidents" \\
     --store /path/to/pool-store/ \\
     --top 10
 
+# Index a single large markdown document by section headings
+python3 pool-agent.py index-doc \\
+    --doc /path/to/large-document.md \\
+    --store /path/to/doc-store/ \\
+    --heading-level 2
+
 # List available tags in pool
 python3 pool-agent.py tags --pool /path/to/reference-pool.yaml
 
@@ -29,13 +35,22 @@ pool-store/
   metadata.json      # list of {id, title, tags, excerpt, sourceFile, sourceDir}
   pool-info.json     # pool name, version, itemCount, buildDate
 
-MODEL
------
-Bundled in cowork/tools/pool-agent/models/
-  model.onnx         # all-MiniLM-L6-v2 qint8 quantized (22MB)
-  tokenizer.json
-  tokenizer_config.json
-  special_tokens_map.json
+MODEL SETUP
+-----------
+# First-time setup: download and quantize the model
+python3 pool-agent.py setup-model
+
+This downloads all-MiniLM-L6-v2 from Hugging Face, quantizes it to
+qint8 ONNX (~22MB), and saves tokenizer files. Run once per clone.
+
+Model files (cowork/tools/pool-agent/models/):
+  model.onnx                # all-MiniLM-L6-v2 qint8 quantized (~22MB, gitignored)
+  tokenizer.json            # tracked in git
+  tokenizer_config.json     # tracked in git
+  special_tokens_map.json   # tracked in git
+
+Dependencies (runtime): pip install numpy pyyaml onnxruntime
+Dependencies (setup-model only): pip install tokenizers huggingface-hub onnx
 """
 
 import argparse
@@ -60,6 +75,23 @@ MODEL_PATH  = MODELS_DIR / "model.onnx"
 
 def load_model():
     """Load ONNX model + tokenizer. Returns (session, tokenizer)."""
+    if not MODEL_PATH.exists():
+        print("ERROR: Model file not found.", file=sys.stderr)
+        print(f"  Expected: {MODEL_PATH}", file=sys.stderr)
+        print(f"", file=sys.stderr)
+        print(f"  Run 'python3 {Path(__file__).name} setup-model' to download", file=sys.stderr)
+        print(f"  and quantize the model automatically (~90MB download,", file=sys.stderr)
+        print(f"  produces ~22MB quantized ONNX).", file=sys.stderr)
+        sys.exit(1)
+
+    tok_path = MODELS_DIR / "tokenizer.json"
+    if not tok_path.exists():
+        print("ERROR: Tokenizer not found.", file=sys.stderr)
+        print(f"  Expected: {tok_path}", file=sys.stderr)
+        print(f"", file=sys.stderr)
+        print(f"  Run 'python3 {Path(__file__).name} setup-model' to download.", file=sys.stderr)
+        sys.exit(1)
+
     import onnxruntime as ort
     from tokenizers import Tokenizer
 
@@ -67,7 +99,7 @@ def load_model():
         str(MODEL_PATH),
         providers=["CPUExecutionProvider"]
     )
-    tok = Tokenizer.from_file(str(MODELS_DIR / "tokenizer.json"))
+    tok = Tokenizer.from_file(str(tok_path))
     tok.enable_padding(pad_token="[PAD]", pad_id=0)
     tok.enable_truncation(max_length=512)
     return sess, tok
@@ -226,6 +258,22 @@ def cmd_build(args):
 
 # ── query ──────────────────────────────────────────────────────────────────────
 
+def _threshold_action(score: float) -> str:
+    """Map similarity score to protocol-defined consumption action.
+
+    Thresholds from Cowork Protocol §18.5:
+      ≥0.58 → full_read (read full article/section)
+      0.50–0.57 → excerpt_only (read excerpt, skip full content)
+      <0.50 → ignore (below relevance threshold)
+    """
+    if score >= 0.58:
+        return "full_read"
+    elif score >= 0.50:
+        return "excerpt_only"
+    else:
+        return "ignore"
+
+
 def cmd_query(args):
     store_path = Path(args.store)
     if not store_path.exists():
@@ -246,31 +294,43 @@ def cmd_query(args):
     print(f"Query: \"{args.query_text}\"")
     print(f"Top {top_n} results:\n")
 
+    is_doc_store = pool_info.get("indexMode") == "document-sections"
+
     if args.json:
         results = []
         for rank, idx in enumerate(top_idx, 1):
             m = metadata[idx]
-            results.append({
+            s = round(float(scores[idx]), 4)
+            entry = {
                 "rank":       rank,
                 "id":         m["id"],
-                "score":      round(float(scores[idx]), 4),
+                "score":      s,
+                "threshold_action": _threshold_action(s),
                 "title":      m["title"],
                 "tags":       m["tags"],
                 "excerpt":    m["excerpt"],
                 "sourceDir":  m["sourceDir"],
                 "sourceFile": m["sourceFile"],
-            })
+            }
+            # Include section-specific fields when querying a document store
+            if "section_range" in m:
+                entry["section_range"]  = m["section_range"]
+            if "heading_level" in m:
+                entry["heading_level"]  = m["heading_level"]
+            results.append(entry)
         print(json.dumps(results, indent=2, ensure_ascii=False))
     else:
         for rank, idx in enumerate(top_idx, 1):
             m     = metadata[idx]
             score = scores[idx]
+            action = _threshold_action(float(score))
             tags  = ", ".join(m["tags"][:6])
-            print(f"[{rank}] {m['id']}  score={score:.3f}")
+            loc = m.get("section_range", f"{m['sourceDir']}/{m['sourceFile']}")
+            print(f"[{rank}] {m['id']}  score={score:.3f}  [{action}]")
             print(f"     {m['title']}")
             print(f"     Tags: {tags}")
             print(f"     {m['excerpt'][:120]}...")
-            print(f"     {m['sourceDir']}/{m['sourceFile']}")
+            print(f"     {loc}  ({m['sourceFile']})")
             print()
 
 
@@ -469,6 +529,263 @@ def cmd_delete(args):
     _run_build(str(pool_path), args.articles, str(store_path))
 
 
+# ── index-doc ─────────────────────────────────────────────────────────────────
+
+def _segment_markdown(text, heading_level=2):
+    """Segment a markdown document by heading level into sections.
+
+    Returns a list of dicts:
+      {heading, content, line_start, line_end, level}
+
+    Each section starts at the heading line and extends to the line before the
+    next heading at the same or higher level (or EOF). Content between the start
+    of the document and the first heading is captured as a "preamble" section.
+    """
+    pattern = r"^(#{1," + str(heading_level) + r"})\s+(.+)$"
+    lines = text.split("\n")
+
+    # Find all heading positions
+    headings = []
+    for i, line in enumerate(lines):
+        m = re.match(pattern, line)
+        if m:
+            headings.append({
+                "line": i,
+                "level": len(m.group(1)),
+                "heading": m.group(2).strip(),
+            })
+
+    sections = []
+
+    # Preamble: content before the first heading (if any)
+    if headings and headings[0]["line"] > 0:
+        preamble_lines = lines[: headings[0]["line"]]
+        preamble_text = "\n".join(preamble_lines).strip()
+        if len(preamble_text) > 50:  # only if substantial
+            sections.append({
+                "heading": "Preamble",
+                "content": preamble_text,
+                "line_start": 1,
+                "line_end": headings[0]["line"],
+                "level": 0,
+            })
+
+    # Each heading-delimited section
+    for i, h in enumerate(headings):
+        start = h["line"]
+        end = headings[i + 1]["line"] if i + 1 < len(headings) else len(lines)
+        section_lines = lines[start:end]
+        content = "\n".join(section_lines).strip()
+
+        sections.append({
+            "heading": h["heading"],
+            "content": content,
+            "line_start": start + 1,   # 1-based for human readability
+            "line_end": end,
+            "level": h["level"],
+        })
+
+    return sections
+
+
+def _heading_to_slug(heading):
+    """Convert heading text to a short slug for section IDs."""
+    slug = re.sub(r"[^a-z0-9]+", "-", heading.lower()).strip("-")
+    return slug[:60]
+
+
+def _section_excerpt(content, max_chars=400):
+    """Extract first meaningful paragraph from section content."""
+    # Skip the heading line itself
+    lines = content.split("\n")
+    body_lines = [l for l in lines if not l.startswith("#")]
+    body = "\n".join(body_lines).strip()
+    # Take first substantial paragraph
+    paras = [p.strip() for p in re.split(r"\n\n+", body) if len(p.strip()) > 30]
+    if paras:
+        return paras[0][:max_chars]
+    return body[:max_chars].strip()
+
+
+def _section_tags(content):
+    """Extract lightweight tags from section content using keyword heuristics."""
+    text_lower = content.lower()
+    tags = []
+    # Generic topic detection — lightweight, not domain-specific
+    topic_signals = {
+        "governance":    ["governance", "governor", "approval", "authority"],
+        "execution":     ["execution", "executor", "action", "work plan"],
+        "deliberation":  ["deliberation", "debate", "consensus", "disagreement"],
+        "signals":       ["signal", "health", "metric", "measurement"],
+        "domain-model":  ["domain model", "domain identity", "guardrail"],
+        "reference-pool":["reference pool", "reference material", "pool-agent"],
+        "operating-doc": ["operating document", "od ", "five-layer"],
+        "graduation":    ["graduation", "stage ", "autonomy level"],
+        "review":        ["review", "strategy review", "tactic review"],
+        "memory":        ["memory", "knowledge flag", "context compression"],
+        "protocol":      ["protocol", "phase gate", "lifecycle"],
+        "security":      ["security", "threat", "vulnerability", "risk"],
+    }
+    for tag, patterns in topic_signals.items():
+        for pattern in patterns:
+            if pattern in text_lower:
+                tags.append(tag)
+                break
+    return tags
+
+
+def cmd_index_doc(args):
+    """Index a single large markdown document by segmenting it into sections."""
+    doc_path   = Path(args.doc)
+    store_path = Path(args.store)
+    heading_level = args.heading_level
+    id_prefix  = args.id_prefix
+
+    if not doc_path.exists():
+        print(f"ERROR: Document not found: {doc_path}", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"Loading document: {doc_path}")
+    text = doc_path.read_text(encoding="utf-8", errors="replace")
+    total_lines = text.count("\n") + 1
+
+    print(f"  Lines: {total_lines}")
+    print(f"  Segmenting by heading level ≤ {heading_level} ({'#' * heading_level})...")
+
+    sections = _segment_markdown(text, heading_level)
+    if not sections:
+        print("ERROR: No sections found. Check heading level.", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"  Found {len(sections)} sections. Loading model...")
+    sess, tok = load_model()
+    print("  Model loaded.")
+
+    texts    = []
+    metadata = []
+
+    for i, sec in enumerate(sections):
+        sec_id = f"{id_prefix}{i + 1:03d}"
+        heading = sec["heading"]
+        content = sec["content"]
+        excerpt = _section_excerpt(content)
+        tags    = _section_tags(content)
+
+        # Embed text: heading + first ~1500 chars of content
+        # (MiniLM truncates at 512 tokens ≈ ~2000 chars; front-load signal)
+        embed_content = content[:1500]
+        tag_str = " ".join(tags).replace("-", " ")
+        embed_text = f"{heading}. {embed_content} {tag_str}".strip()
+
+        texts.append(embed_text)
+        metadata.append({
+            "id":           sec_id,
+            "title":        heading,
+            "tags":         tags,
+            "excerpt":      excerpt[:400],
+            "sourceFile":   doc_path.name,
+            "sourceDir":    str(doc_path.parent),
+            "section_range": f"L{sec['line_start']}-L{sec['line_end']}",
+            "heading_level": sec["level"],
+        })
+
+    print(f"  Embedding {len(texts)} sections...")
+    embeddings = embed_texts(sess, tok, texts, show_progress=True)
+
+    pool_info = {
+        "sourceDocument": str(doc_path),
+        "poolName":       doc_path.stem,
+        "version":        "1.0",
+        "itemCount":      len(sections),
+        "buildDate":      datetime.utcnow().isoformat() + "Z",
+        "model":          "all-MiniLM-L6-v2-qint8",
+        "indexMode":      "document-sections",
+        "headingLevel":   heading_level,
+        "totalLines":     total_lines,
+    }
+
+    save_store(store_path, embeddings, metadata, pool_info)
+    print(f"\nDone. Store saved to: {store_path}")
+    print(f"  Sections: {len(sections)}")
+    print(f"  Shape:    {embeddings.shape}")
+    print(f"\nSection index:")
+    for m in metadata:
+        print(f"  {m['id']}  {m['section_range']:>12}  {m['title'][:70]}")
+
+
+# ── setup-model ───────────────────────────────────────────────────────────────
+
+HF_MODEL_ID  = "sentence-transformers/all-MiniLM-L6-v2"
+ONNX_SUBPATH = "onnx/model.onnx"                 # full-precision ONNX in the HF repo
+TOKENIZER_FILES = [
+    "tokenizer.json",
+    "tokenizer_config.json",
+    "special_tokens_map.json",
+]
+
+
+def cmd_setup_model(args):
+    """Download all-MiniLM-L6-v2 from Hugging Face and quantize to qint8."""
+    MODELS_DIR.mkdir(parents=True, exist_ok=True)
+
+    if MODEL_PATH.exists() and not args.force:
+        print(f"Model already exists at {MODEL_PATH}")
+        print(f"  Size: {MODEL_PATH.stat().st_size / 1e6:.1f} MB")
+        print(f"  Use --force to re-download and re-quantize.")
+        return
+
+    # ── check optional dependencies ──────────────────────────────────────────
+    try:
+        from huggingface_hub import hf_hub_download
+    except ImportError:
+        print("ERROR: huggingface_hub is required for model download.", file=sys.stderr)
+        print("  pip install huggingface-hub", file=sys.stderr)
+        sys.exit(1)
+
+    try:
+        from onnxruntime.quantization import quantize_dynamic, QuantType
+    except ImportError:
+        print("ERROR: onnxruntime quantization tools required.", file=sys.stderr)
+        print("  pip install onnxruntime onnx", file=sys.stderr)
+        sys.exit(1)
+
+    # ── download full-precision ONNX ─────────────────────────────────────────
+    print(f"Downloading {HF_MODEL_ID} ONNX model from Hugging Face...")
+    fp_path = hf_hub_download(
+        repo_id=HF_MODEL_ID,
+        filename=ONNX_SUBPATH,
+    )
+    fp_size = Path(fp_path).stat().st_size / 1e6
+    print(f"  Downloaded full-precision model ({fp_size:.1f} MB)")
+
+    # ── quantize to qint8 ────────────────────────────────────────────────────
+    print("Quantizing to qint8...")
+    quantize_dynamic(
+        model_input=fp_path,
+        model_output=str(MODEL_PATH),
+        weight_type=QuantType.QInt8,
+    )
+    q_size = MODEL_PATH.stat().st_size / 1e6
+    print(f"  Quantized model saved ({q_size:.1f} MB): {MODEL_PATH}")
+
+    # ── download tokenizer files ─────────────────────────────────────────────
+    print("Downloading tokenizer files...")
+    for fname in TOKENIZER_FILES:
+        dest = MODELS_DIR / fname
+        if dest.exists() and not args.force:
+            print(f"  {fname} already exists, skipping (use --force to overwrite)")
+            continue
+        dl_path = hf_hub_download(repo_id=HF_MODEL_ID, filename=fname)
+        # Copy from HF cache to our models dir
+        import shutil
+        shutil.copy2(dl_path, str(dest))
+        print(f"  {fname} → {dest}")
+
+    print(f"\nSetup complete. Model ready at: {MODELS_DIR}")
+    print(f"  model.onnx:  {MODEL_PATH.stat().st_size / 1e6:.1f} MB (qint8)")
+    print(f"  Tokenizer:   {', '.join(TOKENIZER_FILES)}")
+
+
 # ── tags ───────────────────────────────────────────────────────────────────────
 
 def cmd_tags(args):
@@ -525,6 +842,24 @@ def main():
     dp.add_argument("--ids",        nargs="+",     help="RP-IDs to delete  e.g. --ids RP-042 RP-107")
     dp.add_argument("--source-dir", nargs=1,       help="Remove all items from a sourceDir  e.g. --source-dir blog-export-2026-02")
 
+    # index-doc
+    ip = sub.add_parser("index-doc",
+        help="Index a single large markdown document by section headings")
+    ip.add_argument("--doc",      required=True,
+        help="Path to the markdown document to index")
+    ip.add_argument("--store",    required=True,
+        help="Where to save the vector store")
+    ip.add_argument("--heading-level", type=int, default=2,
+        help="Maximum heading depth to segment by (default 2 = ##)")
+    ip.add_argument("--id-prefix", default="SEC-",
+        help="Prefix for section IDs (default SEC-)")
+
+    # setup-model
+    sp = sub.add_parser("setup-model",
+        help="Download and quantize the embedding model from Hugging Face")
+    sp.add_argument("--force", action="store_true",
+        help="Re-download and re-quantize even if model already exists")
+
     # tags
     tp = sub.add_parser("tags", help="Show tag distribution in pool")
     tp.add_argument("--pool", required=True, help="Path to reference-pool.yaml")
@@ -539,6 +874,10 @@ def main():
         cmd_update(args)
     elif args.command == "delete":
         cmd_delete(args)
+    elif args.command == "index-doc":
+        cmd_index_doc(args)
+    elif args.command == "setup-model":
+        cmd_setup_model(args)
     elif args.command == "tags":
         cmd_tags(args)
 

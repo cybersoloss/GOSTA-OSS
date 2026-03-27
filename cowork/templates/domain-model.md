@@ -4,9 +4,11 @@
 **Enhancement Sources:** [Optional. Secondary sources consulted AFTER building from primary source. Examples: "sessions/example-project-v2/domain-models/value-creation.md — scoring criteria VC-1 through VC-12 reviewed for project-specific elements to incorporate"]
 **Application Context:** [What session/domain this is written for]
 **Created:** [date]
-**Purpose:** [What evaluation criteria this model provides]
+**Purpose:** [[Model type: constraint | operational | craft | audience-facing] What evaluation criteria this model provides. Example: "[Audience-facing] Provides knowledge about what funding assessors value so that announcement content can naturally demonstrate alignment..."]
 
 > **Authoring protocol:** Build the model entirely from the primary source first. Only consult enhancement sources after the 6-component structure is complete. Enhancement sources may add project-specific or session-specific elements but must not replace primary-source concepts. If no primary source document exists (e.g., domain expertise only), state "domain expertise" as source and note the limitation.
+>
+> **Knowledge vs. strategy (critical distinction):** Domain models encode what is *true* (knowledge), what *good* looks like (quality principles), and what is *forbidden* (guardrails). They do NOT encode what agents should *choose* — that is strategy, and strategy belongs to agents during deliberation. If you find yourself writing specific CTAs, content hooks, posting sequences, audience-to-channel mappings, structural templates, or tactical prescriptions in Core Concepts or Quality Principles, you are encoding strategy as knowledge and stealing the agent's deliberation space. Test: could an agent reasonably choose a *different* approach while still satisfying all Quality Principles and Guardrails? If not, the model is too prescriptive. Everything the model does not constrain is implicitly available for agents to decide.
 
 ---
 

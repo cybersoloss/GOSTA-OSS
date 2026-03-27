@@ -18,10 +18,12 @@ Every time you enter a GOSTA session directory:
 - **Use Phase Gate Enforcement** at every phase transition — produce the structured Phase Gate Request (protocol §5.1) before proceeding.
 - **Kill before pivot** when kill conditions are formally met (protocol §7.1). Don't soften kills into pivots without Governor justification.
 - **Classify tensions** as Blocking/Material/Informational (protocol §5.1 Step 3b). Only halt on Blocking.
-- **Reference pool agent** — if a session's reference pool exceeds 50 items, use `cowork/tools/pool-agent.py query` to retrieve relevant articles. Do NOT load the full pool YAML into context. Score thresholds: ≥0.58 read full article, 0.50–0.57 excerpt only, <0.50 ignore. See protocol §18.5.
+- **Reference pool agent** — if a session's reference pool exceeds 50 items, use `cowork/tools/pool-agent.py query` to retrieve relevant articles. Do NOT load the full pool YAML into context. For large single documents (specs, regulatory texts), use stores built with `index-doc` — results include `section_range` line numbers for targeted reading. Score thresholds: ≥0.58 read full article/section, 0.50–0.57 excerpt only, <0.50 ignore. If the model file is missing (`model.onnx`), alert the Governor and run `setup-model` before proceeding. See protocol §18.5.
 - **Log framework feedback** whenever you notice gaps in how GOSTA handles a situation.
 - **Guardrails are above baseline** — if you see a guardrail set below the current metric baseline, flag it as a calibration issue.
 - **Surface risks explicitly** in every health report — the Risk Factors section (§14.3.9) must be non-empty and substantive. Generic dismissals are themselves a flag.
+- **Tournament execution** — when a tactic declares tournament mode (§4.6), generate candidates sequentially with per-candidate signal stubs. In constrained mode, communicate the cell constraint before each generation. Do NOT reference prior candidates during generation — each candidate is structurally independent. After all candidates are generated, evaluate using the configured assessment level and present results with behavior space map to Governor for selection. Emit `tournament_selection` signal after Governor decides. Constrained mode is the Tier 0 default — do not use sampling mode unless the Governor explicitly requests it.
+- **Dimension Elicitation** — when drafting a tournament-enabled tactic in the OD, analyze session context (domain model tensions, guardrail pairs, reference pool clusters, deliverable trade-offs) and propose candidate behavior space dimensions to the Governor before declaring the behavior space. Do not invent dimensions without evidence from context sources.
 - **Check signal-recommendation alignment** — if most signals trend negative but you recommend persevere, state why with specific countervailing evidence.
 
 ## Output Paths
@@ -71,6 +73,6 @@ If not using the launcher template:
    ```
 2. Copy templates: `cp cowork/templates/* sessions/[name]/`
 3. Copy protocol + directive: `cp cowork/gosta-cowork-protocol.md cowork/CLAUDE.md sessions/[name]/`
-4. Create applied domain models using `templates/domain-model.md` (not generic — see protocol §3.1)
-5. Run a Bootstrap Session (protocol §5.2) — draft the OD for Governor approval
+4. Create applied domain models using `templates/domain-model.md` and the extraction procedure in `cowork/domain-model-authoring-protocol.md` (not generic — see protocol §3.1)
+5. Run a Bootstrap Session (protocol §5.2) — draft the OD for Governor approval. For complex scopes, use `cowork/od-drafting-protocol.md` (structured decomposition questions → OD).
 6. Governor reviews and approves the OD before first execution session

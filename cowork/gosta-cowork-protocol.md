@@ -1,4 +1,4 @@
-# GOSTA-Cowork Protocol v3.8
+# GOSTA-Cowork Protocol v3.11
 
 **Purpose:** Defines how to run the GOSTA framework with a session-based AI (Claude Cowork or Claude Code) as orchestrator/executor, with a human Governor. No custom infrastructure required — just files and disciplined conversation.
 
@@ -109,6 +109,10 @@ The difference is in cycle cadence and termination condition, not in structure.
 ├── deliverables/                ← What the session produces.
 │   └── [NN]-[name].md              Numbered sequentially (01-tension-analysis.md, etc.)
 │                                   Each starts with: date, scope name, temporal validity, source tiers.
+│                                   Tournament candidates: [NN]-[name]-cell-[X].md
+│                                   (e.g., 01-blog-post-cell-A.md, 01-blog-post-cell-B.md).
+│                                   Winner identified in tournament_selection decision.
+│                                   Non-selected candidates retained for structural memory.
 │
 ├── session-logs/                ← Episodic memory. One per session.
 │   └── session-[NNN].md
@@ -121,8 +125,15 @@ The difference is in cycle cadence and termination condition, not in structure.
 ├── learnings.md                 ← Structural memory. Patterns, anti-patterns,
 │                                   calibrated norms discovered across sessions.
 │
-└── gosta-framework-feedback.md  ← Shortfalls, gaps, enhancements discovered
-                                    while running. Feeds back to GOSTA spec.
+├── gosta-framework-feedback.md  ← Shortfalls, gaps, enhancements discovered
+│                                   while running. Feeds back to GOSTA spec.
+│
+└── deliberation/               ← (When deliberation mode is active only)
+    └── round-[NNN]/               One directory per deliberation round.
+        ├── [agent-id]-position.md    Position papers (Round 1) or response papers (Round 2+)
+        ├── interim-assessment.md     Coordinator interim assessment after each round
+        ├── synthesis-report.md       Coordinator final synthesis
+        └── proxy-[agent-id].md       (If agent failed) Coordinator-generated proxy. See Deliberation Protocol §7.1.
 ```
 
 **File conventions:**
@@ -133,6 +144,8 @@ The difference is in cycle cadence and termination condition, not in structure.
 - The bootstrap file and session-status file are the ONLY files that get overwritten each session — bootstrap at session start/end, session-status at every major checkpoint
 
 ### 3.1 Domain Model Authoring
+
+**When creating a domain model from source resources** (documents, regulations, book chapters), follow the step-by-step extraction procedure in `cowork/domain-model-authoring-protocol.md`. That protocol operationalizes the rules below and the template structure in `cowork/templates/domain-model.md`.
 
 Domain models must be **applied and contextual**, not generic encyclopedic references.
 
@@ -152,6 +165,34 @@ Domain models must be **applied and contextual**, not generic encyclopedic refer
 9. **Deliberation feedback as update source.** When deliberation mode is active, deliberation cycles produce domain model feedback signals (Deliberation Protocol §12.4): overridden recommendations suggesting miscalibration, concession patterns suggesting shallow reasoning, unused concepts suggesting irrelevance, and missing concepts suggesting gaps. These are surfaced in the `learnings.md` Domain Model Feedback section at strategy review cadence. The Governor reviews each proposed change and decides: apply (update the model), defer (need more evidence), or reject (scope-specific, not a model issue). Domain models are never auto-updated from deliberation feedback — Governor approval is always required.
 10. **Retrieval faithfulness at authoring time (§14.3.2).** Agents cite domain model concepts during execution and deliberation. Concepts with vague boundaries are susceptible to narrowing (agent uses only one manifestation), broadening (agent applies beyond defined scope), or semantic drift (meaning shifts through paraphrasing). When authoring concepts: define what the concept does NOT include, provide 2-3 application examples to prevent fixation on one manifestation, and flag common misapplications. See the domain model template's distortion-prevention guidance for the full pattern.
 
+### 3.1.1 First-Cycle Domain Model Creation (from Framework §21.11)
+
+When an OD references a domain for which no domain model exists and no source material is available, the first execution cycle operates ungrounded. The Governor's judgment substitutes for domain knowledge (§21.11). This is acceptable for **one cycle only**.
+
+**During the first cycle:**
+- All agent outputs are presented as **drafts requiring Governor review**, not finished deliverables.
+- The Governor's edits, rejections, and approvals are the primary quality signal.
+- The AI tracks the Governor's correction patterns — these become the raw material for the domain model.
+
+**After the first cycle (or first strategy review, whichever comes first):**
+
+The AI drafts a domain model derived from the Governor's corrections, not from its own initial output:
+
+1. **Collect correction patterns.** Review all Governor edits, rejections, and approvals from the cycle. Group by type:
+   - Consistent rewrites of tone, framing, or vocabulary → candidate **Core Concepts** (what the Governor considers correct domain language)
+   - Rejected content formats or approaches → candidate **Anti-Patterns** (what bad looks like in this domain)
+   - Approval criteria the Governor applied → candidate **Quality Principles** (what good looks like)
+   - Hard rejections with stated reasons → candidate **Guardrail Vocabulary** (what is forbidden)
+   - Governor-suggested alternative approaches → candidate **Hypothesis Library** entries
+
+2. **Draft the model.** Assemble into the template structure (`cowork/templates/domain-model.md`). Set Source to "Governor corrections from [session/cycle ID]" and note the limitation — this model is derived from one cycle of corrections, not from established domain literature. Minimum viable: 3 components (Core Concepts + Quality Principles + Anti-Patterns).
+
+3. **Present for Governor review.** The Governor may approve, supplement with domain knowledge from their own expertise, or provide source materials for a fuller model (in which case, switch to `domain-model-authoring-protocol.md`).
+
+4. **Run the quality gate** (startup.md Step 5 gate). Correction-derived models will likely fail the Specificity test on first draft — the AI may not understand *why* the Governor made certain corrections. Flag gaps explicitly: "I observed you consistently reject [X], but I don't have enough context to explain the underlying principle. Can you clarify?"
+
+**The mandate (Framework §21.11):** Treat domain model creation as a **required deliverable** of the first cycle, not an optional enhancement. A second cycle without a domain model compounds ungrounded judgment — each cycle's errors become the next cycle's baseline.
+
 ---
 
 ## 4. Operating Document Format
@@ -160,7 +201,7 @@ The OD follows GOSTA's five-layer hierarchy. Use the template in `cowork/templat
 
 **Field complexity determination (before populating the template):** The OD template marks tactic fields with `[CORE]`, `[ROBUST]`, and `[ADVANCED]` conditional headers. Before drafting, determine which field complexity level the scope requires:
 - **Always include `[CORE]` fields** — required for any GOSTA implementation.
-- **Include `[ROBUST]` fields** if the scope adopts any of: A/B testing, domain model stacking, deliberation, or detailed dependency tracking. Check the scope's Multi-Domain Assessment configuration — if Independence Level ≥ 2 or Deliberation Mode = enabled, the ROBUST condition is met.
+- **Include `[ROBUST]` fields** if the scope adopts any of: A/B testing, domain model stacking, deliberation, or detailed dependency tracking. Check the scope's Multi-Domain Assessment configuration — if Independence Level ≥ 2 or Deliberation Mode = enabled, the ROBUST condition is met. Note: tournament execution fields are marked `[ESSENTIAL]` and are included when the tactic declares tournament mode — they do not require the ROBUST condition.
 - **Include `[ADVANCED]` fields** if the scope uses metric lag modeling or metric prerequisites.
 For inapplicable ROBUST/ADVANCED fields within an included level, write `N/A` rather than omitting the field — this makes the omission deliberate and auditable.
 
@@ -174,6 +215,8 @@ The OD must be refreshed when any of these occur:
 - 2 ungated phases or review cycles pass without an OD review
 
 When an OD is flagged as stale, the AI must surface this at the start of the next session: "The Operating Document was last updated [date]. [Trigger] has occurred since then. Recommend refreshing before proceeding."
+
+**OD Deliberation section (when Deliberation Mode = enabled):** The OD must include a `## Deliberation` section containing: Agent Roster table (agent ID, domain model, role), Deliberation Cadence (trigger, min/max rounds, new argument gate), Termination Thresholds (convergence, stall), Governor Interaction mode, and isolation mode (Cowork: single-session-sequential or multi-session). See Deliberation Protocol §2.1 for the full specification and startup.md Step 9 for the authoring procedure.
 
 ### 4.1 Guardrail Architecture (from GOSTA §5.1-5.3)
 
@@ -210,7 +253,7 @@ Declare timing in the OD. If undeclared, default is `per-phase`.
 **Domain model replacement protocol:** When a guardrail violation is caused by input quality (bad domain model) rather than execution quality (bad tactic), the response is **replace**, not kill/pivot/persevere:
 1. **Detect:** Guardrail violation or quality flag traced to a specific domain model
 2. **Identify:** Which domain model(s) caused the failure
-3. **Select replacement:** Present Governor with alternatives (pre-built models, upgraded versions, or AI-expanded models)
+3. **Select replacement:** Present Governor with alternatives: (a) pre-built model from `domain-models/examples/`, (b) upgraded version of the current model, (c) new model built from source material using `cowork/domain-model-authoring-protocol.md`, (d) AI-expanded model from Governor-provided keywords (minimum viable: 3 components per §3.1 rule 5). Governor selects; if (c), Governor must provide or approve the source resource before authoring begins.
 4. **Re-execute:** Re-run only the replaced domain's assessment — do not re-run domains that passed
 5. **Re-synthesize:** Run synthesis again with the replacement assessment alongside preserved good assessments
 6. **Cost:** In a product context, charge only for the re-run portion (partial credit, not full analysis)
@@ -384,6 +427,7 @@ Signals are the data that flows upward through the hierarchy. Logged in markdown
 - **Temporal Validity:** [explicit window or domain default — e.g., "48h", "1 week", "structural"]
 - **Provenance:** [How this data was obtained — URL, file path, computation formula, Governor statement, or "AI training data — no current source verified"]
 - **Notes:** [Optional context]
+- **Agent Source:** [Optional — deliberation mode only. agent_id | coordinator | system. See Deliberation Protocol §7.3.]
 ```
 
 **Compound signals:** When a single source contains multiple distinct claims, record as one signal with a structured Data field listing each claim separately. Each claim should be individually tagged for confidence and temporal validity. Signal count = number of formal entries, not number of claims.
@@ -414,6 +458,7 @@ Signals are the data that flows upward through the hierarchy. Logged in markdown
 | `cost_data_missing` | Orchestrator (AI) | tactic_id, category | When actions don't report cost metadata for a declared cost category (§13.3) |
 | `absence` `[ROBUST]` | Orchestrator (AI) | expected_event, window (start–end), source (tactic_id or scope), severity (early_warning/significant/critical) | When an expected event fails to occur within its defined window. Particularly important for human-participant domains (disengagement is silent). Expected events seeded from domain model patterns, refined by data. |
 | `stakeholder_interaction` `[ROBUST]` | Orchestrator (AI) | interaction_type (collaboration/conflict/mentoring/disengagement/governance_act), participants[], tactic_id (or null), impact_assessment (positive/negative/neutral/unknown), description | When interactions between human subjects of the objective occur outside the Governor↔AI axis. Captures dynamics the framework otherwise cannot see. Presented as separate health report section at strategy review. |
+| `tournament_selection` | Orchestrator (AI) | tournament_mode, tournament_runs, selected_candidate (deliverable_ref), behavior_space (constrained only: dimensions × values), cell_scores (constrained only: per-cell per-model scores), selection_method (governor_choice / highest_mean / highest_minimum) | After tournament evaluation completes and Governor selects winner |
 
 **Attribution is mandatory.** Every signal must trace to a specific element: `Goal > Objective > Strategy > Tactic > Action`. Signals without attribution are noise — the AI must assign attribution before recording. System-level signals (agent_degradation, signal_pipeline_degradation, signal_pipeline_failure, market_event, environmental) use `system` or `goal_id` as attribution.
 
@@ -437,6 +482,15 @@ Signals are the data that flows upward through the hierarchy. Logged in markdown
 
 An action is not considered `completed` until: (a) its primary output artifact exists at the specified path, and (b) the `action_completion` signal has been updated from `in_progress` to `completed` or `failed`. The AI MUST NOT begin the next action until both conditions are met. This is a hard gate, not a reminder.
 
+**Tournament-enabled actions.** When an action is part of a tournament (§4.6), the completion gate applies per-candidate, not per-tournament:
+
+1. **Before each candidate:** Write signal stub: `| [ACT-ID]-run-[N] | in_progress | [timestamp] |`
+2. **Execute:** Generate the candidate deliverable constrained to its cell assignment.
+3. **After each candidate:** Update stub to completed with deliverable reference.
+4. **After all candidates:** Write `tournament_selection` signal (§6.2) after Governor selects the winner. The tournament is not complete until the selection signal exists.
+
+Each candidate is an atomic action with its own signal. The tournament-level selection is a separate signal emitted after evaluation. This preserves the signal-first pattern while accommodating N sequential generations.
+
 **Compressed signal format `[MINIMAL]`.** When context pressure or session constraints prevent full signal emission (8+ fields), the following one-line format is always acceptable:
 
 `| [ACT-ID] | [completed/failed] | [deliverable-ref] | [timestamp] |`
@@ -454,7 +508,7 @@ When signal sources produce high-volume raw data (web search, API feeds, sensor 
 
 Triaged-out data is logged as "reviewed, not recorded" in the session log for auditability — the Governor can review triage decisions and override.
 
-**Per-domain triage thresholds:** Monitor triage pass rates per domain. If any domain's triage ratio falls below 25%, flag: "Domain model [X] may not align with available intelligence for this topic. [N]% of sources passed triage." This is a leading indicator that the domain model will produce weak analysis — catching it at triage is cheaper than catching it at synthesis. Offer: (a) proceed with warning, (b) expand search parameters for that domain, (c) replace domain model.
+**Per-domain triage thresholds:** Monitor triage pass rates per domain. If any domain's triage ratio falls below 25%, flag: "Domain model [X] may not align with available intelligence for this topic. [N]% of sources passed triage." This is a leading indicator that the domain model will produce weak analysis — catching it at triage is cheaper than catching it at synthesis. Offer: (a) proceed with warning, (b) expand search parameters for that domain, (c) replace domain model — if Governor selects (c), follow the Domain model replacement protocol (§4) which routes to the appropriate creation procedure.
 
 ---
 
@@ -603,7 +657,7 @@ When the operating document references multiple domain models, the AI must consu
 **Independence levels (three-level escalation model, from Framework §14.7):**
 - **Level 1 — Conceptual Isolation (inline):** Same pass, but AI explicitly separates domain reasoning into labeled sections. Use when: domains are well-understood and decision is low-stakes.
 - **Level 2 — Sequential Isolation (default):** Same agent scores one domain completely before the next. No back-revision. Use when: agent isolation is expensive and domains are sufficiently distinct. **This is the default.**
-- **Level 3 — Deliberation (multi-agent):** Each domain model is assigned a dedicated Domain Agent that produces formal position papers. A Coordinator identifies disagreements, formulates targeted prompts, and produces a Synthesis Report. The Governor completes a pre-deliberation review (Framework §6.1) before Round 1, updating existing information channels as needed. Use when: 3+ domain models are active, Level 2 produced materially different per-domain recommendations, and the decision is high-stakes or the Governor requests adversarial evaluation. Governed by the Deliberation Protocol (cowork/deliberation-protocol.md, v0.7).
+- **Level 3 — Deliberation (multi-agent):** Each domain model is assigned a dedicated Domain Agent that produces formal position papers. A Coordinator identifies disagreements, formulates targeted prompts, and produces a Synthesis Report. The Governor completes a pre-deliberation review (Framework §6.1) before Round 1, updating existing information channels as needed. Use when: 3+ domain models are active, Level 2 produced materially different per-domain recommendations, and the decision is high-stakes or the Governor requests adversarial evaluation. Governed by the Deliberation Protocol (cowork/deliberation-protocol.md, v0.7). Note: convergence can only trigger early termination after **Min Rounds** (Deliberation Protocol §5.1) — this hard floor prevents premature consensus before all domains have had sufficient exchange.
 
 When deliberation mode is active, the orchestrator tracks sycophancy indicators across deliberation cycles per §14.3.9. If `low_dissent_frequency` is flagged (unanimity rate >60% across 3+ cycles with <1.0 mean hard disagreements), the orchestrator surfaces this in the next health report's System Health section: "Deliberation independence concern: [N] of [M] deliberations reached Round 1 unanimity with low dissent. Deliberation may not be adding adversarial value. Governor options: (a) continue monitoring, (b) add contrarian domain model to roster, (c) redact OD strategy rationale from shared context for one cycle to test anchoring."
 
@@ -615,7 +669,7 @@ The Operating Document should declare which level is the baseline and whether de
 
 **Level 3 in Cowork mode — two isolation options:**
 
-- **Single-session sequential (default):** The AI Session plays all deliberation roles (Domain Agents, Coordinator) within one conversation, switching roles explicitly. Each role transition must be announced with a labeled boundary marker (see OD template §Role-Switching Protocol). The AI loads only the assigned domain model when acting as a Domain Agent, and must not reference reasoning from prior agents' position papers. Back-revision of completed position papers is prohibited. This is practical for 3-5 agents but carries role-bleed risk — the Coordinator may be subtly biased by the domain positions it just wrote. Governor spot-checks synthesis against position papers to mitigate.
+- **Single-session sequential (default):** The AI Session plays all deliberation roles (Domain Agents, Coordinator) within one conversation, switching roles explicitly. Each role transition must be announced with a labeled boundary marker (see OD template §Role-Switching Protocol and Deliberation Protocol §8.2 Role-Switching Protocol). The AI loads only the assigned domain model when acting as a Domain Agent, and must not reference reasoning from prior agents' position papers. Back-revision of completed position papers is prohibited. This is practical for 3-5 agents but carries **role-bleed risk** — the Coordinator may be subtly biased by the domain positions it just wrote. Governor spot-checks synthesis against position papers per §12.5 (Synthesis Verification) to mitigate. If role-bleed is detected (Coordinator synthesis echoes last agent's framing without attribution), escalate to multi-session isolation or add explicit de-biasing step between last Domain Agent and Coordinator.
 
 - **Multi-session:** Each Domain Agent runs in a separate conversation session. Coordinator runs in a subsequent session that reads all position paper files. Expensive (N+2 sessions for N domains per round) but provides true isolation. The Deliberation Protocol §8.2 specifies multi-session details.
 
@@ -638,11 +692,12 @@ The Operating Document should declare which level is the baseline and whether de
 
 When scoring features, tactics, or options against domain model criteria:
 
-**Scale:** 1-10 integers. No half-points. No false precision.
-- 1-3: Weak / minimal alignment
-- 4-6: Moderate / partial alignment
-- 7-8: Strong alignment
-- 9-10: Exceptional / defining strength (rare — reserved for standout cases)
+**Scale (from Framework §20.10):** 1-10 integers. No half-points. No false precision.
+- 1-2: Absent / negligible — the option does not address this criterion
+- 3-4: Weak — marginal relevance, significant gaps
+- 5-6: Moderate — functional but not differentiated
+- 7-8: Strong — clear advantage, well-aligned
+- 9-10: Exceptional — dominant on this criterion (rare)
 
 **Aggregation:** Compute composite score as weighted average across criteria. Report the spread (min/max across criteria) alongside the composite — a feature scoring 7.0 composite from [6, 7, 7, 8] is very different from 7.0 from [3, 5, 10, 10].
 
@@ -742,6 +797,7 @@ All Governor decisions are recorded in `decisions/governor-decisions.md`. Append
 - `portfolio_rebalance` — Shift resources between strategies (§4.3)
 - `decision_reversal` — Reverse a prior autonomous decision (§4.3)
 - `resolve_conflict` — Resolve cross-domain signal conflicts (§4.5)
+- `tournament_selection` — Governor selects winning deliverable from tournament candidates (§4.6). Records: selected candidate, comparative scores, behavior cell map (constrained mode), selection rationale.
 
 ---
 
@@ -844,7 +900,7 @@ Every recommendation, analysis, scoring rationale, and tactic hypothesis must ci
 
 1. **Before emitting any recommendation:** The AI checks whether the recommendation traces to at least one concept in a loaded domain model. If it does, the AI cites the concept(s) by name. If it does not, the AI flags the reasoning as `[UNGROUNDED]` — meaning it is based on AI training data, not on the domain model.
 
-2. **`[UNGROUNDED]` flag treatment:** Ungrounded reasoning is not automatically rejected. It is surfaced to the Governor with the flag: "[This recommendation is not grounded in any loaded domain model. It is based on AI general knowledge. Confidence should be treated as lower than grounded recommendations.]" The Governor decides whether to accept, request a domain model update, or reject.
+2. **`[UNGROUNDED]` flag treatment:** Ungrounded reasoning is not automatically rejected. It is surfaced to the Governor with the flag: "[This recommendation is not grounded in any loaded domain model. It is based on AI general knowledge. Confidence should be treated as lower than grounded recommendations.]" The Governor decides whether to accept, request a domain model update, or reject. If the Governor requests a domain model update: for adding concepts to an existing model, draft the additions following the template structure and present for Governor approval. For creating a new model to cover the ungrounded territory, follow `cowork/domain-model-authoring-protocol.md` if source material exists, or use the first-cycle correction-derived procedure (§3.1.1) if not.
 
 3. **Anti-pattern detection:** During health computation (§7.1), the orchestrator checks whether tactic hypotheses still cite domain model concepts that remain current. If a domain model has been updated and a concept has been removed or significantly changed, the orchestrator flags affected tactics: "Tactic TAC-N's hypothesis cites [concept], which was [removed | modified] in domain model v[X]. Review needed."
 
@@ -914,6 +970,8 @@ This component is only active during Level 3 deliberation. Levels 1 and 2 do not
 **Sycophancy verification (from GOSTA §14.3.9):** Governor synthesis verification obligations now include sycophancy verification: when reviewing synthesis reports, the Governor should check whether the Coordinator's framing of unresolved disagreements favors the OD's stated strategy. If the Coordinator consistently frames disagreements in ways that favor the status quo, this is coordinator sycophancy — flag for roster review. The Governor can compare the Coordinator's Sycophancy Assessment (§4.4) self-check against their own reading of position papers.
 
 **Finding Classification verification (from Deliberation Protocol §9.3):** When reviewing a Synthesis Report, the Governor also verifies epistemic classifications: for each `confirmed` finding, verify the cited evidence exists in the Attribution Chains table; for each `information_gap`, verify the missing data is not already available elsewhere in the signal store; for each `conditional`, verify the condition is testable within the scope's timeline. See GOSTA §14.3.8.
+
+**Extended grounding obligations when deliberation is active:** When the Deliberation Protocol is active, grounding obligations extend beyond the single-agent rules in §12.2. Domain Agents must ground position papers in their assigned domain model (domain concept citations, retrieval faithfulness, data grounding, schema validation). The Coordinator must ground synthesis in actual position paper content (attribution chains, no domain advocacy, synthesis verification). See Deliberation Protocol §10.5 (Grounding Obligations by Role) for the full per-role specification.
 
 ### 12.6 Capability Validation (from GOSTA §14.3.6)
 
@@ -1281,8 +1339,9 @@ Reference pools above a size threshold cannot be loaded into Tier 0 context dire
 #### Pool-Agent Tool
 
 Location: `cowork/tools/pool-agent.py`
-Model: bundled at `cowork/tools/pool-agent/models/` (all-MiniLM-L6-v2, ONNX quantized, 22MB — no torch, no API calls)
-Dependencies (install once): `pip install numpy pyyaml onnxruntime tokenizers`
+Model: `cowork/tools/pool-agent/models/` (all-MiniLM-L6-v2, ONNX quantized, ~22MB — no torch, no API calls)
+Dependencies (install once): `pip install numpy pyyaml onnxruntime tokenizers huggingface-hub`
+First-time model setup: `python3 cowork/tools/pool-agent.py setup-model` (downloads from Hugging Face + quantizes to qint8)
 
 The agent uses semantic embeddings — not tag matching — so queries like "hospital cybersecurity incidents" and "healthcare cyber incidents" return equivalent results. Tag taxonomy quality does not affect retrieval accuracy.
 
@@ -1294,7 +1353,7 @@ python3 cowork/tools/pool-agent.py build \
     --store path/to/pool-store/
 ```
 
-This embeds all items and saves a vector store (two files: `embeddings.npy`, `metadata.json`). Rebuild only when the pool changes.
+This embeds all items and saves a vector store (`embeddings.npy`, `metadata.json`, `pool-info.json`). Rebuild only when the pool changes.
 
 **Session invocation:**
 ```bash
@@ -1323,6 +1382,58 @@ The threshold is a protocol rule, not a suggestion. Do not read full articles fo
 pool_agent_store: [path to pool-store/]
 pool_consumption: semantic-agent
 pool_size: [N]
+score_threshold_full_read: 0.58
+score_threshold_excerpt: 0.50
+```
+
+---
+
+#### Single-Document Indexing (large reference documents)
+
+Some reference materials are single large documents (specifications, regulatory texts, long-form guides) rather than collections of items. These cannot be meaningfully represented as a single pool item — they contain dozens of distinct topics — and loading them fully into context exceeds token budgets.
+
+The pool-agent's `index-doc` command handles this case by segmenting a markdown document by heading level, embedding each section independently, and producing a standard vector store. The existing `query` command then works unchanged against the resulting store.
+
+**Pre-session build:**
+```bash
+python3 cowork/tools/pool-agent.py index-doc \
+    --doc path/to/large-document.md \
+    --store path/to/doc-store/ \
+    --heading-level 2
+```
+
+This segments the document at `##` headings (configurable with `--heading-level`), embeds each section, and saves the same store format (`embeddings.npy`, `metadata.json`, `pool-info.json`). Metadata entries include `section_range` (line numbers) for precise retrieval.
+
+**Session invocation:** Identical to pool-based queries:
+```bash
+python3 cowork/tools/pool-agent.py query \
+    "governance decision authority" \
+    --store path/to/doc-store/ \
+    --top 10 --json
+```
+
+Results return section IDs (e.g., `SEC-001`), headings, excerpts, and line ranges. Use `section_range` to read only the relevant portion of the source document.
+
+**Score thresholds:** Same as pool-based queries (§18.5):
+- ≥ 0.58: Read the full section from the source document using the `section_range` line numbers.
+- 0.50 – 0.57: Use excerpt from JSON output only.
+- < 0.50: Ignore.
+
+**When to use `index-doc` vs `build`:**
+
+| Scenario | Command |
+|----------|---------|
+| Collection of items (articles, blog posts, research papers) described in a YAML pool | `build` |
+| Single large markdown document (spec, regulatory text, long guide) | `index-doc` |
+| Multiple large documents | Run `index-doc` once per document, each to its own store |
+
+**OD declaration:** When a scope uses an indexed document, the OD's Reference Materials section must include:
+```
+doc_store: [path to doc-store/]
+doc_consumption: section-search
+source_document: [document name/path]
+heading_level: [level used for segmentation]
+section_count: [N]
 score_threshold_full_read: 0.58
 score_threshold_excerpt: 0.50
 ```
@@ -1375,3 +1486,4 @@ For simple scoring (no deliberation needed), Level 3 can still use direct parall
 | 3.9 | 2026-03-25 | Shortfall fixes from roadmap-analysis-2 (FG-001, PG-002, PG-003). §5.1 Phase Gate Enforcement Protocol: Item 8 (Dependency Amendment Gate) — synthesis-derived dependency graph amendments must be registered as DEP-AMEND-NNN, presented as named decision items at phase gate, and explicitly accepted/rejected by Governor before sequencing begins. Item 9 (Cross-Phase Consistency Check, CPCC) — mechanical circular dependency detection across merged dependency graph + agent prerequisite registry constraint sets; constraint application blocked until any CD-NNN is resolved. startup.md Step 9: G-6 Deliberation Calibration block — traceability guardrail threshold must equal agent roster size (N) when deliberation is enabled; §14.7 minimum of ≥3 superseded. startup.md Step 6: Narrative Options-Universe Gate — when options-universe document lacks a discrete numbered list, AI must derive, present, and get Governor confirmation of item list before scoring begins. |
 | 3.8 | 2026-03-24 | Reference pool semantic agent. §18.5 rewritten: semantic pool-agent replaces index-first approach for pools >50 items. Tool at `cowork/tools/pool-agent.py` (all-MiniLM-L6-v2 ONNX, no torch, no API). Score thresholds: ≥0.58 full read / 0.50–0.57 excerpt / <0.50 ignore. Fallback index-first retained for pools without a built store. OD template: Reference Materials section added with `pool_consumption` and `pool_agent_store` fields. §18.3 session CLAUDE.md snippet: pool-agent invocation pattern and score thresholds added. CLAUDE.md Core Rules: pool-agent rule added. |
 | 3.7 | 2026-03-23 | Evidence pool and scoring robustness (from product-value-validation session feedback FB-001 through FB-006). Signal-first execution pattern and compressed signal format (from stress-test report Gap 1.2). OD template scope-type branching for analytical objectives (from stress-test report Gap 1.3). §18.5: Reference Pool Consumption Strategy — index-first protocol for pools >50 items, OD `pool_consumption_strategy` field, checkpoint-before-narrative pattern. §18.5→§18.6 renumbering (Multi-Agent Parallelism). §5.2 Bootstrap Session: Guardrail feasibility check — verify guardrails referencing evidence can be enforced given actual inputs, `feasibility-limited` flag for structurally unsupported guardrails. Phase Gate Enforcement Protocol item 7: Kill condition discriminating power check — assess whether kill conditions could plausibly trigger given known inputs, `non-discriminating` flag with recalibration recommendation. §7.6: Per-domain anchoring for multi-domain scoring — 3 reference anchors per domain, mid-pass consistency check for >30 scoring decisions. OD template: Evidence Blind Spots field in tactic template — declare items where pool structurally cannot observe failure modes, alternative evidence sources, `[BLIND-SPOT]` annotation. OD template: Domain Model Adaptations section — per-concept applicability mapping (applies/does-not-apply/requires-interpretation) when reusing models across analytical contexts. | §6.2: Signal integrity check — narrative-quantitative divergence detection with `[DIVERGENCE]` tag. §7.1: Kill Proximity Alerting (20% threshold, consecutive cycle tracking), Signal-Recommendation Consistency Check (flag when signals trend negative but persevere recommended), Signal Integrity Check (discard qualitative framing for divergence-tagged signals). §7.1 Output: Mandatory non-empty Risk Factors section with sycophancy self-check. Sycophancy self-check timing specified: after Signal Integrity Check, before output generation, with previous cycle comparison. §5.1 Step 1b: Bootstrap state conflict resolution protocol added — decision log authoritative for decisions, OD for structure, bootstrap is summary. `bootstrap_anomaly` signal on conflict. §7.5: Cross-deliberation dissent frequency tracking (`low_dissent_frequency` flag). §12.5: Sycophancy verification in Governor synthesis review (Coordinator framing bias check). CLAUDE.md: Core Rules for risk surfacing and alignment checking. Templates updated: health-report.md (Risk Factors section, Signal-Recommendation Alignment fields, Sycophancy Indicators), signal-entry.md (Signal Integrity Check), session-log.md (Sycophancy Flags field), operating-document.md (kill proximity threshold), learnings.md (Dissent Frequency Tracking), deliberation-status.md (Independence Assessment). |
+| 3.11 | 2026-03-26 | Consistency audit fixes (cowork ↔ deliberation protocol ↔ spec). §7.6: Scoring scale bands aligned to spec §20.10 (5 bands: 1-2 Absent, 3-4 Weak, 5-6 Moderate, 7-8 Strong, 9-10 Exceptional — was 4 bands). §7.5: Min Rounds hard floor cross-referenced from Deliberation Protocol §5.1; role-bleed warning expanded with mitigation actions; convergence probe cross-referenced from §4.5. §3 File Structure: deliberation/ directory added. §4: OD Deliberation section requirements specified with cross-reference to Deliberation Protocol §2.1. §6.1: Agent Source field added to signal format (deliberation-mode only). §12.5: Extended grounding obligations paragraph added referencing Deliberation Protocol §10.5. §3.1: Domain model authoring protocol cross-reference added. §3.1.1: First-cycle correction-derived domain model creation (operationalizes Framework §21.11). §4 replacement protocol: four concrete replacement options with routing to authoring procedures. §6.3 triage threshold and §12.2 UNGROUNDED flag: routing to domain model creation procedures. |
