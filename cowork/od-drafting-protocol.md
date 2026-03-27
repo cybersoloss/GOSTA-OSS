@@ -254,7 +254,9 @@ The OD Architect (acting as coordinator for this phase) synthesizes the decompos
 
 6. **Populate the OD template.** Fill in `cowork/templates/operating-document.md` using the synthesized structure. Apply the field complexity determination from cowork protocol §4: include [CORE] always, include [ROBUST] if deliberation or A/B testing or ≥Independence Level 2, include [ADVANCED] if metric lag or metric prerequisites.
 
-7. **Flag gaps.** Any OD field that couldn't be filled from the commission + decomposition proposals is marked `[GOVERNOR INPUT NEEDED]` with a specific question.
+7. **Tournament assessment.** For each tactic that produces a generative deliverable (not data collection, not signal monitoring), the OD Architect evaluates whether tournament execution would add value. The test: "Would structurally different approaches to this deliverable reveal a design principle the Governor should see?" If yes, run the Dimension Elicitation Protocol (spec §4.6): analyze domain model tensions, guardrail pairs, reference pool clusters, and deliverable trade-offs to propose behavior space dimensions. Present proposed dimensions to Governor alongside the Draft OD. If the Governor approves, populate the tournament fields in the tactic specification. If the Governor declines or no meaningful dimensions emerge, use standard single-run execution.
+
+8. **Flag gaps.** Any OD field that couldn't be filled from the commission + decomposition proposals is marked `[GOVERNOR INPUT NEEDED]` with a specific question.
 
 ### 4.4 Decomposition Tension Report
 

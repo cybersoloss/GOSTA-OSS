@@ -32,7 +32,7 @@ This table is the `[MINIMAL]` compressed format. Always acceptable. Use the full
 
 ### SIG-[sequential-number] | [date]
 - **Source:** [execution | governor | external | computation]
-- **Type:** [action_completion | metric_value | guardrail_violation | guardrail_interpretation | guardrail_recovery | kill_condition | market_event | governor_decision | agent_degradation | signal_pipeline_degradation | signal_pipeline_failure | environmental | milestone | blocker | knowledge_flag | narrative_assessment | cost_exceeded | cost_data_missing | absence (§7.4 `[ROBUST]`) | stakeholder_interaction (§7.4 `[ROBUST]`)]
+- **Type:** [action_completion | metric_value | guardrail_violation | guardrail_interpretation | guardrail_recovery | kill_condition | market_event | governor_decision | agent_degradation | signal_pipeline_degradation | signal_pipeline_failure | environmental | milestone | blocker | knowledge_flag | narrative_assessment | cost_exceeded | cost_data_missing | absence (§7.4 `[ROBUST]`) | stakeholder_interaction (§7.4 `[ROBUST]`) | tournament_selection (§4.6 `[ESSENTIAL]`)]
 - **Attribution:** [Goal] > [Objective] > [Strategy] > [Tactic] > [Action]
 - **Data:** [The actual signal — for simple signals: numeric value, status, or observation text]
 - **Confidence:** [complete | partial | estimated]
@@ -48,6 +48,7 @@ When a signal contains both quantitative data (metric values, counts, percentage
   - Quantitative improving + qualitative negative = no flag (conservative framing is not sycophantic)
   - Quantitative stable + qualitative positive = review — may be legitimate or may be baseline drift
 - **If flagged:** Add `[DIVERGENCE]` tag to signal Notes field. Health computation treats the qualitative assessment as unreliable — use quantitative data only for this signal.
+  - Format example: `Notes: [DIVERGENCE] Narrative claims "strong engagement" but click-through rate declined 15% week-over-week. Using quantitative data only.`
 
 #### Compound Signal Format (when a single source contains multiple distinct claims)
 

@@ -282,6 +282,7 @@ Tier 0 — File-based, no code:
   Session Logs (episodic memory)
       ↓
   Health Computation (in-conversation, Section 20)
+  tournament execution (base) ─→ tactic specification (Section 10) + action dispatch (Section 7.2)
 
   Note: Tier 0 requires no code. All GOSTA mechanisms operate
   through file-based state and conversational AI. See the
@@ -310,6 +311,7 @@ Tier 2 — Robust operations (requires Tier 1 running):
   exhaustion protocol ─→ requires completed status (Section 7.8)
   safe defaults ───────→ requires domain model anti-patterns (Section 13.6)
   A/B staggered start ─→ requires base A/B testing (Section 4.2)
+  tournament execution (enhanced: automatic selection, Level 2-3 evaluation) ─→ requires multi-domain assessment (Section 14.7)
   autonomy safeguards ─→ requires Stage 3 graduation (Section 6.3, 6.7)
   conditional grants ──→ requires autonomy safeguards + OD condition fields
   failure resilience ──→ requires agent failure protocol (Section 7.7)
@@ -563,6 +565,8 @@ Tier note: At Tier 0–1, objective status is assessed by the AI at each strateg
 
 **A/B Testing Function:** When multiple tactics serve the same strategy, they are competing implementations of the same strategic reasoning. The system runs them in parallel, compares results at each review, and routes resources toward the stronger implementation. This is the primary learning mechanism at the tactic level. A/B testing can also occur at the strategy level — two strategies under the same objective represent competing approaches, not competing implementations.
 
+**Tournament Execution Function** `[ESSENTIAL]`**:** When a tactic's deliverable benefits from competitive selection among structurally different outputs, the tactic may declare tournament execution. The primary mode is **constrained**: the tactic declares a behavior space — a set of dimensions with discrete values — and each of N actions is constrained to a different cell in that space; diversity is guaranteed by construction. A secondary **sampling** mode (N identical specs, exploiting stochastic variance) is available but not recommended at Tier 0, where it produces near-identical outputs. Both modes evaluate all N deliverables and select the best-performing output as the tactic's deliverable. At `[ESSENTIAL]` tier, evaluation uses Level 1 (inline) assessment and the Governor selects (`governor_choice`). At `[ROBUST]` tier, evaluation may use Level 2-3 multi-domain assessment (§14.7) or deliberation, and automatic selection criteria (`highest_mean`, `highest_minimum`) become available. The canonical Tier 0 pipeline is: constrained tournament → deliberation → Governor selection → revision of winner. Tournament execution is distinct from A/B testing: A/B tests compare different approaches over multiple review cycles to learn which works; tournaments compare different outputs within a single cycle to select the best. See §4.6 for full mechanics. The Governor declares tournament execution in the tactic specification (§10).
+
 **Kill Condition:** Every tactic defines upfront what failure looks like. For operational scopes: "If [metric] has not reached [threshold] by [date], this tactic is killed or pivoted." For analytical scopes: "If [observable condition], then kill" — where the condition is a structural test verifiable by the Governor (e.g., "if cross-domain tension count = 0 after 2 analysis cycles, the multi-domain approach is not producing differential insight — simplify"). This prevents planning inertia. Tactic kills happen at the tactic review cadence defined in the operating document.
 
 **For Agentic Workers:** A tactic is an experiment specification. An agent with tactic-level autonomy can generate and modify its own actions to test the hypothesis, within the constraints inherited from the parent strategy, objective, and goal.
@@ -786,6 +790,8 @@ Sequential A/B introduces two additional considerations:
 - A/B tests must not violate goal-level guardrails, even if early results look promising.
 - Sequential A/B tests must define equal or comparable run periods for each variant.
 
+**Relationship to Tournament Execution (§4.6).** A/B testing and tournament execution are complementary but distinct mechanisms. A/B testing compares different *approaches* (tactics or strategies) over multiple review cycles, accumulating signal data to learn which approach works. Tournament execution compares different *outputs* within a single action cycle, selecting the best deliverable. A/B testing operates between tactics (or strategies); tournament operates within a single tactic. They may coexist: a tactic that uses tournament execution may itself be one variant in a tactic-level A/B test. In that case, the A/B test compares tournament-selected best outputs from each variant tactic — the tournament is an implementation detail within each variant. Tournament execution does not use A/B variant status vocabulary — tournament runs do not have `leading`/`trailing`/`winner` statuses because they do not accumulate signal over time. They produce, are evaluated, and are selected or discarded in a single cycle. Constrained tournament (§4.6) uses structural variation along declared dimensions, which superficially resembles tactic-level A/B testing. The distinction: A/B testing learns which approach works over time; constrained tournament selects the best output now. The learning from constrained tournament feeds structural memory (§18), not the A/B comparison mechanism.
+
 **A/B Variant Status Vocabulary** `[ROBUST]`**:**
 
 | Status | Definition | Transition From | Transition Trigger |
@@ -977,6 +983,256 @@ This doesn't mean marketing signals are wrong — they may reveal that the sales
 - Required for resolution tracking — a resolution that does not cite the canonical ID cannot be matched to its conflict and is discarded
 
 The ID is stable for the life of the scope: the same conflict keeps the same ID even if it is referenced in multiple subsequent reviews. The sequence counter is stored in the Signal Store as a monotonically increasing integer scoped to the current year. The orchestrator increments the counter at each new conflict detection. Resolved conflicts retain their ID in the decision log (for audit trail) and are marked `status: resolved` in the Signal Store; they are excluded from active conflict reports but remain queryable. The counter does not reset when conflicts are resolved — it only resets at the start of a new calendar year.
+
+### 4.6 Tournament Execution `[ESSENTIAL]` / `[ROBUST]`
+
+Tournament execution is a tactic-level pattern for producing and selecting among competing deliverables within a single action cycle. It is authorized by the tactic specification and executed by the orchestrator. Two modes are available, serving different needs.
+
+**Tier availability:** Base tournament — both modes, Level 1 (inline) evaluation, `governor_choice` selection — is `[ESSENTIAL]` and available at Tier 0. Enhanced tournament — Level 2-3 evaluation, `highest_mean`/`highest_minimum` automatic selection — is `[ROBUST]` and requires multi-domain assessment (§14.7). The modes themselves (sampling and constrained) are available at all tiers; only the evaluation and selection sophistication scales with complexity tier.
+
+#### Two Modes
+
+**Sampling mode** (`tournament_mode: sampling`): The same action specification is executed N times independently. Each run produces a deliverable from the same inputs; differences arise from stochastic generative variance. Simple to configure — the Governor sets only the run count. Effective for marginal quality improvement on well-specified tasks. Research on Best-of-N sampling (2024-2025) shows diminishing returns beyond N=5: quality gains flatten while cost scales linearly. Sampling mode does not guarantee structural diversity — runs may produce similar outputs, especially at Tier 0 where the same AI session generates sequentially and may anchor to its own prior output.
+
+**Constrained mode** (`tournament_mode: constrained`): The same deliverable goal is executed N times, but each run is constrained to a different cell in a Governor-declared **behavior space**. The behavior space is a set of dimensions with discrete values; each combination defines a structurally distinct approach. Diversity is guaranteed by construction — each run must produce output consistent with its assigned cell. More expensive to configure (the Governor must define meaningful behavior dimensions), but produces genuinely different outputs because input constraints differ, not just the random seed. Informed by Quality-Diversity (QD) research (MAP-Elites, Mouret & Clune 2015; IJCAI 2024 theoretical proof that diversity-by-constraint outperforms diversity-by-sampling). The term "illumination" applies: constrained tournament maps the solution landscape across the behavior space, showing the Governor what's achievable under different structural approaches.
+
+**When to use each mode:**
+
+| Situation | Mode | Notes |
+|-----------|------|-------|
+| **Tier 0 execution** | **Constrained** | Non-negotiable recommendation. Sampling produces near-identical outputs at Tier 0 (sim-validated). |
+| Creative/strategic task where structural alternatives matter | Constrained | Primary use case. Behavior space forces genuinely different outputs. |
+| Want to understand the solution landscape, not just find one peak | Constrained | Illumination: cross-cell score patterns reveal design principles. |
+| Governor can articulate 2-3 dimensions of meaningful variation | Constrained | The Governor's ability to define the behavior space is the feasibility gate. |
+| Tier 1+ with genuinely parallel independent generation | Sampling — **hypothesis only** | Different models/sessions may produce real stochastic variance. **Not validated.** Implementations should measure diversity before relying on this. |
+| Governor cannot articulate behavior dimensions AND is at Tier 1+ | Sampling — **hypothesis only** | Low-overhead fallback, untested. At Tier 0, if the Governor can't define dimensions after running the Dimension Elicitation Protocol, tournament itself may not be the right tool — use single-run. |
+
+**Tier 0 sampling advisory:** Simulation testing (3 pieces × 3 runs) showed sampling at Tier 0 produces ~85-95% structural overlap across runs. Scores were identical. Best-of-3 provided zero quality gain over a single run while tripling generation and evaluation cost. **Sampling mode at Tier 0 is not recommended.** If the Governor cannot define a behavior space, the recommended path is single-run execution, not sampling tournament.
+
+**When NOT to use tournament execution (either mode):**
+- The tactic produces data or signals rather than deliverables (signals are factual, not generative — tournament adds no value)
+- The deliverable is deterministic given the same inputs (no generative variance)
+- The evaluation cost of N deliverables exceeds the value of selection (the orchestrator flags this as a resource concern if tournament_runs × evaluation_cost exceeds the tactic's declared resource budget)
+
+#### Behavior Space (constrained mode only)
+
+The behavior space is declared in the tactic specification as a table of dimensions and values. Each dimension represents a structural axis of variation meaningful to the deliverable. Each value represents a discrete position along that axis. The cross-product of all dimensions and values defines the cell grid. Each tournament run is assigned to one cell.
+
+##### Dimension Elicitation Protocol
+
+Behavior space dimensions are not invented — they are **extracted from existing session context**. Every non-trivial deliverable embeds implicit design decisions where reasonable practitioners would choose differently. Those decisions are the dimensions. The Governor need not identify them unaided; the AI analyzes session context and proposes candidate dimensions. The Governor curates.
+
+**Step 1 — AI context analysis.** The AI examines four context sources and extracts candidate dimensions from each:
+
+| Context source | What the AI looks for | Example extraction |
+|---|---|---|
+| **Domain model tensions** | Pairs of domain models that score the same deliverable differently. The axis of divergence is a candidate dimension. | Model A (compliance-focused) scores a deliverable 6; Model B (usability-focused) scores it 8 → dimension: *optimization target* (compliance-alignment vs user-experience) |
+| **Guardrail pair analysis** | Pairs of guardrails that create productive tension when both are active. The tension axis is a candidate dimension. | "maintain technical accuracy" + "accessible to non-technical audience" → dimension: *technical depth* (precise-specialist vs accessible-generalist) |
+| **Reference pool clustering** | Structural patterns across reference pool articles. Clusters of articles that approach the same topic with different structures reveal candidate dimensions. | Reference articles on the same topic cluster into problem-led, story-led, and data-led openings → dimension: *narrative entry* |
+| **Deliverable trade-off analysis** | Inherent trade-offs in the deliverable type. Every deliverable trades depth for coverage, safety for speed, specificity for generality. | API implementation trades error-handling philosophy (fail-fast vs resilient-retry vs circuit-breaker) → dimension: *error philosophy* |
+
+The AI presents candidates as a ranked list with evidence (which context source, what divergence pattern, expected impact). The AI should propose 3-6 candidate dimensions — more than needed, so the Governor can select.
+
+**Step 2 — Governor curation.** The Governor reviews candidate dimensions and:
+- Selects 2 dimensions (the practical sweet spot for 4-8 cells)
+- May modify values (add, remove, rename) based on domain knowledge
+- May reject all AI proposals and define dimensions manually
+- May combine two AI proposals into one dimension if they're correlated
+
+**Step 3 — Governor declaration.** The Governor declares the final behavior space in the tactic specification as a dimensions × values table. This is the authoritative definition — AI proposals are advisory inputs, not binding.
+
+**Fallback — generic structural dimensions.** If context analysis yields no domain-specific dimensions (rare for non-trivial deliverables), the following generic dimensions are always available:
+
+| Generic dimension | Values | Applicable when... |
+|---|---|---|
+| Scope | narrow-deep, broad-survey | Deliverable trades depth for coverage |
+| Risk posture | conservative, aggressive, balanced | Deliverable involves sequencing or resource decisions |
+| Abstraction level | concrete-specific, principled-general | Deliverable trades applicability for specificity |
+| Optimization target | quality, speed, cost | Deliverable involves resource trade-offs |
+
+Generic dimensions produce less differentiation than domain-specific structural dimensions (simulation: ~1pt swings vs ~3pt swings) but always produce some genuine diversity. They are a fallback, not a recommendation.
+
+**If the Governor cannot identify any meaningful dimension** after running the elicitation protocol (AI analysis + Governor review + generic fallback), the deliverable is well-specified enough that single-run execution suffices and tournament adds no value. Do not use sampling mode as a substitute — it produces no diversity at Tier 0.
+
+##### Behavior Space Examples by Deliverable Type
+
+**Content deliverable (technical report, blog post, announcement):**
+
+| Dimension | Values | Rationale |
+|-----------|--------|-----------|
+| Narrative entry | problem-first, evidence-first, vision-first | Different readers respond to different hooks |
+| Evidence hierarchy | quantitative-led, qualitative-led | Different evidence types carry different authority |
+
+This produces a 3×2 = 6 cell grid. Each run generates a report constrained to its assigned cell (e.g., "problem-first + quantitative-led"). The constraint is communicated to the executor as part of the action specification — it augments the deliverable goal, it does not replace it.
+
+**Code deliverable (API implementation, data pipeline, CLI tool):**
+
+| Dimension | Values | Rationale |
+|-----------|--------|-----------|
+| Error philosophy | fail-fast, resilient-retry, circuit-breaker | Forces different control flow architectures |
+| Data access pattern | repository-abstraction, query-builder, direct-SQL | Forces different abstraction levels |
+
+This produces a 3×3 = 9 cell grid. Partial coverage (4-6 cells) is recommended. Source: deliverable trade-off analysis — these are decisions every backend engineer debates before writing the first line.
+
+**Architecture deliverable (system design, integration plan):**
+
+| Dimension | Values | Rationale |
+|-----------|--------|-----------|
+| Consistency model | strong, eventual, causal | Core distributed systems trade-off |
+| Integration pattern | event-driven, request-response, shared-state | Forces different coupling architectures |
+
+This produces a 3×3 = 9 cell grid. Partial coverage recommended. Source: domain model tensions — if architecture domain models encode CAP theorem trade-offs, these dimensions emerge directly.
+
+**Research deliverable (competitive analysis, market research):**
+
+| Dimension | Values | Rationale |
+|-----------|--------|-----------|
+| Methodology | quantitative-benchmarks, qualitative-interviews, market-signals | Forces different evidence bases and analytical structures |
+| Scope | deep-3-competitors, broad-landscape | Forces different depth/coverage trade-offs |
+
+This produces a 3×2 = 6 cell grid. Source: reference pool clustering — research articles cluster by methodology and scope.
+
+**Operational deliverable (migration plan, launch plan, incident response):**
+
+| Dimension | Values | Rationale |
+|-----------|--------|-----------|
+| Risk posture | conservative-sequential, aggressive-parallel, phased-rollback | Forces different sequencing architectures |
+| Optimization target | minimize-downtime, minimize-cost, minimize-team-load | Forces different resource allocation |
+
+This produces a 3×3 = 9 cell grid. Partial coverage recommended. Source: guardrail pair analysis — operational guardrails typically encode risk/speed and cost/quality tensions.
+
+##### Behavior Space Design Principles
+
+- Dimensions should be **orthogonal** — varying one dimension should not force a change in another. If two dimensions are correlated, collapse them into one.
+- Values should be **exhaustive within the dimension** — the Governor should not need to add values mid-tournament. If a dimension is continuous rather than discrete, discretize it into 2-4 meaningful positions.
+- The behavior space should be **small enough to execute** — the total cell count (product of all dimension values) determines the minimum N. A 3×3×3 space requires 27 runs, which is impractical. Target 4-8 cells. Two dimensions with 2-3 values each is the practical sweet spot.
+- At least one dimension should be **structural** — forcing a different approach architecture, not just different content within the same architecture. Simulation evidence: structural dimensions produce 1-3pt score swings; content-selection dimensions produce 0-1pt swings.
+- Dimensions may reference domain model concepts but the behavior space declaration lives in the tactic specification, not in domain models. Domain models encode knowledge; the tactic encodes execution strategy.
+
+**Partial coverage.** The Governor may declare a behavior space larger than the run budget (e.g., 6 cells but only 4 runs). In this case, the Governor selects which cells to populate, and the unpopulated cells are logged as `tournament_uncovered` in the decision log. Structural memory records which cells were covered and which were not, enabling future scopes to prioritize unexplored cells. Full coverage (one run per cell) is recommended but not required.
+
+#### Configuration (declared in tactic specification, §10)
+
+**Common fields (both modes):**
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `tournament_mode` | `sampling` \| `constrained` | — | Required to enable tournament. Absence = standard single-run execution. |
+| `tournament_runs` | integer (2-8) | — | Number of runs. Required. For constrained mode, should equal behavior space cell count (or less for partial coverage). Cap driven by behavior space size: recommend 4-8 cells (2 dimensions × 2-3 values). |
+| `tournament_selection` | `highest_mean` \| `highest_minimum` \| `governor_choice` | `governor_choice` | How the winner is determined from evaluation scores. |
+
+**Sampling-only fields:**
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `tournament_independence` | `independent` \| `adaptive` | `independent` | Whether later runs can see earlier runs' evaluation results. Only meaningful in sampling mode — constrained mode runs are independent by definition (different constraints). |
+
+**Constrained-only fields:**
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `tournament_behavior_space` | table | — | Required for constrained mode. Dimensions × values defining the cell grid. Produced via Dimension Elicitation Protocol (AI proposes from context analysis → Governor curates → Governor declares). See Behavior Space section above. |
+| `tournament_cell_assignments` | list | all cells | Which cells to populate. If fewer runs than cells, Governor selects subset. Default: one run per cell (tournament_runs = cell count). |
+
+**Selection criteria (both modes):**
+- `governor_choice` (default) `[ESSENTIAL]`: The orchestrator presents the top 3 scoring deliverables (or all, if N ≤ 3) with evaluation reports. The Governor selects. Required at Stage 1-2. Available at all stages. In constrained mode, the presentation includes which behavior cell each deliverable occupied, enabling the Governor to evaluate whether the winning cell reveals a structural insight (e.g., "evidence-first consistently outscores problem-first across domains — this is a design principle, not just a selection result"). This is the only selection criterion available at `[ESSENTIAL]` tier — the Governor always makes the final call.
+- `highest_mean` `[ROBUST]`: The deliverable with the highest mean score across all evaluating domain models is selected. Ties broken by highest minimum score. Requires Level 2+ multi-domain assessment (§14.7) for meaningful cross-model scoring. Automatic at Stage 3+; Governor-confirmed at Stage 1-2.
+- `highest_minimum` `[ROBUST]`: The deliverable with the highest minimum score across all evaluating domain models is selected. Favors consistency over peaks. Ties broken by highest mean. Requires Level 2+ multi-domain assessment (§14.7). Automatic at Stage 3+; Governor-confirmed at Stage 1-2.
+
+#### Execution Mechanics (orchestrator behavior)
+
+**Action dispatch (sampling mode):** The orchestrator generates N action specifications from the tactic's seed actions. Each specification is identical except for a `tournament_run_id` field (integer 1-N). Actions are dispatched in parallel (if `independent`) or sequentially (if `adaptive`). Each action produces one deliverable tagged with its `tournament_run_id`.
+
+**Action dispatch (constrained mode):** The orchestrator generates N action specifications from the tactic's seed actions. Each specification is augmented with a `tournament_cell_constraint` field containing the assigned behavior cell (e.g., `{narrative_entry: "problem-first", evidence_hierarchy: "quantitative-led"}`). The constraint is communicated to the executor as part of the action specification — the executor must produce output consistent with its cell assignment. Actions are dispatched in parallel (all runs are independent by definition). Each action produces one deliverable tagged with its `tournament_run_id` and `tournament_cell_id`.
+
+**Evaluation (both modes):** All N deliverables are evaluated through the tactic's configured assessment mechanism. At `[ESSENTIAL]` tier, Level 1 (inline) evaluation is sufficient — the orchestrator (or single AI at Tier 0) evaluates each deliverable against the tactic's success criteria and presents results to the Governor. At `[ROBUST]` tier, Level 2 (sequential isolation) or Level 3 (deliberation) per §14.7 provide multi-domain comparative scoring. The evaluation target is all N deliverables, not just one. If deliberation is used, the deliberation's evaluation target field lists all N deliverables; domain agents score each independently. In constrained mode, the evaluation report includes per-cell scores, enabling cross-cell comparison.
+
+**Selection (both modes):** After evaluation, the orchestrator applies the configured selection criterion. At `[ESSENTIAL]` tier, only `governor_choice` is available — the Governor always selects. At `[ROBUST]` tier, `highest_mean` and `highest_minimum` become available and are automatic at Stage 3+; Governor-confirmed at Stage 1-2. `governor_choice` always requires Governor input regardless of stage or tier.
+
+**Signal emission (both modes):** The selection is logged as a decision log entry: `decision_type: tournament_selection` with fields: `tactic_id`, `tournament_mode`, `tournament_run_id` (winner), `tournament_cell_id` (constrained mode only), `selection_criterion`, `scores` (all runs), `eliminated_run_ids`. In constrained mode, the `behavior_space_results` field records the full cell grid with scores, enabling structural memory to capture which structural approaches performed best. The selected deliverable's signals flow upward as the tactic's output. Eliminated deliverables' signals are retained in the decision log for learning but do not contribute to tactic health computation.
+
+**Kill condition interaction (both modes):** Tournament runs that all score below the tactic's kill threshold constitute a kill signal — the tactic's specification is producing uniformly poor output regardless of variance or structural variation. If the best tournament output still fails the kill condition, the tactic is killed normally per §4.3. Tournament does not shield a tactic from its kill condition. In constrained mode, if all cells produce below-threshold output, this is stronger evidence for kill than in sampling mode — structural diversity was provided and still failed, suggesting the deliverable goal itself is flawed, not just the execution.
+
+**Resource cost (both modes):** Tournament multiplies generation and evaluation cost by N. The orchestrator includes the projected tournament cost in the tactic's resource estimate (§7.2, Step 4b capacity check). If the tournament cost exceeds the Governor's declared capacity, the orchestrator recommends reducing `tournament_runs`, narrowing the behavior space (constrained mode), or switching from constrained to sampling mode.
+
+#### Structural Memory
+
+Tournament results feed structural memory (§18) at scope conclusion:
+
+**Sampling mode learnings:**
+- Whether tournament selection consistently outperformed single-run (evidence for or against the tactic's generative-variance hypothesis)
+- Optimal run budget: if run 3-of-5 was consistently selected, future tournaments may reduce to 3 runs without quality loss
+- Quality gain per additional run (diminishing returns curve)
+
+**Constrained mode learnings:**
+- Which behavior cells consistently produced winners (design principle discovery — e.g., "evidence-first outscores problem-first for technical audiences")
+- Which behavior cells consistently produced low scores (anti-pattern discovery — e.g., "vision-led + quantitative evidence is an incoherent combination")
+- Optimal behavior dimensions for this domain (which dimensions produced meaningful variance vs. which produced artificial distinctions)
+- Coverage vs. quality tradeoff: did full coverage reveal insights that partial coverage would have missed?
+
+These learnings are stored in the `tournament_calibration` field of the tactic's structural memory transfer record.
+
+#### Canonical Usage Pattern (Tier 0)
+
+The optimal Tier 0 tournament pipeline, validated by simulation:
+
+1. **Governor defines behavior space** — 2 dimensions × 2-3 values = 4-6 cells. Prioritize dimensions that force structural divergence throughout the piece (e.g., narrative entry point), not just content selection filters (e.g., evidence type). Simulation showed narrative-entry dimension produced 1-3 point score swings per model; evidence-authority dimension produced 0-1.
+2. **Constrained tournament generates N outputs** — one per cell, sequentially.
+3. **Deliberation evaluates all N** — domain agents score each independently. Cross-cell score patterns reveal structural insights (which entry points, which evidence strategies work best for which audience).
+4. **Governor selects winner** — based on strategic intent (reach vs. investor impact vs. balanced quality), not just aggregate score.
+5. **Revision refines the winner** — deliberation findings inform targeted improvements to the selected output.
+
+This pipeline combines tournament's strength (structural diversity) with deliberation's strength (multi-domain evaluation) and revision's strength (depth within a single piece). Simulation evidence: constrained tournament alone matched the final deliverable's aggregate score; the addition of deliberation and revision should exceed it.
+
+**What this replaces:** Single-run generation → deliberation → revision. The tournament step adds structural exploration before the evaluate-and-refine cycle, giving the Governor genuine alternatives rather than optimizing a single creative path.
+
+#### Behavior Space Design Guidance (simulation-informed)
+
+Simulation revealed that behavior dimensions have **unequal impact** on output diversity and quality differentiation:
+
+| Dimension type | Impact | Score delta per model | Example |
+|---|---|---|---|
+| Structural (forces different approach architecture) | High | 1-3 points | Narrative entry: problem-first / evidence-first / vision-first |
+| Content selection (filters what evidence appears) | Low | 0-1 points | Evidence authority: quantitative / qualitative |
+| Audience targeting (shifts voice/register) | Medium | 1-2 points | Audience: technical / business / regulatory |
+
+These impact levels hold across deliverable types — structural dimensions in code (error philosophy, data access pattern) produce the same magnitude of differentiation as structural dimensions in text (narrative entry). The key is whether the dimension forces a different *approach architecture* or merely different *content within the same architecture*.
+
+**Dimension elicitation is AI-assisted.** The Dimension Elicitation Protocol (§4.6 Behavior Space section) defines a three-step process: AI analyzes session context (domain model tensions, guardrail pairs, reference pool clusters, deliverable trade-offs) and proposes candidate dimensions with evidence → Governor curates and selects → Governor declares final behavior space. This shifts the Governor's role from dimension inventor to dimension selector, which is lower cognitive load and plays to the Governor's actual strength (judgment about what matters) rather than systematic analysis of implicit tensions across multiple domain models and guardrails.
+
+**The behavior space is the bottleneck — but the AI does the heavy lifting.** A well-designed behavior space makes constrained tournament powerful. A poorly designed one makes it no better than sampling. The Dimension Elicitation Protocol ensures the Governor is never staring at a blank table. The AI's structural analysis of session context surfaces dimensions the Governor would not identify unaided — particularly cross-model scoring divergence patterns and guardrail tension axes that only emerge from systematic analysis.
+
+#### Tier 0 Specifics
+
+At Tier 0 (conversational AI, file-based state), tournament runs execute sequentially within a single session (parallel execution requires programmatic dispatch).
+
+**Sampling mode at Tier 0 — NOT RECOMMENDED.** Simulation testing confirmed that sampling at Tier 0 produces near-identical outputs. Across 3 pieces × 3 runs, structural overlap was 85-95%. Scores were identical across runs for every domain model. The "best of 3" was indistinguishable from any single run. Root cause: same AI, same context, same spec, sequential generation — the model activates the same reasoning pathways regardless of run number. `independent` mode (not referencing prior variants) is unreliable because the AI's internal patterns, not its memory of prior outputs, drive convergence. Sampling mode at Tier 0 multiplies cost by N for zero quality gain. **If the Governor cannot define a behavior space, use single-run execution — not sampling tournament.** Sampling mode is retained in the spec for Tier 1+ use where genuinely parallel, independent generation (different models, different sessions) may produce real stochastic variance — but this is a hypothesis, not a validated finding. Tier 1+ implementations should measure actual output diversity before relying on sampling mode.
+
+**Constrained mode at Tier 0:** The AI generates N deliverables sequentially, each with a different cell constraint. Because the constraints are structurally different (e.g., "problem-first + quantitative" vs. "evidence-first + qualitative"), the AI is forced to produce genuinely different outputs even in the same session. This is the recommended tournament mode at Tier 0. The AI:
+1. Receives cell assignment for run 1, generates deliverable, writes to file
+2. Receives cell assignment for run 2 (different cell), generates deliverable, writes to separate file
+3. ... repeat for N runs
+4. Evaluates all N through configured assessment (Level 1-3)
+5. Presents results and behavior space map to Governor for selection
+
+**`adaptive` mode at Tier 0:** Only relevant for sampling mode. In sampling mode, `adaptive` is the natural Tier 0 default — the AI sees prior scores before generating the next variant. In constrained mode, `adaptive` is not applicable (runs are independent by definition because they have different constraints).
+
+#### Tier 1+ Scope Boundary
+
+This section defines what the spec covers for higher tiers and what it deliberately defers.
+
+**What is specified (tier-agnostic mechanism):** The tournament mechanism — behavior space declaration, cell assignment, independent generation, evaluation, selection — is fully defined and applies at all tiers. Any tier that supports tactic execution can run a tournament by following §4.6. The Dimension Elicitation Protocol's four context sources (domain model tensions, guardrail pairs, reference pool clusters, deliverable trade-offs) apply at all tiers — the analytical method is tier-agnostic even though the interaction pattern described above is Tier 0-specific.
+
+**What is NOT specified (tier-specific execution semantics):** The following require implementation experience at the target tier before they can be responsibly specified:
+
+- **Parallel dispatch (Tier 1+):** How does a programmatic orchestrator dispatch N runs concurrently? What isolation guarantees exist between runs? How is cell assignment communicated via API parameters vs conversational instruction?
+- **Cross-model tournament (Tier 2+):** Can different runs use different models? If so, how are scores standardized across models with different score distributions? Does a "7" from one model mean the same as a "7" from another?
+- **Programmatic elicitation (Tier 1+):** The Dimension Elicitation Protocol above describes a synchronous conversational flow (AI proposes → Governor reviews in session → Governor declares). At Tier 1+, the Governor may configure pipelines asynchronously. The elicitation protocol needs an async variant — but its shape depends on actual Tier 1 orchestrator design.
+- **Sampling mode viability (Tier 1+):** Sampling is NOT RECOMMENDED at Tier 0 (simulation-confirmed). At Tier 1+, genuinely parallel independent generation (different models, different sessions, different random seeds) may produce real stochastic variance — but this is a **hypothesis, not a finding**. Sampling mode is retained in the spec for Tier 1+ use, but implementations should validate diversity before relying on it.
+
+**Why deferred, not speculated:** Specifying execution semantics without implementation evidence creates authoritative-looking text that may be wrong. An implementer building Tier 1 tournament support will need to write a "Tier 1 Specifics" section from their implementation experience, following the same pattern as the Tier 0 section above. The tier-agnostic mechanism gives them the *what*; they supply the *how*.
+
+**How an implementer finds this gap:** The absence of a "Tier 1 Specifics" section (contrasted with the presence of "Tier 0 Specifics") makes the gap self-documenting. The dependency graph entry for enhanced tournament (Tier 2) references §14.7 but not execution semantics — this is intentional.
 
 ---
 
@@ -1649,6 +1905,14 @@ STEP 4 — GENERATE WORK PLAN
     - Determine which actions are due this cycle
     - Generate action specifications for new actions needed
     - Sequence actions respecting dependencies
+    - For tournament-enabled tactics (§4.6): generate N action
+      specifications from the tactic's seed actions. In sampling mode,
+      each specification is identical except for tournament_run_id;
+      dispatch in parallel (independent) or sequentially (adaptive).
+      In constrained mode, each specification is augmented with its
+      tournament_cell_constraint from the behavior space; dispatch
+      in parallel. Include projected tournament cost (N × per-action
+      cost) in the capacity check (Step 4b).
     - Check action preconditions [ROBUST]: for each action with
       declared preconditions (§21.7), evaluate each condition
       against current state. If any precondition is false, exclude
@@ -3695,6 +3959,12 @@ Every version is saved. The version history, combined with the decision log, cre
 | Reference Material Requirements (Optional) | `[ADVANCED]` | Types or specific Reference Pool items this tactic depends on (e.g., "brand voice guide, prior deliverables from Tactic T1, competitor research"). The orchestrator uses this to know which Reference Pool items to include in action specifications. Empty if the tactic is self-contained. |
 | Review Date | `[ROBUST]` | Next kill/pivot/persevere decision point |
 | Related Function | `[ADVANCED]` | Primary business function |
+| Tournament Mode | `[ESSENTIAL]` | `sampling` or `constrained`. When declared, enables tournament execution (§4.6). If absent, tactic uses standard single-run execution. |
+| Tournament Runs | `[ESSENTIAL]` | Number of runs (2-8). Required if Tournament Mode is declared. For constrained mode, should equal behavior space cell count (or less for partial coverage). Recommend 4-8 cells. |
+| Tournament Behavior Space | `[ESSENTIAL]` | Dimensions × values table defining the cell grid. Required for constrained mode. Not used in sampling mode. Produced via Dimension Elicitation Protocol (§4.6): AI proposes candidates from session context → Governor curates and declares. |
+| Tournament Cell Assignments | `[ESSENTIAL]` | Which cells to populate if runs < cells. Default: one run per cell. Only relevant for constrained mode with partial coverage. |
+| Tournament Independence | `[ESSENTIAL]` | `independent` (default) or `adaptive`. Only relevant for sampling mode. Constrained mode runs are independent by definition. See §4.6. |
+| Tournament Selection | `[ESSENTIAL]` | `governor_choice` (default). At `[ROBUST]` tier, `highest_mean` and `highest_minimum` also available. See §4.6. |
 
 ---
 
@@ -4589,6 +4859,7 @@ Multi-domain consultation is required at:
 - Any Governor decision point where the OD references 2+ domain models
 - Feature or tactic prioritization that scores items against multiple domain criteria
 - Any recommendation where the orchestrator detects that a single-domain analysis would produce a different recommendation than a multi-domain analysis
+- Tournament evaluation (§4.6) `[ROBUST]`: when N competing deliverables require comparative scoring across domain models. Level 2 (sequential isolation) is the minimum for multi-domain tournament evaluation — Level 1 (inline) is sufficient at `[ESSENTIAL]` tier but risks blending assessments across deliverables when domain models are involved. Level 3 (deliberation) is recommended when N > 3 or when the deliverables are high-stakes. In constrained mode, evaluation should note which behavior cell each deliverable occupies, as cross-cell score patterns reveal structural insights beyond the selection decision. Note: tournament execution itself is `[ESSENTIAL]` — this trigger only governs when multi-domain assessment is used for tournament evaluation (as opposed to Level 1 inline evaluation with `governor_choice` selection at `[ESSENTIAL]` tier).
 
 Multi-domain consultation is NOT required for:
 - Routine action execution within an approved plan
@@ -5342,6 +5613,17 @@ scope:
   tactic_id:        Which tactic (optional)
   domain_name:      Which domain (optional)
 tags:               [] (free-form tags for retrieval)
+access_mode:        direct | section-search
+                    direct = load the item content directly into
+                    context (default for most items).
+                    section-search = the item is a large document
+                    indexed by section headings via pool-agent's
+                    index-doc command. Query returns section-level
+                    results with line ranges for targeted reading.
+                    Use for specifications, regulatory texts, and
+                    long-form reference documents that exceed
+                    context budgets as a single item.
+                    Default: direct.
 relevance_status:   active | archived | superseded
 superseded_by:      item_id of replacement (null unless superseded)
 last_accessed:      Timestamp of last retrieval by an agent
@@ -5365,6 +5647,7 @@ The `scope` fields are optional and cumulative — a reference item may be scope
 2. **By type** — all items of a specific `item_type` within a scope. Used when an executor needs, e.g., all images for a content piece.
 3. **By tag** — keyword-based retrieval. Used for ad-hoc lookups during execution.
 4. **By source** — all items from a specific source (e.g., all prior deliverables from a completed tactic). Used during strategy review to assess output quality trends.
+5. **By section search** — semantic search within a single large document that has been indexed by heading-level sections (items with `access_mode: section-search`). Returns section-level results with line ranges for targeted reading. Used when a reference item is too large to load directly but contains section-level content relevant to specific queries.
 
 **Relevance scoring:** When a retrieval query returns more items than the agent's context budget allows, items are ranked by a composite score combining three factors. Default weights (implementations may adjust):
 
@@ -5687,6 +5970,8 @@ DECISION: Persevere strategy. Kill Tactic A2 (threads). Expand Tactic A1 (conten
 **Vector 2 — Internal success learning.** Every successful tactic and validated strategy is a potential confirmed hypothesis. When a tactic succeeds — thread-format posts consistently outperform short-form 3:1 across multiple cycles — that pattern should be codified as a validated entry in the hypothesis library, a refined quality principle, or a calibrated norm. Without success extraction, the domain model accumulates knowledge about what doesn't work but not about what does. Over time, this produces a domain model that is defensively strong (good at rejecting bad output) but offensively empty (unable to guide the orchestrator toward approaches that have been proven to work in this specific context). This vector produces: validated hypothesis templates (promoted from "theoretical" to "proven with evidence"), new or refined quality principles (what "good" looks like based on actual results), and calibrated norms (what "normal" success looks like — typical engagement rates, conversion rates, growth rates for this organization in this domain). Triggered at strategy review from successful tactics and validated A/B test winners.
 
 **Vector 3 — External knowledge acquisition.** The domain model starts as a codification of the Governor's existing knowledge and established domain references (Section 21.11). But domains evolve. New research is published, industry standards change, competitors reveal new approaches, regulatory environments shift. A domain model that only learns from its own execution history becomes progressively stale relative to the state of domain knowledge. This vector produces: new core concepts (emerging domain terminology or frameworks), new hypothesis templates (approaches discovered from external sources, not yet tested internally), updated quality principles (revised best practices from the field), and new anti-patterns (failure modes observed externally, not experienced firsthand). Triggered by: executor agents flagging relevant external knowledge discovered during action execution, the orchestrator detecting repeated quality principle violations that don't match any known anti-pattern (suggesting the domain model is incomplete), Governor-initiated domain model review (bringing in new reference material), or scheduled domain freshness checks at goal review cadence.
+
+**Tournament calibration data.** When tactics use tournament execution (§4.6), structural memory captures which behavior cells consistently produced winners (design principle discovery), which cells consistently produced low scores (anti-pattern discovery), which behavior dimensions produced meaningful variance vs. artificial distinctions, and optimal run counts. This data is stored in the `tournament_calibration` field of the tactic's structural memory transfer record. Tournament calibration is a Vector 2 enrichment source — it converts competitive selection outcomes into reusable design principles.
 
 **Norm calibration.** What does "normal" look like for this organization in this domain? The first kill condition thresholds are guesses. After several strategy cycles of data, the system knows what typical MoM growth looks like, what typical engagement rates are, what typical input rates the Governor sustains. These norms should be recorded in the domain models and used to calibrate future kill conditions. Norm calibration draws from both Vector 1 (what failure rates are typical) and Vector 2 (what success rates are typical).
 
@@ -6608,6 +6893,19 @@ Recommendation logic:
                Must include evidence.
   completed  → archive as successful. Extract learnings for
                episodic memory.
+
+Tournament-enabled tactics:
+  Health computation uses only the tournament-selected
+  deliverable's signals. Eliminated candidates' signals are
+  retained in the decision log for structural memory but do
+  NOT contribute to tactic health score. If no selection has
+  occurred yet (tournament in progress), health is computed
+  on available completed candidates as a provisional estimate.
+  Kill condition assessment applies to the best-performing
+  candidate — if even the best tournament output fails the
+  kill condition, the tactic is killed (§4.6). In constrained
+  mode, all-cell failure is stronger kill evidence than
+  single-run failure.
 ```
 
 ### 20.5.1 Underperformance Diagnostic Classification `[ROBUST]`
@@ -7264,6 +7562,7 @@ After completing all five layers, validate the operating document against these 
 - Review dates are set for all tactics, strategies, and objectives.
 - Human creative dependencies are declared for all tactics that require Governor input.
 - A/B test pairs are clearly labeled with shared metrics and decision rules.
+- `[ESSENTIAL]` Tournament-enabled tactics: if `tournament_mode` is declared, verify: (a) `tournament_runs` is present and within 2-8, (b) for constrained mode: `tournament_behavior_space` is declared with at least one structural dimension and cell count ≤ `tournament_runs`, (c) for sampling mode at Tier 0: Governor has been warned that sampling is NOT RECOMMENDED (§4.6), (d) total action count including tournament copies does not exceed 10 per tactic (§3.5).
 - Domain models are declared (Section 9.2, Domain Context).
 - Reference Material Anchors are declared for scopes that depend on foundational materials (Section 9.2).
 - `[ROBUST]` Metric prerequisite dependencies contain no circular references (metric A requires B which requires A). The orchestrator should detect cycles at OD load time and surface as a specification error.
@@ -7415,6 +7714,8 @@ Terminal states: Goal — `retired`, `partially_achieved`. Strategy — `complet
 
 **Specialized decisions** (ROBUST/ADVANCED): `wmbt_refinement`, `challenge_probe`, `graduation` (subtype: `re_graduation`), `pivot_override`, `governor_succession`, `guardrail_recovery`, `guardrail_reclassify`, `precondition_override`, `informed_override`, `restructure`, `cross_objective_tradeoff`, `approve_domain_model_change`, `kill_deferred`, `decision_reversal` `[ADVANCED]`, `child_scope_disposition` `[ADVANCED]`
 
+**Tournament decisions** (§4.6, ESSENTIAL): `tournament_selection` — Governor selects winning deliverable from tournament candidates. Records: selected candidate, comparative scores, behavior cell map (constrained mode), selection rationale, structural memory note.
+
 ### B.3 Signal Type Vocabulary
 
 | Signal Type | Description | Tag |
@@ -7437,8 +7738,9 @@ Terminal states: Goal — `retired`, `partially_achieved`. Strategy — `complet
 | `guardrail_interpretation` | Interpretive guardrail produced ambiguous result requiring Governor judgment | ROBUST |
 | `monitoring_gap` | Expected monitoring data unavailable for a watched condition | ROBUST |
 | `domain_model_feedback` | Deliberation-originated refinement proposal for a domain model | ROBUST |
+| `tournament_selection` | Tournament evaluation complete; Governor selected winning deliverable (§4.6). Includes mode, candidate scores, behavior space results. | ESSENTIAL |
 
-Source: §7.4, §7.13, §7.14, §13.3, §14.3.9, §17.2.2
+Source: §4.6, §7.4, §7.13, §7.14, §13.3, §14.3.9, §17.2.2
 
 ### B.4 Kill Reason Vocabulary
 
@@ -8028,6 +8330,7 @@ Tag: ROBUST
 | Governor attention capacity validation | Add | 6.1 | `[ROBUST]` Projected review load computation at tactic creation and strategy review. Sustainability threshold (default: 5/week part-time, 15/week full-time). Governor-configurable via `governor_capacity` OD field. |
 | Execution cost tracking | Add | 13.3 | `[ROBUST]` Per-tactic cost accumulation across declared categories (api_calls, compute_time, search_queries, external_data). Cost guardrail per cycle. Scope-level cost summary at strategy review. |
 | Reading guide updates for Phase H sims | Fix | 0.3 | ROBUST feature list updated with all 5 new mechanisms. |
+| Tournament execution | Add | 3.4, 4.2, 4.6 (new), 7.2, 10, 14.7, 0.3 | `[ESSENTIAL]` base / `[ROBUST]` enhanced. Tactic-level execution pattern. Primary mode: **constrained** (QD-informed) — N runs each constrained to a different cell in a Governor-declared behavior space (dimensions × values grid), diversity guaranteed by construction, illuminates solution landscape. Secondary mode: **sampling** (Best-of-N) — N identical runs, select best; retained for Tier 1+ use (hypothesis — not validated) but NOT RECOMMENDED at Tier 0 (simulation-confirmed: mode collapse, zero quality gain). **Dimension Elicitation Protocol**: AI analyzes session context (domain model tensions, guardrail pairs, reference pool clusters, deliverable trade-offs) and proposes candidate dimensions → Governor curates and declares. Shifts Governor role from dimension inventor to dimension selector. Canonical Tier 0 pipeline: constrained tournament → deliberation → Governor selection → revision. Base (`[ESSENTIAL]`): both modes available, Level 1 evaluation, `governor_choice` selection — Tier 0. Enhanced (`[ROBUST]`): Level 2-3 evaluation, automatic selection — requires §14.7. **Tier 0 execution semantics: fully specified, simulation-validated. Tier 1+ execution semantics: deferred** — mechanism is tier-agnostic, operational detail requires implementation experience. Simulation-validated against 18 drafts × 6 domain models. Research basis: QD/MAP-Elites (Mouret & Clune 2015, IJCAI 2024), Best-of-N (2024-2025). |
 | **Reading guide coverage, accuracy, and completeness audit** | | | |
 | ROBUST list: 5 missing mechanisms added | Fix | 0.3 | Added Governor succession (§6.1), delegated reviewers (§6.3), precondition validation/deferral/override (§7.2), learning-triggered domain model changes (§19.9), signal pipeline degradation/failure signals (§7.4, §17.2.2). |
 | ROBUST list: 3 under-specified entries expanded | Fix | 0.3 | Expanded goal health computation with §20.3 multi-phase signal production/metric lag and §20.9 resource-normalized A/B. Expanded OD authoring from §21.5-only to include aspiration-floor (§21.4) and preconditions (§21.7). |

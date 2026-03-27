@@ -232,6 +232,7 @@ Multi-model benefits: reduced groupthink (different base models have different b
 All agents (domain agents and coordinator) receive the same shared context:
 - Operating document (current version)
 - The evaluation target (current roadmap, feature list, scoring target, or whatever is being deliberated)
+  When the evaluation target is a tournament output (§4.6): all N candidate deliverables with their cell assignments (constrained mode) or run IDs (sampling mode). Agents evaluate all candidates, not just one. The shared context includes the behavior space declaration so agents can assess whether dimensional variation produced meaningful differentiation.
 - Recent signals relevant to the deliberation trigger
 - Prior synthesis reports (if this is not the first deliberation cycle)
 - Curated reference materials from the Reference Pool (see below)
@@ -389,6 +390,12 @@ All Governor decisions are recorded in `decisions/governor-decisions.md` per Cow
 **Domain:** [Domain model name]
 **Evaluation Target:** [What is being evaluated]
 
+**Tournament Evaluation (if applicable):**
+- Candidates evaluated: [list deliverable refs with cell assignments]
+- Ranking: [ordered list, best to worst, from this domain's perspective]
+- Ranking rationale: [why this ordering — cite domain concepts]
+- Cross-cell observation: [any pattern across cells visible from this domain — e.g., "problem-first cells consistently score higher on [concept] because..."]
+
 #### Recommendation
 [The agent's recommendation — specific, actionable, traceable to domain concepts]
 
@@ -512,6 +519,18 @@ Weak prompts ("do you still agree with your position?") produce restated positio
 **Agents:** [list of Agent IDs that participated]
 **Rounds:** [N of max]
 **Trigger:** [what triggered this deliberation]
+
+#### Tournament Selection Recommendation (if evaluation target was tournament output)
+- **Recommended candidate:** [deliverable_ref] from cell [X] (constrained) or run [N] (sampling)
+- **Consensus on selection:** [full | strong | weak | split — using §5.1 definitions]
+- **Per-candidate scores by agent:**
+  | Candidate | Cell | Agent 1 | Agent 2 | ... | Mean |
+  |---|---|---|---|---|---|
+  | [ref] | [cell] | [score] | [score] | ... | [mean] |
+- **Behavior Space Analysis (constrained mode):**
+  - Dimension impact: [which dimensions produced the largest score swings]
+  - Structural insight: [any design principle revealed by cross-cell patterns — e.g., "evidence-first entry consistently outperforms problem-first across all domains"]
+  - Recommended structural memory entry: [what should be recorded for future behavior space design]
 
 #### Consensus Recommendation
 [The recommendation that emerges from synthesis. If full consensus: state it. If partial consensus with unresolved disagreements: state the majority recommendation and note the dissents.]
@@ -655,6 +674,7 @@ In all cases, probe responses are included in the round's artifacts and are avai
 
 A deliberation converges when:
 - **Full consensus** after Round 1 with zero novel arguments → Skip remaining rounds, proceed to Synthesis. **Exception: if Min Rounds > 1, consensus must hold through Min Rounds before early termination.**
+- **Tournament ranking consensus** after any round: all agents agree on the top-ranked candidate (may disagree on lower rankings) → Synthesize with agreed winner. Applies only when evaluation target is tournament output. Disagreement on lower rankings does not block convergence — the Governor needs to know the winner, not the full ordering.
 - **All hard disagreements resolved** after any round → Synthesize with resolved positions. **Exception: Min Rounds floor still applies.**
 - **New Argument Gate fails** (Round 4+, when enabled) → No new arguments entering the system. Synthesize with current positions.
 - **Maximum rounds reached** → Synthesize with unresolved disagreements flagged for Governor.

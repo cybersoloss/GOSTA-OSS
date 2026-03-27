@@ -13,6 +13,10 @@ Guardrails must be set ABOVE current baseline (for worse-is-higher metrics) or B
   - Recovery (soft only): [Concrete, executable recovery action]
 - **G-2:** [Constraint description] | Severity: [hard | soft] | Evaluation: [mechanical | interpretive] | Threshold: [value]
 
+**Severity guidance:**
+- `hard` = violation requires immediate stop. All in-flight actions halt. Governor must approve resumption. Use for: legal prohibitions, ethical boundaries, irreversible damage thresholds, budget caps.
+- `soft` = violation is flagged and the recovery action executes. Execution continues while recovering. If recovery fails or the metric does not improve within the recovery window, escalate to Governor. Use for: quality thresholds, timeline targets, operational limits where degradation is tolerable short-term.
+
 **Evaluation mode guidance:** `mechanical` = numeric threshold checkable by direct comparison (budget, timeline, rate). `interpretive` = requires judgment (compliance, quality, appropriateness). Default: `interpretive`.
 
 ## Objectives
@@ -67,6 +71,18 @@ Guardrails must be set ABOVE current baseline (for worse-is-higher metrics) or B
 - **Human Creative Input Estimate:** [N inputs per cycle expected from Governor]
 - **Review Date:** [When the next tactic review is scheduled]
 - **A/B Variant:** [If this tactic is part of an A/B test, which variant and what's it compared against]
+
+**[ESSENTIAL — include when adopting tournament execution for this tactic]**
+- **Tournament Mode:** [sampling | constrained] — enables tournament execution (§4.6). Omit if standard single-run.
+- **Tournament Runs:** [2-8] — number of competing deliverables. For constrained: should equal behavior space cell count.
+- **Tournament Behavior Space (constrained only):**
+  | Dimension | Values | Source | Rationale |
+  |---|---|---|---|
+  | [dimension] | [value-1, value-2, ...] | [domain model tension / guardrail pair / reference pool / trade-off] | [why this dimension produces structural differentiation] |
+  Produced via Dimension Elicitation Protocol (§4.6): AI proposes candidates from session context → Governor curates and declares.
+- **Tournament Cell Assignments (constrained, partial coverage only):** [which cells to populate if runs < cells]
+- **Tournament Selection:** governor_choice (default). At [ROBUST]: highest_mean | highest_minimum also available.
+
 - **Tactic Dependencies (§3.6):** [For sequential or dependent tactics — `depends_on: TAC-N (exit_criteria: [condition])`. If TAC-N fails or is killed, orchestrator assesses cascading failure impact on this tactic. Empty if independent.]
 - **Guardrail Calibration (§3.6):** [For first-time guardrails with no baseline data — `calibration: first_use`. Guardrail operates in observation mode during first assessment cycle (flags but doesn't enforce). Default: `calibrated` (normal enforcement).]
 - **Preconditions (§7.2):** [Conditions that must hold before tactic execution proceeds — e.g., "API key provisioned", "baseline data collected". Format: `{condition: [description], status: met|unmet|deferred, deferred_since: [date], override: none|governor_approved}`. Tier 0: AI evaluates conversationally and tracks deferral count. Tier 1: programmatic timeout triggers escalation after N cycles deferred. Tier 2+: predictive estimation of resolution timeline.]

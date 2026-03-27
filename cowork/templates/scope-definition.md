@@ -4,7 +4,7 @@
 **Scope Type:** [finite | ongoing]
 **Complexity:** [simple | moderate | complex]
 **GOSTA Version:** v6.1
-**Cowork Protocol:** v3.8
+**Cowork Protocol:** v3.11
 **Deliberation Protocol:** v0.7
 **Mode:** [cowork | code | both]
 **Deliberation Mode:** [enabled | disabled]
@@ -36,4 +36,6 @@
 
 ## Risk Factors
 
-- [What could go wrong that the OD's guardrails should protect against?]
+[What could go wrong that the OD's guardrails should protect against? Each risk factor listed here should have a corresponding guardrail in the OD's Goal section. If a risk has no guardrail, either add one during OD drafting or note why it's accepted unmitigated.]
+
+- [Risk description] → maps to: [G-N in OD, or "accepted — rationale"]

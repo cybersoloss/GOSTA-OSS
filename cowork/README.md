@@ -1,4 +1,4 @@
-# GOSTA-Cowork Protocol v3.8
+# GOSTA-Cowork Protocol v3.11
 
 > **Status:** Beta — Specification complete. Tier 0 usable. Tier 1 implementation next.
 
@@ -41,19 +41,23 @@ Run the GOSTA framework with any session-based AI (Claude, ChatGPT, or similar) 
 ```
 cowork/
 ├── CLAUDE.md                          ← Claude Code directive (copy to session)
-├── gosta-cowork-protocol.md           ← The protocol (v3.8)
+├── gosta-cowork-protocol.md           ← The protocol (v3.11)
 ├── startup.md                         ← Interactive bootstrap (recommended)
 ├── session-launcher-template.md       ← Manual template bootstrap (alternative)
 ├── README.md                          ← This file
 ├── simulation-protocol-prompt.md      ← Structured simulation runner (v3.0)
 ├── sync-manifest.md                   ← Framework-to-Protocol derivation map
 ├── protocol-assessment-prompt.md      ← Six-dimension protocol assessment tool
+├── domain-model-authoring-protocol.md ← Source-to-domain-model extraction procedure
 └── templates/
     ├── 00-BOOTSTRAP.md                ← Session continuity file
     ├── operating-document.md          ← OD template (5-layer hierarchy)
     ├── scope-definition.md            ← What/why/constraints
     ├── domain-model.md                ← Domain model template
     ├── session-log.md                 ← Per-session record
+    ├── session-status.md              ← Live session dashboard (overwrite-only)
+    ├── deliberation-status.md         ← Live deliberation dashboard (overwrite-only)
+    ├── synthesis-verification.md      ← Governor verification of Coordinator synthesis
     ├── learnings.md                   ← Structural memory
     ├── gosta-framework-feedback.md    ← Framework improvement log
     ├── decision-entry.md              ← Governor decision format

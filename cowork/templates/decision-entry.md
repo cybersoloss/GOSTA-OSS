@@ -6,7 +6,7 @@ Append-only. Do not edit existing entries. *Valid decision types, kill reasons, 
 
 ### DEC-[sequential-number] | [date]
 - **Session:** [session number]
-- **Type:** [kill | pivot | pivot_override | persevere | approve | reject | promote | phase_advance | iterate | restructure | accept_deliverable | scope_change | rebalance | pause | resume | revise_objective | conclude_scope | cross_objective_tradeoff | informed_override | guardrail_reclassify | wmbt_refinement | portfolio_rebalance | decision_reversal | resolve_conflict]
+- **Type:** [kill | pivot | pivot_override | persevere | approve | reject | promote | phase_advance | iterate | restructure | accept_deliverable | scope_change | rebalance | pause | resume | revise_objective | conclude_scope | cross_objective_tradeoff | informed_override | guardrail_reclassify | wmbt_refinement | portfolio_rebalance | decision_reversal | resolve_conflict | tournament_selection]
 - **Target:** [Which tactic/strategy/objective/phase — use IDs like TAC-1, STR-2, OBJ-1]
 - **Decision:** [What was decided — one sentence]
 - **Kill Reason (kill decisions only):** [hypothesis_falsified | kill_condition_met | exhaustion | external_constraint (§7.8 — force majeure, routes to Vector 3 external learning) | strategy_kill_cascade | governor_override]
@@ -28,3 +28,13 @@ Append-only. Do not edit existing entries. *Valid decision types, kill reasons, 
   - Allocation change: [present/absent — if present: old vs new allocation + disposition]
   - External dependency strain: [present/absent — if present: which dependencies + exit_cost + notice period impact + disposition: terminate | transfer | renegotiate]
   - Cost overrun: [present/absent — if present: category + budget vs actual + disposition: accepted_overage | pivot | kill]
+- **Tournament Selection (tournament_selection decisions only):**
+  - Tournament mode: [sampling | constrained]
+  - Selected candidate: [deliverable_ref]
+  - Behavior cell (constrained): [cell assignment of winner]
+  - Comparative scores:
+    | Candidate | Cell | [Model 1] | [Model 2] | ... | Mean |
+    |---|---|---|---|---|---|
+    | [ref] | [cell] | [score] | [score] | ... | [mean] |
+  - Selection rationale: [why this candidate — strategic, not just highest score]
+  - Structural memory note: [design principle revealed, if any — e.g., "evidence-first entry outperforms problem-first for this audience"]

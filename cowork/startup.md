@@ -219,6 +219,19 @@ mkdir -p sessions/[SESSION_NAME]/deliberation
 
 *Cowork mode:* You cannot run bash. Tell the Governor the directory structure needed, then create files into it as subsequent steps proceed. The directory exists implicitly once the first file is written into it. If deliberation is enabled, include the `deliberation/` directory in the structure description.
 
+**Pool-agent model check (Code mode only):**
+If the session will use reference pools with >50 items or large document indexing (§18.5), verify the embedding model is available:
+
+```bash
+# Check if model exists
+ls cowork/tools/pool-agent/models/model.onnx
+
+# If missing — download and quantize (~90MB download, ~22MB result)
+python3 cowork/tools/pool-agent.py setup-model
+```
+
+If the model file is missing, alert the Governor: *"The pool-agent embedding model is not installed. Reference pool semantic search and large document indexing will not work until it's set up. Run `python3 cowork/tools/pool-agent.py setup-model` to download and install it (requires internet, one-time setup). Shall I run it now?"* Do not silently skip this — sessions that need pool-agent will fail at build/query time without the model.
+
 **Step 3 — Copy protocol infrastructure:**
 
 *Code mode:*
@@ -265,7 +278,8 @@ These are intentionally empty stubs at this stage.
 - If reusing: copy specified files into `sessions/[SESSION_NAME]/domain-models/`
   - *Code mode:* `cp [source-path] sessions/[SESSION_NAME]/domain-models/`
   - *Cowork mode:* Read each source file and recreate at the target path
-- If creating: build applied domain models per protocol §3.1, using `cowork/templates/domain-model.md` as the structural template
+- If creating from source resources: follow `cowork/domain-model-authoring-protocol.md` (11-step extraction procedure). Uses `cowork/templates/domain-model.md` as the structural template and protocol §3.1 as quality rules.
+- If creating from Governor expertise only (no source document): follow protocol §3.1.1 (first-cycle correction-derived procedure). The first cycle runs ungrounded with Governor drafts; Governor corrections become the raw material for the domain model, which is a required deliverable of the first cycle.
 
 **Pre-built model note:** Domain models copied from prior sessions may have been created under earlier quality standards. Before running the gate on reused models, present this choice: "(a) Run quality gate and upgrade any gaps — AI-assisted, Governor reviews changes. (b) Use as-is with a grandfathering note — 'Model used successfully in prior session [X]; known gaps noted.' (c) Replace with new model." If the model was used in a completed, successful session, option (b) is acceptable.
 
@@ -325,6 +339,10 @@ Use `cowork/templates/scope-definition.md`. Populate from collected inputs.
 Note: `00-BOOTSTRAP.md` is numbered 00 because it is the entry point for all future sessions — every future session reads it first. `01-scope-definition.md` is numbered 01 as the first content document. Both are created in this bootstrap session; the numbering reflects session re-entry order, not creation order.
 
 **Step 9 — Draft operating-document.md:**
+
+**OD authoring path decision:** Before drafting, determine which authoring path to use:
+- **Direct authoring (default for simple/moderate scopes):** Follow the guidance below. Suitable when the Governor's goal, constraints, and success criteria are clear enough to decompose directly.
+- **Structured OD Drafting Protocol (`cowork/od-drafting-protocol.md`):** Use when the Governor's input is vague, complex (5+ strategies expected), or when the scope spans multiple unfamiliar domains. The OD Drafting Protocol uses a multi-agent OD Architect role with structured decomposition questions to produce the OD. If the Governor's Group 1 complexity is `complex`, or if the goal statement from Group 2 resists clean decomposition into objectives, recommend the structured path: *"Your scope is complex enough that I'd recommend using the structured OD drafting process — it asks targeted decomposition questions before authoring. Shall I use that, or proceed with direct drafting?"*
 
 **Before drafting:** Read all reference materials with role `options-universe`. These contain the items the session will evaluate, sequence, or prioritize. Candidate tactics and strategies in the OD must be generated FROM this material — not invented from general knowledge. If no options-universe material exists, tactics are generated from domain model concepts and Governor input.
 
@@ -460,13 +478,15 @@ From Phase 1 onward, the protocol governs everything (§5.1). This startup file'
 ## Maintenance Notes
 
 **Version:** 1.5
-**Depends on:** `session-launcher-template.md`, Cowork Protocol, Framework, Deliberation Protocol, OD Drafting Protocol
+**Depends on:** `session-launcher-template.md`, Cowork Protocol, Framework, Deliberation Protocol, OD Drafting Protocol (`cowork/od-drafting-protocol.md`)
 
 When the protocol or framework is updated, check:
 - Quality gate criteria (Step 5) against protocol §3.1 and §5.2
 - OD authoring guidance (Step 9) against framework Sections 9 and 21
+- OD authoring path decision (Step 9) against `cowork/od-drafting-protocol.md`
 - OD Deliberation section (Step 9) against deliberation-protocol.md §2.1 and OD template
 - Phase gate format (Step 11) against protocol §5.1
 - Deliberation Assessment (Step 11) against deliberation-protocol.md §3.5
 - Group 3A defaults against deliberation-protocol.md §2.1 calibration guidance and §3.0 round count guidance
 - Domain model template (Step 5) against `cowork/templates/domain-model.md`
+- Domain model extraction procedure (Step 5) against `cowork/domain-model-authoring-protocol.md`

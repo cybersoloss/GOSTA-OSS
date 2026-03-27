@@ -43,6 +43,29 @@ Systematic omission patterns found:
 ## Cross-Domain Insights
 - [Interactions between domain models not predicted by their stacking notes]
 
+## Tournament Execution Patterns (when tournament mode was active)
+
+Populated at scope conclusion or after 3+ tournament cycles. Governor reviews entries before they become structural memory.
+
+### Behavior Space Effectiveness
+| Tactic | Dimension 1 | Dimension 2 | Cells Covered | Winning Cell | Score Delta (best vs worst) | Structural Insight |
+|---|---|---|---|---|---|---|
+| [TAC-N] | [dim name: values] | [dim name: values] | [N of M] | [cell assignment] | [N pts] | [design principle discovered — e.g., "evidence-first consistently outperforms problem-first for technical audiences"] |
+
+### Dimension Source Effectiveness
+| Context Source | Dimensions Proposed | Dimensions Selected | Produced Score Swings? | Notes |
+|---|---|---|---|---|
+| Domain model tensions | [N] | [N] | [yes/no — magnitude] | [e.g., "Cross-model divergence between compliance and usability models reliably produces high-impact dimensions"] |
+| Guardrail pair analysis | [N] | [N] | [yes/no — magnitude] | |
+| Reference pool clustering | [N] | [N] | [yes/no — magnitude] | |
+| Deliverable trade-off analysis | [N] | [N] | [yes/no — magnitude] | |
+
+### Tournament Calibration Summary
+- **Optimal run count observed:** [N — did additional runs beyond N add selection value?]
+- **Structural vs content dimensions:** [which dimension types produced meaningful differentiation?]
+- **Generic fallback usage:** [were generic dimensions used? Did they produce sufficient differentiation?]
+- **Anti-patterns discovered:** [cell combinations that consistently produced low scores — e.g., "vision-led + quantitative evidence is structurally incoherent"]
+
 ## Deliberation Patterns (when deliberation mode was active)
 
 Populated by the Coordinator at scope conclusion or after 3+ deliberation cycles — whichever comes first. Governor reviews and approves entries before they become structural memory.

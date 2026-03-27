@@ -17,7 +17,7 @@ You are running a GOSTA scope. Your first task is to set up the session director
 Read these files before doing anything else:
 
 ```
-cowork/gosta-cowork-protocol.md                        ← Execution protocol (v3.8) — full read
+cowork/gosta-cowork-protocol.md                        ← Execution protocol (v3.11) — full read
 cowork/deliberation-protocol.md                        ← Full read if deliberation enabled; skim §1-§3 if disabled
 GOSTA-agentic-execution-architecture.md:
   - Section 0  (overview, tiers, implementation)       ← Required
@@ -253,6 +253,8 @@ Record incorporation decisions in `decisions/governor-decisions.md`.
 
 **Step H — Draft operating-document.md:**
 
+**OD authoring path decision:** If complexity is `complex` or the goal resists clean decomposition, use the structured OD Drafting Protocol (`cowork/od-drafting-protocol.md`) instead of direct authoring. The OD Drafting Protocol uses targeted decomposition questions before authoring. For simple/moderate scopes, proceed with direct authoring below.
+
 **Before drafting:** Read all reference materials with role `options-universe` (from §6). These contain the items the session will evaluate, sequence, or prioritize. Candidate tactics and strategies must be generated FROM this material — not invented from general knowledge. If no options-universe material exists, tactics are generated from domain model concepts and Governor input.
 
 Follow GOSTA's five-layer hierarchy (framework Section 9 for template, Section 21 for authoring guide). Include:
@@ -335,7 +337,7 @@ Wait for Governor approval before proceeding to Phase 1.
 ## Template Maintenance Notes
 
 **Version:** 1.4
-**Protocol version:** 3.8
+**Protocol version:** 3.11
 **Framework version:** 6.1
 **Deliberation Protocol version:** 0.7
 
@@ -345,6 +347,7 @@ When the protocol or framework is updated, check:
 - §5.1/§5.2 session lifecycle (Step H-J alignment)
 - §16.3 cross-session learning (Step F)
 - Framework Sections 9 and 21 (Step H OD authoring)
+- OD Drafting Protocol (Step H path decision) against `cowork/od-drafting-protocol.md`
 - §11 deliberation config against deliberation-protocol.md §2.1 and OD template Deliberation section
 - Deliberation Assessment (Step J) against deliberation-protocol.md §3.5
 

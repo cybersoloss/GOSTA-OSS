@@ -49,7 +49,10 @@ cowork/
                                                phase gates, health computation, signal format, etc.
   startup.md                               ← Interactive session bootstrapper (entry point)
   deliberation-protocol.md                 ← Multi-agent deliberation (3 roles, round mechanics)
-  od-drafting-protocol.md                  ← OD authoring (structured questions → OD)
+  domain-model-authoring-protocol.md        ← Source-to-domain-model extraction procedure
+  od-drafting-protocol.md                  ← OD authoring for complex/vague scopes (structured
+                                               decomposition questions → OD). Used when direct
+                                               authoring is insufficient; see startup.md Step 9.
   sync-manifest.md                         ← Derivation map: spec section → protocol section.
                                                Consult this after any spec edit to find what needs review.
   CLAUDE.md                                ← Per-session Claude Code directive. Copied into
@@ -70,16 +73,25 @@ The spec is the source of truth. `sync-manifest.md` tracks every point where a p
 
 ## The pool-agent Tool
 
-`cowork/tools/pool-agent.py` provides offline semantic search using all-MiniLM-L6-v2 (quantized ONNX). The model file (`model.onnx`, 22MB) lives at `cowork/tools/pool-agent/models/` and is gitignored — download it separately.
+`cowork/tools/pool-agent.py` provides offline semantic search using all-MiniLM-L6-v2 (quantized ONNX). The model file (`model.onnx`, ~22MB) lives at `cowork/tools/pool-agent/models/` and is gitignored — it is downloaded and quantized automatically via the `setup-model` command.
 
-**Dependencies:** `numpy`, `pyyaml`, `onnxruntime`
+**Runtime dependencies:** `numpy`, `pyyaml`, `onnxruntime`
+**Setup-model dependencies (one-time):** `tokenizers`, `huggingface-hub`, `onnx`
 
 ```bash
-# Install dependencies
+# Install runtime dependencies
 pip3 install numpy pyyaml onnxruntime
 
-# Build a vector store
+# First-time setup: download and quantize the embedding model
+# (requires additional packages: tokenizers, huggingface-hub, onnx)
+pip3 install tokenizers huggingface-hub onnx
+python3 cowork/tools/pool-agent.py setup-model
+
+# Build a vector store from a pool YAML
 python3 cowork/tools/pool-agent.py build --pool reference-pool.yaml --articles ./sources/ --store ./pool-store/
+
+# Index a single large document by section headings
+python3 cowork/tools/pool-agent.py index-doc --doc spec.md --store ./spec-store/ --heading-level 2
 
 # Query during a session
 python3 cowork/tools/pool-agent.py query "your query" --store ./pool-store/ --top 10
