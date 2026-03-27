@@ -1,5 +1,8 @@
 # Private / internal — never commit (case-insensitive git may vary; list both forms)
 marketing-plan-oss-announcement.md
+before-after-analysis.html
+tournament-architecture-insertion-plan.md
+/tournament-sim/
 /announcement/
 /internal/
 /sessions/
