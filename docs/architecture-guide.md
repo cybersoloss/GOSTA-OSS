@@ -10,7 +10,7 @@ This guide explains how GOSTA works — the five-layer hierarchy, implementation
 
 GOSTA organizes autonomous AI work into five layers:
 
-![Five Layer Hierarchy](images/gosta-five-layers.svg)
+![Five Layer Hierarchy](images/gosta-five-layers.png)
 
 **Commands flow down:** Your goal constrains what objectives are valid. Objectives constrain which strategies make sense. Strategies constrain which tactics to test. Tactics generate concrete actions.
 
@@ -22,7 +22,7 @@ GOSTA organizes autonomous AI work into five layers:
 
 ## Implementation Tiers
 
-![Implementation Tiers](images/gosta-tiers.svg)
+![Implementation Tiers](images/gosta-tiers.png)
 
 Start with Tier 0. It requires nothing but files and a conversation. When you've validated the framework for your use case, you can invest in coded implementations (Tier 1+) that add automation, databases, and structured APIs — but the governance model stays the same.
 
