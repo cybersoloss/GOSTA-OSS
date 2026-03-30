@@ -14,7 +14,7 @@ Security concerns in this context relate to:
 
 If you discover a security issue, please report it responsibly:
 
-1. **Email:** oss@cybersol.nl
+1. **Email:** cybersoloss@cybersol.nl
 2. **Subject line:** `[SECURITY] GOSTA — brief description`
 3. **Include:** Which file/section is affected, the potential impact, and a suggested fix if you have one
 
