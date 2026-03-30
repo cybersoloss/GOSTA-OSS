@@ -1,0 +1,11 @@
+name: General Issue
+description: Questions, ideas, or anything that doesn't fit the other categories
+labels: ["general"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What's on your mind?
+    validations:
+      required: true

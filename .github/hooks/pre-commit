@@ -6,7 +6,7 @@ FORBIDDEN_PATHS="internal/|sessions/|experiments/|[Oo]bligo/|tempposts/|[Oo]lder
 FORBIDDEN_CONTENT="Obligo|obligo|OBLIGO|Cybersol|cybersol|Progon|progon|mhcandan|CIF-NL"
 
 # Files where controlled references are expected (LICENSE contains copyright holder name)
-ALLOWED_FILES="^LICENSE$|^\.github/hooks/pre-commit$|^\.gitignore$|^README\.md$|^CONTRIBUTING\.md$"
+ALLOWED_FILES="^LICENSE$|^\.github/hooks/pre-commit$|^\.gitignore$|^README\.md$|^CONTRIBUTING\.md$|^CODE_OF_CONDUCT\.md$|^SECURITY\.md$"
 
 # Check staged file paths
 BLOCKED_FILES=$(git diff --cached --name-only | grep -iE "$FORBIDDEN_PATHS")

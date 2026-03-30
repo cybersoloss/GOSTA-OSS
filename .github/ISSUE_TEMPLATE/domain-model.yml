@@ -1,0 +1,38 @@
+name: Domain Model Proposal
+description: Propose a new domain model for domain-models/examples/
+labels: ["domain-model"]
+body:
+  - type: input
+    id: domain
+    attributes:
+      label: Domain name
+      description: Short name for the domain (will become the filename)
+      placeholder: "e.g., supply-chain-resilience"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What does this domain model cover and why is it useful for GOSTA sessions?
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Primary source
+      description: What publicly available source grounds this model?
+      placeholder: "e.g., NIST SP 800-53, academic paper, industry report"
+    validations:
+      required: true
+  - type: checkboxes
+    id: completeness
+    attributes:
+      label: Completeness checklist
+      options:
+        - label: "Core Concepts (3+ minimum, 6+ recommended)"
+        - label: "Concept Relationships"
+        - label: "Quality Principles (3+)"
+        - label: "Anti-Patterns (2+)"
+        - label: "Hypothesis Library (2+)"
+        - label: "Guardrail Vocabulary (2+)"

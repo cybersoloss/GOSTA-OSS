@@ -66,7 +66,7 @@ If your contribution involves AI-generated content, note this in your pull reque
 
 ## Code of Conduct
 
-Be constructive. Critique ideas, not people. This is a governance framework — precision and clarity matter more than volume.
+This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). Be constructive. Critique ideas, not people. This is a governance framework — precision and clarity matter more than volume.
 
 ## License
 

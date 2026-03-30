@@ -1,0 +1,42 @@
+name: Spec or Protocol Issue
+description: Report unclear language, inconsistencies, or gaps in the specification or protocols
+labels: ["spec"]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - Specification (GOSTA-agentic-execution-architecture.md)
+        - Cowork Protocol (cowork/gosta-cowork-protocol.md)
+        - Deliberation Protocol (cowork/deliberation-protocol.md)
+        - OD Drafting Protocol (cowork/od-drafting-protocol.md)
+        - Domain Model Authoring (cowork/domain-model-authoring-protocol.md)
+        - Templates (cowork/templates/)
+        - Documentation (docs/)
+        - Tooling (cowork/tools/)
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: section
+    attributes:
+      label: Section reference
+      description: Section number and title, or file path and line range
+      placeholder: "e.g., Section 14.3 — Kill Discipline"
+    validations:
+      required: false
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What is unclear, inconsistent, or missing?
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested fix
+      description: If you have a proposed correction or improvement, describe it here
+    validations:
+      required: false
