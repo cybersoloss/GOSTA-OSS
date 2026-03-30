@@ -14,7 +14,7 @@
 
 ## Context Loading Order
 
-Read these files in this order to understand the current state:
+Read these files in this order to understand the current state. For any unfamiliar status value, decision type, or signal type, consult Framework Appendix B (Vocabulary & Taxonomy Index).
 
 1. This file (00-BOOTSTRAP.md)
 2. gosta-cowork-protocol.md (if first time in this session)
@@ -43,8 +43,20 @@ Read these files in this order to understand the current state:
 - **Signal freshness:** pass (all signals generated this session, current as of 2026-03-25)
 - **Recovery status:** no active recoveries
 - **Context utilization:** ~40% after Priority 1-2 loading
-- **Kill condition evaluability:** not_applicable (finite scope, no kill conditions in tactic definitions)
+- **Kill condition evaluability:** not_applicable (finite scope, completion-based kill conditions only — "deliverable not accepted after 3 revision cycles")
+- **Governor capacity alignment:** `[ROBUST]` declared: on-demand | projected this cycle: 1 review (final approval) | status: sustainable
+- **Cost guardrail status:** `[ROBUST]` no cost categories declared (simple scope — effort tracked in engineering-cost domain model, not as a separate cost guardrail)
 - **OD fingerprint:** goals: 1, objectives: 1, strategies: 1, tactics (active): 3, total allocation sum: 1.0, guardrails: 5 — first session, no prior fingerprint to compare
+
+## Tier 0 State Persistence (from GOSTA §7.7, §7.13, §18.2.5)
+
+*At Tier 0, the AI is stateless between sessions. These fields carry cross-session state that would be automatic at Tier 1+.*
+
+- **Action Retry Counters:** all retries clear (session completed successfully, no failures)
+- **Kill Deadline Proximity:** none approaching (finite scope, session complete)
+- **Recovery Oscillation Tracking (§7.13.2):** no recoveries
+- **Deferred Decisions:** none
+- **Signal Absence Tracking (§7.7):** none (all signals emitted within single session)
 
 ## What Happened Last Session
 

@@ -38,6 +38,20 @@ To submit a domain model:
 
 **Examples** — Complete worked examples added to `docs/examples/`. Each example should be a self-contained session directory showing GOSTA in practice: scope definition, operating document, domain models, and at least one deliverable. Study `docs/examples/feature-prioritization/` for the expected structure — it includes domain models, a deliberation round with position papers, a synthesis report, Governor decisions, and final deliverables. Partial examples (just a domain model, just an OD) belong in the domain models or templates categories above. Examples here should demonstrate the full session lifecycle or a significant phase of it.
 
+### Working with Sensitive or Private References
+
+If your contribution involves sensitive reference material — proprietary data, client documents, internal research, NDA-covered sources — **do not place them in the tracked `docs/` folder or anywhere in the repository tree.** Use the `Dev-Docs/` directory at the repo root instead. This directory is gitignored and blocked by the pre-commit hook, so its contents will never be committed or pushed.
+
+```
+Dev-Docs/           ← Private references, never committed
+docs/               ← Public documentation, tracked in git
+domain-models/      ← Public domain models, tracked in git
+```
+
+If you need to cite a private source in a domain model or example, reference it by description (e.g., "internal customer churn analysis, Q3 2025") rather than including the source file. The domain model's analysis should be original — the source grounds it, but the model itself must stand on its own without the source being present.
+
+The pre-commit hook also blocks `sessions/`, `experiments/`, and other working directories. Run `cp .github/hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit` after cloning to install it.
+
 ### What We Don't Accept
 
 - Changes that introduce dependencies on specific AI providers or orchestration frameworks. GOSTA is provider-agnostic.

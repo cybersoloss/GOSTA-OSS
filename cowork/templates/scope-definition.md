@@ -5,7 +5,7 @@
 **Complexity:** [simple | moderate | complex]
 **GOSTA Version:** v6.1
 **Cowork Protocol:** v3.11
-**Deliberation Protocol:** v0.7
+**Deliberation Protocol:** v0.8
 **Mode:** [cowork | code | both]
 **Deliberation Mode:** [enabled | disabled]
 

@@ -1,4 +1,4 @@
-# GOSTA Deliberation Protocol v0.7
+# GOSTA Deliberation Protocol v0.8
 
 **Purpose:** Defines how multiple domain-grounded agents coordinate through structured deliberation to produce recommendations for the Governor. This protocol sits above the Cowork Protocol — each individual agent follows Cowork Protocol mechanics internally; this protocol orchestrates between them.
 

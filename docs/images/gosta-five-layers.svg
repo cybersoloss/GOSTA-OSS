@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 520" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <linearGradient id="goal" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#e94560"/>
+      <stop offset="100%" stop-color="#c23152"/>
+    </linearGradient>
+    <linearGradient id="obj" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f5a623"/>
+      <stop offset="100%" stop-color="#d4911e"/>
+    </linearGradient>
+    <linearGradient id="str" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0f3460"/>
+      <stop offset="100%" stop-color="#1a4a7a"/>
+    </linearGradient>
+    <linearGradient id="tac" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#533483"/>
+      <stop offset="100%" stop-color="#6b44a0"/>
+    </linearGradient>
+    <linearGradient id="act" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#2d6a4f"/>
+      <stop offset="100%" stop-color="#40916c"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="720" height="520" fill="url(#g1)" rx="12"/>
+
+  <!-- Title -->
+  <text x="360" y="38" text-anchor="middle" fill="#e0e0e0" font-size="18" font-weight="600">GOSTA Five-Layer Hierarchy</text>
+
+  <!-- Command flows down arrow (left) -->
+  <text x="52" y="270" text-anchor="middle" fill="#888" font-size="11" transform="rotate(-90,52,270)">COMMANDS FLOW DOWN</text>
+  <line x1="68" y1="90" x2="68" y2="450" stroke="#555" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <polygon points="68,455 62,440 74,440" fill="#555"/>
+
+  <!-- Feedback flows up arrow (right) -->
+  <text x="668" y="270" text-anchor="middle" fill="#888" font-size="11" transform="rotate(90,668,270)">FEEDBACK FLOWS UP</text>
+  <line x1="652" y1="450" x2="652" y2="90" stroke="#555" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <polygon points="652,85 646,100 658,100" fill="#555"/>
+
+  <!-- Layer 1: Goal -->
+  <rect x="120" y="58" width="480" height="68" rx="8" fill="url(#goal)" filter="url(#shadow)"/>
+  <text x="160" y="88" fill="white" font-size="20" font-weight="700">GOAL</text>
+  <text x="160" y="110" fill="rgba(255,255,255,0.8)" font-size="12">Strategic intent + Guardrails (hard/soft, mechanical/interpretive)</text>
+  <text x="545" y="97" fill="rgba(255,255,255,0.6)" font-size="10" text-anchor="end">Governor sets</text>
+
+  <!-- Layer 2: Objectives -->
+  <rect x="145" y="140" width="430" height="68" rx="8" fill="url(#obj)" filter="url(#shadow)"/>
+  <text x="185" y="170" fill="white" font-size="20" font-weight="700">OBJECTIVES</text>
+  <text x="185" y="192" fill="rgba(255,255,255,0.85)" font-size="12">Measurable targets (ongoing) or analytical questions (finite)</text>
+  <text x="520" y="179" fill="rgba(255,255,255,0.6)" font-size="10" text-anchor="end">Governor sets</text>
+
+  <!-- Layer 3: Strategies -->
+  <rect x="170" y="222" width="380" height="68" rx="8" fill="url(#str)" filter="url(#shadow)"/>
+  <text x="210" y="252" fill="white" font-size="20" font-weight="700">STRATEGIES</text>
+  <text x="210" y="274" fill="rgba(255,255,255,0.8)" font-size="12">Named approaches with WMBT + kill signals</text>
+  <text x="495" y="261" fill="rgba(255,255,255,0.6)" font-size="10" text-anchor="end">AI drafts, Gov approves</text>
+
+  <!-- Layer 4: Tactics -->
+  <rect x="195" y="304" width="330" height="68" rx="8" fill="url(#tac)" filter="url(#shadow)"/>
+  <text x="235" y="334" fill="white" font-size="20" font-weight="700">TACTICS</text>
+  <text x="235" y="356" fill="rgba(255,255,255,0.8)" font-size="12">Hypotheses with kill conditions + success metrics</text>
+  <text x="470" y="343" fill="rgba(255,255,255,0.6)" font-size="10" text-anchor="end">AI executes</text>
+
+  <!-- Layer 5: Actions -->
+  <rect x="220" y="386" width="280" height="68" rx="8" fill="url(#act)" filter="url(#shadow)"/>
+  <text x="260" y="416" fill="white" font-size="20" font-weight="700">ACTIONS</text>
+  <text x="260" y="438" fill="rgba(255,255,255,0.8)" font-size="12">Concrete tasks that emit signals</text>
+  <text x="445" y="425" fill="rgba(255,255,255,0.6)" font-size="10" text-anchor="end">AI executes</text>
+
+  <!-- Guardrails propagation indicator -->
+  <text x="360" y="490" text-anchor="middle" fill="#777" font-size="11">Guardrails propagate downward through all layers</text>
+  <text x="360" y="508" text-anchor="middle" fill="#777" font-size="11">Signals aggregate upward into health reports</text>
+</svg>

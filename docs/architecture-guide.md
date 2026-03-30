@@ -10,7 +10,7 @@ This guide explains how GOSTA works — the five-layer hierarchy, implementation
 
 GOSTA organizes autonomous AI work into five layers:
 
-![Five Layer Hierarchy](images/gosta-five-layers.gif)
+![Five Layer Hierarchy](images/gosta-five-layers.svg)
 
 **Commands flow down:** Your goal constrains what objectives are valid. Objectives constrain which strategies make sense. Strategies constrain which tactics to test. Tactics generate concrete actions.
 
@@ -22,7 +22,7 @@ GOSTA organizes autonomous AI work into five layers:
 
 ## Implementation Tiers
 
-![Implementation Tiers](images/gosta-tiers.gif)
+![Implementation Tiers](images/gosta-tiers.svg)
 
 Start with Tier 0. It requires nothing but files and a conversation. When you've validated the framework for your use case, you can invest in coded implementations (Tier 1+) that add automation, databases, and structured APIs — but the governance model stays the same.
 
@@ -55,7 +55,7 @@ There are three ways to start:
 **Manual setup** — Create the session directory, copy templates and protocol files, then tell the AI to bootstrap:
 
 ```bash
-mkdir -p sessions/my-project/{domain-models,reference,signals,health-reports,decisions,deliverables,session-logs}
+mkdir -p sessions/my-project/{domain-models,signals,health-reports,decisions,deliverables,session-logs}
 cp cowork/templates/* sessions/my-project/
 cp cowork/gosta-cowork-protocol.md cowork/CLAUDE.md sessions/my-project/
 ```
@@ -117,15 +117,117 @@ When the scope is complete (finite scopes) or a major cycle ends (ongoing scopes
 
 ---
 
+## Independence Levels and Graduation
+
+GOSTA defines two axes of control: independence level (set at session start) and graduation stage (earned during execution).
+
+### Independence Levels
+
+Independence level determines how much the AI does autonomously vs. how much it checks with you:
+
+**Level 1 — Governor-heavy.** The AI proposes every action and waits for approval before executing. Use when you're learning the framework, when stakes are high, or when you want maximum visibility. Every tactic, every score, every deliverable draft comes to you before it's final.
+
+**Level 2 — Autonomous within bounds.** The AI executes within the approved Operating Document without asking permission for each step. It surfaces decisions only at phase gates and when guardrails are threatened. This is the default for most sessions — it balances efficiency with control.
+
+**Level 3 — Multi-agent deliberation.** Each domain model gets its own agent, plus a coordinator who synthesizes across them. Domain agents reason independently from their domain perspective; the coordinator maps tensions, identifies disagreements, and produces a synthesis for your decision. Use for complex scopes with 3+ domains where cross-domain tensions are the primary challenge. See the [feature-prioritization example](examples/feature-prioritization/).
+
+### Graduation Stages
+
+Within a session, the AI starts at Stage 1 and can earn more autonomy over time:
+
+**Stage 1** — Default. The AI drafts, you approve all strategy and tactic changes. The AI cannot create new tactics without your sign-off.
+
+**Stage 2** — The AI can propose and execute minor tactic adjustments (timeline shifts, action resequencing) without explicit approval, but strategy changes still require Governor sign-off.
+
+**Stage 3** — The AI can autonomously create new tactics within approved strategies. It can reallocate resources between tactics. Strategy-level changes still require Governor approval.
+
+**Stage 4** — Full autonomous operation within the OD's guardrails. The AI creates, kills, and pivots tactics independently. The Governor reviews at phase gates and when guardrails are triggered. Reserved for proven sessions with strong track records.
+
+Graduation is earned by demonstrating consistent quality — signals align with recommendations, guardrails are respected, and deliverables are accepted without excessive revision cycles. It's not automatic. The Governor controls whether and when to advance.
+
+---
+
+## Domain Model Structure
+
+Domain models are the grounding mechanism that prevents the AI from reasoning with generic training data. Each domain model has 6 components:
+
+**Core Concepts** — The domain's key ideas, each with a definition, boundaries (what it doesn't cover), and misapplication notes (common ways people get it wrong). Example: "Activation Distance — the number of steps between first contact and first value. Boundary: does not include ongoing engagement. Misapplication: equating fewer steps with better experience when steps provide necessary context."
+
+**Concept Relationships** — How concepts connect: prerequisites (X must hold before Y matters), tensions (X and Y pull in opposite directions), and amplifiers (X strengthens Y). These relationships drive the cross-domain tensions that deliberation surfaces.
+
+**Quality Principles** — Testable standards for what "good" looks like in this domain. Each principle references specific concepts and provides an observable criterion. Example: "QP-3: Effort estimates for features touching high-debt components carry a ≥1.5x multiplier."
+
+**Anti-Patterns** — What "bad" looks like, expressed as named failure modes the AI should detect and flag. Example: "AP-1: Adoption-Retention Conflation — treating feature requests from free-tier users as evidence of willingness to pay."
+
+**Hypothesis Library** — Testable starting points, including Governor-submitted hypotheses. Each hypothesis has a structured result format (confirmed / not confirmed / insufficient data). Governor hypotheses ensure the AI tests what the Governor cares about, not just what the data makes easy.
+
+**Guardrail Vocabulary** — Reusable constraints that can be applied across multiple tactics. These feed into the OD's guardrail definitions.
+
+During bootstrap, the AI quality-gates each domain model: are all 6 components present? Do concepts have boundaries? Are quality principles testable? Are anti-patterns actionable? Semantic coherence checks verify that concepts reference each other consistently and quality principles target actual concepts in the model.
+
+---
+
+## Deliberation
+
+When a session uses Independence Level 3, domain assessment happens through structured multi-agent deliberation rather than sequential single-agent scoring.
+
+### Three Roles
+
+**Domain Agents** — One per domain model (or per scoped concept). Each agent reasons exclusively from its domain's perspective, producing a position paper that scores features/options using that domain's concepts. Domain agents don't see each other's positions during Round 1 — this ensures independence.
+
+**Coordinator** — Has no domain model. Synthesizes across domain agents' positions, mapping agreements, soft disagreements (different scores but same directional recommendation), and hard disagreements (different directional recommendations). Produces interim assessments and a final synthesis report.
+
+**Scoped Specialists** — Optional. A domain agent restricted to a single concept or subset. Example: a UX-1 agent that uses the market-fit model but only scores Activation Distance. Useful when a single concept needs deeper attention than it would get as one of six in a broader domain assessment.
+
+### Round Structure
+
+**Round 1 — Independent positions.** Each domain agent produces a position paper. The Coordinator checks for position independence (are agents genuinely reasoning independently?) and produces an interim assessment listing disagreements.
+
+**Round 2 — Targeted responses.** Domain agents respond only to specific disagreements flagged in the interim assessment. They can revise scores, provide additional evidence, or explicitly defend their original position.
+
+**Round 3+ — New Argument Gate.** Additional rounds require at least one genuinely new argument (a domain concept not previously cited, or a concept applied to a new angle). If no new arguments exist, deliberation terminates — remaining disagreements are structural and need Governor resolution, not more rounds.
+
+**Synthesis.** The Coordinator produces a synthesis report with consensus items, Governor decisions (structured with options and trade-offs), resolved tensions, and a sycophancy self-check. The Governor resolves all structured decisions.
+
+### Sycophancy Detection in Deliberation
+
+Deliberation includes three checks against sycophantic convergence: recommendation alignment across agents (did everyone agree too quickly?), reasoning diversity (are agents using distinct logic or echoing each other?), and OD-anchoring (are agents reproducing the Operating Document's assumptions rather than independently assessing?). If Round 1 produces unanimous recommendations, a Convergence Probe Protocol triggers adversarial re-examination before accepting the consensus as genuine.
+
+---
+
+## Signals and Health Computation
+
+Signals are the atomic data units that flow upward through the hierarchy.
+
+### Signal Types
+
+**Domain-grounded signals** — Scores, assessments, and observations derived from domain model concepts using cite-then-apply structure. Every domain-grounded signal references a specific concept, states its definition, and explains the application. This is the primary signal type in most sessions.
+
+**Environmental signals** — External events, market shifts, regulatory changes, or new data that arrive mid-session. These aren't derived from domain models but may affect health assessments and tactic viability. Environmental signals carry a source attribution and a relevance assessment.
+
+**Operational signals** — System-level observations about the session itself: action completion rates, retry counts, signal freshness, context utilization. These feed into the bootstrap file's state persistence fields.
+
+### Health Computation
+
+Signals aggregate into health reports at each phase gate. The computation follows a structured pattern: for each active tactic, the AI assesses signal-to-metric alignment (do signals support the success metrics?), kill condition proximity (how close are we to triggering the kill?), guardrail compliance (any violations or approaching violations?), and produces a RED/AMBER/GREEN assessment with a recommendation (persevere/pivot/kill).
+
+Strategy health aggregates from tactic health: if any tactic is RED, the strategy is at risk. If the strategy's WMBT (What Must Be True) assumptions are invalidated by signal data, the strategy itself may need to be killed regardless of individual tactic health.
+
+Every health report includes three integrity checks: signal-recommendation alignment (do the numbers match the recommendation?), non-empty risk factors (no "risks: none" when there are active tactics), and a sycophancy self-check.
+
+---
+
 ## Key Concepts
 
 **The Operating Document is the single source of truth.** Everything the AI does flows from it. If the OD is wrong, everything downstream is wrong.
 
-**Domain models prevent hallucination.** Without them, the AI reasons from general training data. With them, it reasons from codified domain knowledge with explicit quality principles and anti-patterns.
+**Domain models prevent hallucination.** Without them, the AI reasons from general training data. With them, it reasons from codified domain knowledge — 6 structured components with explicit quality principles and anti-patterns.
 
-**Guardrails propagate downward.** A goal-level guardrail constrains every objective, strategy, tactic, and action beneath it. Hard guardrails cannot be violated. Soft guardrails can be violated with recovery.
+**Guardrails propagate downward.** A goal-level guardrail constrains every objective, strategy, tactic, and action beneath it. Hard guardrails cannot be violated. Soft guardrails can be violated with a declared recovery action.
 
-**Signals flow upward.** Actions produce data. Tactics aggregate it. Strategies validate logic against it. Health reports synthesize everything into structured decisions.
+**Signals flow upward.** Actions produce signals (domain-grounded, environmental, operational). Tactics aggregate them into health. Strategies validate logic against health data. Health reports synthesize everything into structured decisions.
+
+**Independence and graduation control autonomy.** Independence level (1-3) sets the session's baseline control model. Graduation stages (1-4) allow earned autonomy within that model. Both are under Governor control.
 
 **You are always in control.** The AI drafts, executes, measures, and recommends. You decide. Every decision is explicit, recorded, and reversible.
 
@@ -135,7 +237,7 @@ When the scope is complete (finite scopes) or a major cycle ends (ongoing scopes
 
 **[Run your first session](walkthrough.md)** — 10-minute hands-on walkthrough. Score 5 features across 2 domain models, test a hypothesis, make a governed decision.
 
-**[Feature prioritization with deliberation](examples/feature-prioritization/)** — A multi-domain scope for an EU developer tools SaaS showing 3 domain models (market-fit, technical-feasibility, regulatory-compliance) with 16 core concepts, a 5-agent deliberation round with position papers, a synthesis report with 5 hard disagreements, and Governor decisions resolving market-vs-regulatory tensions.
+**[Feature prioritization with deliberation](examples/feature-prioritization/)** — A multi-domain scope for an EU developer tools SaaS showing 3 domain models (market-fit, technical-feasibility, regulatory-compliance) with 16 core concepts, a 5-agent deliberation round (4 domain agents + 1 coordinator) with position papers, position independence verification, a synthesis report with 5 hard disagreements and sycophancy self-check, and Governor decisions resolving market-vs-regulatory tensions.
 
 ---
 
