@@ -377,17 +377,54 @@ This is what GOSTA does: it makes the AI's reasoning transparent, structured, an
 
 ---
 
+## What This Walkthrough Didn't Cover
+
+This walkthrough used the simplest settings: 2 domain models, no deliberation, single session, Independence 2. The protocol has features that only activate with higher complexity. Here's what you'll encounter as you scale up.
+
+### Sycophancy Detection
+
+Every health report includes a sycophancy self-check — the AI asks itself whether it's being over-optimistic, avoiding uncomfortable recommendations, or rubber-stamping its own prior output. In the walkthrough, the dark mode scoring (3/10) demonstrates that the AI can go against what might seem like a popular choice when domain evidence says otherwise. In more complex sessions with deliberation, sycophancy detection goes further: Round 1 position independence verification checks whether domain agents are genuinely reasoning independently or echoing the Operating Document's assumptions. If unanimity is detected, a Convergence Probe forces adversarial re-examination.
+
+### Environmental Signals
+
+The walkthrough used only domain-model-grounded signals — scores derived directly from domain concepts. The protocol also supports environmental signals: external events, market shifts, regulatory changes, or new data that arrive mid-session and may affect health assessments. In an ongoing scope (recurring review cycles), you'd log environmental signals alongside domain signals, and they'd factor into health computation and tactic review.
+
+### Tournament Execution
+
+For tactics where the "right approach" isn't clear, the protocol supports tournament execution: the AI produces multiple competing deliverables (2-8 runs) against the same tactic, each exploring a different approach. In constrained tournament mode, you define a behavior space — dimensions of variation with distinct values — and each run is assigned to a specific cell. The Governor (or a selection rule) picks the winner. Tournament fields appear in the OD template under the `[ESSENTIAL]` marker. This walkthrough's scoring tactic was straightforward enough not to need it.
+
+### Cost Tracking and Resource Ceilings
+
+The current OD template includes `[ROBUST]` fields for resource ceilings (maximum Governor-hours or AI-hours per tactic per cycle) and cost guardrail tracking. In a multi-week ongoing scope, these become important — they prevent scope creep from consuming more Governor attention than declared capacity allows. The bootstrap file tracks cost guardrail status at session start.
+
+### Semantic Coherence Validation
+
+When the AI quality-gates domain models (Step 4, item 5 in this walkthrough), it checks structural completeness — are all 6 components present? Do concepts have boundaries? Are quality principles testable? Beyond this, the protocol supports semantic coherence validation: do the concepts relate to each other consistently? Do quality principles reference concepts that actually exist in the model? Are anti-patterns the inverse of quality principles or something orthogonal? This becomes critical with 3+ domain models where inconsistencies between models create scoring artifacts.
+
+### Tier 0 State Persistence
+
+When a session spans multiple conversations (the AI's context window resets between sessions), the bootstrap file (`00-BOOTSTRAP.md`) carries cross-session state that would be automatic at Tier 1+: action retry counters, kill deadline proximity, recovery oscillation tracking, deferred decisions, and signal absence tracking. This walkthrough completed in a single session, so these fields were trivial. In a multi-session ongoing scope, they're the mechanism that prevents the AI from losing track of failed actions, approaching deadlines, or unresolved issues.
+
+### Independence Levels and Graduation
+
+This walkthrough used Independence Level 2 (the AI works autonomously within approved bounds but surfaces decisions). Level 1 means the Governor reviews every action before execution. Level 3 enables multi-agent deliberation — each domain model gets its own agent, plus a coordinator who synthesizes across them. See the [feature-prioritization example](examples/feature-prioritization/) for a Level 3 session.
+
+Within a session, graduation stages (1-4) control how much autonomy the AI earns over time. Stage 1 is the default — Governor approves all strategy and tactic changes. At Stage 3+, the AI can autonomously create tactics within approved strategies. Graduation is earned by demonstrating consistent quality, not assumed.
+
+---
+
 ## Next Steps
 
 **Add complexity gradually:**
 
 - **Add a third domain model** (e.g., `regulatory-compliance`) and re-run. Watch how cross-domain tensions emerge — features that look good in two domains may score poorly in a third.
-- **Enable deliberation** for a future session with 3+ domains. Each domain gets its own agent, and a coordinator synthesizes across them. See [`docs/examples/feature-prioritization/`](examples/feature-prioritization/) for a complete deliberation example with 4 agents scoring 12 features across 3 domains.
-- **Try an ongoing scope** — recurring review cycles with health reports that track metric changes over time.
+- **Enable deliberation** for a future session with 3+ domains. Each domain gets its own agent, and a coordinator synthesizes across them. See [`docs/examples/feature-prioritization/`](examples/feature-prioritization/) for a complete deliberation example with 5 agents (4 domain + 1 coordinator) scoring 12 features across 3 domains, with position independence verification and sycophancy checks.
+- **Try an ongoing scope** — recurring review cycles with health reports that track metric changes over time. This is where environmental signals, cost tracking, and Tier 0 state persistence become essential.
+- **Try tournament execution** — for a tactic where the approach is uncertain, add tournament fields to the OD and have the AI produce competing deliverables.
 - **Use the session-launcher template** (`cowork/session-launcher-template.md`) instead of the interactive bootstrapper for faster setup once you're comfortable.
 
 **Try a public interest scenario:** Municipal budget allocation, policy analysis, sustainability planning — domains where decisions carry public accountability and auditability requirements. Public sector and sustainability examples are on the [roadmap](../README.md#whats-next).
 
-**Understand the architecture:** The [Architecture Guide](architecture-guide.md) explains the five-layer hierarchy, implementation tiers, session lifecycle, and decision mechanics with diagrams.
+**Understand the architecture:** The [Architecture Guide](architecture-guide.md) explains the five-layer hierarchy, implementation tiers, independence levels, graduation stages, deliberation mechanics, and decision mechanics with diagrams.
 
 **Read the full framework:** `GOSTA-agentic-execution-architecture.md` §0 (Start Here) for the complete specification.
