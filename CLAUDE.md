@@ -86,6 +86,10 @@ The source of truth is `GOSTA-agentic-execution-architecture.md` (the spec). All
 - Do NOT trust component counts, version numbers, or feature lists from any file other than the spec. If a derivative file disagrees with the spec, the spec wins.
 - When editing protocols, read the relevant spec section first, then the protocol section. Never edit a protocol based solely on another protocol's description of what the spec says.
 
+## Post-Change Consistency Audit (PCCA)
+
+After any spec or protocol change, perform an FFR for the affected sections, then check every `.md` file in the repo (excluding `sessions/`) for inconsistencies with the changes. This includes but is not limited to: the framework spec, cowork protocol, deliberation protocol, all templates, all other `.md` files in `cowork/`, sync-manifest, OD drafting protocol, `docs/` (walkthroughs, architecture guide, examples), and `README.md`. Report what needs updating, then either apply the fixes directly or add them to the current plan.
+
 ## The pool-agent Tool
 
 `cowork/tools/pool-agent.py` provides offline semantic search using all-MiniLM-L6-v2 (quantized ONNX). The model file (`model.onnx`, ~22MB) lives at `cowork/tools/pool-agent/models/` and is gitignored — it is downloaded and quantized automatically via the `setup-model` command.
