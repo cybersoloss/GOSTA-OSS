@@ -71,6 +71,21 @@ sessions/[name]/                           ← Live session directories (gitigno
 
 The spec is the source of truth. `sync-manifest.md` tracks every point where a protocol section derives from a spec section — use it when updating either to find what else needs to change.
 
+## Fresh Framework Read (FFR)
+
+The source of truth is `GOSTA-agentic-execution-architecture.md` (the spec). All other `.md` files in this repo derive from it and may contain errors or lag behind.
+
+**Before any spec or protocol work:**
+
+1. Scan all `##`-level headings in the spec to build a complete section map. Note every section, its number, and its title. This is your table of contents.
+2. For your specific task, identify which sections are relevant from the heading scan, then read those sections in full from the spec itself.
+3. If the task touches protocols (`cowork/`, deliberation, OD drafting), read the relevant spec section first, then the corresponding protocol section. The spec defines intent; the protocol defines operationalization.
+
+**Rules:**
+- Do NOT use sync-manifest.md, changelogs, reading guides, or other derivative files to decide what to read. Use them only after forming your own understanding from the spec, and only to find protocol sections that need updating.
+- Do NOT trust component counts, version numbers, or feature lists from any file other than the spec. If a derivative file disagrees with the spec, the spec wins.
+- When editing protocols, read the relevant spec section first, then the protocol section. Never edit a protocol based solely on another protocol's description of what the spec says.
+
 ## The pool-agent Tool
 
 `cowork/tools/pool-agent.py` provides offline semantic search using all-MiniLM-L6-v2 (quantized ONNX). The model file (`model.onnx`, ~22MB) lives at `cowork/tools/pool-agent/models/` and is gitignored — it is downloaded and quantized automatically via the `setup-model` command.
