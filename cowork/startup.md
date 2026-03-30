@@ -34,9 +34,15 @@ Ask:
   - **Yes** — Multi-agent deliberation. One agent per domain model, a Coordinator synthesizes, Governor resolves dissents. Use when: 3+ domains, cross-domain tensions are expected, stakes are high enough that independent evaluation adds value. Requires 3-5 domain models (minimum 3; recommended 5-7, viable 8-10 with 4+ rounds, >10 cluster-then-synthesize). See the Deliberation Protocol.
   - If the Governor says yes, note it — Group 3A will collect deliberation-specific configuration.
 
-Auto-fill:
+- Shortfall logging? (default: no)
+  - **No** — Standard session, no framework observation logging.
+  - **Yes** — During execution, the AI will log protocol gaps, domain model inconsistencies, reference pool issues, deliberation friction, and other framework shortfalls as they are encountered. Requires a shortfall log file path (default: `[project]/session-shortfall-log.md`). Entries are appended in real-time, not post-hoc. Useful for framework improvement cycles and PCCA.
+  - If the Governor says yes, note it — the AI will create or append to the shortfall log during Phase 3 execution and all subsequent phases.
+
+Auto-fill (do not ask — compute automatically):
 - Governor: In Code mode, read from git config (`git config user.name`). In Cowork mode, git config is unavailable — include "Governor: [please confirm your name]" in the Phase 2 summary table and wait for correction.
 - Date: Today's date
+- FFR (Fresh Framework Read): **Always enabled** — performed automatically at Phase 3 Step 1. The AI scans all spec headings, reads relevant sections from the spec before reading protocols, and flags any spec-protocol inconsistencies. This is not optional — it prevents reasoning from stale derivative files. The Governor does not need to request it.
 
 **Group 2 — Goal and Why:**
 
@@ -92,7 +98,11 @@ Then present these with computed defaults (do not ask all at once — present th
 - Present the roster table and ask: "Does this roster look right? Any agents to add, remove, or rename?"
 
 **Cadence (present with defaults, ask for overrides):**
-- **Trigger:** Default based on scope type: `on_governor_request` for finite scopes (deliberation at phase gates and key decisions), `on_schedule` for ongoing scopes (deliberation at tactic/strategy review cadence). Ask: "When should deliberation trigger? Default: [computed default]."
+- **Trigger:** Default based on scope type and independence level:
+  - Finite scopes: `on_governor_request` (Governor explicitly requests deliberation at phase gates or key decisions)
+  - Ongoing scopes: `on_schedule` (deliberation at tactic/strategy review cadence)
+  - **Independence level override:** If independence ≥ 3, `on_governor_request` produces a dead configuration — the Governor is not reviewing during execution, so deliberation never fires. Override to `on_phase_gate` (system self-invokes deliberation at each phase transition) and warn: *"At independence level 3, `on_governor_request` would require you to manually trigger deliberation — but you've chosen post-hoc reporting. I'm defaulting to `on_phase_gate` so the system invokes deliberation autonomously at each phase transition. Override?"*
+  Ask: "When should deliberation trigger? Default: [computed default]."
 - **Max Rounds:** Default: 5 for finite, 2 for ongoing. Ask: "Maximum deliberation rounds? Default: [computed default]."
 - **New Argument Gate (Round 4+):** Default: enabled. Terminates deliberation if no genuinely new arguments emerge after Round 4. Ask: "Enable New Argument Gate to stop deliberation when agents are just restating positions? Default: enabled."
 - **Governor Interaction:** Default: `at_synthesis` (Governor sees the final synthesis report). Alternative: `mid_deliberation` (Governor can intervene between rounds). Ask: "Review at synthesis only, or do you want to intervene mid-deliberation? Default: at synthesis."
@@ -159,6 +169,8 @@ Complexity:       [simple/moderate/complex]
 Mode:             [cowork/code/both]
 Independence:     [1/2/3]
 Deliberation:     [enabled/disabled]
+Shortfall Log:    [enabled/disabled — if enabled, path to log file]
+FFR:              always enabled (auto)
 Goal:             [goal text]
 Why GOSTA:        [why text]
 Domain Models:    [list — reuse/create/hybrid] ([N] total)
@@ -175,7 +187,7 @@ If deliberation is enabled, also show:
 --- Deliberation Config ---
 Agent Roster:     [agent IDs with domain assignments]
 Coordinator:      COORD-1
-Trigger:          [on_governor_request / on_schedule / on_signal]
+Trigger:          [on_governor_request / on_schedule / on_signal / on_phase_gate]
 Max Rounds:       [N]
 Governor Interaction: [at_synthesis / mid_deliberation]
 Isolation:        [single_session_sequential / multi_session] (Cowork mode only)
@@ -193,17 +205,32 @@ Wait for confirmation. If the Governor says to change something, update and re-c
 
 Once confirmed, execute these steps in order. Report progress after each step.
 
-**Step 1 — Read protocol and framework:**
+**Step 1 — Fresh Framework Read (FFR) and protocol loading:**
+
+FFR is mandatory before any protocol or OD work. It prevents reasoning from stale derivative files. Perform in this order:
+
+**1a. FFR — Spec heading scan:**
+Scan all `##`-level headings in `GOSTA-agentic-execution-architecture.md` to build a complete section map. Note every section number and title. This is your table of contents for the session.
+
+**1b. FFR — Read relevant spec sections:**
+Based on the session scope (collected in Phase 1), identify which spec sections are relevant and read them in full from the spec itself. At minimum, always read:
+- Section 0 (overview, tiers, implementation)
+- Section 9 (operating document template) — required for OD authoring
+- Section 13 (domain models) — required for domain model quality gating
+- Section 21 (OD authoring guide) — required for OD authoring
+- If deliberation enabled: Section 14 (multi-agent deliberation) in full
+- Sections 1-3 (principles, architecture, layers) if context allows
+
+**1c. Read protocols (derived from spec — spec takes precedence if conflicts found):**
 ```
 cowork/gosta-cowork-protocol.md          ← Full read (execution protocol)
 cowork/deliberation-protocol.md          ← Full read if deliberation enabled; skim §1-§3 if disabled (for awareness)
-GOSTA-agentic-execution-architecture.md:
-  - Section 0 (overview, tiers, implementation)
-  - Section 9 (operating document template)    ← Required for OD authoring
-  - Section 14.7 (deliberation escalation)     ← Required if deliberation enabled
-  - Section 21 (OD authoring guide)            ← Required for OD authoring
-  - Sections 1-3 (principles, architecture, layers) if context allows
 ```
+
+**1d. Flag inconsistencies:**
+If any protocol section contradicts the spec section it derives from, log the inconsistency to the session's shortfall log (if one exists) or note it for the Governor before proceeding. The spec wins.
+
+> **Why this order matters:** The spec is the source of truth. Protocols operationalize the spec but may lag behind edits. Reading the spec first means you recognize drift when you see it in the protocols, rather than absorbing protocol errors as truth.
 
 **Step 2 — Scaffold directory:**
 
@@ -301,13 +328,15 @@ After running the quality gate on all domain models, compile all failures. Prese
 
 Do not proceed to Step 6 until all models either pass the quality gate or the Governor has accepted a warning for each failure.
 
+**Domain Model Adaptations requirement:** If any domain model received a quality gate WARNING (proceeded with warning), the Domain Model Adaptations section in the OD is **required** (not optional) for that model. The adaptations table must declare per-concept applicability (applies / does-not-apply / requires-interpretation) so agents score against constrained definitions rather than the model's generic framing.
+
 **Step 6 — Copy reference materials** (if any specified). Preserve the consumption role assigned by the Governor in Group 3. Add a comment at the top of each reference file (or in a `reference/README.md` index) noting its role: `options-universe` or `context`.
 
 **Narrative Options-Universe Gate (required when options-universe document is narrative-only):**
 
 If the options-universe document does not contain an explicit, numbered item list (no section titled "Feature Inventory," "Item List," "Options," "Canonical Feature Inventory," or equivalent with enumerated entries), the AI must:
 
-1. Derive a discrete item list from the narrative. Apply boundary-resolution judgment — each item must have a clear name, a brief description, and a boundary note specifying what it excludes (preventing classification drift during scoring).
+1. Derive a discrete item list from the narrative. Apply boundary-resolution judgment — each item must have a clear name, a brief description, and a boundary note specifying what it excludes (preventing classification drift during scoring). **The derived inventory must contain ONLY these three columns (name, description, boundary note). Do not add scoring dimensions, domain model classifications, adjacency types, priority levels, or any other evaluative columns. The inventory is a neutral input to deliberation — any classification added here anchors all agents before scoring begins.**
 
 2. Present the derived list to the Governor BEFORE proceeding to Step 7 or OD authoring:
 
@@ -381,6 +410,13 @@ Calibration rule:
 Validation check at OD authoring time: If G-6 threshold < N and no fallback proxy allowance is declared, flag as an OD authoring error. The AI must not proceed without correcting the threshold or getting explicit Governor acceptance of the lower floor with documented rationale.
 
 The §14.7 minimum of ≥3 applies only when deliberation mode is disabled. When deliberation is enabled, the roster defines the floor — §14.7 is superseded.
+
+**OD writing strategy (prevents output-length failures):** Do not attempt to write the entire OD in a single file operation. Complex ODs (5+ strategies, deliberation config, many tactics) will exceed output token limits and fail silently. Instead:
+1. Write the file with the header, Goal (Layer 1), and Objectives (Layer 2).
+2. Use Edit/append to add Strategies (Layer 3).
+3. Use Edit/append to add Tactics (Layer 4) — including the scoring matrix, deliberation config, and kill conditions.
+4. Use Edit/append to add Actions (Layer 5), review cadences, and the Deliberation section.
+5. After all sections are written, read the complete file back to verify structural integrity before presenting to the Governor.
 
 Present the complete OD to Governor for approval.
 
@@ -456,6 +492,7 @@ From Phase 1 onward, the protocol governs everything (§5.1). This startup file'
 - Signal-first execution: write signal stub before each action, update after (protocol §6.3)
 - Compute health at review points (protocol §7)
 - Enforce phase gates at every phase transition (protocol §5.1)
+- **Closeout file audit before completion signal** (protocol §5.5): After the final phase retrospective, list all session files, confirm each is populated or marked N/A, and flag any shortfall log entries with suggested fixes targeting files outside the session directory as post-session PCCA actions for the Governor
 
 ---
 
@@ -486,6 +523,7 @@ When the protocol or framework is updated, check:
 - OD authoring path decision (Step 9) against `cowork/od-drafting-protocol.md`
 - OD Deliberation section (Step 9) against deliberation-protocol.md §2.1 and OD template
 - Phase gate format (Step 11) against protocol §5.1
+- Closeout file audit reference (post-Phase 1 rules) against protocol §5.5
 - Deliberation Assessment (Step 11) against deliberation-protocol.md §3.5
 - Group 3A defaults against deliberation-protocol.md §2.1 calibration guidance and §3.0 round count guidance
 - Domain model template (Step 5) against `cowork/templates/domain-model.md`

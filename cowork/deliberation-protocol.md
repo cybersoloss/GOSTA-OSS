@@ -174,7 +174,7 @@ The agent roster is declared in the operating document under a new `## Deliberat
 **Trust Boundaries** `[ROBUST]` (from Framework §14.3.10): Declares which trust boundaries each agent's claims cross during deliberation. All domain agents cross `identity` (different domain models) and `communication` (positions flow through Coordinator). The Coordinator crosses `communication` (paraphrases agent positions) and `oversight` (its synthesis is what the Governor reads). Additional boundaries may apply: `memory` (if session spans multiple conversations), `retrieval` (if agent uses reference pool), `execution` (if agent's recommendations drive actions). Claims crossing declared boundaries carry propagation tracking obligations — see Framework §14.3.10.
 
 ### Deliberation Cadence
-- **Trigger:** [on_signal | on_schedule | on_governor_request]
+- **Trigger:** [on_signal | on_schedule | on_governor_request | on_phase_gate]
 - **Min Rounds:** [integer] (default: 1 for ongoing scopes, 3 for finite/stress-test scopes. Hard floor — convergence, stall detection, and New Argument Gate cannot trigger early termination before Min Rounds is reached.)
 - **Max Rounds:** [N] (finite default: 5, ongoing default: 2)
 - **New Argument Gate (Round 4+):** [enabled | disabled] (default: enabled)
@@ -716,10 +716,11 @@ In ongoing scopes, deliberation is triggered by:
 | `on_schedule` | At the defined review cadence (e.g., monthly) | Current state of the evaluation target against each domain model |
 | `on_signal` | When a signal arrives that affects 2+ domains | The signal's implications from each domain's perspective |
 | `on_governor_request` | Governor explicitly requests deliberation | Whatever the Governor specifies |
+| `on_phase_gate` | System self-invokes at each phase transition | Phase exit criteria assessment from each domain's perspective. Used when independence ≥ 3 and Governor reviews post-hoc only. |
 | `on_kill_approaching` | A tactic's kill condition is within 20% of threshold | Whether to kill, pivot, or persevere — from each domain's perspective |
 | `on_external_event` | Market event, regulatory change, competitor action | Impact assessment from each domain's perspective |
 
-The OD declares which triggers are active (default: `on_schedule` + `on_governor_request`).
+The OD declares which triggers are active (default: `on_schedule` + `on_governor_request`). When independence ≥ 3, `on_phase_gate` replaces `on_governor_request` as the default — see startup.md §Group 3A.
 
 ### 5.4 Stuck Detection and Resolution
 
@@ -824,7 +825,7 @@ The `00-BOOTSTRAP.md` file adds:
 - **Consensus Strength:** [full | strong | weak | split]
 - **Unresolved Disagreements:** [count] ([DIS-IDs])
 - **Persistent Disagreements:** [count] ([DIS-IDs, if any have persisted 3+ cycles])
-- **Next Trigger:** [on_schedule: date | on_signal: watching for X | on_governor_request: pending]
+- **Next Trigger:** [on_schedule: date | on_signal: watching for X | on_governor_request: pending | on_phase_gate: next phase transition]
 ```
 
 ### 7.3 Signal Extension
@@ -848,6 +849,7 @@ This field is added to the standard signal entry when the signal originates from
 - **Round 2:** Launch only the referenced agents as new subagents with Round 1 papers + Interim Assessment.
 - **File I/O:** Agents write position papers to disk. Coordinator reads from disk.
 - **Parallelism:** Round 1 agents run truly in parallel. Round 2 agents can also run in parallel (they respond independently to different prompts).
+- **All batches parallel — no sequential role-switching.** In Code mode, every scoring or evaluation batch MUST use parallel subagent dispatch — one subagent per domain agent, all launched concurrently. A single agent role-switching through domain models sequentially (reading each model, scoring, then switching to the next) is the Cowork-mode single-session pattern (§8.2), not Code mode. This applies to all batches equally: calibration batches, full scoring batches, and any subsequent evaluation passes. The isolation guarantee (one agent = one domain = one subagent process) is structural in Code mode, not behavioral.
 
 ### 8.2 Cowork Mode (Conversational AI)
 

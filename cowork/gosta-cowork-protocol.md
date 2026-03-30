@@ -407,6 +407,20 @@ Every session must include a Retrospective as the final phase before closure.
 
 **Enforcement:** The session status cannot be set to `completed` in the bootstrap file until both files contain substantive entries (not stubs).
 
+### 5.5 Closeout File Audit
+
+After retrospective outputs are written and before the completion signal is emitted, the AI MUST perform a file audit of the session directory.
+
+**Procedure:**
+1. List all files in `sessions/[name]/` recursively (excluding subdirectory contents that are append-only logs like `signals/`).
+2. For each file that was scaffolded during bootstrap (templates copied in Step 2): confirm it is either (a) substantively populated (not a template stub), or (b) explicitly marked N/A with a one-line reason at the top of the file.
+3. If any file remains a template stub, populate it or write the N/A disposition before proceeding.
+
+**Shortfall propagation check:**
+4. Read the shortfall log (if one exists for this session). For each entry with a "Suggested Fix" that targets a file outside the session directory (e.g., a protocol file, startup.md, a shared template), flag it to the Governor as a post-session PCCA action: "Shortfall [ID] suggests a fix to [file]. This is outside session scope — adding to post-session PCCA queue."
+
+**Enforcement:** The completion signal cannot be emitted until steps 1-4 are complete. Template stubs surviving to session close is a protocol violation.
+
 ---
 
 ## 6. Signal Format
@@ -700,7 +714,7 @@ When scoring features, tactics, or options against domain model criteria:
 - 7-8: Strong — clear advantage, well-aligned
 - 9-10: Exceptional — dominant on this criterion (rare)
 
-**Aggregation:** Compute composite score as weighted average across criteria. Report the spread (min/max across criteria) alongside the composite — a feature scoring 7.0 composite from [6, 7, 7, 8] is very different from 7.0 from [3, 5, 10, 10].
+**Aggregation:** Compute composite score as weighted average across criteria. Report the spread (min/max across criteria) alongside the composite — a feature scoring 7.0 composite from [6, 7, 7, 8] is very different from 7.0 from [3, 5, 10, 10]. The OD MUST declare the aggregation method: `mean` (default), `median`, or `trimmed-mean` (excludes highest and lowest agent per dimension). If a structural inversion pattern is accepted by the Governor (e.g., one agent systematically scores inversely on a class of features), note the estimated composite depression or inflation in the scoring matrix header so consumers of the scores know the systematic effect.
 
 **Batch calibration:** When scoring >10 items, score 3 representative items first (one expected-high, one expected-mid, one expected-low) to calibrate the scale. Then score the remainder. Re-calibrate if scores cluster unnaturally.
 

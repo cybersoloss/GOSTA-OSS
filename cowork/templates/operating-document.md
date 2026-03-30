@@ -239,7 +239,7 @@ This section is required when Deliberation Mode is enabled above. It configures 
 - **G-6 Threshold:** [= N − Tolerated Fallback Proxies] ← This value MUST be entered in the G-6 guardrail at the Goal level. It overrides the §14.7 multi-domain minimum of ≥3.
 
 ### Deliberation Cadence
-- **Trigger:** [on_signal | on_schedule | on_governor_request]
+- **Trigger:** [on_signal | on_schedule | on_governor_request | on_phase_gate]
 - **Max Rounds:** [N] (finite default: 5, ongoing default: 2)
 - **New Argument Gate (Round 4+):** [enabled | disabled] (default: enabled)
 - **Governor Interaction:** [at_synthesis | mid_deliberation]
