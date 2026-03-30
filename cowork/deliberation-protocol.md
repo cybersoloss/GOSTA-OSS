@@ -1,4 +1,4 @@
-# GOSTA Deliberation Protocol v0.8
+# GOSTA Deliberation Protocol v0.9
 
 **Purpose:** Defines how multiple domain-grounded agents coordinate through structured deliberation to produce recommendations for the Governor. This protocol sits above the Cowork Protocol — each individual agent follows Cowork Protocol mechanics internally; this protocol orchestrates between them.
 
@@ -160,16 +160,18 @@ The agent roster is declared in the operating document under a new `## Deliberat
 
 ### Agent Roster
 
-| Agent ID | Domain Model | Role | Model/Provider | Notes |
-|----------|-------------|------|----------------|-------|
-| VC-1 | Value Creation | domain_agent | default | |
-| MK-1 | Marketing | domain_agent | default | |
-| SL-1 | Sales | domain_agent | default | |
-| VD-1 | Value Delivery | domain_agent | default | |
-| NIS2-1 | NIS2 | domain_agent | default | |
-| DORA-1 | DORA | domain_agent | default | |
-| GDPR-1 | GDPR | domain_agent | default | |
-| COORD-1 | — | coordinator | default | No domain model |
+| Agent ID | Domain Model | Role | Model/Provider | Trust Boundaries | Notes |
+|----------|-------------|------|----------------|------------------|-------|
+| VC-1 | Value Creation | domain_agent | default | identity, communication | |
+| MK-1 | Marketing | domain_agent | default | identity, communication | |
+| SL-1 | Sales | domain_agent | default | identity, communication | |
+| VD-1 | Value Delivery | domain_agent | default | identity, communication | |
+| NIS2-1 | NIS2 | domain_agent | default | identity, communication | |
+| DORA-1 | DORA | domain_agent | default | identity, communication | |
+| GDPR-1 | GDPR | domain_agent | default | identity, communication | |
+| COORD-1 | — | coordinator | default | communication, oversight | No domain model |
+
+**Trust Boundaries** `[ROBUST]` (from Framework §14.3.10): Declares which trust boundaries each agent's claims cross during deliberation. All domain agents cross `identity` (different domain models) and `communication` (positions flow through Coordinator). The Coordinator crosses `communication` (paraphrases agent positions) and `oversight` (its synthesis is what the Governor reads). Additional boundaries may apply: `memory` (if session spans multiple conversations), `retrieval` (if agent uses reference pool), `execution` (if agent's recommendations drive actions). Claims crossing declared boundaries carry propagation tracking obligations — see Framework §14.3.10.
 
 ### Deliberation Cadence
 - **Trigger:** [on_signal | on_schedule | on_governor_request]
@@ -421,6 +423,9 @@ All Governor decisions are recorded in `decisions/governor-decisions.md` per Cow
 #### Falsifiability
 [What evidence would disprove this recommendation? What observable outcome would cause this agent to reverse its position? Must be specific and testable — not "if the data changes" but "if metric X fails to reach Y by date Z."]
 
+#### Cross-Boundary Claims `[ROBUST]`
+[List any claims in this paper that are NOT grounded in this agent's domain model. For each: state the claim, its basis (training data, another agent's position, external knowledge), and flag as `[UNGROUNDED]` or `[CROSS-DOMAIN: source-model, concept]`. If all claims are grounded in the assigned domain model, state: "All claims grounded in [domain model name]."]
+
 #### Dissent from Prior Cycle
 [If a prior deliberation produced a different recommendation: what changed and why. If first deliberation: "N/A — first cycle."]
 ```
@@ -630,6 +635,17 @@ Every substantive claim in this report traces to a specific source. The Governor
 **Completeness requirement:** Every claim in the Consensus Recommendation, Agreement Map, and Unresolved Disagreements sections must have at least one row in this table. If a claim synthesizes multiple agents' positions, include one row per contributing agent.
 
 **Governor verification:** For hard disagreements, the Governor reads the cited paper section and confirms the verbatim quote is not taken out of context. This is the mechanical verification step — compare claim characterization against source quote.
+
+#### Propagation Audit (from Framework §14.3.10) `[ROBUST]`
+Claims that crossed agent boundaries with ungrounded status:
+
+| # | Claim | Origin Agent | Origin Round | Grounding Status at Origin | Cited By | Independently Grounded? |
+|---|-------|-------------|-------------|---------------------------|----------|------------------------|
+| 1 | [claim summary] | [Agent ID] | [Round N] | [UNGROUNDED / PARTIALLY-UNGROUNDED] | [Coordinator / Agent ID in Round M] | [yes: re-grounded in [model, concept] / no: carried as PROPAGATED-UNGROUNDED] |
+
+If no ungrounded claims crossed boundaries: "No ungrounded claims propagated across agent boundaries."
+
+**Trust boundaries crossed:** [List which trust boundary types (identity, communication, memory, oversight) were active in this deliberation. Note any boundary where grounding status was not preserved.]
 
 #### Signals for Next Cycle
 [What information would change this recommendation? What should the Governor watch for?]
@@ -1016,6 +1032,7 @@ The Framework's seven grounding components (§14.3) apply to deliberation with r
 **Coordinator grounding:**
 - **Synthesis verification (§14.3.5, §9.3):** The Coordinator's primary grounding obligation. Every characterization of an agent's position must include a verbatim quote from the source paper. See §9.3 for the full mechanism.
 - **Attribution (§14.3.4):** The Coordinator maintains attribution chains in the Interim Assessment and Synthesis Report using the structured Attribution Chains table (§4.4): every claim traces to a specific agent ID + paper section + round number + verbatim quote. The Governor can follow the chain: Synthesis Report Attribution Table → Agent ID → Position Paper → Domain Model Concept. Every substantive claim in the Consensus Recommendation, Agreement Map, and Unresolved Disagreements must have a corresponding row.
+- **Propagation tracking (§14.3.10):** `[ROBUST]` When the Coordinator cites a claim that was flagged `[UNGROUNDED]` or `[PARTIALLY-UNGROUNDED]` in the source position paper, the Coordinator must carry the flag as `[PROPAGATED-UNGROUNDED: Agent-ID, Round N]`. The Coordinator produces a Propagation Audit section in the Synthesis Report (§4.4) listing all claims that crossed boundaries with ungrounded status.
 - **No domain advocacy:** The Coordinator does not produce domain-grounded reasoning of its own. It synthesizes agent positions. If the Coordinator introduces a claim that does not trace to any agent's paper, it is flagged as `[COORDINATOR-UNGROUNDED]` — this is a synthesis hallucination vector (§14.2, Continuity Corruption: Synthesis).
 
 **Governor grounding:**
@@ -1144,4 +1161,6 @@ Use this protocol when:
 
 - v0.6 → v0.7 (Sycophancy Detection): Six additions from GOSTA §14.3.9. (a) §3.1 Position Independence Verification — three checks at Round 1 (recommendation alignment, reasoning diversity, OD-anchoring indicator) with convergence probe trigger when Round 1 unanimity detected. (b) §4.2 Interim Assessment template gains Position Independence Assessment fields (unanimity check, reasoning diversity, OD-anchoring indicator, convergence probe required). (c) §4.4 Synthesis Report gains Sycophancy Assessment section (Round 1 independence, OD-anchoring level, Coordinator neutrality self-check, cross-cycle dissent trend). (d) §4.5 Convergence Probe Protocol — new section defining directed adversarial prompt when unanimity detected, with three outcome categories (substantive_dissent/weak_dissent/genuine_alignment). (e) §9.1 OD-anchoring detection added — elevates `groupthink_possible` to `sycophancy_possible` when unanimous recommendation aligns with OD strategy AND OD-anchoring indicator is high. (f) §9.2 sycophancy_possible mitigation — Convergence Probe trigger, Governor option to redact OD strategy rationale. Cowork Protocol updated to v3.6 (cross-deliberation dissent tracking, synthesis sycophancy verification). Framework updated to v6.1 (§14.3.9, Appendix B.11, §16.11 graduation prerequisite).
 
-Framework v6.1 now references this protocol in §7.1 (Deliberation Components), §7.2 (Strategy Cycle escalation check), §4.5 (cross-domain deliberation path), §13.7 (domain model stacking at scale), §14.7 (three-level escalation model), §6.3 (stage-conditional deliberation autonomy), §14.2/§14.3.5 (synthesis hallucination type and grounding component), §14.3.8 (Finding Classification — deliberation and health assessments), §14.3.9 (Sycophancy Detection — deliberation independence and convergence probes), and §18.3/§18.4/§18.5/§18.6 (memory architecture for Coordinator and Domain Agent). The protocol remains a standalone document — it has not been merged into the Cowork Protocol.
+- v0.8 → v0.9 (Cross-Boundary Claim Propagation): Four additions from GOSTA §14.3.10. (a) §4.1 Position Paper template gains Cross-Boundary Claims `[ROBUST]` section — agents must declare any ungrounded or cross-domain claims with provenance flags (`[PROPAGATED-UNGROUNDED: agent-id, round]`, `[CROSS-DOMAIN: source-model, concept]`). (b) §4.4 Synthesis Report template gains Propagation Audit section — table tracking claims that crossed agent boundaries with ungrounded status, plus trust boundaries crossed summary. (c) §2 Agent Roster table gains Trust Boundaries column — each agent role declares which boundary types (identity, planning, communication, memory, retrieval, execution, oversight) it crosses, with explanatory paragraph about per-role boundary defaults. (d) §10.5 Coordinator grounding obligations gains propagation tracking requirement — Coordinator must verify grounding flags preserved across boundaries during synthesis. Cowork Protocol updated to v3.12 (§6.2 `claim_propagation` signal type, §12.11 Cross-Boundary Claim Propagation operationalization, OD template Trust Boundaries column). Sync manifest gains D36-D39, C132-C134.
+
+Framework v6.1 now references this protocol in §7.1 (Deliberation Components), §7.2 (Strategy Cycle escalation check), §4.5 (cross-domain deliberation path), §13.7 (domain model stacking at scale), §14.7 (three-level escalation model), §6.3 (stage-conditional deliberation autonomy), §14.2/§14.3.5 (synthesis hallucination type and grounding component), §14.3.8 (Finding Classification — deliberation and health assessments), §14.3.9 (Sycophancy Detection — deliberation independence and convergence probes), §14.3.10 (Cross-Boundary Claim Propagation — trust boundaries and propagation rules), and §18.3/§18.4/§18.5/§18.6 (memory architecture for Coordinator and Domain Agent). The protocol remains a standalone document — it has not been merged into the Cowork Protocol.

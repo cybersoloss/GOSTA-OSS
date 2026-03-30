@@ -4,7 +4,7 @@
 
 **Usage:** After any Framework edit, grep the "Framework Section" column for the changed section number. Every matching row identifies a protocol section that may need updating. The "Derivation Type" tells you how tightly coupled the dependency is.
 
-**Version:** Framework v6.1 | Cowork Protocol v3.11 | Deliberation Protocol v0.8 | OD Drafting Protocol v0.2
+**Version:** Framework v6.1 | Cowork Protocol v3.12 | Deliberation Protocol v0.9 | OD Drafting Protocol v0.2
 
 ---
 
@@ -17,7 +17,7 @@
 
 ---
 
-## Cowork Protocol (v3.8) Derivations
+## Cowork Protocol (v3.12) Derivations
 
 | # | Framework Section | Protocol Section | Derivation Type | What's Restated/Extended | Last Verified |
 |---|-------------------|------------------|-----------------|--------------------------|---------------|
@@ -152,8 +152,11 @@
 | C129 | §4.6 (Tournament Execution) | signal-entry.md template (Type enum) | extension | `tournament_selection` added to signal Type enum. | v6.1 |
 | C130 | §4.6 (Tournament Execution) | §4 (Field complexity determination) | extension | Note added: tournament fields are `[ESSENTIAL]` and do not require ROBUST condition. | v6.1 |
 | C131 | §4.6 (Tournament Execution) | learnings.md template | extension | Tournament Execution Patterns section added: behavior space effectiveness, dimension source effectiveness, tournament calibration summary. | v6.1 |
+| C132 | §14.3.10 (Cross-Boundary Claim Propagation) | gosta-cowork-protocol.md §6.2 (Signal Types) | extension | `claim_propagation` signal type added: emitted when claims cross agent trust boundaries with grounding status metadata. Fields: claim_summary, source_agent_id, source_round, grounding_status, boundary_crossed, propagation_flag. | v3.12 |
+| C133 | §14.3.10 (Cross-Boundary Claim Propagation) | gosta-cowork-protocol.md §12.11 | extension | Cross-Boundary Claim Propagation operationalized as §12.11: propagation failure modes (flag stripping, authority accumulation, cross-session persistence), grounding provenance flags table, four propagation rules, trust boundary types table, tier implementation (0/1/2+), interaction with §12.5 Synthesis Verification. | v3.12 |
+| C134 | §14.3.10 (Cross-Boundary Claim Propagation — Trust Boundaries) | operating-document.md Agent Roster table | extension | Trust Boundaries Crossed column added to Agent Roster table in OD template. Each agent role declares which trust boundary types it crosses (from Framework §14.3.10 table). Explanatory paragraph references Cowork Protocol §12.11. | v3.12 |
 
-## Deliberation Protocol (v0.8) Derivations
+## Deliberation Protocol (v0.9) Derivations
 
 | # | Framework Section | Protocol Section | Derivation Type | What's Restated/Extended | Last Verified |
 |---|-------------------|------------------|-----------------|--------------------------|---------------|
@@ -193,6 +196,10 @@
 | D30 | §4.6 (Tournament Execution) | §4.1 (Position Paper) | extension | Tournament Evaluation section added: candidate ranking, ranking rationale, cross-cell observation. | v6.1 |
 | D31 | §4.6 (Tournament Execution) | §4.4 (Synthesis Report) | extension | Tournament Selection Recommendation section added: recommended candidate, per-candidate scores, behavior space analysis, structural memory entry. | v6.1 |
 | D32 | §4.6 (Tournament Execution) | §5.1 (Convergence Criteria) | extension | Tournament ranking consensus added as convergence condition. | v6.1 |
+| D36 | §14.3.10 (Cross-Boundary Claim Propagation) | §4.1 (Position Paper — Cross-Boundary Claims section) | extension | Position paper template gains Cross-Boundary Claims `[ROBUST]` section: agents must declare any ungrounded or cross-domain claims with provenance flags. | v0.9 |
+| D37 | §14.3.10 (Cross-Boundary Claim Propagation) | §4.4 (Synthesis Report — Propagation Audit) | extension | Synthesis report template gains Propagation Audit section: table tracking claims that crossed boundaries with ungrounded status, trust boundaries crossed summary. | v0.9 |
+| D38 | §14.3.10 (Cross-Boundary Claim Propagation — Trust Boundaries) | §2 (Agent Roster — Trust Boundaries column) | extension | Agent Roster table gains Trust Boundaries column. Each role declares which boundary types it crosses. Explanatory paragraph about boundary types per role. | v0.9 |
+| D39 | §14.3.10 (Cross-Boundary Claim Propagation) | §10.5 (Coordinator grounding obligations) | extension | Propagation tracking added to Coordinator obligations: verify grounding flags preserved across boundaries during synthesis. | v0.9 |
 
 ## OD Drafting Protocol (v0.2) Derivations
 

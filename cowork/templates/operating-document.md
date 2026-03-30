@@ -222,12 +222,14 @@ This section is required when Deliberation Mode is enabled above. It configures 
 
 ### Agent Roster
 
-| Agent ID | Domain Model | Role | Model/Provider | Notes |
-|----------|-------------|------|----------------|-------|
-| [XX-1] | [Domain Name] | domain_agent | default | |
-| [XX-2] | [Domain Name] | domain_agent | default | |
-| [XX-3] | [Domain Name] | domain_agent | default | |
-| COORD-1 | — | coordinator | default | No domain model |
+| Agent ID | Domain Model | Role | Model/Provider | Trust Boundaries Crossed | Notes |
+|----------|-------------|------|----------------|--------------------------|-------|
+| [XX-1] | [Domain Name] | domain_agent | default | identity, communication | |
+| [XX-2] | [Domain Name] | domain_agent | default | identity, communication | |
+| [XX-3] | [Domain Name] | domain_agent | default | identity, communication | |
+| COORD-1 | — | coordinator | default | identity, communication, planning, oversight | No domain model |
+
+**Trust boundaries** (from Framework §14.3.10): Each agent role crosses specific trust boundaries where grounding status can degrade. Domain agents cross identity (separate agent instance) and communication (position paper → synthesis) boundaries. The Coordinator additionally crosses planning (strategic synthesis) and oversight (presenting to Governor) boundaries. For boundary type definitions, see Cowork Protocol §12.11.
 
 **Roster rules:** One agent per domain model. Coordinator mandatory. Minimum 3 domain agents (below 3, use standard sequential assessment). Recommended 5-7 for full analytical depth; 8-10 viable with 4+ rounds; >10 use cluster-then-synthesize (see Deliberation Protocol §2.2). Agent IDs are stable for the scope's lifetime.
 
