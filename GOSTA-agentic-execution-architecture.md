@@ -84,7 +84,7 @@ The framework defines ~40 named vocabularies — entity statuses, decision types
 | 11 | Worked example (social media growth) | Reference | ROBUST |
 | 12 | Scaling guidance | Governor + AI system | ROBUST |
 | 13 | Domain models | Everyone | CORE (stacking: ROBUST) |
-| 14 | Grounding architecture: 5-category hallucination taxonomy (including reasoning corruption), 9 grounding components — Schema Validation (§14.3.1), Domain Knowledge Store (§14.3.2), Data Grounding (§14.3.3), Attribution (§14.3.4), Synthesis Verification (§14.3.5), Capability Validation (§14.3.6), Reasoning Depth Validation (§14.3.7), Finding Classification (§14.3.8), Sycophancy Detection (§14.3.9) | AI system + AI implementer (Governor: health report interpretation) | ROBUST |
+| 14 | Grounding architecture: 5-category hallucination taxonomy (including reasoning corruption), 8 grounding components (7 core + 1 structural prerequisite) — Schema Validation (§14.3.1), Domain Knowledge Store (§14.3.2), Data Grounding (§14.3.3), Attribution (§14.3.4, prerequisite), Synthesis Verification (§14.3.5), Capability Validation (§14.3.6), Reasoning Depth Validation (§14.3.7), Cross-Boundary Claim Propagation (§14.3.10). Plus cross-cutting annotations: Finding Classification (§14.3.8), Sycophancy Detection (§14.3.9) | AI system + AI implementer (Governor: health report interpretation) | ROBUST |
 | 15 | Systems foundations (theoretical substrate) | Reference | ROBUST |
 | 16 | Implementation sequence, graduation path (prerequisites include semantic coherence validation), Tier 2+ architecture considerations (§16.12) | Governor + AI implementer | CORE (16.11: ADVANCED, 16.12: ROBUST) |
 | 17 | Data architecture (persistence requirements) | AI system + AI implementer | CORE |
@@ -8459,7 +8459,7 @@ Tag: ROBUST
 | Sycophancy verification obligation | Add | Cowork Protocol §12.5 | Governor synthesis verification extended: check Coordinator framing for OD-strategy bias. |
 | Sync manifest sycophancy entries | Add | sync-manifest.md | 8 new entries (C38-C41, D24-D27) mapping §14.3.9 to Cowork Protocol and Deliberation Protocol operationalizations. |
 | **Reading Guide & Production Readiness Audit** | | | |
-| §14 component count corrected | Fix | §0.3 Document Map | Changed "7 grounding components" to "9 grounding components" with full enumeration of §14.3.1-14.3.9. |
+| §14 component count corrected | Fix | §0.3 Document Map | Changed "7 grounding components" to "8 grounding components (7 core + 1 structural prerequisite)" with enumeration of §14.3.1-14.3.7 and §14.3.10 as core components, §14.3.4 as prerequisite. §14.3.8 (Finding Classification) and §14.3.9 (Sycophancy Detection) are cross-cutting annotations, not grounding components. |
 | ROBUST definition expanded | Fix | §0.3 Implementation Tiers | Added §14.3.8 (Finding Classification) and §14.3.9 (Sycophancy Detection) to the ROBUST feature list. |
 | Signal type vocabulary extended | Add | Appendix B.3 | Added 4 missing signal types: `bootstrap_anomaly`, `guardrail_interpretation`, `monitoring_gap`, `domain_model_feedback`. |
 | Bootstrap state conflict resolution | Add | Cowork Protocol §5.1 Step 1b | State conflict resolution protocol: decision log authoritative for decisions, OD authoritative for structure, bootstrap is informational summary. `bootstrap_anomaly` signal on conflict. |

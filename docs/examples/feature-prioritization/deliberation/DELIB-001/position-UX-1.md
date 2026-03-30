@@ -46,3 +46,7 @@ UX-1 is scoped exclusively to Activation Distance and its interactions with othe
 **Negative (require design constraints if built):** F-06, F-09
 
 **G-2 enforcement note:** If F-06 or F-09 proceed, their specifications must include: (1) default role/workflow configurations requiring zero setup, (2) exclusion from onboarding flow, (3) activation distance regression test. Without these, they violate G-2 (hard guardrail).
+
+## Cross-Boundary Claims `[ROBUST]`
+
+One cross-domain claim: F-12 scoring references TECH-1's risk assessment ("high technical risk") as a caveat to the activation benefit. This claim is `[CROSS-DOMAIN: technical-feasibility, Deployment Complexity]` — UX-1 cannot independently verify the technical risk claim and flags it for synthesis verification. All other scores derived from market-fit domain model concepts (Activation Distance only).

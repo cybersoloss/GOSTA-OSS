@@ -162,13 +162,13 @@ Produce an evidence-grounded, cross-domain feature prioritization for the next t
 
 ### Agent Roster
 
-| Agent ID | Domain Model | Role | Model/Provider | Notes |
-|----------|-------------|------|----------------|-------|
-| MKT-1 | market-fit | domain_agent | default | Scores market demand, timing, segment risk |
-| TECH-1 | technical-feasibility | domain_agent | default | Scores effort, risk, architectural fit |
-| REG-1 | regulatory-compliance | domain_agent | default | Scores compliance requirements, enforcement risk |
-| UX-1 | market-fit | domain_agent | default | Activation distance specialist — scores only activation impact |
-| COORD-1 | — | coordinator | default | No domain model — synthesizes across domains |
+| Agent ID | Domain Model | Role | Model/Provider | Trust Boundaries Crossed | Notes |
+|----------|-------------|------|----------------|--------------------------|-------|
+| MKT-1 | market-fit | domain_agent | default | identity, communication | Scores market demand, timing, segment risk |
+| TECH-1 | technical-feasibility | domain_agent | default | identity, communication | Scores effort, risk, architectural fit |
+| REG-1 | regulatory-compliance | domain_agent | default | identity, communication | Scores compliance requirements, enforcement risk |
+| UX-1 | market-fit | domain_agent | default | identity, communication | Activation distance specialist — scores only activation impact |
+| COORD-1 | — | coordinator | default | identity, communication, planning, oversight | No domain model — synthesizes across domains |
 
 **Note on UX-1:** Uses the market-fit domain model but is scoped exclusively to Activation Distance and its interactions. This prevents activation distance from being under-weighted within the broader market-fit assessment. UX-1's position paper covers only activation impact; MKT-1 covers all other market-fit concepts.
 

@@ -138,3 +138,16 @@ Four decisions are structured above (DECISION-1 through DECISION-4). Each presen
 2. Risk appetite for DSAR enforcement during Q2 manual process period (Determines DECISION-2)
 3. Enterprise investment commitment level for Q3 (Determines DECISION-3)
 4. Appetite for F-12 POC investment vs. pure deferral (Determines DECISION-4)
+
+## 8. Propagation Audit `[ROBUST]`
+
+| Claim | Source Agent | Round | Grounding Status | Boundary Crossed |
+|-------|------------|-------|-----------------|------------------|
+| "F-12 carries high technical risk" cited in UX-1 activation assessment | TECH-1 | R1 | `[GROUNDED]` (derived from Integration Surface Area and Deployment Complexity concepts) | communication (position paper → synthesis) |
+
+**Trust boundaries crossed in this deliberation:**
+- Identity: 4 domain agents + 1 coordinator = 5 identity boundaries
+- Communication: 4 position papers → 1 synthesis = 4 communication boundaries
+- Oversight: Synthesis → Governor = 1 oversight boundary
+
+**Propagation assessment:** One cross-domain claim detected (UX-1 citing TECH-1's risk assessment). The source claim is grounded in TECH-1's domain model, so no `[PROPAGATED-UNGROUNDED]` flag required. No authority accumulation detected — no claim was cited by multiple agents from the same ungrounded source. No flag stripping detected.
