@@ -32,7 +32,7 @@ This table is the `[MINIMAL]` compressed format. Always acceptable. Use the full
 
 ### SIG-[sequential-number] | [date]
 - **Source:** [execution | governor | external | computation]
-- **Type:** [action_completion | metric_value | guardrail_violation | guardrail_interpretation | guardrail_recovery | kill_condition | market_event | governor_decision | agent_degradation | signal_pipeline_degradation | signal_pipeline_failure | environmental | milestone | blocker | knowledge_flag | narrative_assessment | cost_exceeded | cost_data_missing | absence (§7.4 `[ROBUST]`) | stakeholder_interaction (§7.4 `[ROBUST]`) | tournament_selection (§4.6 `[ESSENTIAL]`)]
+- **Type:** [action_completion | metric_value | guardrail_violation | guardrail_interpretation | guardrail_recovery | kill_condition | market_event | governor_decision | agent_degradation | signal_pipeline_degradation | signal_pipeline_failure | environmental | milestone | blocker | knowledge_flag | narrative_assessment | cost_exceeded | cost_data_missing | absence (§7.4 `[ROBUST]`) | stakeholder_interaction (§7.4 `[ROBUST]`) | claim_propagation (§14.3.10 `[ROBUST]`) | tournament_selection (§4.6 `[ESSENTIAL]`)]
 - **Attribution:** [Goal] > [Objective] > [Strategy] > [Tactic] > [Action]
 - **Data:** [The actual signal — for simple signals: numeric value, status, or observation text]
 - **Confidence:** [complete | partial | estimated]

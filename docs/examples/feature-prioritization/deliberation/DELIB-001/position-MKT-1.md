@@ -48,3 +48,7 @@
 **Tier 4 (low market priority):** F-07, F-08, F-11
 
 **Explicit caveat:** This ranking ignores technical feasibility and regulatory compliance. F-08 scores 3 from market perspective but may be a hard prerequisite from regulatory perspective. F-02 scores 5 from market perspective but may score much higher from regulatory enforcement risk. Cross-domain synthesis will likely reorder these significantly.
+
+## Cross-Boundary Claims `[ROBUST]`
+
+No ungrounded or cross-domain claims in this paper. All scores derived from market-fit domain model concepts (Activation Distance, Switching Cost Gradient, Market Timing Window, Network Effect Threshold, Segment Concentration Risk). No claims propagated from other agents or prior sessions.

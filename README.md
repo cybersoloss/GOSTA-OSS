@@ -91,7 +91,7 @@ Beyond the five layers, nine subsystems make the control loop reliable:
 
 **Guardrail Architecture** — Typed, inheritable, evaluable constraints. Each guardrail declares severity (hard violations halt execution; soft violations trigger review) and evaluation type (mechanical or interpretive). Guardrails inherit downward through the hierarchy and never relax as they propagate.
 
-**Grounding & Hallucination Prevention** — A 5-category hallucination taxonomy (Form Corruption, Substance Corruption, Signal Corruption, Continuity Corruption, Reasoning Corruption — 11 specific types) with 9 grounding components. The Governor curates **reference pools** to ground AI output in verified content rather than training data — see [Reference Pools](#reference-pools) below.
+**Grounding & Hallucination Prevention** — A 5-category hallucination taxonomy (Form Corruption, Substance Corruption, Signal Corruption, Continuity Corruption, Reasoning Corruption — 11 specific types) with 8 grounding components (7 core + Attribution as structural prerequisite). Finding Classification and Sycophancy Detection are cross-cutting annotations that operate on top of the grounding layer, not grounding components themselves. The Governor curates **reference pools** to ground AI output in verified content rather than training data — see [Reference Pools](#reference-pools) below.
 
 **Reasoning Integrity** — Checks whether the AI's reasoning is sound, not just whether its facts are correct. Depth validation, coverage analysis, chain integrity, finding classification (confirmed / information_gap / conditional), sycophancy detection, and mandatory confounder analysis before kill decisions.
 

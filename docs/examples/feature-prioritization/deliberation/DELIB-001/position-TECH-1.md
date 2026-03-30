@@ -50,3 +50,7 @@
 **Tier 4 (very high risk — requires proof-of-concept first):** F-01, F-12
 
 **Effort summary for Tier 1+2:** ~31-41 FTE-weeks (roughly 2 FTE-quarters). Tiers 1-3 total: 57-86 FTE-weeks (3.5-5.4 FTE-quarters — exceeds G-3 ceiling). Cannot build everything. Tier 4 alone could consume 28-40 FTE-weeks.
+
+## Cross-Boundary Claims `[ROBUST]`
+
+No ungrounded or cross-domain claims in this paper. All scores derived from technical-feasibility domain model concepts (Integration Surface Area, Architectural Debt Ratio, Deployment Complexity, Effort Variance). No claims propagated from other agents or prior sessions.

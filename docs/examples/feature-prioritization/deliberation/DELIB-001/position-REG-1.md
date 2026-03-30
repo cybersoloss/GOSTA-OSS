@@ -51,3 +51,7 @@
 - F-05 MUST NOT ship to EU before F-08 is deployed
 - F-07 MUST NOT ship without lawful basis mechanism
 - F-01 is structurally prerequisite for full EU compliance of any feature processing personal data
+
+## Cross-Boundary Claims `[ROBUST]`
+
+No ungrounded or cross-domain claims in this paper. All scores derived from regulatory-compliance domain model concepts (Enforcement Probability Gradient, Data Flow Sovereignty, Compliance Prerequisite Chain, Regulatory Change Velocity). No claims propagated from other agents or prior sessions.

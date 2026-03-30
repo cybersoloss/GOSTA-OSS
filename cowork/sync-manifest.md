@@ -4,7 +4,7 @@
 
 **Usage:** After any Framework edit, grep the "Framework Section" column for the changed section number. Every matching row identifies a protocol section that may need updating. The "Derivation Type" tells you how tightly coupled the dependency is.
 
-**Version:** Framework v6.1 | Cowork Protocol v3.12 | Deliberation Protocol v0.9 | OD Drafting Protocol v0.2
+**Version:** Framework v6.1 | Cowork Protocol v3.12 | Deliberation Protocol v0.9 | OD Drafting Protocol v0.1
 
 ---
 
@@ -201,7 +201,7 @@
 | D38 | §14.3.10 (Cross-Boundary Claim Propagation — Trust Boundaries) | §2 (Agent Roster — Trust Boundaries column) | extension | Agent Roster table gains Trust Boundaries column. Each role declares which boundary types it crosses. Explanatory paragraph about boundary types per role. | v0.9 |
 | D39 | §14.3.10 (Cross-Boundary Claim Propagation) | §10.5 (Coordinator grounding obligations) | extension | Propagation tracking added to Coordinator obligations: verify grounding flags preserved across boundaries during synthesis. | v0.9 |
 
-## OD Drafting Protocol (v0.2) Derivations
+## OD Drafting Protocol (v0.1) Derivations
 
 | # | Framework Section | Protocol Section | Derivation Type | What's Restated/Extended | Last Verified |
 |---|-------------------|------------------|-----------------|--------------------------|---------------|
