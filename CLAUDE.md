@@ -78,7 +78,7 @@ The source of truth is `GOSTA-agentic-execution-architecture.md` (the spec). All
 **Before any spec or protocol work:**
 
 1. Scan all `##`-level headings in the spec to build a complete section map. Note every section, its number, and its title. This is your table of contents.
-2. For your specific task, identify which sections are relevant from the heading scan, then read those sections in full from the spec itself.
+2. For your specific task, identify which sections are relevant from the heading scan, then read those sections in full from the spec itself. If no specific task is given, read all sections sequentially.
 3. If the task touches protocols (`cowork/`, deliberation, OD drafting), read the relevant spec section first, then the corresponding protocol section. The spec defines intent; the protocol defines operationalization.
 
 **Rules:**
