@@ -1,4 +1,4 @@
-# GOSTA-Cowork Protocol v3.11
+# GOSTA-Cowork Protocol v3.12
 
 **Purpose:** Defines how to run the GOSTA framework with a session-based AI (Claude Cowork or Claude Code) as orchestrator/executor, with a human Governor. No custom infrastructure required — just files and disciplined conversation.
 
@@ -456,6 +456,7 @@ Signals are the data that flows upward through the hierarchy. Logged in markdown
 | `options_universe_confirmed` | Governor | document_name, item_count, confirmed_date | When Governor explicitly confirms the derived item list from a narrative options-universe document (startup.md Step 6 Narrative Options-Universe Gate). Emitted before scoring begins; referenced at all subsequent phase gates. |
 | `cost_exceeded` | Orchestrator (AI) | tactic_id, category, budget, actual | When a tactic's per-cycle cost in any declared category exceeds its budget (§13.3) |
 | `cost_data_missing` | Orchestrator (AI) | tactic_id, category | When actions don't report cost metadata for a declared cost category (§13.3) |
+| `claim_propagation` `[ROBUST]` | Orchestrator (AI) | claim_summary, source_agent_id, source_round, grounding_status (grounded/ungrounded/partially-ungrounded), boundary_crossed (identity/planning/communication/memory/retrieval/execution/oversight), propagation_flag | When a claim crosses an agent trust boundary during deliberation. Emitted by the Coordinator when synthesizing position papers or by the orchestrator when incorporating deliberation outputs into health computation. See Framework §14.3.10 and Deliberation Protocol §4.4 Propagation Audit. |
 | `absence` `[ROBUST]` | Orchestrator (AI) | expected_event, window (start–end), source (tactic_id or scope), severity (early_warning/significant/critical) | When an expected event fails to occur within its defined window. Particularly important for human-participant domains (disengagement is silent). Expected events seeded from domain model patterns, refined by data. |
 | `stakeholder_interaction` `[ROBUST]` | Orchestrator (AI) | interaction_type (collaboration/conflict/mentoring/disengagement/governance_act), participants[], tactic_id (or null), impact_assessment (positive/negative/neutral/unknown), description | When interactions between human subjects of the objective occur outside the Governor↔AI axis. Captures dynamics the framework otherwise cannot see. Presented as separate health report section at strategy review. |
 | `tournament_selection` | Orchestrator (AI) | tournament_mode, tournament_runs, selected_candidate (deliverable_ref), behavior_space (constrained only: dimensions × values), cell_scores (constrained only: per-cell per-model scores), selection_method (governor_choice / highest_mean / highest_minimum) | After tournament evaluation completes and Governor selects winner |
@@ -869,7 +870,7 @@ Four cross-cutting safeguards modify how stages operate at Tier 0. They never gr
 
 ## 12. Grounding and Quality Checks (from GOSTA §14)
 
-The Framework defines seven grounding components (§14.3), organized by the hallucination category they prevent: form corruption (Schema Validation), substance corruption (Domain Knowledge Store, Capability Validation), signal corruption (Data Grounding), continuity corruption (Synthesis Verification), and reasoning corruption (Reasoning Depth Validation), plus Attribution as the structural prerequisite. Memory confabulation (continuity corruption) is mitigated architecturally by the file-based state model. This section operationalizes each component for the Cowork Protocol. Grounding is not optional — it is the mechanism that prevents the framework's feedback loops from operating on hallucinated data. The components are checked at specific points in the session lifecycle (see §5.1 Steps 3 and 4) and during health computation (§7).
+The Framework defines eight grounding components (§14.3), organized by the hallucination category they prevent: form corruption (Schema Validation), substance corruption (Domain Knowledge Store, Capability Validation), signal corruption (Data Grounding), continuity corruption (Synthesis Verification, Cross-Boundary Claim Propagation), and reasoning corruption (Reasoning Depth Validation), plus Attribution as the structural prerequisite. Memory confabulation (continuity corruption) is mitigated architecturally by the file-based state model; claim laundering (continuity corruption) is mitigated by propagation tracking (§12.11). This section operationalizes each component for the Cowork Protocol. Grounding is not optional — it is the mechanism that prevents the framework's feedback loops from operating on hallucinated data. The components are checked at specific points in the session lifecycle (see §5.1 Steps 3 and 4) and during health computation (§7).
 
 ### 12.1 OD Structural Integrity — Schema Validation (from GOSTA §8, §14.3.1)
 
@@ -1074,6 +1075,53 @@ Recommendation: kill. Confounders noted but do not explain the performance gap."
 **Recording:** The Governor's response to each confounder is recorded in the decision entry's `Confounders` section (dismissed with reason, acknowledged, or not applicable). This creates an auditable record of the causal reasoning behind the kill.
 
 **Extension to other decisions `[ROBUST]`:** At `[ROBUST]` complexity, the confounder surface also applies to pivots, strategy kills (WMBT falsification), and A/B winner declarations. At `[CORE]`, only kill decisions trigger confounder assessment.
+
+### 12.11 Cross-Boundary Claim Propagation (from GOSTA §14.3.10) `[ROBUST]`
+
+When claims cross agent trust boundaries — during deliberation synthesis, cross-session context loading, or multi-agent coordination — grounding status can degrade silently. This section operationalizes the propagation tracking that prevents "claim laundering," where `[UNGROUNDED]` flags get stripped as claims move between agents or sessions.
+
+**Propagation failure modes:**
+
+1. **Flag stripping:** An agent receives a claim tagged `[UNGROUNDED]` from a position paper and incorporates it into its synthesis without the flag. The claim now appears grounded.
+2. **Authority accumulation:** A claim cited by multiple agents in separate position papers gains apparent consensus weight, even though all agents derived it from the same ungrounded source.
+3. **Cross-session persistence:** A claim marked `[UNGROUNDED]` in session N appears in session N+1's bootstrap without the flag, because the bootstrap summary didn't preserve grounding metadata.
+
+**Grounding provenance flags (from Framework §14.3.10):**
+
+| Flag | Meaning | When Applied |
+|------|---------|--------------|
+| `[GROUNDED]` | Claim traces to a domain model concept with supporting evidence | Default for properly grounded claims |
+| `[UNGROUNDED]` | Claim lacks domain model support or evidence | Applied by §12.2 checks |
+| `[PARTIALLY-UNGROUNDED]` | Some sub-claims are grounded, others are not | Applied when compound claims have mixed grounding |
+| `[PROPAGATED-UNGROUNDED: agent-id, round]` | Claim was received ungrounded from another agent | Applied during synthesis when incorporating cross-boundary claims |
+| `[CROSS-DOMAIN: source-model, concept]` | Claim originates from a different domain model than the current agent's | Applied when domain agents cite concepts outside their assigned model |
+
+**Propagation rules:**
+
+1. **Flag preservation:** When incorporating a claim from another agent's output, the receiving agent must preserve the original grounding flag. If the original flag is `[UNGROUNDED]`, the receiving agent may upgrade it to `[GROUNDED]` only by providing independent evidence from its own domain model.
+2. **Source attribution:** Claims crossing a trust boundary must carry `[PROPAGATED-UNGROUNDED: agent-id, round]` if their source was ungrounded. The Coordinator must not strip this flag during synthesis.
+3. **Consensus independence:** Multiple agents citing the same ungrounded claim does not make it grounded. The Coordinator must trace citation chains — if all paths lead to the same ungrounded source, the synthesized finding retains `[UNGROUNDED]`.
+4. **Cross-session propagation:** Bootstrap files and session logs must preserve grounding flags for any claims carried forward. The AI must not summarize away grounding metadata.
+
+**Trust boundary types (from Framework §14.3.10):**
+
+| Boundary Type | Description | Primary Risk |
+|---------------|-------------|-------------|
+| Identity | Between distinct agent instances | Flag stripping during handoff |
+| Planning | Between strategic and tactical reasoning | Ungrounded strategy claims inherited as grounded tactic assumptions |
+| Communication | Between position papers and synthesis | Authority accumulation through repeated citation |
+| Memory | Between sessions or context windows | Flag loss during summarization |
+| Retrieval | Between stored knowledge and active reasoning | Stale grounding status on retrieved claims |
+| Execution | Between plan specification and action execution | Capability claims assumed without validation |
+| Oversight | Between AI reasoning and Governor review | Ungrounded recommendations presented without grounding metadata |
+
+**Tier implementation:**
+
+- **Tier 0:** The AI self-checks propagation at two points: (a) during deliberation synthesis (§12.5), verify that all cross-agent claims preserve grounding flags; (b) at session start (Step 1), verify that bootstrap claims carry grounding metadata from prior sessions. Violations are logged as `claim_propagation` signals (§6.2).
+- **Tier 1:** System-enforced flag preservation — the orchestrator rejects synthesis outputs that reference claims without grounding flags. Automated cross-session grounding metadata in bootstrap files.
+- **Tier 2+:** Automated propagation audit across all trust boundaries. Claims crossing more than two boundaries without independent grounding are auto-flagged for Governor review.
+
+**Interaction with §12.5 (Synthesis Verification):** Propagation tracking complements synthesis verification. §12.5 checks whether the Coordinator faithfully represented agent positions; §12.11 checks whether grounding status was preserved across the boundary. A synthesis can be faithful (accurately representing what agents said) but still propagate ungrounded claims if the agents themselves had ungrounded inputs.
 
 ---
 
@@ -1487,3 +1535,4 @@ For simple scoring (no deliberation needed), Level 3 can still use direct parall
 | 3.8 | 2026-03-24 | Reference pool semantic agent. §18.5 rewritten: semantic pool-agent replaces index-first approach for pools >50 items. Tool at `cowork/tools/pool-agent.py` (all-MiniLM-L6-v2 ONNX, no torch, no API). Score thresholds: ≥0.58 full read / 0.50–0.57 excerpt / <0.50 ignore. Fallback index-first retained for pools without a built store. OD template: Reference Materials section added with `pool_consumption` and `pool_agent_store` fields. §18.3 session CLAUDE.md snippet: pool-agent invocation pattern and score thresholds added. CLAUDE.md Core Rules: pool-agent rule added. |
 | 3.7 | 2026-03-23 | Evidence pool and scoring robustness (from product-value-validation session feedback FB-001 through FB-006). Signal-first execution pattern and compressed signal format (from stress-test report Gap 1.2). OD template scope-type branching for analytical objectives (from stress-test report Gap 1.3). §18.5: Reference Pool Consumption Strategy — index-first protocol for pools >50 items, OD `pool_consumption_strategy` field, checkpoint-before-narrative pattern. §18.5→§18.6 renumbering (Multi-Agent Parallelism). §5.2 Bootstrap Session: Guardrail feasibility check — verify guardrails referencing evidence can be enforced given actual inputs, `feasibility-limited` flag for structurally unsupported guardrails. Phase Gate Enforcement Protocol item 7: Kill condition discriminating power check — assess whether kill conditions could plausibly trigger given known inputs, `non-discriminating` flag with recalibration recommendation. §7.6: Per-domain anchoring for multi-domain scoring — 3 reference anchors per domain, mid-pass consistency check for >30 scoring decisions. OD template: Evidence Blind Spots field in tactic template — declare items where pool structurally cannot observe failure modes, alternative evidence sources, `[BLIND-SPOT]` annotation. OD template: Domain Model Adaptations section — per-concept applicability mapping (applies/does-not-apply/requires-interpretation) when reusing models across analytical contexts. | §6.2: Signal integrity check — narrative-quantitative divergence detection with `[DIVERGENCE]` tag. §7.1: Kill Proximity Alerting (20% threshold, consecutive cycle tracking), Signal-Recommendation Consistency Check (flag when signals trend negative but persevere recommended), Signal Integrity Check (discard qualitative framing for divergence-tagged signals). §7.1 Output: Mandatory non-empty Risk Factors section with sycophancy self-check. Sycophancy self-check timing specified: after Signal Integrity Check, before output generation, with previous cycle comparison. §5.1 Step 1b: Bootstrap state conflict resolution protocol added — decision log authoritative for decisions, OD for structure, bootstrap is summary. `bootstrap_anomaly` signal on conflict. §7.5: Cross-deliberation dissent frequency tracking (`low_dissent_frequency` flag). §12.5: Sycophancy verification in Governor synthesis review (Coordinator framing bias check). CLAUDE.md: Core Rules for risk surfacing and alignment checking. Templates updated: health-report.md (Risk Factors section, Signal-Recommendation Alignment fields, Sycophancy Indicators), signal-entry.md (Signal Integrity Check), session-log.md (Sycophancy Flags field), operating-document.md (kill proximity threshold), learnings.md (Dissent Frequency Tracking), deliberation-status.md (Independence Assessment). |
 | 3.11 | 2026-03-26 | Consistency audit fixes (cowork ↔ deliberation protocol ↔ spec). §7.6: Scoring scale bands aligned to spec §20.10 (5 bands: 1-2 Absent, 3-4 Weak, 5-6 Moderate, 7-8 Strong, 9-10 Exceptional — was 4 bands). §7.5: Min Rounds hard floor cross-referenced from Deliberation Protocol §5.1; role-bleed warning expanded with mitigation actions; convergence probe cross-referenced from §4.5. §3 File Structure: deliberation/ directory added. §4: OD Deliberation section requirements specified with cross-reference to Deliberation Protocol §2.1. §6.1: Agent Source field added to signal format (deliberation-mode only). §12.5: Extended grounding obligations paragraph added referencing Deliberation Protocol §10.5. §3.1: Domain model authoring protocol cross-reference added. §3.1.1: First-cycle correction-derived domain model creation (operationalizes Framework §21.11). §4 replacement protocol: four concrete replacement options with routing to authoring procedures. §6.3 triage threshold and §12.2 UNGROUNDED flag: routing to domain model creation procedures. |
+| 3.12 | 2026-03-30 | Cross-Boundary Claim Propagation (Framework §14.3.10). §6.2: `claim_propagation` signal type added — emitted when claims cross agent trust boundaries during deliberation, with grounding status metadata (source_agent_id, grounding_status, boundary_crossed, propagation_flag). §12 intro updated: seven → eight grounding components, claim laundering (continuity corruption) added. §12.11: Cross-Boundary Claim Propagation operationalized — three propagation failure modes (flag stripping, authority accumulation, cross-session persistence), grounding provenance flags table (`[GROUNDED]`, `[UNGROUNDED]`, `[PARTIALLY-UNGROUNDED]`, `[PROPAGATED-UNGROUNDED]`, `[CROSS-DOMAIN]`), four propagation rules, seven trust boundary types table, tier implementation (0/1/2+), interaction with §12.5 Synthesis Verification. OD template: Agent Roster gains Trust Boundaries column with per-role boundary declarations. Deliberation Protocol updated to v0.9 (position paper cross-boundary claims, synthesis propagation audit, roster trust boundaries, coordinator propagation tracking). |

@@ -4434,14 +4434,14 @@ Reasoning corruption is distinct from substance corruption (Category 2). In subs
 | Form | Structural | GOSTA hierarchy | Deterministic schema validation |
 | Substance | Domain, Capability | Agent output quality | Domain model checks, capability registry |
 | Signal | Metric/Data, Status, Temporal | Feedback loop | Data source verification, provenance, staleness checks |
-| Continuity | Synthesis, Memory confabulation | Cross-boundary information flow | Source-vs-representation comparison, file-based state |
+| Continuity | Synthesis, Memory confabulation, Claim laundering | Cross-boundary information flow | Source-vs-representation comparison, file-based state, propagation tracking (§14.3.10) |
 | Reasoning | Shallow application, Concept omission, Chain gap | Reasoning quality (not reasoning existence) | Depth checks, coverage checks, chain integrity checks (§14.3.7) |
 
 **Severity by tier.** Form and substance corruption are equally severe at all tiers. Signal corruption is equally severe at all tiers (though mitigations improve at higher tiers). Continuity corruption varies: synthesis hallucination is equally severe whenever deliberation is active; memory confabulation is primarily a Tier 0 concern because the architecture eliminates it at Tier 1+ through database-backed state. Reasoning corruption is equally severe at all tiers and uniquely dangerous because it passes all other validation — grounding checks confirm the cited concepts are real, retrieval faithfulness checks confirm the definitions are accurate, yet the reasoning connecting concept to recommendation is perfunctory or incomplete.
 
 ### 14.3 Grounding Components
 
-The grounding architecture has six core components plus one structural prerequisite. Each addresses one or more hallucination categories from the taxonomy (§14.2). Schema Validation prevents form corruption. Domain Knowledge Store prevents substance corruption (domain hallucination). Capability Validation prevents substance corruption (capability hallucination). Data Grounding prevents signal corruption (metric/data, status, and temporal hallucination). Synthesis Verification prevents continuity corruption (synthesis hallucination). Reasoning Depth Validation prevents reasoning corruption (shallow application, concept omission, chain gaps). Memory confabulation is prevented architecturally by the file-based state model (§7.11) rather than by a dedicated grounding component. Attribution is the structural prerequisite that makes all six components functional.
+The grounding architecture has seven core components plus one structural prerequisite. Each addresses one or more hallucination categories from the taxonomy (§14.2). Schema Validation prevents form corruption. Domain Knowledge Store prevents substance corruption (domain hallucination). Capability Validation prevents substance corruption (capability hallucination). Data Grounding prevents signal corruption (metric/data, status, and temporal hallucination). Synthesis Verification prevents continuity corruption (synthesis hallucination). Reasoning Depth Validation prevents reasoning corruption (shallow application, concept omission, chain gaps). Cross-Boundary Claim Propagation prevents continuity corruption (claim laundering — ungrounded claims gaining false legitimacy as they cross agent or session boundaries). Memory confabulation is prevented architecturally by the file-based state model (§7.11) rather than by a dedicated grounding component. Attribution is the structural prerequisite that makes all seven components functional.
 
 #### 14.3.1 Schema Validation — Prevents Structural Hallucination
 
@@ -4764,6 +4764,58 @@ For hard guardrail violations classified as `information_gap`: the system still 
 - *Tier 2+:* Sycophancy indicators feed into governance dashboards — trend analysis of flag frequency, cross-scope comparison, and predictive flagging ("this orchestrator instance has shown increasing generic_risk_section flags over 5 cycles").
 
 **Build priority:** Ninth. Build after Finding Classification (§14.3.8) is operational. Sycophancy detection consumes the outputs of health computation, signal recording, and deliberation — those must be in place first. At Tier 0, this is primarily an AI self-discipline that improves framing transparency. At Tier 1+, it becomes a programmatic check layer.
+
+#### 14.3.10 Cross-Boundary Claim Propagation — Prevents Claim Laundering `[ROBUST]`
+
+**What it does:** Tracks claims as they cross agent boundaries during deliberation and cross session boundaries over time, preventing ungrounded claims from gaining false legitimacy through propagation. When a claim originates with an `[UNGROUNDED]` flag in one agent's position paper but is cited by the Coordinator or another agent without the flag, the ungrounded status is "laundered" — the claim appears grounded because it has an attribution chain, even though the chain originates in ungrounded reasoning.
+
+**Why it's needed:** Existing grounding checks (§14.3.2 domain model grounding, §14.3.5 synthesis verification) verify that claims are grounded *within* a single agent and that the Coordinator accurately represents positions. But neither tracks what happens to the grounding status of a claim as it crosses boundaries. Three propagation failure modes:
+
+1. **Flag stripping.** Agent A marks a claim `[UNGROUNDED]`. The Coordinator summarizes Agent A's position without the flag. The Governor reads the synthesis and treats the claim as grounded because it has an attribution (Agent A said it) without the qualification (Agent A flagged it as ungrounded).
+
+2. **Authority accumulation.** Agent A makes an `[UNGROUNDED]` speculative claim. Agent B, in Round 2, treats Agent A's claim as evidence for its own argument — citing "Agent A's analysis shows X" without noting the ungrounded status. The claim now has two agents behind it, neither of whom grounded it in a domain model.
+
+3. **Cross-session persistence.** A claim marked `[UNGROUNDED]` in session N's synthesis report enters learnings or domain model feedback. In session N+1, an agent retrieves it from learnings as an established finding. The original `[UNGROUNDED]` flag is lost because learnings don't carry provenance granularity.
+
+**How it works:**
+
+Claims carry a **grounding provenance** that persists across boundaries:
+
+- `[GROUNDED: domain-model-name, concept-name]` — claim traces to a specific domain model concept via cite-then-apply.
+- `[UNGROUNDED]` — claim is based on training data or speculation, not domain model.
+- `[PARTIALLY-UNGROUNDED]` — claim mixes grounded and ungrounded reasoning.
+- `[PROPAGATED-UNGROUNDED: origin-agent-id, origin-round]` — claim was originally ungrounded and has crossed at least one agent boundary without being independently grounded.
+
+**Propagation rules:**
+
+1. When the Coordinator cites an `[UNGROUNDED]` claim from a domain agent, the Coordinator must carry the flag: `[PROPAGATED-UNGROUNDED: Agent-ID, Round N]`.
+2. When a domain agent in Round 2+ cites another agent's claim (via the Coordinator's interim assessment), and the original claim was `[UNGROUNDED]`, the citing agent must either: (a) independently ground the claim in its own domain model (converting it to `[GROUNDED]` with its own citation), or (b) carry the propagation flag: `[PROPAGATED-UNGROUNDED: original-Agent-ID, Round N]`.
+3. When a synthesis report claim carries `[PROPAGATED-UNGROUNDED]`, the Governor sees the flag and its origin. The Governor can: accept (acknowledging the ungrounded basis), request grounding (send back for domain model support), or reject.
+4. When learnings or domain model feedback entries originate from claims that were `[UNGROUNDED]` or `[PROPAGATED-UNGROUNDED]` in the deliberation, the entry must carry a `provenance: ungrounded-deliberation` tag. Agents in future sessions that retrieve this entry see the tag and treat it with lower confidence.
+
+**Trust boundary classification:**
+
+Claim propagation risk varies by the type of boundary crossed. GOSTA recognizes seven trust boundaries where claims require scrutiny during transfer:
+
+| Boundary | Description | Risk | Mitigation |
+|----------|-------------|------|------------|
+| **Identity** | Claim crosses from an agent grounded in domain model A to an agent grounded in domain model B | Domain concepts may not translate; a "high risk" in regulatory domain means something different than "high risk" in market-fit domain | Coordinator flags cross-domain concept usage; receiving agent must re-ground in its own model or mark `[CROSS-DOMAIN]` |
+| **Planning** | Claim about strategy or tactic viability crosses from assessment to execution | Assessment may not account for execution constraints | Capability validation (§14.3.6) at the crossing point |
+| **Communication** | Claim is paraphrased or summarized as it crosses from one agent to the Coordinator or from Coordinator to another agent | Paraphrase distortion (§14.3.5 synthesis hallucination) | Verbatim quoting requirement in synthesis; cite-then-apply discipline |
+| **Memory** | Claim crosses session boundaries via learnings, bootstrap files, or domain model feedback | Provenance loss; context loss; flag stripping | `provenance: ungrounded-deliberation` tag on learnings entries |
+| **Retrieval** | Claim is retrieved from a reference pool or domain model and applied to a different context than its origin | Retrieval faithfulness distortion (§14.3.2 narrowing/broadening/drift) | Cite-then-apply discipline; retrieval faithfulness check |
+| **Execution** | Claim about what should happen (plan) crosses to what actually happens (action) | Capability gap between plan and execution | Capability validation (§14.3.6) |
+| **Oversight** | Claim crosses from the AI system to the Governor for decision-making | Governor may not have context to evaluate claim quality | Grounding flags visible in health reports and synthesis reports |
+
+**Tier implementation:**
+
+- *Tier 0:* The AI performs propagation tracking as a cognitive discipline. When summarizing another agent's position, the AI checks: "Was this claim grounded in a domain model, or was it marked `[UNGROUNDED]`? If ungrounded, I must carry the flag." The Coordinator's synthesis report includes a **Propagation Audit** section listing any claims that crossed boundaries with `[PROPAGATED-UNGROUNDED]` status. The Governor reviews this section alongside the standard sycophancy self-check.
+- *Tier 1:* Automated flag propagation. The system tracks grounding status per claim across agent boundaries. When the Coordinator generates an interim assessment or synthesis, the system auto-populates `[PROPAGATED-UNGROUNDED]` flags by tracing each cited claim back to its origin in the position papers. Flag stripping triggers an automated warning.
+- *Tier 2+:* Full claim lineage tracking. Every claim in the system carries a provenance chain: origin agent → boundary crossings → current location. Dashboards show claim propagation paths and flag accumulation patterns. Cross-session claim provenance is maintained in the signal store.
+
+**Relationship to other grounding components:** Cross-boundary claim propagation is the *transport layer* counterpart to the existing *production layer* checks. Domain model grounding (§14.3.2) ensures claims are grounded when produced. Data grounding (§14.3.3) ensures signals are grounded when emitted. Synthesis verification (§14.3.5) ensures representations are accurate when transmitted. Cross-boundary claim propagation ensures grounding status is *preserved* as claims move through the system — it catches the case where all three production-layer checks pass but the grounding flag is lost in transit.
+
+**Build priority:** Tenth. Build after Sycophancy Detection (§14.3.9) is operational. Depends on Attribution (§14.3.4) for claim lineage and Synthesis Verification (§14.3.5) for cross-agent boundary detection. At Tier 0, this is primarily a Coordinator discipline during synthesis. At Tier 1+, it becomes an automated tracking system.
 
 ### 14.4 How Grounding Integrates with the Framework
 
@@ -7846,6 +7898,16 @@ Tag: ROBUST
 **Convergence probe** (§14.3.9, Deliberation Protocol §4.5): Directed adversarial prompt issued when Round 1 unanimity is detected. All domain agents must construct the strongest counter-argument from their domain perspective. Three outcomes: `substantive_dissent` (genuine disagreement surfaced), `weak_dissent` (token dissent without genuine engagement), `genuine_alignment` (agents cannot construct counter-arguments and explain why). — ROBUST
 
 **Position independence indicators** (§14.3.9, Deliberation Protocol §3.1): `reasoning_diversity` (diverse / homogeneous), `od_anchoring_level` (low / moderate / high — based on ratio of OD citations to domain model citations in position papers). — ROBUST
+
+### B.12 Cross-Boundary Claim Propagation Vocabulary
+
+**Grounding provenance flags** (§14.3.10): `[GROUNDED: model, concept]` (claim traces to domain model via cite-then-apply), `[UNGROUNDED]` (claim based on training data, not domain model), `[PARTIALLY-UNGROUNDED]` (mixed grounded and ungrounded reasoning), `[PROPAGATED-UNGROUNDED: agent-id, round]` (claim crossed agent boundary without independent grounding — carries origin trace). — ROBUST
+
+**Trust boundary types** (§14.3.10): `identity` (claim crosses domain model boundaries — concept translation risk), `planning` (claim crosses from assessment to execution — feasibility risk), `communication` (claim is paraphrased/summarized crossing agents — distortion risk), `memory` (claim crosses session boundaries — provenance loss risk), `retrieval` (claim retrieved from pool/model and applied to different context — faithfulness risk), `execution` (plan crosses to action — capability gap risk), `oversight` (claim crosses from AI to Governor — context gap risk). — ROBUST
+
+**Propagation audit** (§14.3.10, Deliberation Protocol §4.4): Synthesis report section listing all claims that crossed agent boundaries with `[PROPAGATED-UNGROUNDED]` status, their origin agent and round, and whether they were independently grounded by any receiving agent. Governor reviews alongside sycophancy self-check. — ROBUST
+
+**Cross-domain concept flag** (§14.3.10): `[CROSS-DOMAIN: source-model, concept]` — applied when a domain agent in Round 2+ references a concept from another agent's domain without re-grounding it in its own model. Advisory, not blocking — but makes cross-domain reasoning visible. — ROBUST
 
 ---
 
