@@ -4,7 +4,7 @@
 **Scope Type:** finite
 **Complexity:** complex
 **GOSTA Version:** v6.1
-**Cowork Protocol:** v3.11
+**Cowork Protocol:** v3.12
 **Deliberation Protocol:** v0.8
 **Mode:** cowork
 **Deliberation Mode:** enabled

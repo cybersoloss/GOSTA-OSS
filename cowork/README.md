@@ -1,4 +1,4 @@
-# GOSTA-Cowork Protocol v3.11
+# GOSTA-Cowork Protocol v3.12
 
 > **Status:** Beta — Specification complete. Tier 0 usable. Tier 1 implementation next.
 
@@ -41,7 +41,7 @@ Run the GOSTA framework with any session-based AI (Claude, ChatGPT, or similar) 
 ```
 cowork/
 ├── CLAUDE.md                          ← Claude Code directive (copy to session)
-├── gosta-cowork-protocol.md           ← The protocol (v3.11)
+├── gosta-cowork-protocol.md           ← The protocol (v3.12)
 ├── startup.md                         ← Interactive bootstrap (recommended)
 ├── session-launcher-template.md       ← Manual template bootstrap (alternative)
 ├── README.md                          ← This file

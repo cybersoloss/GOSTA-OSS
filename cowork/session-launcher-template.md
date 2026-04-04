@@ -4,7 +4,7 @@
 
 **Usage:** Copy this file → replace all `{{PLACEHOLDER}}` values → paste the filled prompt into a fresh session.
 
-**Alternative:** For an interactive Q&A-driven bootstrap (no manual editing), use `cowork/startup.md` instead.
+**Relationship to startup.md:** This template is a manual-fill alternative to `cowork/startup.md`, which is the **primary entry point** (see `CLAUDE.md`). Both produce identical session structures. When they diverge, `startup.md` is authoritative — it is actively maintained and incorporates the latest protocol extensions. Use this template when you prefer manual editing over interactive Q&A.
 
 ---
 
@@ -17,7 +17,7 @@ You are running a GOSTA scope. Your first task is to set up the session director
 Read these files before doing anything else:
 
 ```
-cowork/gosta-cowork-protocol.md                        ← Execution protocol (v3.11) — full read
+cowork/gosta-cowork-protocol.md                        ← Execution protocol (v3.12) — full read
 cowork/deliberation-protocol.md                        ← Full read if deliberation enabled; skim §1-§3 if disabled
 GOSTA-agentic-execution-architecture.md:
   - Section 0  (overview, tiers, implementation)       ← Required
@@ -337,7 +337,7 @@ Wait for Governor approval before proceeding to Phase 1.
 ## Template Maintenance Notes
 
 **Version:** 1.4
-**Protocol version:** 3.11
+**Protocol version:** 3.12
 **Framework version:** 6.1
 **Deliberation Protocol version:** 0.7
 

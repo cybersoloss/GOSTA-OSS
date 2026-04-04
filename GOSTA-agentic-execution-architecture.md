@@ -90,8 +90,8 @@ The framework defines ~40 named vocabularies — entity statuses, decision types
 | 17 | Data architecture (persistence requirements) | AI system + AI implementer | CORE |
 | 18 | Memory architecture: 3 storage tiers (working, episodic, structural) + 3 functional cross-cutting types (procedural, prospective, meta-memory) = 6 memory types; 7th type (shared) at ADVANCED for multi-scope hierarchies | AI system + AI implementer | ROBUST (18.2.7 Shared: ADVANCED) |
 | 19 | Knowledge requirements per process | AI system + AI implementer | ROBUST |
-| 20 | Computation definitions, goal health computation, multi-phase signal production, metric lag adjustment, resource-normalized A/B comparison | Everyone | CORE (20.3, 20.5.1, 20.6, 20.8, 20.9, 20.10-20.12: ROBUST) |
-| 21 | Operating document authoring guide | Everyone | CORE |
+| 20 | Computation definitions, goal health computation, multi-phase signal production, metric lag adjustment, threshold calibration status, resource-normalized A/B comparison | Everyone | CORE (20.3, 20.5.1, 20.6, 20.8, 20.9, 20.10-20.12: ROBUST) |
+| 21 | Operating document authoring guide, Governor expertise gap handling | Everyone | CORE (21.11 Governor expertise gap: ROBUST) |
 | 22 | Execution protocols: conformance requirements, Finite Stateless Pattern | AI system + AI implementer + Governor | CORE |
 | Appendix B | Vocabulary & taxonomy index: all entity statuses, decision types, signal types, kill reasons, scope types, guardrail types, memory types, learning vectors, hallucination taxonomy, grounding components, autonomy stages, failure modes | Everyone | REFERENCE (cross-tier, cross-complexity) |
 | Appendix A | Version history (changelog v4–v6.0) | Reference | REFERENCE (optional) |
@@ -113,7 +113,7 @@ Two independent dimensions determine what you need:
 **Dimension 1: Feature Complexity — what to read.** Sections are tagged with complexity markers that indicate when to adopt them:
 
 - **`[CORE]`** — Required for any GOSTA implementation at any tier. Without these, the system doesn't function. Read these first.
-- **`[ROBUST]`** — Handles edge cases, adds operational resilience, and supports non-trivial deployments (A/B testing, domain model stacking, grounding architecture, hallucination prevention, memory taxonomy, autonomy safeguards, failure resilience, environmental scanning, cadence evaluation, goal health computation (including multi-phase signal production and metric lag adjustment — §20.3, resource-normalized A/B comparison — §20.9), semantic coherence validation, decision-to-state traceability, OD state versioning, entity status vocabularies (goal, A/B variant, strategy terminal with `graduated` state — §3.1, §4.2, §7.8), feature interaction rules (§8.5, including cross-strategy kill sequencing, data carryover, cold start, committed action on pivot, API outage kill timer, complementary strategy synergy), autonomous action loop guard (§5.1), guardrail reclassification (§5.1), informed user override (§6.1), Governor succession (§6.1), delegated reviewers (§6.3), precondition validation, deferral, and override (§7.2), signal pipeline degradation and failure signals (§7.4, §17.2.2), analytical scope extensions (§3.6 — tactic dependencies, first-use calibration, qualitative kill validation, sequential isolation/independence levels), runtime domain model quality detection and source credibility (§13.3), learning-triggered domain model changes (§19.9), OD authoring patterns (WMBT vs. guardrail — §21.5, aspiration-floor — §21.4, precondition authoring — §21.7), multi-goal scope status aggregation and cross-objective tradeoff governance (§20.12), execution-completion kill condition default (§8.1.1), external dependency pre-kill viability check (§4.3), Governor attention capacity validation (§6.1), execution cost tracking (§13.3), causal context assessment beyond kill decisions, interface contracts between components (§8.6 — signal emission, health computation, decision-to-OD, OD-to-work-plan, memory loading, learning routing, environmental monitoring, deliberation output), reasoning depth validation — §14.3.7 depth/coverage/chain integrity checks with `[SHALLOW]` flag, finding classification — §14.3.8 epistemic annotation (confirmed/information_gap/conditional) for health assessments and deliberation findings with autonomy constraints at Stage 3+, sycophancy detection — §14.3.9 health report risk factors, signal-recommendation consistency, kill proximity alerting, deliberation convergence probes and position independence verification, deliberation — see §7.1 Deliberation Components, §14.7 Multi-Domain Consultation Pattern). Read these when your first operating document is running and you've hit your first tactic review — or immediately if your scope requires features tagged ROBUST (e.g., deliberation, multi-domain grounding, Stage 3 autonomy safeguards).
+- **`[ROBUST]`** — Handles edge cases, adds operational resilience, and supports non-trivial deployments (A/B testing, domain model stacking, grounding architecture, hallucination prevention, memory taxonomy, autonomy safeguards, failure resilience, environmental scanning, cadence evaluation, goal health computation (including multi-phase signal production and metric lag adjustment — §20.3, resource-normalized A/B comparison — §20.9), semantic coherence validation, decision-to-state traceability, OD state versioning, entity status vocabularies (goal, A/B variant, strategy terminal with `graduated` state — §3.1, §4.2, §7.8), feature interaction rules (§8.5, including cross-strategy kill sequencing, data carryover, cold start, committed action on pivot, API outage kill timer, complementary strategy synergy), autonomous action loop guard (§5.1), guardrail reclassification (§5.1), informed user override (§6.1), Governor succession (§6.1), delegated reviewers (§6.3), precondition validation, deferral, and override (§7.2), signal pipeline degradation and failure signals (§7.4, §17.2.2), analytical scope extensions (§3.6 — tactic dependencies, first-use calibration, qualitative kill validation, sequential isolation/independence levels), runtime domain model quality detection and source credibility (§13.3), learning-triggered domain model changes (§19.9), OD authoring patterns (WMBT vs. guardrail — §21.5, aspiration-floor — §21.4, precondition authoring — §21.7), multi-goal scope status aggregation and cross-objective tradeoff governance (§20.12), execution-completion kill condition default (§8.1.1), external dependency pre-kill viability check (§4.3), Governor attention capacity validation (§6.1), execution cost tracking (§13.3), causal context assessment beyond kill decisions, interface contracts between components (§8.6 — signal emission, health computation, decision-to-OD, OD-to-work-plan, memory loading, learning routing, environmental monitoring, deliberation output), reasoning depth validation — §14.3.7 depth/coverage/chain integrity checks with `[SHALLOW]` flag, finding classification — §14.3.8 epistemic annotation (confirmed/information_gap/conditional) for health assessments and deliberation findings with autonomy constraints at Stage 3+, sycophancy detection — §14.3.9 health report risk factors, signal-recommendation consistency, kill proximity alerting, deliberation convergence probes and position independence verification, threshold calibration status for kill conditions — §20.3 provisional/calibrated annotation preventing kills against unvalidated thresholds, Governor expertise gap detection and domain model validation fallbacks — §21.11 source-grounded building, domain expert review, or `[UNVALIDATED]` annotation propagation, deliberation — see §7.1 Deliberation Components, §14.7 Multi-Domain Consultation Pattern). Read these when your first operating document is running and you've hit your first tactic review — or immediately if your scope requires features tagged ROBUST (e.g., deliberation, multi-domain grounding, Stage 3 autonomy safeguards).
 - **`[ADVANCED]`** — Supports finite scopes, multi-scope hierarchies, Stage 3+ autonomy, and production hardening (decision reversal — §4.3, upward cascade governance — §4.3, strategy kill with child scope disposition — §4.3/§7.10, child scope graduation guidance — §3.5, conversion funnel tracking — §7.2, decision batching — §7.2, cascading failure propagation — §7.13.5, advanced invariants — §8.1.3, custom review triggers and alternate Governor — §9.2, metric lag fields and metric prerequisites — §10, re-graduation after regression — §16.11.1, shared memory / cross-scope learning — §18.2.7, mid-execution precondition failure — §7.2, signal divergence detection — §4.2). Read these when you're operating multiple scopes, building toward autonomous operation, or working in domains with external dependencies.
 
 If a section has no marker, it is `[CORE]`.
@@ -3946,6 +3946,7 @@ Every version is saved. The version history, combined with the decision log, cre
 | Success Metrics | `[CORE]` | 2–3 leading indicators with target values |
 | Kill Condition | `[CORE]` | "If [metric] has not reached [value] by [date], kill or pivot" |
 | Kill Requires | `[ROBUST]` | `autonomous` (default) or `governor_approval`. When set to `governor_approval`, this tactic cannot be auto-killed at any stage — kill recommendations are always escalated to the Governor regardless of graduation level. Use for safety-critical baselines, regulatory compliance tactics, or institutional obligations where the cost of an incorrect autonomous kill is catastrophic. See §7.2, Step 5. **Authoring note:** for maintain-baseline objectives (§21.4), `governor_approval` is strongly recommended. The OD validation checklist (§21.8) flags maintain-baseline tactics that use the default `autonomous` as a warning. |
+| Threshold Calibration Status | `[ROBUST]` | `provisional` (default) or `calibrated`. All thresholds start as `provisional` at OD creation. Transitions to `calibrated` when the Governor confirms or adjusts the threshold at the first post-bootstrap tactic review. See §20.3, Threshold Calibration Status. |
 | Guardrails (Inherited) | `[CORE]` | Constraints from parent goal, objective, and strategy |
 | Guardrails (Own) | `[CORE]` | Additional constraints specific to this tactic |
 | A/B Variant | `[ROBUST]` | If part of a test: which variant and what the comparison is. Specify tactic-level or strategy-level test. |
@@ -6903,6 +6904,60 @@ Evidence Confidence Score and Early Kill Triggers:
   rather than recommending kill.
 ```
 
+**Threshold Calibration Status `[ROBUST]`**
+
+Kill condition thresholds set during OD authoring may be initial estimates rather than values derived from observed data — particularly in ongoing operational scopes entering novel domains with no historical baselines. The spec acknowledges this in §21.10 ("kill conditions can be rough estimates" in first drafts, with recalibration after first tactic review). However, the computation logic above treats all thresholds identically regardless of calibration status. This creates a risk: a tactic can be killed against a threshold that was never validated against real data.
+
+To close this gap, kill condition assessment carries a `calibration_status` annotation:
+
+```
+calibration_status:
+  calibrated   → Threshold validated against post-bootstrap observed data.
+                  Governor confirmed or adjusted at first tactic review.
+  provisional  → Threshold from initial OD authoring, not yet validated
+                  against observed data. Default for all thresholds at
+                  OD creation time.
+
+Transition:
+  provisional → calibrated: At the FIRST tactic review after bootstrap
+  ends, the orchestrator compares the kill threshold against the observed
+  metric distribution (mean, range). If the threshold falls outside the
+  observed range (i.e., the actual metric operates in a different band
+  than the threshold assumed), the orchestrator flags
+  "provisional_miscalibration" in the health report and presents the
+  Governor with three options:
+    (a) Confirm threshold — marks as calibrated (Governor judges the
+        threshold is intentionally aggressive or conservative).
+    (b) Adjust threshold — Governor sets new value based on observed
+        data; marks as calibrated.
+    (c) Extend observation — threshold remains provisional for one
+        additional review cycle; orchestrator re-evaluates at next
+        tactic review.
+
+  Until the Governor acts, kill condition assessment continues normally
+  but all recommendations carry a [PROVISIONAL-THRESHOLD] annotation.
+  This annotation propagates to health reports and Governor decision
+  presentations, ensuring the Governor knows which kill recommendations
+  rest on unvalidated thresholds.
+
+Interaction with bootstrap mode:
+  During bootstrap, calibration_status is irrelevant (assessment is
+  suspended). The calibration check fires at the first post-bootstrap
+  tactic review — the same review where bootstrap ends and real
+  assessment begins. This means no tactic is ever assessed against
+  a provisional threshold without the Governor being notified.
+
+Interaction with first-use guardrail calibration (§3.6):
+  First-use guardrail calibration applies to guardrails in analytical
+  scopes. Threshold calibration status applies to kill condition
+  thresholds in ALL scope types (ongoing and finite). The mechanisms
+  are complementary: guardrails use observation mode (enforcement
+  suspended); kill conditions use annotation mode (assessment
+  continues but recommendations are flagged). The difference reflects
+  that guardrails are boundaries (suspension is safe) while kill
+  conditions are decision triggers (suspension risks inaction).
+```
+
 ### 20.4 Hypothesis Status
 
 For a tactic's hypothesis:
@@ -7618,6 +7673,7 @@ After completing all five layers, validate the operating document against these 
 - Domain models are declared (Section 9.2, Domain Context).
 - Reference Material Anchors are declared for scopes that depend on foundational materials (Section 9.2).
 - `[ROBUST]` Metric prerequisite dependencies contain no circular references (metric A requires B which requires A). The orchestrator should detect cycles at OD load time and surface as a specification error.
+- `[ROBUST]` All kill condition thresholds are acknowledged as `provisional` at OD creation time. At the first post-bootstrap tactic review, the orchestrator must compare each threshold against observed metric data and flag `provisional_miscalibration` if the threshold falls outside the observed range (Section 20.3, Threshold Calibration Status). Kill recommendations against provisional thresholds carry `[PROVISIONAL-THRESHOLD]` annotation.
 - `[ROBUST]` Multiple strategies under the same objective declare their relationship as `competing` or `complementary` (Section 4.2).
 - `[ROBUST]` If the objective's metric is influenced by factors outside the scope's control, the metric is decomposed into controllable and uncontrollable components (Section 20.7).
 - `[ROBUST]` If Governor has a capacity constraint, it is declared in the operating document so the resource ceiling check (Section 7.2, Step 4b) can operate.
@@ -7693,6 +7749,27 @@ After the first cycle completes (or after the first strategy review, whichever c
 The resulting domain model doesn't need to be comprehensive on day one. Start with core concepts (what words mean in this domain), quality principles (what "good" looks like), and anti-patterns (known failure modes). Hypothesis libraries and detailed concept relationships can be added over subsequent cycles as the system accumulates experience. The minimum completeness thresholds for a v1 domain model are defined in Section 17.2.3: at least 3 core concepts, 2 guardrail vocabulary entries, 2 hypothesis library entries, 3 quality principles, and 2 anti-patterns. Concept relationships can be empty initially. By the second strategy review, the model should meet the higher thresholds — if it doesn't, the system is accumulating execution history without codifying what it learns.
 
 **The mandate:** If you are implementing the GOSTA framework for a scope that lacks a domain model, treat domain model creation as a required output of the first cycle — not an optional enhancement. An operating document without domain grounding works for one cycle through Governor judgment. It degrades from the second cycle onward as the Governor's attention moves elsewhere and the agent must make domain judgments independently. The domain model is what converts the Governor's implicit knowledge into durable, reusable system knowledge.
+
+**When the Governor lacks domain expertise `[ROBUST]`**
+
+The preceding guidance assumes the Governor possesses sufficient domain expertise to substitute for a missing domain model during the first cycle. This is the common case — Governors typically govern scopes within their area of competence. However, when the Governor lacks domain expertise (e.g., a technical founder governing a marketing scope, or a generalist leader overseeing a specialized compliance domain), the first-cycle substitution mechanism breaks down: the Governor cannot provide quality judgments the agent can learn from, and the resulting domain model will be built on unreliable foundations.
+
+**Detection.** The orchestrator should surface a `governor_expertise_gap` observation (not a signal — this is a pattern observation, not an execution data point) when any of the following patterns emerge across 3+ reviews:
+- Governor corrections are contradictory (approves a principle in cycle 1, rejects an equivalent application in cycle 2 without stated reason)
+- Governor consistently defers domain judgment ("I'm not sure, use your best judgment") on domain-specific quality assessments
+- Governor's edits to domain model drafts are purely structural (formatting, organization) with no substantive concept additions or corrections
+
+This observation is presented to the Governor directly: "I'm noticing [pattern]. This may indicate the scope needs domain expertise beyond what's available in our current setup. Here are options to address this."
+
+**Fallback mechanisms** (in order of preference):
+
+1. **Source-grounded model building.** Governor provides authoritative source material (textbooks, industry standards, regulatory documents, professional frameworks) and the agent builds the domain model from sources rather than Governor judgment. The Governor's role shifts from domain expert to source curator — selecting which materials are authoritative, not evaluating domain content directly. This is the preferred fallback because it grounds the model in external expertise rather than absent internal expertise.
+
+2. **Domain expert review.** Governor designates a domain expert as reviewer for domain model validation only. This is not an alternate Governor (§9.2) — the expert has no authority over the operating document, kill decisions, or strategic direction. Their role is limited to: reviewing domain model drafts, confirming or correcting concept definitions, validating quality principles and anti-patterns, and approving the domain model for use. The Governor retains all governance authority.
+
+3. **Unvalidated annotation.** If neither source material nor a domain expert is available, the agent builds the domain model with an explicit `[UNVALIDATED]` annotation. This annotation propagates through all outputs grounded in that model: health reports, tactic recommendations, and Governor decision presentations carry `[UNVALIDATED-DOMAIN-MODEL]` alongside relevant assessments. The annotation follows the same propagation pattern as `[STALE]` in data grounding (§14.3.3) and `[PROPAGATED-UNGROUNDED]` in cross-boundary claim propagation (§14.3.10). The model is flagged for validation at every strategy review until a domain expert reviews it or sufficient execution history (3+ tactic cycles with consistent Governor corrections) provides empirical calibration.
+
+The fallback mechanisms do not change the mandate: domain model creation remains a required first-cycle output. They change the *quality assurance pathway* — from Governor expertise to source expertise, delegated expertise, or annotated uncertainty.
 
 ---
 
@@ -7878,6 +7955,10 @@ Tag: ROBUST
 **Decision reversal types** (§4.3): `orchestrator_autonomous`, `governor_override` — ADVANCED
 
 **Feature interaction pairs** (§8.5): pause/kill, A/B/rebalance, strategy/tactic kill ordering, cross-strategy kill sequencing, data carryover, cold start, committed action on pivot, API outage kill timer, complementary strategy synergy — ROBUST
+
+**Domain model validation status** (§21.11): `validated` (reviewed by domain-competent Governor or designated domain expert), `unvalidated` (built without domain expertise review — propagates `[UNVALIDATED-DOMAIN-MODEL]` annotation to all grounded outputs) — ROBUST
+
+**Kill condition calibration status** (§20.3): `calibrated` (threshold confirmed against post-bootstrap observed data), `provisional` (threshold from initial OD authoring, not yet validated — propagates `[PROVISIONAL-THRESHOLD]` annotation to kill recommendations) — ROBUST
 
 ---
 

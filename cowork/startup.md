@@ -371,7 +371,14 @@ Note: `00-BOOTSTRAP.md` is numbered 00 because it is the entry point for all fut
 
 **OD authoring path decision:** Before drafting, determine which authoring path to use:
 - **Direct authoring (default for simple/moderate scopes):** Follow the guidance below. Suitable when the Governor's goal, constraints, and success criteria are clear enough to decompose directly.
-- **Structured OD Drafting Protocol (`cowork/od-drafting-protocol.md`):** Use when the Governor's input is vague, complex (5+ strategies expected), or when the scope spans multiple unfamiliar domains. The OD Drafting Protocol uses a multi-agent OD Architect role with structured decomposition questions to produce the OD. If the Governor's Group 1 complexity is `complex`, or if the goal statement from Group 2 resists clean decomposition into objectives, recommend the structured path: *"Your scope is complex enough that I'd recommend using the structured OD drafting process — it asks targeted decomposition questions before authoring. Shall I use that, or proceed with direct drafting?"*
+- **Structured OD Drafting Protocol (`cowork/od-drafting-protocol.md`):** Use when the Governor's input meets any of the following concrete triggers:
+  1. **Complexity trigger:** Group 1 complexity is `complex` (5+ strategies expected)
+  2. **Decomposition failure:** The goal statement from Group 2 resists clean decomposition into objectives — i.e., you cannot derive 2+ distinct, measurable objectives without making assumptions the Governor hasn't stated
+  3. **Domain unfamiliarity:** The scope spans 2+ domains where the Governor self-reported low familiarity or provided no source material
+  4. **Litmus test failure:** The goal statement from Group 2 fails the §21.3 litmus test (contains embedded timelines, numbers, or methods that need stripping before it qualifies as a goal)
+  5. **Vague intent:** The Governor's input is expressed as a question rather than a structured brief ("I want to figure out X", "help me plan Y", "what should we do about Z")
+
+  If any trigger is met, recommend the structured path: *"Your scope triggers [name the specific trigger] — I'd recommend using the structured OD drafting process, which asks targeted decomposition questions before authoring. Shall I use that, or proceed with direct drafting?"*
 
 **Before drafting:** Read all reference materials with role `options-universe`. These contain the items the session will evaluate, sequence, or prioritize. Candidate tactics and strategies in the OD must be generated FROM this material — not invented from general knowledge. If no options-universe material exists, tactics are generated from domain model concepts and Governor input.
 

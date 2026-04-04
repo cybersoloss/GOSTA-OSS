@@ -193,6 +193,19 @@ The AI drafts a domain model derived from the Governor's corrections, not from i
 
 **The mandate (Framework §21.11):** Treat domain model creation as a **required deliverable** of the first cycle, not an optional enhancement. A second cycle without a domain model compounds ungrounded judgment — each cycle's errors become the next cycle's baseline.
 
+**When Governor lacks domain expertise (Framework §21.11, `[ROBUST]`):**
+
+If the Governor indicates uncertainty about domain model quality during step 3 above (e.g., cannot clarify domain principles when asked, defers domain judgment, or states limited familiarity with the domain), the AI should ask:
+
+> "It sounds like this domain may be outside your core expertise. That's fine — we have three ways to build a reliable domain model:
+> 1. **Source materials** — Do you have textbooks, industry standards, or regulatory documents for this domain? I can build the model from those instead of from your corrections.
+> 2. **Domain expert** — Is there someone with domain expertise who could review the domain model? They wouldn't need to be involved in the rest of the session — just model review.
+> 3. **Proceed with annotation** — I'll build the model from available information but mark it `[UNVALIDATED]`. All assessments grounded in it will carry that annotation until it's validated.
+>
+> Which approach works for you?"
+
+If the Governor chooses option 1, switch to `domain-model-authoring-protocol.md` with the provided source materials. If option 2, proceed with model drafting and present to the designated expert for review before running the quality gate. If option 3, create the model with `[UNVALIDATED]` annotation in the model header; the AI must propagate `[UNVALIDATED-DOMAIN-MODEL]` in all health report assessments and Governor decision presentations that rely on concepts from that model, until the model is validated at a future strategy review.
+
 ---
 
 ## 4. Operating Document Format

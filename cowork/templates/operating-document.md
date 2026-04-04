@@ -71,6 +71,7 @@ Guardrails must be set ABOVE current baseline (for worse-is-higher metrics) or B
 - **Human Creative Input Estimate:** [N inputs per cycle expected from Governor]
 - **Review Date:** [When the next tactic review is scheduled]
 - **A/B Variant:** [If this tactic is part of an A/B test, which variant and what's it compared against]
+- **Threshold Calibration Status:** `provisional` (default at OD creation) or `calibrated` (Governor confirmed or adjusted threshold at first post-bootstrap tactic review). Kill recommendations against `provisional` thresholds carry `[PROVISIONAL-THRESHOLD]` annotation. See §20.3.
 
 **[ESSENTIAL — include when adopting tournament execution for this tactic]**
 - **Tournament Mode:** [sampling | constrained] — enables tournament execution (§4.6). Omit if standard single-run.
