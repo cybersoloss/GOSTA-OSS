@@ -174,7 +174,7 @@ python3 pool-agent.py tags --pool reference-pool.yaml
 
 **[→ Understand the architecture first](docs/architecture-guide.md)** — five-layer hierarchy, implementation tiers, session lifecycle, health reports, and decision mechanics explained with diagrams.
 
-See also: **[Feature Prioritization Example](docs/examples/feature-prioritization/)** (12 features, 4 domain agents, 5 hard disagreements, Governor decisions).
+See also: **[Feature Prioritization Example](docs/examples/feature-prioritization/)** (12 features, 4 domain agents, 5 hard disagreements, Governor decisions). **[CISO Roadmap — Five-Level AI Comparison](docs/examples/ciso-roadmap/)** (the same CISO planning question through 5 AI architectures, from generic prompt to governed deliberation — companion artifacts for the article "Five Ways to Collaborate on a Security Roadmap with AI").
 
 ---
 
@@ -254,6 +254,7 @@ GOSTA-OSS/
 │   ├── architecture-guide.md     ← Architecture guide (five layers, tiers, session lifecycle)
 │   ├── images/                   ← Diagrams and animated GIFs
 │   └── examples/                 ← Complete session examples with domain models
+│       └── ciso-roadmap/         ← Five-level AI comparison (article companion artifacts)
 ├── LICENSE                        ← MIT
 ├── README.md                      ← This file
 └── CONTRIBUTING.md
