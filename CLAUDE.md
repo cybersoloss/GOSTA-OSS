@@ -32,18 +32,6 @@ It blocks commits that:
 
 Do not attempt to work around this hook. If it fires, remove the offending content before committing.
 
-## Symlinks to GOSTA-PRIVATE
-
-This repo contains symlinks to `~/dev/GOSTA-PRIVATE/` for private/working content that must not be committed to the public repo. These directories appear in `GOSTA-DEV/` but their actual contents live in `GOSTA-PRIVATE/`.
-
-| Symlink (in GOSTA-DEV) | Target (in GOSTA-PRIVATE) | Contents |
-|---|---|---|
-| `sessions/` | `~/dev/GOSTA-PRIVATE/sessions/` | Live session directories (ODs, domain models, signals, deliverables) |
-| `temp/` | `~/dev/GOSTA-PRIVATE/temp/` | Temporary working files, scratch space |
-| `announcement/` | `~/dev/GOSTA-PRIVATE/announcement/` | Announcement drafts and materials |
-
-When using tools that resolve symlinks differently (e.g., sandbox bash vs. host file tools), use the actual target paths in `GOSTA-PRIVATE/` for writes. The file tools (Read/Write/Edit) follow symlinks transparently; the bash sandbox sees broken symlinks because `GOSTA-PRIVATE` is not mounted unless explicitly added.
-
 ## Gitignore Rules (Key Ones)
 
 - `sessions/` — working session directories, never committed
