@@ -321,3 +321,25 @@ deliberation/
 │   └── verification.md           ← Governor's synthesis verification checklist (from template)
 ```
 Deliberation artifacts are append-only within a cycle. No artifact is modified after creation. The verification checklist is completed by the Governor after receiving the synthesis report — it is the Governor's audit artifact, not the Coordinator's.
+
+## Evidence Collection (when Evidence Collection Mode = enabled)
+
+This section is required when evidence collection is enabled in Group 1. It configures the evidence collection per §14.8 and evidence-collection-protocol.md. Remove or leave as stub when evidence collection is disabled.
+
+- **Mode:** Enabled
+- **Topology:** [single-target / multi-target-shared / multi-target-parallel]
+- **Targets:** [list of assessment targets, or single target name]
+- **Collection Agents:** [N] (auto-computed: ceil(domain_count/2) + 1 discovery + 1 adversarial)
+- **Execution Environment:** [code-mode normal / code-mode pre-fetch / cowork-sequential] (auto-detected)
+- **Source Attribution Policy:** [framework default 3-tier / custom — if custom, specify tiers]
+- **Evidence Collection Config:** `evidence-collection-config.md`
+- **Phase:** [which OD phase performs evidence collection]
+- **Adversarial Mode:** [counter-framing / cross-verification] (auto-selected from assessment type, Governor override possible)
+- **Quality Gates:**
+  - Evidence quality audit: mode [directional / coverage], threshold [70% / 80% / custom]
+  - URL verification: sample [100% Tier 1, 30% Tier 2 / custom]
+  - Adversarial collection: [enabled / disabled]
+- **Independence Level Interaction:** [level N — gate behavior: synchronous review / auto-resolve WARNING]
+- **Verification:** §14.3.11 (4 pre-assessment + 4 in-assessment checks)
+- **Evidence Engagement:** [Path 1: with deliberation / Path 2: without deliberation]
+- **Evidence Archive:** [queried at bootstrap / items imported: N / no archive exists]

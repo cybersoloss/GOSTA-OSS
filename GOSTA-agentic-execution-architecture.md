@@ -4402,6 +4402,7 @@ The feedback loop operates on fiction. The framework's structure and substance m
 | Metric/Data | Agent fabricates or misreports numbers | Reports "engagement rate increased 18%" when no measurement was taken; confuses correlation with causation in A/B results | Most dangerous signal corruption. Kill/pivot/persevere decisions based on fiction. | Data Grounding (§14.3.3) |
 | Status | Agent reports completion or health incorrectly | Reports an action as complete when it wasn't; reports "no blockers" when blockers exist but weren't detected | Subtle. The agent isn't lying — it genuinely believes the output is correct. Discovered late. | Data Grounding (§14.3.3) |
 | Temporal | Agent treats outdated information as current | Uses a market signal from cycle 1 to justify a recommendation in cycle 5; reports a competitor's pricing from 6 months ago as current; bases health computation on signals that haven't been refreshed in 3+ review cycles | The data was once real — this is not fabrication. But expired truth applied as current truth corrupts decisions just as badly as invented data. Particularly dangerous because the signal passes all other validation (it has provenance, correct schema, real source). | Temporal Validity (§14.3.3) |
+| Parametric substitution | Agent replaces a collected evidence value with a training-data value for the same metric | Evidence manifest contains IBM FY2025 FCF of $14.7B; agent writes "$12.7B" from training data (the FY2024 figure); agent synthesizes "13,000–17,000 layoffs" from partial recall of multiple news reports rather than citing the OSINT item that documented the same range | Variant of temporal hallucination with a distinct mechanism: the agent is not citing a stale *signal* — it is introducing a value with no provenance at all. The training-data value may be older, rounded, or synthesized from partial knowledge. Invisible to standard temporal validity checks because the claim has no source citation to age-check. Detected only by cross-referencing agent output against the evidence manifest (§14.3.11 Check 8). | Collection-Stage Evidence Verification, Check 8 (§14.3.11) |
 
 Signal corruption is the most operationally dangerous category because it corrupts the feedback loop — the framework's primary learning mechanism. Metric/data hallucination and status hallucination involve signals that were never true. Temporal hallucination involves signals that were once true but are no longer. All three corrupt the same mechanism (health computation → kill/pivot/persevere decisions), but through different failure modes: fabrication, misreporting, and staleness.
 
@@ -4434,7 +4435,7 @@ Reasoning corruption is distinct from substance corruption (Category 2). In subs
 |----------|-------|-------------------|-------------------|
 | Form | Structural | GOSTA hierarchy | Deterministic schema validation |
 | Substance | Domain, Capability | Agent output quality | Domain model checks, capability registry |
-| Signal | Metric/Data, Status, Temporal | Feedback loop | Data source verification, provenance, staleness checks |
+| Signal | Metric/Data, Status, Temporal, Parametric substitution | Feedback loop | Data source verification, provenance, staleness checks, evidence manifest cross-reference (§14.3.11 Check 8) |
 | Continuity | Synthesis, Memory confabulation, Claim laundering | Cross-boundary information flow | Source-vs-representation comparison, file-based state, propagation tracking (§14.3.10) |
 | Reasoning | Shallow application, Concept omission, Chain gap | Reasoning quality (not reasoning existence) | Depth checks, coverage checks, chain integrity checks (§14.3.7) |
 
@@ -4818,6 +4819,80 @@ Claim propagation risk varies by the type of boundary crossed. GOSTA recognizes 
 
 **Build priority:** Tenth. Build after Sycophancy Detection (§14.3.9) is operational. Depends on Attribution (§14.3.4) for claim lineage and Synthesis Verification (§14.3.5) for cross-agent boundary detection. At Tier 0, this is primarily a Coordinator discipline during synthesis. At Tier 1+, it becomes an automated tracking system.
 
+#### 14.3.11 Collection-Stage Evidence Verification — Prevents Evidence Fabrication at Ingestion `[ROBUST]`
+
+**What it does:** Ensures that evidence collected by AI agents from external sources (web search, document retrieval, API queries) is independently verified before it enters deliberation. Existing grounding checks (§14.3.2–§14.3.10) assume evidence enters the system correctly and then track it faithfully through deliberation. This component catches errors at the point of *ingestion* — before collection agents' evidence claims are treated as facts by domain agents.
+
+**Why it's needed:** When AI agents collect evidence from external sources and self-classify that evidence (assigning source tiers, extracting specific numbers, characterizing presence or absence in analyst reports), five failure modes emerge that downstream grounding checks cannot detect:
+
+1. **Number confabulation.** An agent retrieves multiple data points from search results and produces a "plausible composite" number that matches no original source. The agent cites a specific source URL, but the number does not appear at that URL. Downstream grounding (§14.3.3 provenance, §14.3.4 attribution) treats the claim as grounded because it has a source citation — but the citation is fabricated precision. This is the most dangerous failure mode because it produces false specifics that look like high-tier evidence.
+
+2. **Absence-as-evidence.** An agent searches for a specific reference (e.g., "vendor X in Gartner Magic Quadrant 2025"), finds no results, and reports "vendor X is absent from the 2025 Magic Quadrant" — when the actual situation may be that no such report exists for that category. The agent converts an information gap into a confident factual assertion. Finding Classification (§14.3.8) would flag this as `information_gap` if it reached the finding level, but collection agents produce evidence items, not findings — the gap occurs one layer below where Finding Classification operates.
+
+3. **Selection bias.** An agent with a domain-specific analytical lens (competitive displacement, financial health, regulatory entrenchment) retrieves multiple data points for the same metric (e.g., market growth rate estimates from different analysts) and selects the estimate that most strongly supports its domain's natural thesis. The selected estimate is real and correctly attributed — the error is omission of the range. Cross-boundary claim propagation (§14.3.10) cannot detect this because the claim is `[GROUNDED]` in a real source; it's just not representative.
+
+4. **Conflation.** An agent retrieves similar but non-identical data points (credit ratings from different agencies, analyst recognitions across sub-categories) and compresses them into a single clean statement that smooths over meaningful differences. The summary is approximately correct but loses edge cases that contradict the central tendency. This is a summarization artifact inherent in LLM processing.
+
+5. **Parametric injection.** During deliberation, scoring agents introduce factual claims — specific numbers, dates, durations, statistics — from their LLM training data rather than from the evidence pool. These claims never entered the OSINT pipeline and therefore carry no OSINT-ID, no source tier, and no verification status. They are invisible to Checks 1–7 because those checks verify evidence *items* against *sources* and agent *citations* against *items* — they do not verify whether agent claims trace to *any* evidence item at all. Three sub-types: (a) **stale substitution** — the claim matches real-world data from training but is outdated relative to collected evidence (e.g., using FY2024 free cash flow when FY2025 data is in the evidence pool); (b) **unsourced approximation** — the claim is a rounded or simplified version of something that could have been sourced but was not (e.g., "CEO tenure of 6 years" when no OSINT item established the date); (c) **constructed composite** — the agent synthesizes a range or statistic from partial training data, producing a figure that appears researched but was never published by any source (e.g., "13,000–17,000 layoffs" assembled from partial recall of multiple news reports).
+
+**How it works:**
+
+Evidence collected by AI agents from external sources passes through a verification gate before entering the evidence pool that domain agents consume. The verification is performed by the Coordinator (or a dedicated verification agent in complex sessions) — an entity with no domain stake in the evidence quality.
+
+**Pre-deliberation verification checks:**
+
+**Check 1: Tier Re-classification.** The verifier independently assesses each evidence item's source attribution tier against the session's tier classification rules (or the framework's default classification if no session-specific rules exist). Collection agents have structural incentive to upgrade tiers — higher tier means more authority for their domain's arguments. The verifier has no such incentive. Items where the verifier's tier assessment differs from the collection agent's carry `[TIER-DISPUTED: collector=N, verifier=M]` annotation. Domain agents see the annotation and weight accordingly.
+
+**Check 2: Specificity Audit.** The verifier samples a configurable percentage (default 20%) of evidence items containing specific quantitative claims (dollar amounts, percentages, headcounts, market share figures, growth rates, valuations). For each sampled item, the verifier checks whether the cited source actually contains the claimed number. Verification methods vary by tier: at Tier 0, the verifier re-runs the search query and checks if the number appears in accessible results; at Tier 1+, the verifier queries the source API directly. Items that fail verification carry `[UNVERIFIED-NUMBER]` annotation. Domain agents can still cite them but confidence is capped at `low` for any score resting solely on unverified numbers.
+
+**Check 3: Negative Claim Audit.** The verifier scans all evidence items for negative existence claims: assertions that something does *not* exist, is *absent from* a specific reference, or was *not found*. For each negative claim, the verifier distinguishes between two cases: (a) claiming absence FROM a named source (e.g., "absent from Gartner Magic Quadrant for Data Security 2025") requires verifying that the named source exists as a published artifact; (b) claiming absence IN search results (e.g., "no escrow agreement found in public documentation") is a legitimate information gap that requires no further verification — it is an evidence gap, not a factual claim. Case (a) items that fail reference verification carry `[UNVERIFIED-ABSENCE: reference frame not confirmed]` annotation. Case (b) items are reclassified as `information_gap` under Finding Classification (§14.3.8).
+
+**Check 4: Range Suppression Audit.** The verifier identifies evidence items containing market projections, growth rates, valuation figures, or other estimates where multiple analyst sources typically exist. For each, the verifier checks whether the collection agent reported a single figure or a range. If only one estimate is cited for a metric where the evidence pool contains (or likely contains) multiple estimates, the verifier flags `[SINGLE-SOURCE-ESTIMATE]`. The item remains in the evidence pool but domain agents must acknowledge the annotation. If conflicting estimates for the same metric exist across different collection agents' outputs, the verifier documents the range in a contradictions entry.
+
+**In-deliberation citation checks:**
+
+After domain agents produce Round 1 position papers, the Coordinator (or verification agent) cross-references evidence citations against the verified evidence pool:
+
+**Check 5: Phantom Citation.** A domain agent cites a specific fact — a number, a date, an event — that does not appear in any evidence item in the pool. The agent generated the claim from training data or from an unrecorded search result, not from the evidence manifest. Flagged as `[PHANTOM-EVIDENCE]`. The claim is struck from the position paper unless the agent traces it to a verifiable evidence item in Round 2. This is the in-deliberation counterpart to the pre-deliberation specificity audit.
+
+**Check 6: Tier Escalation in Citation.** A domain agent cites an evidence item and treats it with higher authority than its verified tier permits. Example: a Tier 3 editorial blog post cited as the sole basis for a scored finding that requires Tier 1 or Tier 2 evidence. Flagged as `[TIER-MISMATCH: item=OSINT-NNN, verified-tier=3, used-as=sole-basis]`. The agent must find corroborating evidence at the required tier or downgrade confidence.
+
+**Check 7: Selective Citation.** A domain agent cites one side of a documented contradiction (per the evidence manifest's contradictions section) without addressing the other side. Flagged as `[SELECTIVE-CITATION: contradiction=OSINT-NNN vs OSINT-MMM]`. The agent must address both sides or explain why one side is dispositive.
+
+**Check 8: Parametric Claim Audit.** The Coordinator scans each position paper for factual claims with verifiable referents — specific numbers (dollar amounts, percentages, headcounts, growth rates, market sizes, durations), specific dates, and named quantitative states (e.g., "CEO tenure of 6 years", "13,000–17,000 layoffs") — that do not cite an OSINT-ID. The operational test: if a claim contains a number, a date, or a named quantitative state, it needs an OSINT citation. Domain reasoning that uses general knowledge without specific factual claims (e.g., "IBM's hybrid cloud strategy positions Guardium for cloud-native integration") does not require citation. For each uncited factual claim, the Coordinator determines: (a) does the claim match a value in the evidence manifest? If yes and the agent simply failed to cite it, the Coordinator links the claim and flags `[UNCITED-MATCH: OSINT-NNN]` — an attribution gap, not a grounding gap. (b) Does the evidence manifest contain a *different* value for the same metric? If yes, flag `[PARAMETRIC-STALE: agent-value=X, evidence-value=Y, evidence-ref=OSINT-NNN]` — the agent used training data instead of collected evidence. (c) Does the evidence manifest contain no data at all for this metric? Flag `[PARAMETRIC-UNVERIFIED]` — the claim cannot be verified against collected evidence. For (b) and (c), the agent must in Round N+1 either: cite a specific OSINT item that supports the claim, retract the claim, or re-tag it as `[TRAINING-DATA-ESTIMATE]` with explicit acknowledgment that the figure is from parametric memory and carries no evidentiary weight. `[TRAINING-DATA-ESTIMATE]` claims cannot be the sole basis for any scored finding, and confidence is capped at `low` if the claim is load-bearing for the recommendation.
+
+**Annotation taxonomy:**
+
+| Annotation | Applied by | When | Effect |
+|-----------|-----------|------|--------|
+| `[TIER-DISPUTED: collector=N, verifier=M]` | Check 1 | Pre-deliberation | Domain agents see both assessments; weight accordingly |
+| `[UNVERIFIED-NUMBER]` | Check 2 | Pre-deliberation | Confidence capped at `low` if sole basis for score |
+| `[UNVERIFIED-ABSENCE]` | Check 3 | Pre-deliberation | Cannot be used as positive evidence for displacement or decline |
+| `[SINGLE-SOURCE-ESTIMATE]` | Check 4 | Pre-deliberation | Agent must acknowledge; cannot claim consensus from single source |
+| `[PHANTOM-EVIDENCE]` | Check 5 | In-deliberation | Claim struck unless traced to evidence item in next round |
+| `[TIER-MISMATCH]` | Check 6 | In-deliberation | Agent must find corroboration or downgrade confidence |
+| `[SELECTIVE-CITATION]` | Check 7 | In-deliberation | Agent must address both sides of contradiction |
+| `[UNCITED-MATCH: OSINT-NNN]` | Check 8 | In-deliberation | Agent must add citation; claim is grounded but attribution gap |
+| `[PARAMETRIC-STALE: agent-value, evidence-value, evidence-ref]` | Check 8 | In-deliberation | Agent must use evidence value or justify training-data value with explicit `[TRAINING-DATA-ESTIMATE]` tag |
+| `[PARAMETRIC-UNVERIFIED]` | Check 8 | In-deliberation | Agent must source to OSINT item, retract, or tag as `[TRAINING-DATA-ESTIMATE]` with zero evidentiary weight |
+| `[TRAINING-DATA-ESTIMATE]` | Agent (self-applied) or Check 8 (forced) | In-deliberation | Claim explicitly marked as from training data. Cannot be sole basis for any score. Confidence capped at `low` if load-bearing. |
+
+**Tier implementation:**
+
+- *Tier 0:* The Coordinator performs all eight checks as a cognitive discipline between Phase 3 (evidence collection) and Phase 4 (deliberation). The Coordinator reads the evidence manifest, samples items for verification, re-runs a subset of searches to spot-check specific claims, and produces a **Verification Report** appended to the evidence manifest. Domain agents receive the verified manifest (with annotations) as their input. The Coordinator performs citation checks after Round 1 position papers are submitted, as part of the standard interim assessment (extending the concept faithfulness check already specified in deliberation protocols). At Tier 0, the sampling rate for Check 2 (specificity audit) should be higher (30-50%) because the verification is the only quality gate — there is no automated system backing it. Check 8 (parametric claim audit) is the highest-effort in-deliberation check at Tier 0: the Coordinator must scan every position paper for specific factual claims and cross-reference each against the evidence manifest. To reduce lookup cost, the evidence manifest should include a **Metric Index** — a flat table mapping metric names to OSINT items and their current values — built during Phase 3. The operational test for Check 8: if a claim contains a number, a date, or a named quantitative state, it needs an OSINT citation.
+
+- *Tier 1:* Checks 1, 2, and 3 are partially automated. The system re-fetches cited URLs and compares extracted numbers against claimed numbers using exact-match or fuzzy-match algorithms. Negative claims are checked against a reference catalog (known analyst reports, regulatory databases) to verify the existence of claimed reference frames. Check 4 (range suppression) requires semantic understanding and remains a Coordinator discipline. Citation checks (5, 6, 7) are partially automated: the system can detect phantom citations by cross-referencing position paper claims against the evidence index, and can flag tier mismatches mechanically. Check 8 is partially automated: the system extracts numeric and date expressions from position papers and attempts to match them against evidence manifest values. Exact matches link to OSINT items. Unmatched values are flagged for Coordinator review.
+
+- *Tier 2+:* Full automated evidence verification pipeline. Every evidence item collected by an agent is verified against its source in real time. Numbers are extracted from source documents and compared to claimed values. Negative claims are validated against comprehensive reference catalogs. Range suppression is detected by maintaining a multi-source estimate registry per metric. Citation checks (5, 6, 7) are automated and produce real-time alerts during deliberation rounds. Check 8 is fully automated: NER extraction of all quantitative claims from position papers, fuzzy matching against the evidence manifest, automatic staleness detection when agent values diverge from evidence values.
+
+**Relationship to other grounding components:** Collection-stage evidence verification is the *ingestion layer* counterpart to the existing *production layer* (§14.3.2–§14.3.4), *transport layer* (§14.3.10), and *synthesis layer* (§14.3.5) checks. Checks 1–4 catch errors at the earliest point in the evidence lifecycle — when raw external information is converted into structured evidence items by collection agents. Checks 5–7 catch citation errors when agents consume evidence items. Check 8 closes the remaining gap: claims that agents introduce *without citing any evidence at all* — facts from parametric memory that bypass the evidence pipeline entirely. Without Checks 1–7, fabricated or distorted evidence enters the system with full provenance and attribution, passing all downstream grounding checks. Without Check 8, accurate evidence can be collected and correctly verified, but agents can still introduce unverified claims alongside it, diluting the evidentiary foundation with untracked training-data assertions.
+
+**Interaction with §14.3.9 (Sycophancy Detection):** Parametric injection can be a vector for sycophancy. If multiple agents independently substitute training-data values that are directionally favorable to the OD's strategy direction (e.g., choosing optimistic revenue figures from memory instead of more conservative collected evidence), this pattern should feed into §14.3.9's OD-anchoring indicators. A cluster of `[PARAMETRIC-STALE]` annotations where the agent's values consistently favor the OD narrative is a sycophancy signal.
+
+**Interaction with §14.3.8 (Finding Classification):** Findings that rest primarily on `[TRAINING-DATA-ESTIMATE]` or `[PARAMETRIC-UNVERIFIED]` claims should be classified as `information_gap`, not `confirmed`. The evidence verification annotation directly feeds the classification decision.
+
+**Build priority:** Eleventh. Build after Cross-Boundary Claim Propagation (§14.3.10) is operational. At Tier 0, this is a Coordinator discipline that adds one verification pass between evidence collection and deliberation (Checks 1–4) and extends the existing interim assessment with four additional citation-layer checks (Checks 5–8) — the lowest-cost, highest-impact addition to the grounding stack for sessions that use multi-agent evidence collection. The Coordinator already reads all evidence and all position papers; the verification checks extend what the Coordinator looks for, not what the Coordinator has access to. Check 8 is operationally the most demanding at Tier 0 because it requires cross-referencing every specific factual claim in every position paper against the evidence manifest; the Metric Index mitigates this cost.
+
 ### 14.4 How Grounding Integrates with the Framework
 
 The grounding architecture does not change the five-layer structure. It operates beneath it:
@@ -4941,6 +5016,231 @@ A decision at one layer of the hierarchy may alter priorities at another layer. 
 - After any Governor decision that modifies a strategy or objective, the orchestrator evaluates whether existing tactics remain correctly prioritized given the new strategic direction.
 - If the decision would reorder, invalidate, or change the kill conditions of existing tactics, the orchestrator surfaces this as a downstream impact requiring Governor awareness.
 - The orchestrator does NOT autonomously reprioritize tactics based on strategy changes — it flags the impact and lets the Governor decide how to handle it.
+
+### 14.8 Evidence Collection Architecture `[ROBUST]`
+
+When a session must acquire external evidence to inform its assessment — rather than relying solely on Governor-provided reference materials, uploaded documents, or prior session deliverables — the framework provides a structured evidence collection architecture. This section defines the data structures, collection patterns, quality assurance mechanisms, and lifecycle management that any evidence collection protocol must conform to. §14.3.11 (Collection-Stage Evidence Verification) already defines verification checks for collected evidence; this section formalizes the vocabulary, schemas, and architectural concepts that §14.3.11 depends on but does not itself define.
+
+Evidence collection is optional. Sessions that do not need external evidence (feature scoring with existing reference pools, content drafting with uploaded materials, roadmap planning from Governor expertise) skip this architecture entirely. When enabled, evidence collection follows the same pattern as deliberation (§14.7): the spec defines architecture; a tier-specific protocol operationalizes it.
+
+#### Evidence Item Schema
+
+Every piece of collected evidence is represented as an evidence item conforming to this schema. The schema defines field semantics, not storage format — a Tier 0 markdown-based implementation and a Tier 2 database-backed implementation both conform to these definitions.
+
+**Core fields (required):**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier. Format: `OSINT-[NNN]` where NNN is a zero-padded sequential number within the session. The prefix is fixed regardless of collection method — it identifies collected evidence, not specifically open-source intelligence. |
+| `source` | string | The origin of the evidence: URL, document name, database identifier, API endpoint, or other retrievable reference. Must be specific enough for independent re-retrieval. |
+| `url` | string (optional) | Direct URL if web-accessible. Null for non-web sources (internal documents, database records, API responses). |
+| `collected_date` | date | When the evidence was collected. ISO 8601 format. |
+| `tier` | integer | Source attribution tier as classified by the collection agent. Subject to re-classification during verification (§14.3.11 Check 1). |
+| `summary` | string | Brief description of what the evidence establishes. Must be faithful to the source — the summary is a claim about what the source says, not an interpretation. |
+| `domain_tags` | list[string] | Which domain models this evidence is relevant to. Uses domain model short names from the session's OD. An item may tag multiple domains. |
+| `level` | string | Granularity: `target-level` (about the assessment target broadly) or `component-level` (about a specific aspect). |
+| `category` | string | Thematic classification within the domain. Session-defined — examples: "financial-health", "competitive-position", "regulatory-status". |
+| `impact_estimate` | string | Brief statement of how this evidence might affect the assessment. Not a conclusion — a directional indicator for triage. |
+| `content_file` | string (optional) | Path to the full retrieved content, if saved. At Tier 0, typically a markdown file in the session's evidence directory. |
+| `contradicts` | list[string] (optional) | OSINT-IDs of items this evidence contradicts. Populated during collection or quality audit. |
+| `target` | string | Which assessment target this item pertains to. For single-target sessions, all items share one value. For multi-target sessions, this field enables per-target filtering. |
+| `adversarial` | boolean | Whether this item was collected by the adversarial collection agent, regardless of adversarial mode (counter-framing or cross-verification). Default: false. |
+
+**Extension mechanism:** Sessions and protocols may define additional fields beyond the core schema. Extension fields are documented in the session's evidence collection configuration. The core fields above are mandatory for all evidence items at all tiers. Extension fields are session-specific and do not propagate to the framework level unless promoted through a spec revision.
+
+#### Source Attribution Tier Framework
+
+Evidence items are classified by source reliability using an ordinal tier system. The framework defines the classification pattern — ordinal tiers with defined reliability semantics where lower numbers indicate higher reliability. Protocols and sessions define the specific tier count and values appropriate to their context.
+
+**Default 3-tier structure (starting point, not a mandate):**
+
+| Tier | Reliability | Typical Sources |
+|------|-------------|-----------------|
+| Tier 1 | Primary / authoritative | Official filings, regulatory databases, vendor's own published documentation, peer-reviewed research, court records |
+| Tier 2 | Credible secondary | Established analyst firms, reputable industry publications, structured databases with editorial oversight |
+| Tier 3 | Tertiary / unverified | Blogs, forums, social media, press releases (self-reported claims), undated or anonymous sources |
+
+Sessions may use more granular tier structures (e.g., 5 tiers for intelligence analysis) or coarser structures (e.g., 2 tiers: verified/unverified) depending on the assessment's needs. The tier structure is documented in the session's evidence collection configuration and referenced by §14.3.11's verification checks.
+
+**Tier assignment rules:**
+
+- Collection agents assign tiers during collection based on source characteristics.
+- Tier assignments are provisional — §14.3.11 Check 1 (Tier Re-classification) may adjust them.
+- The verifier's tier assessment takes precedence over the collection agent's when they disagree.
+- Governor-provided reference materials that enter the evidence pool are classified using the same tier framework. Their tier is not automatically higher — a Governor-uploaded blog post is still Tier 3.
+
+#### Evidence Manifest Schema
+
+The evidence manifest is the structured summary of all collected evidence for a session phase. It organizes evidence items for consumption by assessment agents (whether deliberation agents, single-agent assessors, or other downstream consumers).
+
+**Required sections:**
+
+| Section | Content |
+|---------|---------|
+| Domain-tagged sections | One section per domain model referenced in the OD. Each contains evidence items tagged to that domain, organized by category. |
+| Cross-domain items | Evidence items that tag multiple domains. Listed once with all domain tags visible. |
+| Uncategorized signals | Evidence items that don't cleanly map to any domain model — potentially indicating a domain gap or a novel dimension. |
+| Escalated clusters | Groups of items flagged during quality audit that require Governor attention (e.g., high contradiction density in a domain, scarcity in a critical category). |
+| Evidence gaps | Domains or categories where collection found insufficient evidence. Includes gap severity (no evidence vs. low-tier-only evidence) and whether the gap was acknowledged by the Governor during quality audit. |
+| Contradictions | Pairs or clusters of evidence items that assert conflicting facts. Includes the specific factual conflict and which items are involved. |
+| Metric Index | A flat lookup table mapping metric names (e.g., "annual revenue", "employee count", "market share") to OSINT item IDs and their values. Built during manifest generation to support §14.3.11 Check 8 (Parametric Claim Audit) cross-referencing. |
+
+Domain names and categories are session-defined — they derive from the session's domain models, not from a framework-level taxonomy. The manifest schema defines required sections and their semantics; the format (markdown, database view, structured document) is implementation-specific.
+
+#### Collection Topology
+
+Evidence collection supports three topologies based on the number of assessment targets:
+
+**Single-target:** One target, all collection agents contribute to one evidence pool. This is the default and most common case.
+
+**Multi-target-shared:** Multiple targets assessed simultaneously, agents collect across targets. Each evidence item's `target` field identifies which target it pertains to. Some agents may cover multiple targets (e.g., a competitive landscape agent comparing all targets). One shared evidence manifest with per-target sections.
+
+**Multi-target-parallel:** Multiple targets, each with its own collection agent set and evidence pool. Agents are dispatched per-target with target-specific search specifications. Per-target evidence manifests. Cross-target evidence (items relevant to multiple targets) is duplicated into each relevant target's pool.
+
+**Scalability guidance:** Multi-target-parallel topology scales linearly with target count. The total agent count is: (agents_per_target × target_count). When total agents exceed 15, the framework recommends sequential batching: complete each target's full collection cycle (collection → quality gates → manifest) before starting the next. Batching sacrifices parallelism but stays within practical session limits. The Governor decides whether to batch or run parallel at session configuration time.
+
+**Topology selection:** Auto-detected from the OD's target count (single target → single-target; multiple targets → Governor chooses shared or parallel). The topology is recorded in the evidence collection configuration and cannot change mid-collection.
+
+#### Execution Environments
+
+Evidence collection operates in three execution environments, determined by the session's capabilities:
+
+**Code-mode normal:** The orchestrator dispatches collection agents as parallel subagents, each with independent web search capability. Agents search, collect, and return evidence items. This is the highest-fidelity environment — agents operate independently with genuine information isolation.
+
+**Code-mode pre-fetch:** Subagent dispatch is available but subagents lack web search capability (detected via capability test at session start). The orchestrator performs all web searches, saves raw results to files, and dispatches agents to analyze the pre-fetched content. Evidence quality is maintained through separation of concerns: the orchestrator searches without domain bias; agents analyze without search bias. Raw search output is saved verbatim — agents read files, not orchestrator summaries.
+
+**Cowork-mode sequential:** No subagent dispatch available. The orchestrator executes each collection agent's role sequentially within a single conversation context. Information isolation between "agents" is not possible — each role-play has access to prior role-plays' context. The adversarial collection role is especially important in this environment to counteract confirmation bias from sequential execution. Quality gates remain mandatory. This environment has the lowest independence guarantee but is functional for exploratory and lower-stakes assessments.
+
+**Environment detection:** The execution environment is auto-detected at session start and recorded in the evidence collection configuration. The detection method is tier-specific: at Tier 0, a test agent dispatch determines normal vs. pre-fetch mode; at higher tiers, environment capabilities are registered in the deployment configuration.
+
+#### Adversarial Collection Pattern
+
+Every evidence collection that includes quality assurance includes at least one adversarial collection agent. The adversarial agent's structural purpose is to prevent the evidence base from converging on a single narrative — whether through confirmation bias (agents finding what they expect), selection bias (agents preferring evidence that supports their domain's thesis), or search framing bias (agents using search queries that presuppose the answer).
+
+**Two modes:**
+
+**Counter-framing mode:** The adversarial agent receives an inverted search framing derived from the session's OD objectives. For hypothesis-driven assessments, the framing inverts the hypothesis. For exploratory assessments, the framing is derived from what the session's domain models deliberately exclude — concepts, domains, or perspectives that fall outside the analytical framework's scope as defined in the OD and domain model Application Context sections. The Governor reviews the counter-framing before dispatch.
+
+**Cross-verification mode:** For purely factual assessments where no evaluative direction exists to counter, the adversarial agent independently re-collects and verifies a sample of other agents' factual claims. The agent searches from scratch without seeing original sources. Its verification report must cite its own independent sources.
+
+**Mode selection:** Counter-framing is the default for hypothesis-driven and exploratory assessments. Cross-verification is the default for purely factual assessments. The Governor can override the default.
+
+**Schema integration:** The `adversarial` field on the evidence item schema marks items collected by the adversarial agent regardless of mode. Adversarial items are NOT weighted differently during assessment — they are structurally normal evidence items. The field exists for provenance tracking and post-session analysis, not for differential treatment.
+
+#### Evidence Quality Audit
+
+After evidence collection completes and before the evidence manifest is generated, collected evidence passes through a quality audit gate. The audit operates in one of two modes:
+
+**Directional mode (for hypothesis-driven assessments):** Checks for sycophantic over-collection of confirming evidence. Measures the ratio of supporting vs. contradicting vs. neutral evidence relative to the session's hypothesis or primary objective.
+
+**Coverage mode (for exploratory assessments):** Checks that all domain model core concepts have adequate evidence coverage. Maps each core concept from each domain model to collected evidence items and identifies gaps.
+
+**Four-outcome escalation:**
+
+| Outcome | Condition | Effect |
+|---------|-----------|--------|
+| PASS | Directional ratio within threshold (default: ≤70% supporting) OR concept coverage above threshold (default: ≥80%) | Proceed to manifest generation |
+| WARNING | Ratio or coverage marginally outside threshold | Governor is alerted. Governor decides: proceed with acknowledged limitation, re-collect specific gaps, or adjust thresholds. |
+| FAIL | Ratio or coverage significantly outside threshold | Collection is unreliable. Governor must decide: re-collect with adjusted search specification, narrow scope, or abort evidence collection for this phase. |
+| SCARCITY-ACKNOWLEDGED | Coverage mode only: evidence is sparse not due to collection failure but because the domain genuinely lacks publicly available information (e.g., private company financials, classified regulatory proceedings) | Governor acknowledges the scarcity. The gap is documented in the manifest as a known limitation rather than a collection failure. Assessment proceeds with explicit awareness of the evidence constraint. |
+
+**Coverage reproducibility:** In coverage mode, the concept-to-evidence mapping that determines coverage percentage must be documented in the quality audit output. This enables the Governor to verify coverage claims and provides a traceable basis for the coverage calculation. At Tier 0, this is a table mapping each core concept to the OSINT-IDs that cover it. At Tier 1+, this is an automated mapping with similarity scores.
+
+**Thresholds:** Default thresholds are starting points. Sessions may customize thresholds in the evidence collection configuration based on the assessment context. The quality audit mode is auto-selected from the assessment type but can be overridden by the Governor.
+
+#### Source Verification
+
+Source verification (an operationalization of aspects of §14.3.11 Check 2) re-fetches a sample of evidence items' source URLs to verify that the claimed content exists at the cited location. This is a pre-quality-audit step that catches fabricated or stale URLs before they enter the evidence pool.
+
+**Three-outcome classification:**
+
+| Outcome | Condition | Action |
+|---------|-----------|--------|
+| Verified | Re-fetched content contains the claimed information | Item passes. No annotation needed. |
+| Access-restricted | Re-fetch hits a paywall, login screen, subscription gate, or geographic restriction | Item is escalated to Governor for manual verification. NOT automatically downgraded — the source may be legitimate and high-tier. Access-restriction detection relies on page content pattern matching. |
+| Unverifiable | Re-fetch returns content that does not contain the claimed information, or URL is unreachable | Item is flagged with `[UNVERIFIED-NUMBER]` or `[UNVERIFIED-ABSENCE]` per §14.3.11 annotation taxonomy. Tier may be capped. |
+
+**Sample rates:** Configurable in the evidence collection configuration. Default: 100% of Tier 1 items, 30% of Tier 2 items. Tier 3 items are not sampled by default (low expected reliability makes verification cost-ineffective). Sessions with high evidence volume may reduce sample rates. The sample rate is recorded for audit purposes.
+
+#### Evidence-Domain Model Reconciliation
+
+Domain models (§13) are constructed during session bootstrap before evidence collection occurs. The domain models define the analytical framework — core concepts, scoring dimensions, quality principles — that the assessment uses. If collected evidence contradicts a domain model's core assumptions, the assessment proceeds on an invalidated framework.
+
+**Reconciliation requirement:** After evidence collection and quality gates complete, before any assessment begins (whether deliberation or single-agent), the orchestrator reviews collected evidence against each domain model's core concepts. Contradictions and significant gaps are documented with severity classification:
+
+- **Minor adjustment:** Evidence suggests a concept's scope or weight should be modified, but the concept remains valid. Example: a domain model assumes 3 main competitors; evidence reveals a 4th with significant market share.
+- **Concept invalidation:** Evidence shows a core concept does not apply to the assessment target. Example: a domain model includes "pricing flexibility" as a core concept; evidence shows the product is bundled free with a platform.
+
+**Governor decision:** The Governor reviews the reconciliation report and decides per contradiction: update the domain model (version increments), acknowledge as assessment input (keep model, instruct assessment agents to address the contradiction), or dismiss (evidence insufficient to invalidate). Assessment does not begin until reconciliation is resolved.
+
+#### Evidence Archive
+
+Evidence collected during sessions has value beyond the session that collected it. The Evidence Archive provides a persistence mechanism for promoting session evidence to a framework-level store that future sessions can query.
+
+**Archive lifecycle:**
+
+1. **Collection:** Evidence is collected within a session's evidence pool. Session evidence is self-contained — it does not reference the archive during collection.
+2. **Promotion:** After session conclusion, the Governor selects which evidence items to promote to the archive. Default: all Tier 1 and Tier 2 items that passed quality gates. The Governor can include or exclude specific items.
+3. **Aging:** Each promoted item receives an `effective_until` date computed from domain-specific defaults. Evidence does not expire silently — expired items are flagged, not removed.
+4. **Import:** Future sessions may query the archive during bootstrap and import relevant items into their session evidence pool. Imported items are copies (session evidence is self-contained). Imported items are flagged for re-verification against current sources.
+
+**Domain-specific aging defaults:**
+
+| Domain Category | Default Effective Period | Rationale |
+|----------------|------------------------|-----------|
+| Financial data | 12 months from `collected_date` | Financial metrics change with reporting cycles |
+| Regulatory/compliance | 24 months | Regulatory frameworks change slowly but changes are significant |
+| Competitive landscape | 6 months | Competitive positioning shifts frequently |
+| Technology/product | 12 months | Product capabilities change with release cycles |
+| Market data | 12 months | Market conditions vary with economic cycles |
+| Organizational/personnel | 6 months | Leadership and organizational changes are frequent |
+
+These defaults are starting points. The Governor may override per item during promotion. Sessions may define additional domain categories with custom aging periods in their evidence collection configuration.
+
+**Archive organization:** At Tier 0, the archive is a directory of markdown files organized by assessment target, with a searchable index. At higher tiers, the archive is a structured database supporting cross-session queries, automated aging, and analytics.
+
+#### Evidence Engagement
+
+When evidence has been collected for a session, assessment agents (whether deliberation agents or single-agent assessors) must demonstrably engage with that evidence. Without an engagement requirement, agents can produce plausible assessments entirely from training knowledge, ignoring the evidence base that was collected specifically to inform the assessment.
+
+**Three citation categories:** Every substantive claim in an assessment must carry one of three markers:
+
+1. **Collected evidence:** Cited by OSINT-ID (e.g., `OSINT-042`). The claim is grounded in a specific evidence item.
+2. **Reference material:** Cited as `[reference-pool: SOURCE-ID]`. The claim is grounded in Governor-provided reference materials.
+3. **Training knowledge:** Marked as `[training-knowledge]` with explanation of why no collected or reference evidence addresses this point. This is a legitimate marker, not a failure — it explicitly acknowledges where the assessment extends beyond the evidence base.
+
+**Engagement audit:** After each assessment output (per deliberation round for deliberation sessions, post-assessment for single-agent sessions), the orchestrator audits citation coverage:
+
+- Count substantive claims.
+- Classify each claim by citation category: OSINT-cited, reference-pool-cited, training-knowledge-acknowledged, or uncited.
+- Only uncited claims (no marker of any category) are engagement failures.
+
+**Evidence-grounding linkage:** When an assessment agent cites both a domain model concept (per §14.3.2 cite-then-apply) and evidence for the same claim, the agent must state the connection — how the evidence supports the domain model concept's application. Claims where both appear without stated connection are flagged as `[UNLINKED-EVIDENCE]`.
+
+**Mode independence:** Evidence engagement applies regardless of whether deliberation is used:
+
+- **With deliberation:** The engagement audit runs per deliberation round. §14.3 extensions apply in full: Evidence Citation Index in synthesis (§14.3.5), `[EVIDENCE-SUPPORTED]` propagation tracking (§14.3.10), `evidence_basis` on signals (§14.3.3).
+- **Without deliberation:** The engagement audit runs post-assessment. §14.3 extensions apply partially: §14.3.2 linkage and §14.3.3 `evidence_basis` apply. §14.3.5 (synthesis) and §14.3.10 (inter-agent propagation) do not apply — there is no synthesis and no inter-agent boundary crossing.
+
+#### Relationships
+
+**Relationship to §14.3.2 (Domain Model Grounding):** Evidence engagement extends the cite-then-apply discipline. The existing discipline: cite domain concept → state definition → apply to assessment. With evidence collection enabled, the extended discipline: cite domain concept → state definition → apply to assessment → cite evidence that supports the application. The `[UNLINKED-EVIDENCE]` flag catches claims that cite both concept and evidence but don't connect them. This extension is conditional — active only when evidence collection is enabled for the session.
+
+**Relationship to §14.3.3 (Data Grounding — Provenance):** When assessment produces scoring signals, the signal's provenance includes an `evidence_basis` field listing the OSINT-IDs that informed the score. At Tier 0, the orchestrator adds this field when recording signals. At Tier 1+, assessment agents include `evidence_basis` in their signal output and automated provenance checks verify the listed OSINT-IDs exist in the evidence manifest. This extension is conditional — active only when evidence collection is enabled.
+
+**Relationship to §14.3.5 (Synthesis Verification — deliberation only):** When deliberation is enabled, the orchestrator's synthesis must preserve evidence citations from agent position papers. The synthesis report includes an Evidence Citation Index — a section mapping each synthesized claim to its supporting OSINT-IDs as cited by the originating agents. The Governor reviews this index alongside the synthesis. At Tier 1+, automated synthesis verification checks that every OSINT-ID cited in position papers appears in the Evidence Citation Index. This extension applies only when both evidence collection and deliberation are enabled.
+
+**Relationship to §14.3.10 (Cross-Boundary Claim Propagation — deliberation only):** When deliberation is enabled, evidence-backed claims carry `[EVIDENCE-SUPPORTED: OSINT-ID, ...]` alongside their domain model grounding provenance. Propagation rules: when the orchestrator cites an evidence-supported claim from an agent, the evidence IDs propagate. When a later-round agent cites an evidence-supported claim from the interim assessment, the agent must carry the evidence IDs or cite its own evidence. If evidence IDs are stripped, the claim gains `[EVIDENCE-PROVENANCE-LOST: origin-agent-id]`. This extension applies only when both evidence collection and deliberation are enabled.
+
+**Relationship to §14.3.11 (Collection-Stage Evidence Verification):** §14.3.11 defines 8 verification checks (4 pre-deliberation, 4 in-deliberation) for collected evidence. This section (§14.8) formalizes the data structures, schemas, and architectural concepts that §14.3.11's checks operate on. The quality audit gate (directional/coverage) and source verification execute between collection and §14.3.11 verification — they are pre-processing steps that feed cleaner input to §14.3.11's checks. §14.3.11's text and logic are unchanged.
+
+**Relationship to §14.7 (Multi-Domain Consultation Pattern):** Multi-domain consultation defines how the orchestrator systematically consults multiple domain models. Evidence collection provides the external evidence base that informs those consultations. The evidence-domain model reconciliation step ensures the domain models remain valid given the collected evidence before multi-domain consultation begins. When deliberation is enabled, evidence engagement ensures domain agents ground their independent assessments in collected evidence, not just domain model concepts and training knowledge.
+
+**Relationship to §13 (Domain Models):** Domain models define the analytical framework; evidence collection validates and informs that framework. The evidence-domain model reconciliation step (this section) closes the loop between evidence and domain models. Domain model core concepts drive the coverage audit mode. Domain model short names are used as `domain_tags` on evidence items. What the session's domain models exclude from their analytical scope informs adversarial counter-framing in exploratory assessments.
+
+**Relationship to §22.4 (Evidence Collection Protocol Pattern):** §22.4 defines 10 mandatory requirements that any evidence collection protocol at any tier must satisfy. This section (§14.8) provides the architectural definitions that protocols implement. The relationship parallels §14.7 (deliberation architecture) and the deliberation protocol.
+
+**Build priority:** After §14.3.11. Evidence collection architecture depends on evidence verification (§14.3.11) being defined. At Tier 0, evidence collection is a Coordinator discipline that adds collection, quality audit, and engagement tracking to the session lifecycle. The architecture is designed for incremental tier advancement: Tier 0 implementations use markdown files and Coordinator judgment; higher tiers replace these with databases, automated checks, and structured queries — the schemas and patterns remain the same.
 
 ---
 
@@ -7814,6 +8114,45 @@ Final Deliverable → Mandatory Retrospective → Closeout
 - A/B testing is sequential (no parallel instrumentation)
 
 This pattern is implemented by the GOSTA-Cowork Protocol (see `cowork/` directory in the repository).
+
+### 22.4 Evidence Collection Protocol Pattern
+
+When a Finite Stateless session (§22.3) requires external evidence — information that must be gathered from outside the session rather than supplied by the Governor — the session activates an evidence collection protocol derived from §14.8 (Evidence Collection Architecture). This section defines the mandatory requirements that any evidence collection protocol at any tier must satisfy.
+
+Evidence collection is optional. Sessions that work exclusively with Governor-provided materials, uploaded documents, reference pools, or prior session deliverables do not activate this pattern. The Governor decides at bootstrap whether evidence collection is needed.
+
+**Mandatory requirements:**
+
+**Requirement 1: Schema conformance.** All evidence items must conform to the evidence item schema defined in §14.8. The core fields are mandatory. Extension fields are permitted and documented in the session's evidence collection configuration.
+
+**Requirement 2: Source attribution.** Every evidence item must carry a source attribution tier. The tier framework (default 3-tier or session-customized) must be documented before collection begins. Tier assignments by collection agents are provisional — verification (§14.3.11 Check 1) may adjust them.
+
+**Requirement 3: Governor visibility.** The Governor must have visibility into every stage of the evidence collection lifecycle: configuration, collection progress, quality audit results, verification results, manifest contents, and engagement audit outcomes. No evidence enters the assessment pipeline without the Governor's awareness of its provenance and quality status.
+
+**Requirement 4: Quality gate.** Collected evidence must pass a quality audit before entering the evidence manifest. The audit mode (directional or coverage) and thresholds are configured at bootstrap. The four-outcome escalation (PASS, WARNING, FAIL, SCARCITY-ACKNOWLEDGED) is mandatory — protocols must not reduce this to a binary pass/fail.
+
+**Requirement 5: Source verification.** A configurable sample of evidence items must undergo source re-verification before quality audit. The three-outcome classification (verified, access-restricted, unverifiable) is mandatory. Access-restricted items must be escalated to the Governor, not automatically downgraded.
+
+**Requirement 6: Adversarial collection.** Evidence collection must include at least one adversarial collection agent (or role, in sequential execution environments). The adversarial agent operates in counter-framing mode (default for hypothesis-driven and exploratory assessments) or cross-verification mode (for purely factual assessments). The Governor selects the mode at configuration.
+
+**Requirement 7: Verification integration.** Evidence must pass through §14.3.11 verification checks after quality audit and before entering assessment. The quality gates (requirements 4 and 5) are pre-processing steps — they improve evidence quality before §14.3.11's structural verification checks operate.
+
+**Requirement 8: Evidence engagement.** Assessment agents — whether deliberation agents, single-agent assessors, or any other downstream consumer of collected evidence — must demonstrably engage with the evidence base. Every substantive claim must carry one of three citation markers: collected evidence (by OSINT-ID), reference material (`[reference-pool: SOURCE-ID]`), or training knowledge (`[training-knowledge]`). Only uncited claims (no marker of any category) are engagement failures.
+
+Session autonomy scaling (refers to the session's Governor autonomy level set at bootstrap — not §3.6's assessment isolation levels): At autonomy levels 1-2, all quality gate warnings and failures require synchronous Governor review before proceeding. At autonomy level 3, only FAIL-level outcomes halt execution; WARNING outcomes auto-resolve with logged rationale. Adversarial counter-framing is auto-dispatched without Governor pre-review. Reconciliation minor adjustments auto-resolve; concept invalidations halt. Auto-resolved outcomes are logged for post-session review.
+
+**Requirement 9: Evidence-domain model reconciliation.** After evidence collection completes and before assessment begins, collected evidence must be reconciled against the session's domain models (§13). Contradictions between evidence and domain model core concepts must be surfaced to the Governor before assessment proceeds.
+
+**Requirement 10: Scalability guidance.** Protocols must address how evidence collection scales with target count (collection topology), evidence volume (quality gate sample rates), and agent count (batching thresholds). Multi-target-parallel topology with more than 15 total agents should recommend sequential batching.
+
+**Tier implementation:**
+
+- *Tier 0:* The GOSTA-Cowork Protocol's evidence collection extension (see `cowork/evidence-collection-protocol.md`) implements all 10 requirements using markdown files, Coordinator judgment, and Governor review at every gate. Quality audit and engagement audit are Coordinator disciplines. Source verification uses web search re-fetch. The evidence archive uses markdown files with pool-agent search.
+
+- *Tier 1:* Quality audit partially automated (automated concept-to-evidence mapping for coverage mode, automated ratio calculation for directional mode). Source verification automated for web-accessible URLs. Engagement audit partially automated (citation extraction from assessment output). Evidence archive uses structured storage with automated aging.
+
+- *Tier 2+:* Fully automated quality pipeline. Real-time source verification during collection. Automated engagement tracking with NLP-based claim extraction. Evidence archive with cross-session analytics, automated pattern detection, and collection outcome memory.
+
 ---
 
 ## Appendix B: Vocabulary & Taxonomy Index

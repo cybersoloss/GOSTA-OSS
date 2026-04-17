@@ -91,7 +91,7 @@ Beyond the five layers, nine subsystems make the control loop reliable:
 
 **Guardrail Architecture** — Typed, inheritable, evaluable constraints. Each guardrail declares severity (hard violations halt execution; soft violations trigger review) and evaluation type (mechanical or interpretive). Guardrails inherit downward through the hierarchy and never relax as they propagate.
 
-**Grounding & Hallucination Prevention** — A 5-category hallucination taxonomy (Form Corruption, Substance Corruption, Signal Corruption, Continuity Corruption, Reasoning Corruption — 11 specific types) with 8 grounding components (7 core + Attribution as structural prerequisite). Finding Classification and Sycophancy Detection are cross-cutting annotations that operate on top of the grounding layer, not grounding components themselves. The Governor curates **reference pools** to ground AI output in verified content rather than training data — see [Reference Pools](#reference-pools) below.
+**Grounding & Hallucination Prevention** — A 5-category hallucination taxonomy (Form Corruption, Substance Corruption, Signal Corruption, Continuity Corruption, Reasoning Corruption — 12 specific types including parametric substitution) with 9 grounding components (8 core + Attribution as structural prerequisite). Collection-Stage Evidence Verification (§14.3.11) addresses LLM failure modes during evidence collection and deliberation: number confabulation, absence-as-evidence fallacy, selection bias, conflation, and parametric injection (agents introducing training-data claims that bypass the evidence pipeline). Eight checks (4 pre-deliberation + 4 in-deliberation) with 11 annotation types. Finding Classification and Sycophancy Detection are cross-cutting annotations that operate on top of the grounding layer, not grounding components themselves. The Governor curates **reference pools** to ground AI output in verified content rather than training data — see [Reference Pools](#reference-pools) below.
 
 **Reasoning Integrity** — Checks whether the AI's reasoning is sound, not just whether its facts are correct. Depth validation, coverage analysis, chain integrity, finding classification (confirmed / information_gap / conditional), sycophancy detection, and mandatory confounder analysis before kill decisions.
 
@@ -206,7 +206,7 @@ Each addresses a specific concern — autonomy classification, formal constraint
 
 ## Reading the Spec
 
-The specification is 8,100+ lines covering 22 sections. It routes content to three reader roles:
+The specification is 8,500+ lines covering 22 sections. It routes content to three reader roles:
 
 **Governor** — the human with decision authority. Focus: §0–6, §8, §9, §13, §20–21.
 
@@ -233,10 +233,11 @@ A Tier 0 user running deliberation needs `[ROBUST]` sections. A Tier 1 user buil
 
 ```
 GOSTA-OSS/
-├── GOSTA-agentic-execution-architecture.md   ← The framework specification (8,100+ lines)
+├── GOSTA-agentic-execution-architecture.md   ← The framework specification (8,500+ lines)
 ├── cowork/                        ← Operational protocols and session infrastructure
 │   ├── gosta-cowork-protocol.md         Tier 0 execution protocol
 │   ├── deliberation-protocol.md         Multi-agent deliberation
+│   ├── evidence-collection-protocol.md  Evidence collection (§14.8 operationalization)
 │   ├── od-drafting-protocol.md          Operating Document authoring
 │   ├── sync-manifest.md                Framework-to-protocol derivation map
 │   ├── startup.md                      Interactive session bootstrapper
@@ -245,7 +246,8 @@ GOSTA-OSS/
 │   ├── protocol-assessment-prompt.md    Six-dimension protocol assessment
 │   ├── CLAUDE.md                       Claude Code/Cowork directive
 │   ├── README.md                       Protocol directory overview
-│   ├── templates/                ← Session templates (13 files)
+│   ├── templates/                ← Session templates (14 files)
+│   ├── evidence-archive/         ← Framework-level evidence archive (promoted from sessions)
 │   └── tools/                    ← Reference pool agent (Python, offline semantic search, bundled ONNX model)
 ├── domain-models/
 │   └── examples/                 ← Example domain models
@@ -292,7 +294,7 @@ The final reason is validation. A governance framework for autonomous AI needs t
 
 **Beta — Specification complete. Tier 0 usable. Tier 1 implementation next.**
 
-GOSTA is a complete specification (v6.1, 8,100+ lines, 22 sections) with three operational protocols, 13 session templates, example domain models, and a simulation test harness. The Tier 0 implementation — file-based, conversational AI as orchestrator — is usable today. You can run a governed session with any AI assistant by following the Cowork Protocol. No code, no infrastructure, no deployment. The framework targets Tier 3 (production-hardened, multi-scope, high autonomy) — it is currently validated at Tier 0, making this a beta release.
+GOSTA is a complete specification (v6.1, 8,500+ lines, 22 sections) with three operational protocols, 13 session templates, example domain models, and a simulation test harness. The Tier 0 implementation — file-based, conversational AI as orchestrator — is usable today. You can run a governed session with any AI assistant by following the Cowork Protocol. No code, no infrastructure, no deployment. The framework targets Tier 3 (production-hardened, multi-scope, high autonomy) — it is currently validated at Tier 0, making this a beta release.
 
 **What has been tested:** Eight simulation designs run by the authors covering operational scopes, analytical scopes (product roadmap sequencing, policy analysis), multi-agent deliberation (up to 10 agents, 3 rounds), and failure injection — 15 scenario runs producing 1,107 decisions total. Simulations measured a 4.3× pivot-over-kill bias ratio, confirming that the mandatory confounder analysis mechanism catches a measurable and common failure mode in iterative AI systems. These are internal validation — no external deployments yet. The simulation protocol (`cowork/simulation-protocol-prompt.md`) is included so others can run their own. The specification provides scaling guidance from simple scopes (20–40 items) through complex scopes (400–800 items across multiple domains).
 

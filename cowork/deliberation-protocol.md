@@ -1,4 +1,4 @@
-# GOSTA Deliberation Protocol v0.9
+# GOSTA Deliberation Protocol v0.9.2
 
 **Purpose:** Defines how multiple domain-grounded agents coordinate through structured deliberation to produce recommendations for the Governor. This protocol sits above the Cowork Protocol — each individual agent follows Cowork Protocol mechanics internally; this protocol orchestrates between them.
 
@@ -341,6 +341,8 @@ The Coordinator MUST verify these three conditions before producing the Interim 
 
 After Round 1 (and after each subsequent round in multi-round deliberations), the Coordinator reads all position/response papers and produces an **Interim Assessment** (§4.2).
 
+Before producing the Interim Assessment, the Coordinator runs the four pre-deliberation evidence verification checks defined in §14.3.11 (tier re-classification, specificity audit, negative claim audit, range suppression audit) against all externally-sourced evidence cited in position papers. After Round 1 position papers are received, the Coordinator also runs the four in-deliberation checks: phantom citation (Check 5), tier escalation in citation (Check 6), selective citation (Check 7), and parametric claim audit (Check 8). The parametric claim audit is the most operationally intensive: the Coordinator extracts every specific factual claim (numbers, dates, durations, named quantitative states) from each position paper and cross-references them against the evidence manifest, flagging `[UNCITED-MATCH]`, `[PARAMETRIC-STALE]`, or `[PARAMETRIC-UNVERIFIED]` as appropriate. All annotations from these checks are recorded in the Interim Assessment's Evidence Verification section and forwarded to agents in Round N+1 prompts where relevant.
+
 The Coordinator also tracks epistemic signals — information gaps and conditional assumptions surfaced by agents (from Confidence Basis and Falsifiability fields) — for aggregation into the Finding Classification at synthesis. Additionally, the Coordinator maintains a cumulative Issue Ledger tracking each identified issue's status across rounds.
 
 The Interim Assessment determines whether the next round is needed:
@@ -402,7 +404,9 @@ All Governor decisions are recorded in `decisions/governor-decisions.md` per Cow
 [The agent's recommendation — specific, actionable, traceable to domain concepts]
 
 #### Reasoning
-[Why this recommendation follows from the domain model. Must cite specific domain concepts by name.]
+[Why this recommendation follows from the domain model. Must cite specific domain concepts by name.
+
+**Factual claim grounding obligation (§14.3.11 Check 8):** Every specific factual claim in this section — numbers, dates, durations, statistics, named events — must cite the OSINT item that sourced it (e.g., "IBM FY2025 revenue $67.5B [OSINT-151]"). Claims that cannot be traced to an OSINT item must be tagged `[TRAINING-DATA-ESTIMATE]` with an explicit note that the value is from the agent's parametric memory, not from collected evidence. `[TRAINING-DATA-ESTIMATE]` claims cannot be the sole basis for any scored finding.]
 
 #### Domain Concepts Applied
 **Cite-then-apply (§14.3.2 retrieval faithfulness):** For each concept, state its definition from the domain model before describing how it applies. The "How It Applies" column must be traceable to the concept as defined — not a narrowed, broadened, or drifted version.
@@ -473,6 +477,27 @@ The Coordinator carries this ledger forward in each Interim Assessment, updating
 - **Reasoning diversity:** [diverse — different domain concepts drive reasoning | homogeneous — same evidence, same order, same emphasis]
 - **OD-anchoring indicator:** [low (<30% OD citations) | moderate (30-50%) | high (>50% OD citations vs domain model citations)]
 - **Convergence probe required:** [yes — Round 2 will include devil's advocate prompt | no — sufficient independence demonstrated]
+
+#### Evidence Verification (§14.3.11)
+**Pre-deliberation checks completed:** [yes/no — if no, state reason]
+
+| Check | Result | Annotations |
+|-------|--------|-------------|
+| Tier re-classification | [N reclassified / clean] | [annotation IDs or "none"] |
+| Specificity audit | [N flagged / clean] | [annotation IDs or "none"] |
+| Negative claim audit | [N flagged / clean] | [annotation IDs or "none"] |
+| Range suppression audit | [N flagged / clean] | [annotation IDs or "none"] |
+
+**In-deliberation checks (after Round 1 position papers):**
+
+| Check | Result | Annotations |
+|-------|--------|-------------|
+| Phantom citation | [N flagged / clean] | [annotation IDs or "none"] |
+| Tier escalation in citation | [N flagged / clean] | [annotation IDs or "none"] |
+| Selective citation | [N flagged / clean] | [annotation IDs or "none"] |
+| Parametric claim audit | [N claims lack OSINT citation. N matched to evidence (UNCITED-MATCH). N conflict with evidence (PARAMETRIC-STALE). N have no evidence counterpart (PARAMETRIC-UNVERIFIED). Or: "All factual claims cite OSINT items."] | [annotation IDs or "none"] |
+
+**Annotated claims forwarded to agents:** [List any claims with annotations that agents should address in Round N+1. If none: "No evidence quality issues requiring agent attention."]
 
 #### Round [N+1] Prompts
 [For each hard disagreement and novel argument: a specific question directed at relevant agents. See prompt formulation guidance below.]
@@ -646,6 +671,51 @@ Claims that crossed agent boundaries with ungrounded status:
 If no ungrounded claims crossed boundaries: "No ungrounded claims propagated across agent boundaries."
 
 **Trust boundaries crossed:** [List which trust boundary types (identity, communication, memory, oversight) were active in this deliberation. Note any boundary where grounding status was not preserved.]
+
+**Evidence propagation tracking (conditional — only when evidence collection is enabled, §14.8):**
+
+Evidence-backed claims carry `[EVIDENCE-SUPPORTED: OSINT-ID, ...]` alongside their domain model grounding provenance. When the Coordinator cites an evidence-supported claim from an agent, the evidence IDs propagate. When a Round 2+ agent cites an evidence-supported claim from the interim assessment, the agent must carry the evidence IDs or cite its own evidence. If evidence IDs are stripped, the claim gains `[EVIDENCE-PROVENANCE-LOST: origin-agent-id]`.
+
+| # | Claim | Origin Agent | OSINT-IDs at Origin | Cited By | OSINT-IDs Preserved? |
+|---|-------|-------------|---------------------|----------|---------------------|
+| 1 | [claim summary] | [Agent ID] | [OSINT-NNN, OSINT-MMM] | [Coordinator / Agent in Round M] | [yes / no: EVIDENCE-PROVENANCE-LOST] |
+
+If no evidence collection is active or no evidence-backed claims crossed boundaries: "Evidence propagation tracking not applicable (no evidence collection) or no evidence-backed claims propagated."
+
+#### Evidence Citation Index (conditional — only when evidence collection is enabled, §14.8/§14.3.5)
+
+Maps each synthesized claim in this report to its supporting OSINT-IDs as cited by the originating agents. The Governor reviews this index alongside the synthesis to verify that evidence citations survived the synthesis process.
+
+| # | Synthesized Claim | OSINT-IDs | Source Agents | Notes |
+|---|------------------|-----------|---------------|-------|
+| 1 | [claim as it appears in Consensus Recommendation] | [OSINT-NNN, OSINT-MMM] | [Agent IDs who cited these] | [any provenance notes] |
+
+**Completeness check:** Every claim in the Consensus Recommendation that cites evidence must appear in this index. If a synthesized claim aggregates evidence from multiple agents, list all contributing OSINT-IDs.
+
+If no evidence collection is active: "Evidence Citation Index not applicable (no evidence collection)."
+
+#### Evidence Verification Audit (from Framework §14.3.11)
+Claims based on externally collected evidence (OSINT, signals, reference pool entries) that triggered verification checks:
+
+**Pre-deliberation checks applied:**
+
+| # | Check | Findings | Annotations Applied |
+|---|-------|----------|-------------------|
+| 1 | Tier re-classification | [N items reclassified. Details: source X moved from Tier [M] to Tier [N] because [reason]. Or: "No reclassifications needed."] | [TIER-DISPUTED: collector=M, verifier=N] on [claim refs] |
+| 2 | Specificity audit | [N numeric claims flagged. Details: "[claim]" cites [value] but source states [actual/range]. Or: "All numeric claims verified against sources."] | [UNVERIFIED-NUMBER] on [claim refs] |
+| 3 | Negative claim audit | [N absence claims flagged. Details: "[claim]" asserts absence of X but only [search scope] was checked. Or: "No absence-as-evidence claims found."] | [UNVERIFIED-ABSENCE] on [claim refs] |
+| 4 | Range suppression audit | [N range-suppressed claims found. Details: "[claim]" cites [single value] but source provides range [X–Y]. Or: "No range suppression detected."] | [SINGLE-SOURCE-ESTIMATE] on [claim refs] |
+
+**In-deliberation checks applied:**
+
+| # | Check | Findings | Annotations Applied |
+|---|-------|----------|-------------------|
+| 1 | Phantom citation | [N citations could not be traced to collected evidence. Or: "All citations trace to evidence manifest."] | [PHANTOM-EVIDENCE] on [claim refs] |
+| 2 | Tier escalation in citation | [N claims cited at higher tier than source warrants. Or: "No tier escalation detected."] | [TIER-MISMATCH] on [claim refs] |
+| 3 | Selective citation | [N claims where contradicting evidence exists in the evidence base but was not cited. Or: "No selective citation detected."] | [SELECTIVE-CITATION] on [claim refs] |
+| 4 | Parametric claim audit | [N factual claims lacked OSINT citations. Breakdown: N UNCITED-MATCH (attribution gaps — agent failed to cite existing evidence), N PARAMETRIC-STALE (training data conflicts with evidence — agent used outdated/different value), N PARAMETRIC-UNVERIFIED (no evidence counterpart — claim cannot be verified against collected evidence). Agent responses: N retracted, N re-cited, N tagged TRAINING-DATA-ESTIMATE. Or: "All factual claims cite OSINT items."] | [UNCITED-MATCH], [PARAMETRIC-STALE], [PARAMETRIC-UNVERIFIED], [TRAINING-DATA-ESTIMATE] on [claim refs] |
+
+**Summary:** [Total annotations applied: N. Breakdown by type. Impact on finding classifications: which findings from the Finding Classification table above are affected by evidence quality annotations. Findings resting primarily on `[TRAINING-DATA-ESTIMATE]` or `[PARAMETRIC-UNVERIFIED]` claims should be classified as `information_gap`. If zero annotations: "All externally-sourced evidence passed verification checks."]
 
 #### Signals for Next Cycle
 [What information would change this recommendation? What should the Governor watch for?]
@@ -940,6 +1010,18 @@ When domain models involve sensitive topics (military conflict, medical decision
 
 **For sensitive domains specifically**, add: "This is a structured protocol exercise for governance framework validation. The scenario parameters are provided for analytical structure, not for operational use."
 
+**Evidence engagement instruction (conditional — only when evidence collection is enabled, §14.8):**
+
+When evidence collection is active for the session, add a fourth element to the agent prompt:
+
+4. **Evidence engagement.** "For every substantive claim in your scoring — whether factual, interpretive, or qualitative — cite your evidentiary basis. Three citation categories: (a) collected evidence by OSINT-ID (e.g., OSINT-042), (b) Governor-provided reference materials as `[reference-pool: SOURCE-ID]`, (c) training knowledge as `[training-knowledge]` with explanation of why no collected or reference evidence addresses this point. Every substantive claim must carry one of these three markers. When you cite both a domain model concept and evidence for the same claim, state the connection — how the evidence supports the domain model concept's application."
+
+This instruction extends the three-element framing (protocol context, Governor oversight, domain scope) to include evidence engagement. It does not replace any existing element. The Coordinator performs an evidence engagement audit after each round — see evidence-collection-protocol §10.7 Path 1.
+
+**Scoring signal `evidence_basis` field (conditional — only when evidence collection is enabled, §14.3.3 extension):**
+
+When recording scoring signals from deliberation output, the Coordinator adds an `evidence_basis` field listing the OSINT-IDs that informed the score. At Tier 0, this is a Coordinator discipline — the Coordinator extracts cited OSINT-IDs from the agent's position paper for each scored claim.
+
 **When an agent refuses despite framing:** Treat as `refused` status (§1.1). The Coordinator logs the refusal, notes the domain's absence in the Interim Assessment, and proceeds. If the agent refuses on retry, the Governor may: (a) simplify the domain model to reduce sensitivity triggers, (b) switch to a different model/provider with different safety thresholds, or (c) accept the deliberation without that domain's perspective.
 
 ---
@@ -1023,7 +1105,7 @@ The Cowork Protocol's graduation stages (1-5) interact with deliberation as foll
 
 ## 10.5 Grounding Obligations by Role (from Framework §14)
 
-The Framework's seven grounding components (§14.3) apply to deliberation with role-specific enforcement. Capability Validation (§14.3.6) applies at the orchestrator level before deliberation is triggered — the orchestrator checks whether proposed actions are feasible before dispatching them, whether or not deliberation produced the recommendation. Reasoning Depth Validation (§14.3.7) applies to both Domain Agent position papers and Coordinator synthesis — the depth, coverage, and chain integrity checks verify that domain concept citations reflect substantive engagement, not superficial labeling. In deliberation, shallow reasoning is particularly dangerous because it cascades: a Domain Agent's shallow citation becomes the Coordinator's shallow synthesis becomes the Governor's uninformed decision. The five components below have additional deliberation-specific enforcement:
+The Framework's grounding components (§14.3) apply to deliberation with role-specific enforcement. Capability Validation (§14.3.6) applies at the orchestrator level before deliberation is triggered — the orchestrator checks whether proposed actions are feasible before dispatching them, whether or not deliberation produced the recommendation. Reasoning Depth Validation (§14.3.7) applies to both Domain Agent position papers and Coordinator synthesis — the depth, coverage, and chain integrity checks verify that domain concept citations reflect substantive engagement, not superficial labeling. In deliberation, shallow reasoning is particularly dangerous because it cascades: a Domain Agent's shallow citation becomes the Coordinator's shallow synthesis becomes the Governor's uninformed decision. The five components below have additional deliberation-specific enforcement:
 
 **Domain Agent grounding:**
 - **Domain model grounding (§14.3.2):** Every claim in a Position Paper or Response Paper must cite a specific concept from the agent's assigned domain model by name. The `Domain Concepts Applied` table (§4.1) is the enforcement mechanism — it forces explicit citation. A Position Paper with a Recommendation that cannot trace to any row in its Domain Concepts Applied table is a grounding violation. The Coordinator flags such papers as `[PARTIALLY-UNGROUNDED]` in the Interim Assessment.
@@ -1035,6 +1117,7 @@ The Framework's seven grounding components (§14.3) apply to deliberation with r
 - **Synthesis verification (§14.3.5, §9.3):** The Coordinator's primary grounding obligation. Every characterization of an agent's position must include a verbatim quote from the source paper. See §9.3 for the full mechanism.
 - **Attribution (§14.3.4):** The Coordinator maintains attribution chains in the Interim Assessment and Synthesis Report using the structured Attribution Chains table (§4.4): every claim traces to a specific agent ID + paper section + round number + verbatim quote. The Governor can follow the chain: Synthesis Report Attribution Table → Agent ID → Position Paper → Domain Model Concept. Every substantive claim in the Consensus Recommendation, Agreement Map, and Unresolved Disagreements must have a corresponding row.
 - **Propagation tracking (§14.3.10):** `[ROBUST]` When the Coordinator cites a claim that was flagged `[UNGROUNDED]` or `[PARTIALLY-UNGROUNDED]` in the source position paper, the Coordinator must carry the flag as `[PROPAGATED-UNGROUNDED: Agent-ID, Round N]`. The Coordinator produces a Propagation Audit section in the Synthesis Report (§4.4) listing all claims that crossed boundaries with ungrounded status.
+- **Evidence verification (§14.3.11):** Before producing the Interim Assessment, the Coordinator runs four pre-deliberation checks against the evidence base: (1) tier re-classification — verify each source's assigned tier matches the tier criteria in the OD or collection protocol; (2) specificity audit — verify numeric claims against their cited sources, flagging confabulated precision; (3) negative claim audit — verify that absence-of-evidence claims state their search scope, not assert definitive absence; (4) range suppression audit — verify that when a source provides a range, the agent has not cited only the extreme that supports their position. During deliberation, the Coordinator runs four additional checks: (5) phantom citation — agent cites evidence not in the collected evidence base; (6) tier escalation in citation — agent treats a Tier 3 source as Tier 1 authority; (7) selective citation — agent cites supporting evidence but omits contradicting evidence from the same base; (8) parametric claim audit — the Coordinator scans position papers for specific factual claims (numbers, dates, durations, named quantitative states) that lack OSINT-ID citations and cross-references them against the evidence manifest, flagging `[UNCITED-MATCH]` (attribution gap — claim matches evidence but wasn't cited), `[PARAMETRIC-STALE]` (agent value conflicts with evidence value — agent used training data instead of collected evidence), or `[PARAMETRIC-UNVERIFIED]` (no evidence exists for this metric — claim cannot be verified). Agents must self-annotate training-data-sourced factual claims as `[TRAINING-DATA-ESTIMATE]`; the parametric claim audit catches what agents miss. Annotations applied: `[TIER-MISMATCH]`, `[UNVERIFIED-NUMBER]`, `[UNVERIFIED-ABSENCE]`, `[SINGLE-SOURCE-ESTIMATE]`, `[PHANTOM-EVIDENCE]`, `[SELECTIVE-CITATION]`, `[UNCITED-MATCH]`, `[PARAMETRIC-STALE]`, `[PARAMETRIC-UNVERIFIED]`, `[TRAINING-DATA-ESTIMATE]`. These annotations are advisory — they do not block deliberation but must be visible in the Interim Assessment (§4.2) and Synthesis Report (§4.4) Evidence Verification Audit sections.
 - **No domain advocacy:** The Coordinator does not produce domain-grounded reasoning of its own. It synthesizes agent positions. If the Coordinator introduces a claim that does not trace to any agent's paper, it is flagged as `[COORDINATOR-UNGROUNDED]` — this is a synthesis hallucination vector (§14.2, Continuity Corruption: Synthesis).
 
 **Governor grounding:**
@@ -1140,7 +1223,7 @@ Use this protocol when:
 
 ## Maintenance Notes
 
-**Version:** 0.7
+**Version:** 0.9.2
 **Status:** Validated on geopolitical-sim (DELIB-TEST-001, 5 agents), roadmap-session-v2 (DELIB-TEST-002, 6 agents, business+regulatory), and ai-regulation-stress-test (DELIB-TEST-003, 10 agents, 3 rounds, engineered guardrail contradictions). DELIB-TEST-003 confirmed 10-agent viability with known degradations; produced 6 framework issues (ISSUE-001 through ISSUE-006) driving v0.5 changes. v0.6 changes (Mirror-derived enhancements) not yet simulation-validated.
 **Depends on:** Framework, Cowork Protocol
 
@@ -1164,5 +1247,9 @@ Use this protocol when:
 - v0.6 → v0.7 (Sycophancy Detection): Six additions from GOSTA §14.3.9. (a) §3.1 Position Independence Verification — three checks at Round 1 (recommendation alignment, reasoning diversity, OD-anchoring indicator) with convergence probe trigger when Round 1 unanimity detected. (b) §4.2 Interim Assessment template gains Position Independence Assessment fields (unanimity check, reasoning diversity, OD-anchoring indicator, convergence probe required). (c) §4.4 Synthesis Report gains Sycophancy Assessment section (Round 1 independence, OD-anchoring level, Coordinator neutrality self-check, cross-cycle dissent trend). (d) §4.5 Convergence Probe Protocol — new section defining directed adversarial prompt when unanimity detected, with three outcome categories (substantive_dissent/weak_dissent/genuine_alignment). (e) §9.1 OD-anchoring detection added — elevates `groupthink_possible` to `sycophancy_possible` when unanimous recommendation aligns with OD strategy AND OD-anchoring indicator is high. (f) §9.2 sycophancy_possible mitigation — Convergence Probe trigger, Governor option to redact OD strategy rationale. Cowork Protocol updated to v3.6 (cross-deliberation dissent tracking, synthesis sycophancy verification). Framework updated to v6.1 (§14.3.9, Appendix B.11, §16.11 graduation prerequisite).
 
 - v0.8 → v0.9 (Cross-Boundary Claim Propagation): Four additions from GOSTA §14.3.10. (a) §4.1 Position Paper template gains Cross-Boundary Claims `[ROBUST]` section — agents must declare any ungrounded or cross-domain claims with provenance flags (`[PROPAGATED-UNGROUNDED: agent-id, round]`, `[CROSS-DOMAIN: source-model, concept]`). (b) §4.4 Synthesis Report template gains Propagation Audit section — table tracking claims that crossed agent boundaries with ungrounded status, plus trust boundaries crossed summary. (c) §2 Agent Roster table gains Trust Boundaries column — each agent role declares which boundary types (identity, planning, communication, memory, retrieval, execution, oversight) it crosses, with explanatory paragraph about per-role boundary defaults. (d) §10.5 Coordinator grounding obligations gains propagation tracking requirement — Coordinator must verify grounding flags preserved across boundaries during synthesis. Cowork Protocol updated to v3.12 (§6.2 `claim_propagation` signal type, §12.11 Cross-Boundary Claim Propagation operationalization, OD template Trust Boundaries column). Sync manifest gains D36-D39, C132-C134.
+
+- v0.9 → v0.9.1 (Collection-Stage Evidence Verification): Four additions from GOSTA §14.3.11. (a) §3.3 gains pre-deliberation evidence verification paragraph — Coordinator runs 4 checks (tier re-classification, specificity audit, negative claim audit, range suppression audit) before producing Interim Assessment. (b) §4.2 Interim Assessment template gains Evidence Verification section with check results table and annotated claims forwarded to agents. (c) §4.4 Synthesis Report template gains Evidence Verification Audit section — structured tables for pre-deliberation and in-deliberation checks with annotation types (`[TIER-MISMATCH]`, `[UNVERIFIED-NUMBER]`, `[UNVERIFIED-ABSENCE]`, `[SINGLE-SOURCE-ESTIMATE]`, `[PHANTOM-EVIDENCE]`, `[SELECTIVE-CITATION]`), plus impact summary linking to Finding Classification. (d) §10.5 Coordinator grounding obligations gains evidence verification requirement — 7 checks (4 pre-deliberation + 3 in-deliberation) with annotation taxonomy. Addresses 4 LLM failure modes: number confabulation, absence-as-evidence fallacy, selection bias/cherry-picking, conflation of similar data points. Discovered during IBM/Guardium vendor viability assessment (7 hallucination errors in collected evidence).
+
+- v0.9.1 → v0.9.2 (Parametric Claim Audit — Check 8): Extends §14.3.11 from 7 checks to 8 (4 pre-deliberation + 4 in-deliberation). Addresses a 5th LLM failure mode: parametric injection — agents introducing factual claims from training data that bypass the evidence pipeline entirely. Three sub-types: stale substitution, unsourced approximation, constructed composite. (a) §3.3 updated — Coordinator now runs 4 in-deliberation checks after Round 1 position papers, including parametric claim audit. (b) §4.1 Position Paper template gains factual claim grounding obligation — every specific number/date/statistic must cite OSINT-ID or be tagged `[TRAINING-DATA-ESTIMATE]`. (c) §4.2 Interim Assessment template gains in-deliberation checks table with parametric claim audit row. (d) §4.4 Synthesis Report Evidence Verification Audit gains Check 8 row with breakdown of UNCITED-MATCH, PARAMETRIC-STALE, PARAMETRIC-UNVERIFIED, and TRAINING-DATA-ESTIMATE annotations. (e) §10.5 Coordinator evidence verification obligation updated from 7 to 8 checks with 4 new annotation types. Discovered during IBM/Guardium assessment-2 fact-check: FCF $12.7B (stale — FY2024 value from training data; actual FY2025 = $14.7B), Krishna "6yr" tenure (unsourced approximation), layoffs "13,000–17,000" (constructed composite).
 
 Framework v6.1 now references this protocol in §7.1 (Deliberation Components), §7.2 (Strategy Cycle escalation check), §4.5 (cross-domain deliberation path), §13.7 (domain model stacking at scale), §14.7 (three-level escalation model), §6.3 (stage-conditional deliberation autonomy), §14.2/§14.3.5 (synthesis hallucination type and grounding component), §14.3.8 (Finding Classification — deliberation and health assessments), §14.3.9 (Sycophancy Detection — deliberation independence and convergence probes), §14.3.10 (Cross-Boundary Claim Propagation — trust boundaries and propagation rules), and §18.3/§18.4/§18.5/§18.6 (memory architecture for Coordinator and Domain Agent). The protocol remains a standalone document — it has not been merged into the Cowork Protocol.

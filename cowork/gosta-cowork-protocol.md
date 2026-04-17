@@ -128,12 +128,24 @@ The difference is in cycle cadence and termination condition, not in structure.
 ├── gosta-framework-feedback.md  ← Shortfalls, gaps, enhancements discovered
 │                                   while running. Feeds back to GOSTA spec.
 │
-└── deliberation/               ← (When deliberation mode is active only)
-    └── round-[NNN]/               One directory per deliberation round.
-        ├── [agent-id]-position.md    Position papers (Round 1) or response papers (Round 2+)
-        ├── interim-assessment.md     Coordinator interim assessment after each round
-        ├── synthesis-report.md       Coordinator final synthesis
-        └── proxy-[agent-id].md       (If agent failed) Coordinator-generated proxy. See Deliberation Protocol §7.1.
+├── deliberation/               ← (When deliberation mode is active only)
+│   └── round-[NNN]/               One directory per deliberation round.
+│       ├── [agent-id]-position.md    Position papers (Round 1) or response papers (Round 2+)
+│       ├── interim-assessment.md     Coordinator interim assessment after each round
+│       ├── synthesis-report.md       Coordinator final synthesis
+│       └── proxy-[agent-id].md       (If agent failed) Coordinator-generated proxy. See Deliberation Protocol §7.1.
+│
+└── osint/                      ← (When evidence collection mode is active only)
+    ├── capability-test.md          Execution environment detection result
+    ├── evidence-index.yaml         Master index of all collected evidence items
+    ├── evidence-manifest.md        Human-readable manifest for assessment agents
+    ├── evidence-engagement-audit.md  (Path 2 only — non-deliberation sessions)
+    ├── evidence-domain-reconciliation.md  Reconciliation report
+    ├── [domain-1]/                 Evidence items by domain (dirs from domain models)
+    ├── [domain-2]/
+    ├── discovery/                  Open-ended discovery items
+    ├── adversarial/                Adversarial agent items + verification report
+    └── raw/                        Pre-fetch mode raw search output
 ```
 
 **File conventions:**
@@ -715,6 +727,25 @@ The Operating Document should declare which level is the baseline and whether de
 **Information gap handling:** When deliberation or multi-domain assessment produces findings classified as `information_gap` (§14.3.8), the orchestrator logs the specified missing data as a signal collection target in the next cycle's action list. The orchestrator emits a `knowledge_flag` signal when the gap is resolved.
 
 **Interpretive guardrail escalation:** When 2+ interpretive guardrails produce ambiguous results (`near-violation` or `unclear` status) in the same review cycle, and deliberation mode is enabled, consider escalation to Level 3 deliberation for multi-agent evaluation of the guardrail cluster.
+
+### 7.5a Evidence Collection Integration (from GOSTA §14.8)
+
+When evidence collection mode is enabled for a session, the following integration points apply:
+
+**Phase execution additions:**
+- Evidence collection runs during its designated phase (specified in the OD's Evidence Collection section). All quality gates (source verification, evidence quality audit, adversarial review, §14.3.11 verification) must pass before the phase gate.
+- Evidence-domain model reconciliation (evidence-collection-protocol §10.8) must complete before any assessment phase begins — whether that assessment uses deliberation or single-agent evaluation.
+- The evidence collection configuration (`evidence-collection-config.md`) is a session file referenced alongside the OD.
+
+**Evidence engagement during assessment:**
+- When evidence collection is enabled AND deliberation is active: agent dispatch prompts include evidence engagement instructions (3-category citation: OSINT-ID, `[reference-pool: SOURCE-ID]`, `[training-knowledge]`). The Coordinator performs an evidence engagement audit per deliberation round. Scoring signals include an `evidence_basis` field (§14.3.3 extension). The synthesis report includes an Evidence Citation Index (§14.3.5 extension). The Propagation Audit includes `[EVIDENCE-SUPPORTED]` and `[EVIDENCE-PROVENANCE-LOST]` flags (§14.3.10 extension). See evidence-collection-protocol §10.7 Path 1.
+- When evidence collection is enabled WITHOUT deliberation: the single assessment agent's prompt includes the same engagement instruction. Post-assessment audit by the coordinator. See evidence-collection-protocol §10.7 Path 2.
+- Sessions without evidence collection use the existing §14.3 pipeline unchanged — no engagement audit, no `evidence_basis`, no Evidence Citation Index.
+
+**Evidence Archive:**
+- Framework-level evidence archive at `cowork/evidence-archive/`. Organized by assessment target.
+- New sessions query the archive during bootstrap (startup.md Step 5b) and import relevant items.
+- Post-session, Governor selects items to promote to the archive (startup.md post-session procedure).
 
 ### 7.6 Scoring Protocol (from GOSTA §20.10)
 

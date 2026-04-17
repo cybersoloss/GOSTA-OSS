@@ -32,6 +32,18 @@ It blocks commits that:
 
 Do not attempt to work around this hook. If it fires, remove the offending content before committing.
 
+## Symlinks to GOSTA-PRIVATE
+
+This repo contains symlinks to `~/dev/GOSTA-PRIVATE/` for private/working content that must not be committed to the public repo. These directories appear in `GOSTA-DEV/` but their actual contents live in `GOSTA-PRIVATE/`.
+
+| Symlink (in GOSTA-DEV) | Target (in GOSTA-PRIVATE) | Contents |
+|---|---|---|
+| `sessions/` | `~/dev/GOSTA-PRIVATE/sessions/` | Live session directories (ODs, domain models, signals, deliverables) |
+| `temp/` | `~/dev/GOSTA-PRIVATE/temp/` | Temporary working files, scratch space |
+| `announcement/` | `~/dev/GOSTA-PRIVATE/announcement/` | Announcement drafts and materials |
+
+When using tools that resolve symlinks differently (e.g., sandbox bash vs. host file tools), use the actual target paths in `GOSTA-PRIVATE/` for writes. The file tools (Read/Write/Edit) follow symlinks transparently; the bash sandbox sees broken symlinks because `GOSTA-PRIVATE` is not mounted unless explicitly added.
+
 ## Gitignore Rules (Key Ones)
 
 - `sessions/` — working session directories, never committed
@@ -42,13 +54,15 @@ Do not attempt to work around this hook. If it fires, remove the offending conte
 ## Architecture and Document Relationships
 
 ```
-GOSTA-agentic-execution-architecture.md    ← The specification (8,100+ lines, 22 sections)
+GOSTA-agentic-execution-architecture.md    ← The specification (8,500+ lines, 22 sections)
                                                Source of truth. Protocols derive from it.
 cowork/
   gosta-cowork-protocol.md                 ← Tier 0 execution protocol. Governs session lifecycle,
                                                phase gates, health computation, signal format, etc.
   startup.md                               ← Interactive session bootstrapper (entry point)
   deliberation-protocol.md                 ← Multi-agent deliberation (3 roles, round mechanics)
+  evidence-collection-protocol.md          ← Evidence collection (§14.8 operationalization, quality gates,
+                                               engagement audit, archive lifecycle)
   domain-model-authoring-protocol.md        ← Source-to-domain-model extraction procedure
   od-drafting-protocol.md                  ← OD authoring for complex/vague scopes (structured
                                                decomposition questions → OD). Used when direct
@@ -57,8 +71,9 @@ cowork/
                                                Consult this after any spec edit to find what needs review.
   CLAUDE.md                                ← Per-session Claude Code directive. Copied into
                                                sessions/[name]/ during bootstrap, then customized.
-  templates/                               ← 13 stub templates (OD, domain model, health report, etc.)
+  templates/                               ← 14 stub templates (OD, domain model, health report, etc.)
   tools/pool-agent.py                      ← Offline semantic search over reference pools
+  evidence-archive/                        ← Promoted evidence items with aging/re-verification
 domain-models/examples/                    ← Shared reusable domain models
 docs/                                      ← Walkthrough, quick start, worked examples
 sessions/[name]/                           ← Live session directories (gitignored)
@@ -67,6 +82,7 @@ sessions/[name]/                           ← Live session directories (gitigno
   domain-models/                           ← Session-specific domain models
   signals/, health-reports/, decisions/    ← Append-only execution artifacts
   deliverables/, session-logs/             ← Output artifacts
+  osint/                                   ← Evidence items, manifest, config (when enabled)
 ```
 
 The spec is the source of truth. `sync-manifest.md` tracks every point where a protocol section derives from a spec section — use it when updating either to find what else needs to change.

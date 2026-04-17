@@ -39,6 +39,12 @@ Ask:
   - **Yes** — During execution, the AI will log protocol gaps, domain model inconsistencies, reference pool issues, deliberation friction, and other framework shortfalls as they are encountered. Requires a shortfall log file path (default: `[project]/session-shortfall-log.md`). Entries are appended in real-time, not post-hoc. Useful for framework improvement cycles and PCCA.
   - If the Governor says yes, note it — the AI will create or append to the shortfall log during Phase 3 execution and all subsequent phases.
 
+- Evidence collection mode? (default: no)
+  - **No** — Session works with Governor-provided reference materials only. Use when: evidence base is pre-existing (reference pools, uploaded documents, prior session deliverables).
+  - **Yes** — AI agents collect evidence from external sources during execution. Use when: session assesses something external (vendor, market, regulation, competitor) where evidence doesn't exist yet and must be gathered. Activates §14.8 Evidence Collection Architecture and the Evidence Collection Protocol.
+  - If Yes AND scope type is "ongoing": warn — *"Evidence collection currently supports single-phase collection only. Periodic re-collection (monitoring, rolling updates) is not yet supported (§14.8 extension point §10.1). Collection will run once during the designated phase. Proceed?"*
+  - If the Governor says yes, note it — Group 3B will collect evidence-collection-specific configuration.
+
 Auto-fill (do not ask — compute automatically):
 - Governor: In Code mode, read from git config (`git config user.name`). In Cowork mode, git config is unavailable — include "Governor: [please confirm your name]" in the Phase 2 summary table and wait for correction.
 - Date: Today's date
@@ -120,6 +126,47 @@ Auto-compute defaults from domain count and complexity:
 
 Present: "Here are the termination thresholds I'd recommend based on your [N] domains and [complexity] scope. Confirm or adjust?"
 
+**Group 3B — Evidence Collection Configuration (only if Governor chose evidence collection = yes in Group 1):**
+
+Skip this group entirely if evidence collection mode is disabled. If enabled, ask:
+
+> You chose evidence collection. I need a few configuration decisions.
+
+- **Execution environment:** Auto-detected from Group 1 mode setting.
+  - **Code mode:** Collection agents dispatched as parallel subagents. Capability test (Step 5d) determines normal vs pre-fetch mode.
+  - **Cowork mode:** No subagent dispatch available. Collection runs as sequential role-plays in one conversation. The AI adopts each agent's role in sequence. Information isolation between "agents" is not possible — the adversarial role is especially important to counteract confirmation bias from sequential execution. No Governor decision needed — auto-detected.
+
+- **Collection topology:** Auto-detected from OD target count; Governor confirms.
+  - Single-target (default for one assessment target)
+  - Multi-target-shared (multiple targets, shared agent pool)
+  - Multi-target-parallel (multiple targets, per-target agent pools)
+  - If total agents > 15 (multi-target-parallel): recommend sequential batching — complete each target's full collection cycle before starting the next. Governor decides batch vs. parallel.
+
+- **Collection agent count:** Auto-computed from domain model groupings. Default: `ceil(domain_count / 2) + 1 discovery + 1 adversarial`. Multi-target-parallel multiplies by target count. Present computed count and ask Governor to confirm.
+
+- **Adversarial collection:** Enabled by default. Two modes:
+  - **Counter-framing** (default for hypothesis-driven and exploratory) — counter-framing generated from OD objectives (hypothesis inversion) or what the session's domain models exclude from their analytical scope (exploratory). Governor reviews counter-framing before dispatch.
+  - **Cross-verification** (for purely factual assessments) — adversarial agent independently re-collects and verifies a sample of other agents' factual claims. Use when no evaluative direction exists to counter.
+  Auto-selected based on assessment type. Governor can override.
+
+- **Evidence quality audit mode:**
+  - **Directional** (default for hypothesis-driven assessments) — checks for sycophantic over-collection of confirming evidence. Threshold: 70%.
+  - **Coverage** (default for exploratory assessments) — checks that all domain model core concepts have adequate evidence. Threshold: 80%.
+  Auto-selected based on assessment type. Governor can override.
+
+- **URL verification sample rate:** Default 100% Tier 1 + 30% Tier 2. Adjust if collection volume is very high.
+
+- **Independence level interaction:** Auto-computed from Group 1 independence level.
+  - Independence 1-2: All quality gate warnings/failures require Governor review.
+  - Independence 3: Only FAIL-level outcomes halt. Warnings auto-resolve with logged rationale. Adversarial counter-framing auto-dispatched. Reconciliation minor adjustments auto-resolve; concept invalidations halt.
+  Present computed behavior and ask: *"At independence [N], evidence collection gates will behave as follows: [description]. Confirm or override?"*
+
+- **Source attribution tier policy:** Use framework defaults (§14.8 default 3-tier) or customize?
+
+- **Gap analysis thresholds:** Use protocol defaults (3 Tier 1/2 items per domain) or customize per domain?
+
+- **Pool-agent integration:** Enable if expected evidence items > 50?
+
 **Group 4 — Constraints and Success:**
 
 Ask:
@@ -169,6 +216,7 @@ Complexity:       [simple/moderate/complex]
 Mode:             [cowork/code/both]
 Independence:     [1/2/3]
 Deliberation:     [enabled/disabled]
+Evidence Collection: [enabled/disabled]
 Shortfall Log:    [enabled/disabled — if enabled, path to log file]
 FFR:              always enabled (auto)
 Goal:             [goal text]
@@ -195,6 +243,21 @@ Cost Budget:      [value or "no limit"]
 Convergence:      [definition]
 New Argument:     [definition]
 Stall:            [definition]
+```
+
+If evidence collection is enabled, also show:
+
+```
+--- Evidence Collection Config ---
+Topology:         [single-target / multi-target-shared / multi-target-parallel]
+Targets:          [target list]
+Agent Count:      [N] (formula: ceil(domain_count/2) + 1 discovery + 1 adversarial)
+Adversarial Mode: [counter-framing / cross-verification]
+Quality Audit:    [directional (threshold: 70%) / coverage (threshold: 80%)]
+URL Verification: [Tier 1: 100%, Tier 2: 30%]
+Independence:     [level N — gate behavior description]
+Tier Policy:      [framework default / custom]
+Pool-Agent:       [enabled if >50 items / disabled]
 ```
 
 Ask: "Does this look right? Any changes before I scaffold?"
@@ -244,6 +307,14 @@ If deliberation is enabled, also create:
 mkdir -p sessions/[SESSION_NAME]/deliberation
 ```
 
+If evidence collection is enabled, also create:
+```bash
+# Subdirectories generated from session's domain models + fixed dirs (discovery, adversarial, raw)
+# Pattern: osint/[domain-model-short-name]/ for each domain model, plus fixed dirs
+# Example for 7 domains: osint/{fin-market,competitive,product-adapt,governance,regulatory,market-position,customer,discovery,adversarial,raw}
+mkdir -p sessions/[SESSION_NAME]/osint/{[DOMAIN_DIRS],discovery,adversarial,raw}
+```
+
 *Cowork mode:* You cannot run bash. Tell the Governor the directory structure needed, then create files into it as subsequent steps proceed. The directory exists implicitly once the first file is written into it. If deliberation is enabled, include the `deliberation/` directory in the structure description.
 
 **Pool-agent model check (Code mode only):**
@@ -259,6 +330,20 @@ python3 cowork/tools/pool-agent.py setup-model
 
 If the model file is missing, alert the Governor: *"The pool-agent embedding model is not installed. Reference pool semantic search and large document indexing will not work until it's set up. Run `python3 cowork/tools/pool-agent.py setup-model` to download and install it (requires internet, one-time setup). Shall I run it now?"* Do not silently skip this — sessions that need pool-agent will fail at build/query time without the model.
 
+**Web search capability check (required when OSINT collection or external evidence gathering is planned):**
+
+If the session includes an OSINT collection phase, evidence gathering from external sources, or any tactic that depends on live web data, verify web search works before proceeding to scaffold:
+
+1. **Run a test query.** Execute a simple web search (e.g., search for the target vendor's name) and confirm results are returned.
+2. **If web search is available:** Record in the bootstrap's Execution Capabilities: `Web search: verified (tool: [WebSearch/WebFetch/other])`.
+3. **If web search is denied or unavailable:** Alert the Governor immediately:
+
+   *"Web search is not available in this environment. OSINT collection agents will be unable to gather live evidence — they will fall back to training knowledge only (cutoff: [date]). This means: (a) no post-cutoff events will be captured, (b) evidence items cannot include verifiable URLs, (c) all evidence carries [TRAINING-KNOWLEDGE] annotation. Options: (1) Grant web search permission and re-verify. (2) Proceed with training-knowledge-only collection — evidence base will be weaker and §14.3.11 verification checks will have limited value since the primary hallucination vector (live web collection) is absent. (3) Pause session until web search is available."*
+
+4. **If web search works for the main agent but not for subagents (Code mode):** When dispatching parallel collection agents as subagents, the subagents may not inherit web search permissions. Verify by dispatching a single test subagent with a web search task before dispatching all collection agents. If subagents are blocked: collect web search results in the main agent context first, then pass the raw results to subagents for structuring and classification.
+
+Do not silently proceed with OSINT collection when web search is unavailable — the Governor must explicitly accept the degraded evidence base. A session that plans for web-sourced evidence but executes on training knowledge alone has a capability mismatch that affects every downstream phase.
+
 **Step 3 — Copy protocol infrastructure:**
 
 *Code mode:*
@@ -272,7 +357,12 @@ If deliberation is enabled:
 cp cowork/deliberation-protocol.md sessions/[SESSION_NAME]/
 ```
 
-*Cowork mode:* Read `cowork/gosta-cowork-protocol.md` and `cowork/CLAUDE.md`, then recreate them as new files at the target paths. If deliberation is enabled, also copy `cowork/deliberation-protocol.md`. Confirm with Governor before copying large files: "I'll copy the protocol file (~N lines) into your session directory — confirm?"
+If evidence collection is enabled:
+```bash
+cp cowork/evidence-collection-protocol.md sessions/[SESSION_NAME]/
+```
+
+*Cowork mode:* Read `cowork/gosta-cowork-protocol.md` and `cowork/CLAUDE.md`, then recreate them as new files at the target paths. If deliberation is enabled, also copy `cowork/deliberation-protocol.md`. If evidence collection is enabled, also copy `cowork/evidence-collection-protocol.md`. Confirm with Governor before copying large files: "I'll copy the protocol file (~N lines) into your session directory — confirm?"
 
 **CLAUDE.md customization:** `CLAUDE.md` is the Claude Code directive — it tells the AI how to behave when entering this session directory in future sessions. Copy the template first, then append a `## Session Directives` section at the bottom with session-specific content:
 - Context loading order (references to OD, domain models, reference materials)
@@ -329,6 +419,41 @@ After running the quality gate on all domain models, compile all failures. Prese
 Do not proceed to Step 6 until all models either pass the quality gate or the Governor has accepted a warning for each failure.
 
 **Domain Model Adaptations requirement:** If any domain model received a quality gate WARNING (proceeded with warning), the Domain Model Adaptations section in the OD is **required** (not optional) for that model. The adaptations table must declare per-concept applicability (applies / does-not-apply / requires-interpretation) so agents score against constrained definitions rather than the model's generic framing.
+
+**Step 5b — Query Evidence Archive (only if evidence collection is enabled):**
+
+After domain models are finalized and before generating the evidence collection config:
+
+1. Query the Evidence Archive (`cowork/evidence-archive/`) for existing evidence matching the session's target(s) and domains.
+2. At Tier 0: use pool-agent to search an archived evidence index (if one exists). If no archive exists yet (this is the first evidence-collecting session), skip — report "No evidence archive found. This session will start fresh."
+3. Report to Governor: *"Found [N] archived items for [target], [M] still within effective date, [K] expired."*
+4. Governor decides: import relevant archived items into the session's evidence pool (copied, not linked — session evidence is self-contained), or start fresh.
+5. Imported archived items are flagged for re-verification (evidence-collection-protocol §10.2) against current sources.
+6. Gap analysis in the evidence collection config accounts for imported items — new collection focuses on gaps, updates, and expired-item replacements.
+
+**Step 5c — Generate evidence collection config (only if evidence collection is enabled):**
+
+After archive query (Step 5b) and before reference materials (Step 6), auto-generate the evidence collection configuration from the session's domain models:
+
+1. Map each domain model's core concepts to candidate search queries (concept-to-query mapping)
+2. Group domain models into collection agent categories
+3. Generate discovery query templates from the session scope
+4. Generate adversarial counter-framing from OD objectives
+5. Account for archived evidence imported in Step 5b — reduce search scope for concepts already covered by current (non-expired) archived items
+6. Present the evidence collection config to the Governor for review
+7. Write to `sessions/[SESSION_NAME]/evidence-collection-config.md` (populated from `cowork/templates/evidence-collection-config.md`)
+
+**Step 5d — Subagent capability test (only if evidence collection is enabled, Code mode only):**
+
+After evidence collection config is finalized, before execution begins:
+
+1. Dispatch a test agent with instructions to load WebSearch via ToolSearch and execute one search
+2. Record result in `sessions/[SESSION_NAME]/osint/capability-test.md`
+3. Report to Governor: *"Normal mode — agents will search independently"* or *"Pre-fetch mode — I will search, agents will analyze"*
+4. No Governor decision required — this is automatic detection, not a configuration choice
+5. In Cowork mode, skip this step — cowork-sequential mode is auto-detected from the session mode
+
+Note: This replaces the existing "Web search capability check" for evidence collection sessions. The existing web search check (above) still applies for sessions that need web data without the full evidence collection pipeline.
 
 **Step 6 — Copy reference materials** (if any specified). Preserve the consumption role assigned by the Governor in Group 3. Add a comment at the top of each reference file (or in a `reference/README.md` index) noting its role: `options-universe` or `context`.
 
@@ -392,6 +517,7 @@ Follow GOSTA's five-layer hierarchy (see framework Section 9 for template, Secti
 - Graduation stage: 1
 - Multi-Domain Assessment section with deliberation mode setting
 - **If deliberation enabled:** Full `## Deliberation` section populated from Group 3A inputs — agent roster table, cadence config, isolation mode, termination thresholds, and deliberation file structure. Use the OD template's Deliberation section as the structural reference.
+- **If evidence collection enabled:** Full `## Evidence Collection` section populated from Group 3B inputs — topology, targets, agent count, adversarial mode, quality gate config, and evidence collection phase designation. Use the OD template's Evidence Collection section as the structural reference.
 
 **Constraint-to-guardrail encoding (mandatory):** Every constraint the Governor provided in Group 4 must be encoded as a guardrail at the Goal level — one constraint, one guardrail. Do not leave constraints only in the scope definition; constraints without corresponding guardrails have no enforcement during execution. After drafting guardrails, verify: for each Group 4 constraint, does a guardrail exist that would catch a violation? If not, add one.
 
@@ -461,6 +587,7 @@ Use `cowork/templates/00-BOOTSTRAP.md`. Set:
 | Scope definition created | [met/not_met] | 01-scope-definition.md populated |
 | Operating document drafted and Governor-approved | [met/not_met] | OD approved [date] |
 | Bootstrap file created | [met/not_met] | 00-BOOTSTRAP.md populated |
+| Evidence collection configured | [met/not_met/not_applicable] | Config populated, archive queried, capability tested / not applicable |
 | Prior learnings reviewed | [met/not_met/not_applicable] | [N] learnings incorporated / skipped |
 
 ### Key Findings
@@ -494,6 +621,16 @@ Once the Governor approves the phase gate, execute this transition immediately:
 2. Emit a message to the Governor: "Bootstrap complete. Session is now in Phase 1. Ready to begin execution per the operating document. Shall I proceed with [first action from OD]?"
 3. Wait for Governor confirmation before executing initial actions.
 
+**Post-session — Evidence Archive promotion (only if evidence collection was enabled):**
+
+After the Governor approves the final deliverable and the session concludes:
+
+1. Coordinator presents the evidence pool summary to the Governor: total items, tier distribution, domains covered, quality gate results.
+2. Governor selects which items to promote to the Evidence Archive (default: all Tier 1 + Tier 2 items that passed quality gates; Governor can include/exclude specific items).
+3. For each promoted item, compute `effective_until` based on evidence-collection-protocol §12.3 domain-specific aging defaults. Governor can override per item.
+4. Write promoted items to `cowork/evidence-archive/[target]/`.
+5. Update the archive index for future pool-agent queries.
+
 From Phase 1 onward, the protocol governs everything (§5.1). This startup file's job is done. Key operating rules:
 - Follow review cadences defined in the OD
 - Signal-first execution: write signal stub before each action, update after (protocol §6.3)
@@ -521,8 +658,8 @@ From Phase 1 onward, the protocol governs everything (§5.1). This startup file'
 
 ## Maintenance Notes
 
-**Version:** 1.5
-**Depends on:** `session-launcher-template.md`, Cowork Protocol, Framework, Deliberation Protocol, OD Drafting Protocol (`cowork/od-drafting-protocol.md`)
+**Version:** 1.6
+**Depends on:** `session-launcher-template.md`, Cowork Protocol, Framework, Deliberation Protocol, Evidence Collection Protocol (`cowork/evidence-collection-protocol.md`), OD Drafting Protocol (`cowork/od-drafting-protocol.md`)
 
 When the protocol or framework is updated, check:
 - Quality gate criteria (Step 5) against protocol §3.1 and §5.2
@@ -533,5 +670,8 @@ When the protocol or framework is updated, check:
 - Closeout file audit reference (post-Phase 1 rules) against protocol §5.5
 - Deliberation Assessment (Step 11) against deliberation-protocol.md §3.5
 - Group 3A defaults against deliberation-protocol.md §2.1 calibration guidance and §3.0 round count guidance
+- Group 3B defaults against evidence-collection-protocol.md and §14.8
+- Evidence collection config template (Step 5c) against `cowork/templates/evidence-collection-config.md`
+- Evidence archive promotion (post-session) against evidence-collection-protocol.md §12
 - Domain model template (Step 5) against `cowork/templates/domain-model.md`
 - Domain model extraction procedure (Step 5) against `cowork/domain-model-authoring-protocol.md`
