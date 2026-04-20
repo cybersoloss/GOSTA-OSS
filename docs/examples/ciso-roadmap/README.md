@@ -56,11 +56,9 @@ You can run your own version of this CISO roadmap session. The domain models and
 ### Step 1: Clone the repo
 
 ```bash
-git clone <this-repo-url>
+git clone https://github.com/cybersoloss/GOSTA-OSS.git
 cd GOSTA-OSS
 ```
-
-Use the clone URL from the green "Code" button at the top of this repository.
 
 ### Step 2: Start a GOSTA session
 

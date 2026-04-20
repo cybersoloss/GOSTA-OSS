@@ -92,11 +92,9 @@ This template assumes you understand GOSTA's core concepts: Governor, Operating 
 ### Step 1: Clone and prepare
 
 ```bash
-git clone <this-repo-url>
-cd <repo-directory>
+git clone https://github.com/cybersoloss/GOSTA-OSS.git
+cd GOSTA-OSS
 ```
-
-Use the clone URL from the green "Code" button at the top of this repository.
 
 Before starting the bootstrapper, copy the domain models from this example into the repo's shared domain models directory so the bootstrapper can discover them:
 
