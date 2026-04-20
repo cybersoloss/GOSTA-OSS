@@ -147,7 +147,7 @@ The assessment is organized around six observable vendor viability signals, grou
 
 - **Parent Strategy:** STR-1, STR-2
 - **Parent Objective:** OBJ-1, OBJ-2, OBJ-3, OBJ-4
-- **Hypothesis:** If we run multi-agent deliberation where each agent pair covers specific Talk-2 signal categories with forced cross-domain tension identification, then viability-stickiness interactions and leading-indicator divergences will surface that single-signal scoring would miss — producing a risk determination that accounts for dependency depth, not just vendor health.
+- **Hypothesis:** If we run multi-agent deliberation where each domain agent independently covers its assigned Talk-2 signal categories with forced cross-domain tension identification, then viability-stickiness interactions and leading-indicator divergences will surface that single-signal scoring would miss — producing a risk determination that accounts for dependency depth, not just vendor health.
 - **Kill Condition:** Deliverable not accepted after 3 revision cycles.
 - **Success Metrics:** (a) All 6 signals scored with evidence citations, (b) Cross-domain tensions identified (target: ≥4), (c) Vendor vs. product viability divergences surfaced (target: ≥2), (d) Leading indicator confirmation or contradiction documented, (e) Governor assessment of risk determination usefulness
 - **Guardrails (inherited):** G-1 through G-9
@@ -156,7 +156,7 @@ The assessment is organized around six observable vendor viability signals, grou
 - **Bootstrap Cycles:** 0 (finite)
 - **Seed Actions:** Execute deliberation per deliberation-config.md; synthesize risk determination
 - **Owner:** AI
-- **Approach:** Four-agent deliberation with domain model pairing aligned to Talk-2 signal categories per deliberation-config.md. Independence Level 2. 3 rounds + synthesis. Risk synthesis combines signal scores with stickiness assessment and leading indicator analysis to produce third-party risk determination.
+- **Approach:** Eight-agent deliberation with one agent per domain model, aligned to Talk-2 signal categories per deliberation-config.md. Independence Level 2. 3 rounds + synthesis. Risk synthesis combines signal scores with stickiness assessment and leading indicator analysis to produce third-party risk determination.
 - **Dependencies:** execution (depends on TAC-1 output)
 - **Domain Model Dependencies:** All 8 domain models (ECON-1, DISP-1, ADAPT-1, SAAS-1, STICK-1, REG-1, GOV-1, TAL-1)
 - **Human Creative Input Estimate:** 1 (Governor review of final risk determination)
@@ -169,7 +169,7 @@ The assessment is organized around six observable vendor viability signals, grou
 - **Deadline:** [Session Date]
 - **Dependency Type:** execution
 
-### ACT-2: Execute four-agent deliberation → serves TAC-2
+### ACT-2: Execute eight-agent deliberation → serves TAC-2
 - **Assignee:** AI
 - **Deliverable:** Deliberation transcript with per-agent positions, signal assessments, and tension identification
 - **Deadline:** [Session Date]
