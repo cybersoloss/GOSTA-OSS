@@ -82,10 +82,10 @@ Financial pressure (ECON-1) constrains adaptation capacity (ADAPT-1). High stick
 ### Prerequisites
 
 - Git
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) (CLI) — or Claude Desktop with Cowork mode. Claude Code is recommended for deliberation sessions because it runs agents as parallel subprocesses with full isolation.
-- Python 3.9+ (only if you want to use the reference pool semantic search tool)
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) (CLI) — install with `npm install -g @anthropic-ai/claude-code`. Or use Claude Desktop with Cowork mode. Claude Code is recommended for deliberation sessions because it runs agents as parallel subprocesses with full isolation.
+- Python 3.9+ (recommended if you plan to use the reference pool for semantic search over your own evidence sources; not required for the core session)
 
-### Step 1: Clone the repo
+### Step 1: Clone and prepare
 
 ```bash
 git clone <this-repo-url>
@@ -94,34 +94,45 @@ cd <repo-directory>
 
 Use the clone URL from the green "Code" button at the top of this repository.
 
+Before starting the bootstrapper, copy the domain models from this example into the repo's shared domain models directory so the bootstrapper can discover them:
+
+```bash
+cp docs/examples/vendor-product-continuity-assessment/domain-models/*.md domain-models/
+```
+
+This makes the eight domain models available when the bootstrapper scans for reusable models. You can remove them from `domain-models/` after your session is scaffolded — the bootstrapper copies selected models into your session directory.
+
 ### Step 2: Start a GOSTA session
 
-In Claude Code, from the repo root:
+In Claude Code (the CLI), from the repo root, type this as a prompt to the AI:
 
 ```
 Read cowork/startup.md and start a new session.
 ```
 
-This launches the interactive bootstrapper. It asks questions in groups. Below is how to answer each group for a vendor-product continuity assessment. The bootstrapper may ask additional sub-questions within each group — the guidance below covers the key decisions.
+This launches the interactive bootstrapper. It asks questions in groups — one group at a time. Below is how to answer each group for a vendor-product continuity assessment. The bootstrapper may ask additional sub-questions within each group — the guidance below covers the key decisions.
+
+If you are using Claude Desktop with Cowork mode instead of the CLI, the same prompt works — type it in the conversation. Claude Code CLI is recommended for deliberation sessions because it runs agents as parallel subprocesses with full isolation.
 
 **Group 1 — Identity:**
-- Session name: `vendor-assessment` (or name it after your target, e.g., `acme-product-tprm`)
+- Session name: `vendor-assessment` (or name it after your target, e.g., `drata-platform-tprm`)
 - Scope: `finite`
 - Complexity: `complex` (8 domain models, multi-agent deliberation)
 - Mode: `code`
 - Independence level: `2` (agents see each other's output but maintain independent positions)
 - Deliberation: `yes`
 - Shortfall logging: `yes` (recommended — captures domain model gaps during execution)
-- Assessment target: your vendor and product name (e.g., "Acme Corp / Acme Platform")
+- Assessment target: your vendor and product name (e.g., "Drata / Drata Platform")
 - Debug logging: `no` (unless you want full agent execution traces for debugging)
 - Evidence collection: `yes` (required — the session collects open-source intelligence about your target)
 
 **Group 2 — Goal and Why:**
-- Goal: "Assess whether continued dependency on [Target Vendor]'s [Target Product] represents material third-party risk. Produce a six-signal viability assessment covering business model exposure, contractual position, and dependency exposure — with dual-level scoring across 8 domains, a risk determination with timeline, and mitigation recommendations grounded in cross-domain findings."
+Replace the vendor and product names in the goal text with your actual target before pasting:
+- Goal (example for Drata): "Assess whether continued dependency on Drata's Drata Platform represents material third-party risk. Produce a six-signal viability assessment covering business model exposure, contractual position, and dependency exposure — with dual-level scoring across 8 domains, a risk determination with timeline, and mitigation recommendations grounded in cross-domain findings."
 - Why GOSTA: "Single-perspective analysis resolves cross-domain tensions silently. A vendor can score well on adaptation while its financial trajectory undermines that adaptation. Governance forces each domain to surface tensions before convergence."
 
 **Group 2A — Analytical Frame Contract:**
-The bootstrapper derives an AFC from your goal text and asks you to confirm. The correct AFC for this session:
+The bootstrapper derives an AFC from your goal text and asks you to confirm. Review carefully — the AFC controls the analytical frame for the entire session. The correct AFC for a vendor continuity assessment:
 
 | Field | Value |
 |---|---|
@@ -130,26 +141,24 @@ The bootstrapper derives an AFC from your goal text and asks you to confirm. The
 | Failure Mode | Unmanaged dependency |
 | Prohibited Frame | Procurement advisory, competitive comparison, migration planning |
 
-Confirm these when presented, or adjust if your situation differs.
+Confirm if the bootstrapper's derivation matches this. If it differs, correct it before proceeding — the AFC propagates to every objective, strategy, and agent dispatch.
 
 **Group 2B — Target Reconnaissance:**
-Because you named an assessment target in Group 1, the bootstrapper dispatches a reconnaissance agent to build a profile of your target vendor. It will present the profile for your review. Confirm accuracy or correct errors — the profile informs domain model suggestions and evidence collection.
+Because you named an assessment target in Group 1, the bootstrapper dispatches a reconnaissance agent to build a profile of your target vendor. This takes 1-2 minutes. The bootstrapper presents the profile for your review — confirm accuracy or correct errors. The profile informs domain model suggestions and evidence collection strategy.
 
 **Group 3 — Domain Models:**
-The bootstrapper scans the repo for available domain models and lists them. Select the eight files from this example:
+The bootstrapper scans the repo for available domain models and lists them numbered. Because you copied the domain models into `domain-models/` in Step 1, all eight will appear in the list. Select all eight:
 
-```
-docs/examples/vendor-product-continuity-assessment/domain-models/financial-business-health.md
-docs/examples/vendor-product-continuity-assessment/domain-models/competitive-displacement.md
-docs/examples/vendor-product-continuity-assessment/domain-models/adaptation-capacity.md
-docs/examples/vendor-product-continuity-assessment/domain-models/saas-structural-viability.md
-docs/examples/vendor-product-continuity-assessment/domain-models/structural-stickiness.md
-docs/examples/vendor-product-continuity-assessment/domain-models/regulatory-entrenchment.md
-docs/examples/vendor-product-continuity-assessment/domain-models/governance-strategic-coherence.md
-docs/examples/vendor-product-continuity-assessment/domain-models/talent-workforce.md
-```
+- `financial-business-health.md` (ECON-1)
+- `competitive-displacement.md` (DISP-1)
+- `adaptation-capacity.md` (ADAPT-1)
+- `saas-structural-viability.md` (SAAS-1)
+- `structural-stickiness.md` (STICK-1)
+- `regulatory-entrenchment.md` (REG-1)
+- `governance-strategic-coherence.md` (GOV-1)
+- `talent-workforce.md` (TAL-1)
 
-The bootstrapper will copy them into your session directory and run a quality gate on each one. The gate may warn that some models have fewer than 6 core concepts — this is expected for models written for a specific analytical scope. Choose "proceed with warning" when prompted.
+When asked about adaptation intent for each model, choose `adapt` — the bootstrapper will update application context headers for your specific target. The quality gate may warn that some models have fewer than 6 core concepts — this is expected for models written for a specific analytical scope. Choose "proceed with warning" when prompted.
 
 **Group 3A — Deliberation Configuration:**
 The bootstrapper auto-generates an agent roster from your domain models. To match the recommended pairing:
@@ -176,24 +185,30 @@ Since you enabled evidence collection in Group 1, the bootstrapper asks about co
 
 **Group 5 — Prior learnings:** skip (first session). If you have run prior GOSTA sessions, select relevant learnings files when the bootstrapper lists them.
 
-**Group 6 — Hypotheses:** Provide the eight hypotheses from `session-config/hypotheses.md`, or write your own based on what you already know about the target vendor.
+**Group 6 — Hypotheses:** Provide the eight hypotheses from `session-config/hypotheses.md`, or write your own based on what you already know about the target vendor. Replace `[Target Vendor]` and `[Target Product]` with your actual target when pasting.
 
 ### Step 3: Confirm and scaffold
 
-The bootstrapper presents a summary table of all inputs. Confirm it. It then:
+The bootstrapper presents a summary table of all inputs. Review it and confirm. It then:
 1. Runs a Fresh Framework Read (reads the GOSTA spec)
 2. Creates the session directory under `sessions/[your-session-name]/`
 3. Copies protocol files, templates, and your domain models
 4. Runs the quality gate on each domain model
 5. Drafts the Operating Document for your approval
 
-The bootstrapper drafts the OD from your inputs. The pre-written OD in `session-config/operating-document.md` serves as the reference — the bootstrapper's draft should match its structure (six-signal framework, four objectives, nine guardrails). If the draft diverges from the reference, request changes to align it. The reference OD defines the Talk-2-aligned analytical structure; the bootstrapper's draft instantiates it for your specific target.
+The bootstrapper drafts an OD from your inputs. For the Talk-2-aligned session, tell the bootstrapper to use the pre-written OD as the starting point:
 
-Review the OD carefully — it defines the Analytical Frame Contract (you are assessing dependency risk, not making a procurement decision), the six-signal framework, guardrails, strategy, tactics, and phase gates. Approve or request changes.
+> Use the OD from `docs/examples/vendor-product-continuity-assessment/session-config/operating-document.md` as the template. Replace `[Target Vendor]` with Drata and `[Target Product]` with Drata Platform throughout.
+
+This gives the bootstrapper the six-signal framework, four objectives (OBJ-1 through OBJ-4), nine guardrails (G-1 through G-9), and the Talk-2-aligned deliverable structure — all pre-written and tested. The bootstrapper will copy it into your session directory, substitute your target, and present it for your approval. This is faster and more reliable than having the bootstrapper draft from scratch.
+
+Review the OD carefully — it defines the Analytical Frame Contract, the six-signal framework, guardrails, strategy, tactics, and phase gates. Approve or request changes. The bootstrapper will not proceed until you approve.
 
 ### Step 4: Collect evidence
 
-Once the OD is approved, request evidence collection:
+Once the OD is approved, the bootstrapper presents a Phase Gate (Phase 0 → Phase 1). Approve it to advance. The bootstrapper confirms the session is active and ready for execution. From this point, you are in the live session — continue in the same conversation.
+
+Say to the AI:
 
 ```
 Run evidence collection for TAC-1.
@@ -201,11 +216,11 @@ Run evidence collection for TAC-1.
 
 The system dispatches collection agents to gather open-source intelligence about your target vendor and product. Each agent searches for evidence relevant to its assigned domains and tags evidence items with both domain relevance and signal relevance (which of the six signals each item informs). Evidence items are tier-classified (Tier 1: primary sources, Tier 2: authoritative analysis, Tier 3: secondary sources).
 
-After collection completes, the system runs a directional balance check (G-6) — if more than 70% of evidence points in one direction (all "risk" or all "stable"), you review the evidence distribution before proceeding. You also review the evidence manifest to confirm adequate coverage across all six signals.
+After collection completes, the system runs a directional balance check (G-6) — if more than 70% of evidence points in one direction (all "risk" or all "stable"), you review the evidence distribution before proceeding. You also review the evidence manifest to confirm adequate coverage across all six signals. Approve the evidence base before moving to deliberation.
 
 ### Step 5: Run the deliberation
 
-Once evidence is collected and reviewed, request the deliberation:
+Once evidence is collected and reviewed, say to the AI:
 
 ```
 Run the deliberation for TAC-2.
@@ -218,6 +233,8 @@ In Code mode, the system creates parallel subagent processes — one per domain 
 4. Converges where evidence supports it, preserves disagreements where it does not (Round 3)
 
 The coordinator synthesizes and produces a report structured per the six-signal framework: business model signals, contractual position, dependency exposure, leading indicators, cross-domain tensions, and risk determination. You review it, approve or request changes, and the session produces the final assessment deliverable.
+
+The final report is saved to `sessions/[your-session-name]/deliverables/`. The session also retains the full deliberation transcript, evidence manifest, and per-agent position papers in the session directory for audit and traceability.
 
 ### Step 6 (optional): Reference pool
 
