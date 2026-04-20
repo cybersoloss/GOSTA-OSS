@@ -24,7 +24,7 @@ Evidence collection is **optional**. Sessions that do not require evidence gathe
 
 | Spec Section | This Protocol |
 |---|---|
-| §14.8 Evidence Collection Architecture | §2 Schema Reference, §5 Storage, §6 Manifest |
+| §14.8 Evidence Collection Architecture | §2 Schema Reference, §5 Storage, §6 Manifest, §6.4 Pre-Dispatch Content Estimation |
 | §14.8 Source Attribution Tiers | §2.2, §10.2 Source Verification |
 | §14.8 Collection Topologies | §2.6, §3 Agent Dispatch |
 | §14.8 Quality Gates | §10 Quality Gates |
@@ -161,6 +161,7 @@ total_agents = ceil(domain_count / 2) + 1 (discovery) + 1 (adversarial)
 Where `domain_count` is the number of domains in the session's domain models. Each agent covers 1–2 related domains.
 
 **Each agent receives:**
+- **Dispatch Preamble**: assembled per cowork protocol §7.5 — includes AFC injection (when AFC exists) and debug logging injection (when enabled). The Dispatch Verification Check confirms preamble completeness before dispatch.
 - **Target name**: from `evidence-collection-config.md`
 - **Search specification**: domain-specific search guidance from config
 - **Source attribution tier rules**: session's tier definitions (§2.2)
@@ -349,9 +350,9 @@ items:
 
 Agents append to this index as they complete collection. The coordinator validates the index for completeness after all agents finish.
 
-### §5.3 Pool-Agent Integration
+### §5.3 Pool-Agent Store Build
 
-When the total evidence item count exceeds 50, build a vector store for efficient retrieval:
+When the total evidence item count exceeds 50, build a vector store after collection completes:
 
 ```bash
 python3 cowork/tools/pool-agent.py build \
@@ -360,12 +361,12 @@ python3 cowork/tools/pool-agent.py build \
   --store ./osint/pool-store/
 ```
 
-Score thresholds for evidence retrieval:
+This is a **build-time** decision based on total item count across all domains. The store enables semantic retrieval for domains where direct loading would be excessive. The per-domain **consumption** decision — whether a given agent uses direct file loading or pool-agent retrieval — is made at dispatch time (§6.4).
+
+Score thresholds for pool-agent retrieval:
 - **>=0.58**: Read full evidence item
 - **0.50–0.57**: Read excerpt (summary from front matter only)
 - **<0.50**: Ignore
-
-Assessment agents use pool-agent queries to supplement the evidence manifest's domain-tagged organization with concept-driven retrieval.
 
 ---
 
@@ -419,10 +420,42 @@ Flat lookup table of all quantitative metrics extracted from evidence items (§1
 
 Assessment agents consume the manifest as follows:
 
-1. **Full manifest** provided to all assessment agents at dispatch
-2. **Domain-tagged items** serve as the baseline evidence set for each agent's assigned domain
-3. **Concept-driven queries** (§7) used to find additional relevant items across domains
+1. **Full manifest** provided to all assessment agents at dispatch — the manifest is a metadata lookup table (IDs, titles, tiers, summaries), not full evidence text. It is the discovery interface, not the evidence itself.
+2. **Domain-scoped reading** — each agent reads only the full evidence items tagged to its assigned domain(s). Agents MUST NOT bulk-load evidence items from other domains. This bounds per-agent evidence context to the items relevant to its analytical lens.
+3. **Concept-driven queries** (§7) used to find additional relevant items across domains — this is the only mechanism for accessing evidence outside the agent's assigned domain. Queries return targeted results, not bulk content.
 4. **Contradictions section** checked — agents MUST address flagged contradictions in their assessments
+
+The orchestrator determines each agent's evidence loading strategy at dispatch time per §6.4. Agents do not self-select their loading approach.
+
+### §6.4 Pre-Dispatch Content Estimation
+
+Before dispatching any agent that will consume evidence (assessment agents, deliberation domain agents, deliverable drafting agents), the orchestrator performs a content estimation step.
+
+**Procedure:**
+
+1. Read the evidence manifest's domain section for the agent's assigned domain(s).
+2. Count total items: domain-tagged items + discovery items tagged to this domain + adversarial items tagged to this domain.
+3. Select loading strategy based on the per-domain threshold (configured in `evidence-collection-config.md`, default: 30 items):
+
+| Domain Item Count | Pool Store Exists (§5.3) | Loading Strategy |
+|---|---|---|
+| ≤ threshold | — | **Direct load.** Include evidence file paths in the dispatch prompt. Agent reads the files. |
+| > threshold | Yes | **Pool-agent retrieval.** Include pool store path and the domain's concept-to-query mappings (§7) in the dispatch prompt. Agent queries for relevant items. |
+| > threshold | No | **Build then retrieve.** Orchestrator builds the pool store (§5.3) first, then dispatches with pool-agent retrieval strategy. |
+
+4. Record the dispatch strategy in the evidence manifest by appending a Dispatch Strategy section (or updating it if already present):
+
+```markdown
+## Dispatch Strategy
+| Domain | Items | Threshold | Strategy | Notes |
+|---|---|---|---|---|
+| [DOMAIN-1] | 18 | 30 | direct load | — |
+| [DOMAIN-2] | 42 | 30 | pool-agent retrieval | store built at §5.3 |
+```
+
+This section is appended after all quality gates pass and before the first assessment agent is dispatched. It is a permanent record — the Governor can review which domains used which strategy.
+
+**Threshold rationale:** At ~1,200 characters per evidence item average, 30 items ≈ 36K characters ≈ 9K tokens of evidence content. Combined with the domain model (~3K tokens), OD excerpt (~3K tokens), and protocol instructions (~3K tokens), this keeps per-agent starting context under ~20K tokens — well within the working range of current models. The Governor may adjust the threshold based on the models being used or the expected item size for the session.
 
 ---
 
@@ -847,6 +880,7 @@ This checklist covers the complete evidence collection lifecycle. The coordinato
 - [ ] Evidence-domain model reconciliation completed (§10.8)
 - [ ] Governor approved reconciliation outcomes
 - [ ] Evidence engagement audit configured for assessment phase (§10.7)
+- [ ] Pre-dispatch content estimation completed — per-domain loading strategies recorded in manifest (§6.4)
 
 ### Phase 5: Post-Assessment
 - [ ] In-deliberation verification checks completed (§10.5, Checks 5–8)

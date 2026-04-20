@@ -19,6 +19,15 @@ Guardrails must be set ABOVE current baseline (for worse-is-higher metrics) or B
 
 **Evaluation mode guidance:** `mechanical` = numeric threshold checkable by direct comparison (budget, timeline, rate). `interpretive` = requires judgment (compliance, quality, appropriateness). Default: `interpretive`.
 
+## Analytical Frame Contract (for analytical/assessment scopes)
+- **Stance:** [Who the assessor stands alongside]
+- **Output Verb:** [What the deliverable does]
+- **Failure Mode:** [What the assessment protects against]
+- **Prohibited Frame:** [What the deliverable must NOT become — "—" if none]
+- **Verdict Vocabulary (recommended):** [AFC-consistent terms for deliverable verdicts. E.g., dependency-exposure AFC uses "LOW/ELEVATED/HIGH EXPOSURE" not "VIABLE/NOT VIABLE." Buyer-evaluation AFC uses "RECOMMENDED/NOT RECOMMENDED." If omitted, §12.12 checks verdict terms against the Output Verb — but explicit vocabulary reduces interpretive ambiguity.]
+
+Omit this section for non-analytical scopes (operational, content production, etc.) where the deliverable is an artifact rather than an answer to an analytical question.
+
 ## Objectives
 
 **[Ongoing scope — use this form]**
@@ -192,7 +201,7 @@ score_threshold_excerpt: 0.50
 
 ## Domain Model Adaptations
 
-When reusing a domain model written for a different analytical context (e.g., a model built for roadmap sequencing applied to a value validation scope), a single-line context note is insufficient to prevent scoring drift. Instead, complete this adaptation table for each reused model. This section is optional — omit if all domain models were authored specifically for this scope.
+When reusing a domain model written for a different analytical context (e.g., a model built for roadmap sequencing applied to a value validation scope), a single-line context note is insufficient to prevent scoring drift. Instead, complete this adaptation table for each reused model. This section is optional — omit if all domain models were authored specifically for this scope. For models with Preserve adaptation intent (startup.md Group 3), this table is typically not needed — the model is used as an independent general-purpose lens with only an Application Context header update.
 
 | Domain Model | Original Context | This Scope's Context | Adaptation |
 |---|---|---|---|

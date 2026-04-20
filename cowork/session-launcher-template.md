@@ -17,7 +17,7 @@ You are running a GOSTA scope. Your first task is to set up the session director
 Read these files before doing anything else:
 
 ```
-cowork/gosta-cowork-protocol.md                        ← Execution protocol (v3.12) — full read
+cowork/gosta-cowork-protocol.md                        ← Execution protocol (v3.15) — full read
 cowork/deliberation-protocol.md                        ← Full read if deliberation enabled; skim §1-§3 if disabled
 GOSTA-agentic-execution-architecture.md:
   - Section 0  (overview, tiers, implementation)       ← Required

@@ -9,6 +9,7 @@
 - **Graduation Stage:** 1
 - **Autonomy Constraints:** [none | degraded-mode: [component] | condition fired: [COND-N] | none active]
 - **Deliberation Mode:** [enabled | disabled]
+- **Analytical Frame Contract:** [stance] / [output verb] / [failure mode] / [prohibited: X] — or "N/A" if non-analytical scope
 - **OD Last Updated:** [date] — [stale? check triggers in protocol §4]
 
 ## Context Loading Order

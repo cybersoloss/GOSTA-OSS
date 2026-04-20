@@ -4,8 +4,8 @@
 **Scope Type:** [finite | ongoing]
 **Complexity:** [simple | moderate | complex]
 **GOSTA Version:** v6.1
-**Cowork Protocol:** v3.12
-**Deliberation Protocol:** v0.8
+**Cowork Protocol:** v3.15
+**Deliberation Protocol:** v0.9.3
 **Mode:** [cowork | code | both]
 **Deliberation Mode:** [enabled | disabled]
 
@@ -16,6 +16,12 @@
 ## Why GOSTA
 
 [Why this project benefits from structured governance — what failure mode are we preventing?]
+
+## Analytical Frame Contract
+- **Stance:** [derived from goal during Group 2A]
+- **Output Verb:** [derived from goal during Group 2A]
+- **Failure Mode:** [derived from goal during Group 2A]
+- **Prohibited Frame:** [the frame that would answer a different question — see Group 2A derivation; "—" if none]
 
 ## Domain Models Required
 

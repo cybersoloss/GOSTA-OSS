@@ -113,7 +113,7 @@ Two independent dimensions determine what you need:
 **Dimension 1: Feature Complexity — what to read.** Sections are tagged with complexity markers that indicate when to adopt them:
 
 - **`[CORE]`** — Required for any GOSTA implementation at any tier. Without these, the system doesn't function. Read these first.
-- **`[ROBUST]`** — Handles edge cases, adds operational resilience, and supports non-trivial deployments (A/B testing, domain model stacking, grounding architecture, hallucination prevention, memory taxonomy, autonomy safeguards, failure resilience, environmental scanning, cadence evaluation, goal health computation (including multi-phase signal production and metric lag adjustment — §20.3, resource-normalized A/B comparison — §20.9), semantic coherence validation, decision-to-state traceability, OD state versioning, entity status vocabularies (goal, A/B variant, strategy terminal with `graduated` state — §3.1, §4.2, §7.8), feature interaction rules (§8.5, including cross-strategy kill sequencing, data carryover, cold start, committed action on pivot, API outage kill timer, complementary strategy synergy), autonomous action loop guard (§5.1), guardrail reclassification (§5.1), informed user override (§6.1), Governor succession (§6.1), delegated reviewers (§6.3), precondition validation, deferral, and override (§7.2), signal pipeline degradation and failure signals (§7.4, §17.2.2), analytical scope extensions (§3.6 — tactic dependencies, first-use calibration, qualitative kill validation, sequential isolation/independence levels), runtime domain model quality detection and source credibility (§13.3), learning-triggered domain model changes (§19.9), OD authoring patterns (WMBT vs. guardrail — §21.5, aspiration-floor — §21.4, precondition authoring — §21.7), multi-goal scope status aggregation and cross-objective tradeoff governance (§20.12), execution-completion kill condition default (§8.1.1), external dependency pre-kill viability check (§4.3), Governor attention capacity validation (§6.1), execution cost tracking (§13.3), causal context assessment beyond kill decisions, interface contracts between components (§8.6 — signal emission, health computation, decision-to-OD, OD-to-work-plan, memory loading, learning routing, environmental monitoring, deliberation output), reasoning depth validation — §14.3.7 depth/coverage/chain integrity checks with `[SHALLOW]` flag, finding classification — §14.3.8 epistemic annotation (confirmed/information_gap/conditional) for health assessments and deliberation findings with autonomy constraints at Stage 3+, sycophancy detection — §14.3.9 health report risk factors, signal-recommendation consistency, kill proximity alerting, deliberation convergence probes and position independence verification, threshold calibration status for kill conditions — §20.3 provisional/calibrated annotation preventing kills against unvalidated thresholds, Governor expertise gap detection and domain model validation fallbacks — §21.11 source-grounded building, domain expert review, or `[UNVALIDATED]` annotation propagation, deliberation — see §7.1 Deliberation Components, §14.7 Multi-Domain Consultation Pattern). Read these when your first operating document is running and you've hit your first tactic review — or immediately if your scope requires features tagged ROBUST (e.g., deliberation, multi-domain grounding, Stage 3 autonomy safeguards).
+- **`[ROBUST]`** — Handles edge cases, adds operational resilience, and supports non-trivial deployments (A/B testing, domain model stacking, grounding architecture, hallucination prevention, memory taxonomy, autonomy safeguards, failure resilience, environmental scanning, cadence evaluation, goal health computation (including multi-phase signal production and metric lag adjustment — §20.3, resource-normalized A/B comparison — §20.9), semantic coherence validation, decision-to-state traceability, OD state versioning, entity status vocabularies (goal, A/B variant, strategy terminal with `graduated` state — §3.1, §4.2, §7.8), feature interaction rules (§8.5, including cross-strategy kill sequencing, data carryover, cold start, committed action on pivot, API outage kill timer, complementary strategy synergy), autonomous action loop guard (§5.1), guardrail reclassification (§5.1), informed user override (§6.1), Governor succession (§6.1), delegated reviewers (§6.3), precondition validation, deferral, and override (§7.2), signal pipeline degradation and failure signals (§7.4, §17.2.2), analytical scope extensions (§3.6 — tactic dependencies, first-use calibration, qualitative kill validation, sequential isolation/independence levels), runtime domain model quality detection and source credibility (§13.3), learning-triggered domain model changes (§19.9), OD authoring patterns (WMBT vs. guardrail — §21.5, aspiration-floor — §21.4, precondition authoring — §21.7), multi-goal scope status aggregation and cross-objective tradeoff governance (§20.12), execution-completion kill condition default (§8.1.1), external dependency pre-kill viability check (§4.3), Governor attention capacity validation (§6.1), execution cost tracking (§13.3), causal context assessment beyond kill decisions, interface contracts between components (§8.6 — signal emission, health computation, decision-to-OD, OD-to-work-plan, memory loading, learning routing, environmental monitoring, deliberation output), reasoning depth validation — §14.3.7 depth/coverage/chain integrity checks with `[SHALLOW]` flag, finding classification — §14.3.8 epistemic annotation (confirmed/information_gap/conditional) for health assessments and deliberation findings with autonomy constraints at Stage 3+, sycophancy detection — §14.3.9 health report risk factors, signal-recommendation consistency, kill proximity alerting, deliberation convergence probes and position independence verification, threshold calibration status for kill conditions — §20.3 provisional/calibrated annotation preventing kills against unvalidated thresholds, Governor expertise gap detection and domain model validation fallbacks — §21.11 source-grounded building, domain expert review, or `[UNVALIDATED]` annotation propagation, deliberation — see §7.1 Deliberation Components, §14.7 Multi-Domain Consultation Pattern, Analytical Frame Contract — §9.2/§21.2a AFC derivation, Dispatch Preamble with AFC injection, Frame Integrity Validation §12.12, F-16 fidelity checkpoint, domain model frame audit, Goal Correction Procedure). Read these when your first operating document is running and you've hit your first tactic review — or immediately if your scope requires features tagged ROBUST (e.g., deliberation, multi-domain grounding, Stage 3 autonomy safeguards).
 - **`[ADVANCED]`** — Supports finite scopes, multi-scope hierarchies, Stage 3+ autonomy, and production hardening (decision reversal — §4.3, upward cascade governance — §4.3, strategy kill with child scope disposition — §4.3/§7.10, child scope graduation guidance — §3.5, conversion funnel tracking — §7.2, decision batching — §7.2, cascading failure propagation — §7.13.5, advanced invariants — §8.1.3, custom review triggers and alternate Governor — §9.2, metric lag fields and metric prerequisites — §10, re-graduation after regression — §16.11.1, shared memory / cross-scope learning — §18.2.7, mid-execution precondition failure — §7.2, signal divergence detection — §4.2). Read these when you're operating multiple scopes, building toward autonomous operation, or working in domains with external dependencies.
 
 If a section has no marker, it is `[CORE]`.
@@ -172,7 +172,7 @@ If a section has no marker, it is `[CORE]`.
 | 5 | Guardrail inheritance |
 | 6.1–6.3 (Stage 1-2 rows only) | Governor authority, basic collaboration model |
 | 7.1–7.6 | Execution loops, signal flow, system components |
-| 8.1.1, 8.4 | Core structural integrity (kill condition evaluability, allocation arithmetic, temporal ordering) + confounder assessment at kill decisions. Skip §8.1.2-8.1.4, §8.2, §8.3, §8.5, §8.6 (all ROBUST/ADVANCED). |
+| 8.1.1, 8.4 | Core structural integrity (kill condition evaluability, allocation arithmetic, temporal ordering, entity reference integrity) + confounder assessment at kill decisions. Skip §8.1.2-8.1.4, §8.2, §8.3, §8.5, §8.6 (all ROBUST/ADVANCED). |
 | 9.1 | Required OD template elements |
 | 10 | Tactic specification template |
 | 13.1–13.6 | Domain model basics |
@@ -190,7 +190,7 @@ If a section has no marker, it is `[CORE]`.
 
 **Approximate build effort:** The implementation sequence (Section 16) gives you the phase order. At Tier 1, you're building Phases 0-6.
 
-**Tier 1 implementation notes (where Tier 1 differs from Tier 0 and Tier 2):** Many sections contain "Tier 0 note:" callouts describing file-based, conversational behavior. Tier 1 replaces these with coded equivalents but does NOT require the full infrastructure described in Tier 2+ paragraphs. Specifically: (a) **Health computation** — same formulas as Tier 0, but computed by code against a signal store rather than conversationally. The output is the same health report schema. (b) **Signal pipeline** — signals are stored in a database rather than markdown files, but the signal schema is identical. Pipeline monitoring (§7.13.1) is optional at Tier 1 — implement it only if signal volume or cadence warrants automated monitoring. (c) **Schema validation (§14.3.1)** — at Tier 1, this is a programmatic check at OD save time, not a conversational check at session start. Same invariants (C1-C3), different enforcement point. (d) **Grounding components §14.3.2-14.3.4** — at Tier 1, domain model grounding and attribution validation run as automated pre-checks before health computation rather than inline conversation checks. (e) **Memory architecture** — Tier 1 does not require the full memory taxonomy (§18). Working memory is the OD + signal store. Episodic memory is the session/decision log. Structural memory is the learnings store. The functional cross-cutting types (procedural, prospective, meta-memory) are Tier 2.
+**Tier 1 implementation notes (where Tier 1 differs from Tier 0 and Tier 2):** Many sections contain "Tier 0 note:" callouts describing file-based, conversational behavior. Tier 1 replaces these with coded equivalents but does NOT require the full infrastructure described in Tier 2+ paragraphs. Specifically: (a) **Health computation** — same formulas as Tier 0, but computed by code against a signal store rather than conversationally. The output is the same health report schema. (b) **Signal pipeline** — signals are stored in a database rather than markdown files, but the signal schema is identical. Pipeline monitoring (§7.13.1) is optional at Tier 1 — implement it only if signal volume or cadence warrants automated monitoring. (c) **Schema validation (§14.3.1)** — at Tier 1, this is a programmatic check at OD save time, not a conversational check at session start. Same invariants (C1-C4), different enforcement point. (d) **Grounding components §14.3.2-14.3.4** — at Tier 1, domain model grounding and attribution validation run as automated pre-checks before health computation rather than inline conversation checks. (e) **Memory architecture** — Tier 1 does not require the full memory taxonomy (§18). Working memory is the OD + signal store. Episodic memory is the session/decision log. Structural memory is the learnings store. The functional cross-cutting types (procedural, prospective, meta-memory) are Tier 2.
 
 #### Tier 2: Robust Operations
 
@@ -219,7 +219,7 @@ If a section has no marker, it is `[CORE]`.
 | 7.13.1–7.13.4, 7.13.6, 7.13.7 | Failure resilience: signal pipeline, recovery verification, context/memory, capacity degradation, Governor decision validation, constraint propagation verification |
 | 7.14 | Environmental signal architecture: watch list, environmental signal processing, monitoring by tier |
 | 8.1.2, 8.1.4, 8.2–8.5 | Semantic coherence: cross-entity invariants (skip §8.1.3 advanced invariants — Tier 3), decision-to-state traceability, reconciliation checks, OD state versioning (decision context snapshots, authorization chain, edit detection), causal context at kill decisions (confounder checklist), feature interaction rules |
-| 9.2 (Audience, Voice, Domain Context, A/B Tests, Reference Materials, Decision History — skip Custom Review Triggers and Alternate Governor, which are ADVANCED/Tier 3) | Recommended OD elements |
+| 9.2 (Audience, Voice, Domain Context, A/B Tests, Reference Materials, Analytical Frame Contract, Decision History — skip Custom Review Triggers and Alternate Governor, which are ADVANCED/Tier 3) | Recommended OD elements |
 | 11 | Worked example (reference) |
 | 12 | Scaling guidance |
 | 13.7 | Domain model stacking |
@@ -2154,13 +2154,14 @@ STEP 2 — COMPUTE STRATEGY HEALTH
   require contextual judgment and carry epistemic classification (§14.3.8).
 
 STEP 2b — SEMANTIC COHERENCE CHECK (§8.1)
-  Tier note: Core invariants (C1-C3) apply at all tiers including Tier 1.
+  Tier note: Core invariants (C1-C4) apply at all tiers including Tier 1.
   Cross-entity invariants (R1-R4) and reconciliation require [ROBUST].
   Advanced invariants (A1-A2) require [ADVANCED].
   Run semantic coherence validation against current OD state:
-    - Core invariants (C1-C3): kill condition evaluability, allocation
-      arithmetic, temporal ordering. C1 failures are blocking — flag
-      for immediate attention in STEP 3.
+    - Core invariants (C1-C4): kill condition evaluability, allocation
+      arithmetic, temporal ordering, entity reference integrity.
+      C1 and C4 failures are blocking — flag for immediate attention
+      in STEP 3.
     - Cross-entity invariants (R1-R4): hypothesis-domain coherence,
       WMBT-objective alignment, guardrail consistency, guardrail
       inheritance compatibility. Flags are informational.
@@ -2176,12 +2177,12 @@ STEP 2b — SEMANTIC COHERENCE CHECK (§8.1)
   recommendation than either issue alone).
   Implementation by tier:
     - Tier 0: The AI runs coherence checks mentally during the strategy
-      review conversation. C1-C3 are checked for all systems. R1-R4 and
+      review conversation. C1-C4 are checked for all systems. R1-R4 and
       reconciliation are checked if the system has adopted [ROBUST]
       features. Results are reported conversationally alongside health
       reports. This adds ~5 minutes to the strategy review.
     - Tier 1: Automated coherence checks run as part of the health
-      computation pipeline. C1-C3 are deterministic code checks. R1-R4
+      computation pipeline. C1-C4 are deterministic code checks. R1-R4
       produce structured flags in the health report. Reconciliation
       queries the decision log and OD store programmatically.
     - Tier 2+: Coherence checks run continuously (not just at strategy
@@ -3100,11 +3101,17 @@ Check: after any deadline modification or tactic creation, verify the ordering c
 
 Response: **flag** — the Governor may accept the mismatch (the tactic contributes to a later review cycle). But the mismatch must be visible, not silent.
 
+**Invariant C4 — Entity reference integrity.** Every cross-reference within the OD that names a domain model, domain agent, or roster entry must reference an entity that actually exists in the OD's declared domain model list or deliberation agent roster. Phantom references — plausible-sounding names generated from training data rather than from session state — produce instructions that no agent can execute and deduplication rules that silently fail.
+
+Check: after OD authoring and after any modification to the domain model list, deliberation roster, or evidence collection config, scan these OD sections for domain/agent name references: Deduplication Rules table, Tactic Domain Model Dependencies fields, Evidence Collection agent domain assignments, and Domain Model Adaptations table. Every name must match an entry in the Domain Models Referenced list or the Deliberation Agent Roster. Names that match no declared entity are flagged as **phantom references**.
+
+Response: **blocking at OD approval** — phantom references must be resolved (corrected to an existing entity or removed) before the Governor approves the OD. A deduplication rule referencing a nonexistent domain produces silent deduplication failure; a tactic dependency referencing a nonexistent model produces ungrounded kill condition assessment.
+
 **Implementation by tier:**
 
-- *Tier 0:* The AI checks C1, C2, and C3 during OD authoring and at each tactic creation. For C1, the AI asks: "This kill condition references [metric]. Where will this data come from?" If the Governor cannot answer, the kill condition is revised before the tactic is accepted. For C2, the AI verifies allocation sums whenever tactic status changes and announces corrections. For C3, the AI flags temporal mismatches conversationally.
-- *Tier 1:* Automated validation rules run on OD write operations. C1 checks kill condition metrics against registered data sources. C2 runs on every tactic status transition. C3 runs on every deadline modification. Violations appear in the approval UI.
-- *Tier 2+:* Continuous validation. C1 extends to verify data source *liveness* (is the source still producing data, not just registered). C2 includes allocation drift detection (small rounding errors accumulating over many cycles). C3 includes projected completion date tracking (if current velocity suggests the tactic will miss its deadline, flag proactively).
+- *Tier 0:* The AI checks C1, C2, C3, and C4 during OD authoring and at each tactic creation. For C1, the AI asks: "This kill condition references [metric]. Where will this data come from?" If the Governor cannot answer, the kill condition is revised before the tactic is accepted. For C2, the AI verifies allocation sums whenever tactic status changes and announces corrections. For C3, the AI flags temporal mismatches conversationally.
+- *Tier 1:* Automated validation rules run on OD write operations. C1 checks kill condition metrics against registered data sources. C2 runs on every tactic status transition. C3 runs on every deadline modification. C4 runs on every domain model or roster modification. Violations appear in the approval UI.
+- *Tier 2+:* Continuous validation. C1 extends to verify data source *liveness* (is the source still producing data, not just registered). C2 includes allocation drift detection (small rounding errors accumulating over many cycles). C3 includes projected completion date tracking (if current velocity suggests the tactic will miss its deadline, flag proactively). C4 extends to cross-scope entity reference validation (domain models shared across scopes).
 
 #### 8.1.2 Cross-Entity Invariants `[ROBUST]`
 
@@ -3433,7 +3440,7 @@ When a tactic pivot (§4.3) is decided, in-flight actions with `commitment_cost:
 
 When semantic coherence validation (§8.1.2) produces a finding during decision execution (e.g., Governor approves a kill, but the coherence check discovers the kill condition references a deprecated metric), the interaction depends on the invariant class:
 
-- **C1-C3 (blocking invariants — kill condition evaluability, allocation arithmetic, temporal ordering):** Halt decision execution. The decision cannot proceed until the structural issue is resolved. The orchestrator surfaces the violation with a proposed fix and waits for Governor approval. This is not a reversal of the decision — it's a pre-flight check failure.
+- **C1-C4 (blocking invariants — kill condition evaluability, allocation arithmetic, temporal ordering, entity reference integrity):** Halt decision execution. The decision cannot proceed until the structural issue is resolved. The orchestrator surfaces the violation with a proposed fix and waits for Governor approval. This is not a reversal of the decision — it's a pre-flight check failure.
 - **R1-R4 (review invariants — hypothesis-domain coherence, WMBT-objective alignment, guardrail consistency):** Decision proceeds with a warning. The violation is logged and must be addressed at the next review cycle. Rationale: review invariants indicate drift, not immediate danger.
 - **Reconciliation check failures (§8.2.3):** Decision proceeds. The reconciliation issue is logged but does not block. Reconciliation failures typically indicate documentation drift between OD and work plan, not decision quality issues.
 
@@ -3865,6 +3872,38 @@ Each anchor must declare a `consumption_role` (see Section 17.2.4 schema):
 - **`context`** — Background material informing understanding. Read as needed during execution. Examples: market research, competitive analysis, brand voice guides.
 
 Not all Reference Pool items need to be listed here — only those that are foundational across the scope. Tactic-specific and action-specific materials are selected by the orchestrator at work plan generation time.
+
+#### Analytical Frame Contract `[RECOMMENDED]`
+
+For any scope where the deliverable answers an analytical question (assessment, evaluation, exposure analysis, market characterization, regulatory mapping, roadmap sequencing), the OD should declare an Analytical Frame Contract (AFC). The AFC is a four-field declaration derived from the goal during bootstrap, stored in the OD, and mechanically checked at agent dispatch and deliverable quality gates.
+
+```
+ANALYTICAL FRAME CONTRACT:
+  Stance:           [Who the assessor stands alongside — e.g., dependent organization,
+                     prospective buyer, market observer, policy maker, product team]
+  Output Verb:      [What the deliverable does — e.g., expose, evaluate, characterize,
+                     map, sequence]
+  Failure Mode:     [What the assessment protects against — e.g., unmanaged dependency,
+                     bad purchase, missed market shift, regulatory non-compliance,
+                     strategic misdirection]
+  Prohibited Frame: [What the deliverable must NOT become — the frame that would answer
+                     a different question than the stated goal. "—" if no other frame
+                     applies.]
+  Verdict Vocabulary (recommended): [AFC-consistent terms for deliverable verdicts.
+                     E.g., dependency-exposure uses "LOW/ELEVATED/HIGH EXPOSURE" not
+                     "VIABLE/NOT VIABLE." If omitted, frame integrity checks test
+                     verdict terms against the Output Verb.]
+```
+
+**Key rules:**
+
+- The AFC is derived from the goal during bootstrap (Section 21.2a) and confirmed by the Governor before OD drafting begins. It is not invented during OD drafting.
+- The AFC constrains how agent dispatch prompts frame the analytical task. Every dispatched agent receives the AFC as a prompt element (see Dispatch Preamble, protocol §7.5).
+- The AFC constrains what deliverable sections are structurally valid. Deliverable structure must be consistent with the Output Verb and Stance; it must not produce the Prohibited Frame.
+- The AFC constrains what frame integrity checks test against. Section 12 quality gates include Frame Integrity Validation (protocol §12.12) that mechanically scans deliverable content against the AFC fields.
+- The AFC does NOT constrain conclusions. A dependency-exposure session can find "low risk." A vendor evaluation can find "do not purchase." The AFC prevents the deliverable from answering the wrong question, not from reaching any particular answer.
+
+Omit this element for non-analytical scopes (operational, content production, code implementation, etc.) where the deliverable is an artifact rather than an answer to an analytical question.
 
 #### Decision History
 
@@ -5623,7 +5662,7 @@ Stage 5 is not a starting point. It is earned through stages 1–4, and only for
 | Stage 3 → 4 | Exception-only reviews produced no critical misses for N consecutive cycles (no case where the Governor discovered a problem the orchestrator failed to escalate). Tactic kills executed autonomously by the orchestrator were validated as correct at subsequent strategy reviews. |
 | Stage 4 → 5 | Governor consistently agrees with tactic portfolio management decisions at strategy review. Orchestrator demonstrates ability to generate new tactics that perform comparably to Governor-designed tactics. Domain model is mature (meets "strategy review 2" completeness thresholds per Section 17.2.3). |
 
-**Failure resilience prerequisites (§7.13).** The readiness indicators above assume the system's failure resilience infrastructure is functioning. Before granting any graduation beyond Stage 2, the Governor should verify: (a) signal pipeline monitoring is active and has not reported `signal_pipeline_failure` in the last N cycles, (b) no components are in chronically unstable recovery state (§7.13.2), (c) session-start integrity checks (§7.13.3) have passed consistently, (d) Governor decision validation (§7.13.6) is operational (has produced at least one flag or confirmed zero inconsistencies, demonstrating the checks are running rather than silently disabled), (e) constraint propagation verification (§7.13.7) has executed without unresolved constraint version mismatches — confirming that guardrail and constraint changes propagate correctly to executors and orchestrator before decisions are applied, and (f) semantic coherence validation (§8.1) has been running at authoring time and review time — core invariants (C1-C3) are verified operational, and for systems adopting `[ROBUST]` features, cross-entity invariants (R1-R4) and reconciliation checks (§8.2.3) produce results (even if all pass, demonstrating the checks are active rather than silently disabled). A system graduating to Stage 3+ while its signal pipeline is degraded, its memory integrity is unchecked, its constraint propagation is unverified, or its semantic coherence checks are not running is operating at higher autonomy without the observability that justifies it. Additionally, the Governor should note the scope's Finding Classification distribution (§14.3.8): if a high proportion of health assessments carry `information_gap` classification over consecutive cycles, this may indicate signal pipeline immaturity — the system is producing recommendations but the evidence basis is thin. This does not block graduation, but should be weighed against readiness indicators. (g) Sycophancy detection operational (§14.3.9): health reports must include substantive Risk Factors sections for at least 3 consecutive reports before Stage 3 promotion. Signal-recommendation consistency check must be active. If deliberation mode is enabled, at least 3 deliberation cycles must have produced the Independence Assessment with no `low_dissent_frequency` flag (the flag requires 3+ cycles to trigger, so fewer than 3 cycles makes this check vacuous). Additionally, at least 2 of these cycles must have Round 1 position diversity (no `round1_unanimity` flag). A system graduating to Stage 3+ without sycophancy detection is granting autonomy to a system whose framing biases have not been monitored.
+**Failure resilience prerequisites (§7.13).** The readiness indicators above assume the system's failure resilience infrastructure is functioning. Before granting any graduation beyond Stage 2, the Governor should verify: (a) signal pipeline monitoring is active and has not reported `signal_pipeline_failure` in the last N cycles, (b) no components are in chronically unstable recovery state (§7.13.2), (c) session-start integrity checks (§7.13.3) have passed consistently, (d) Governor decision validation (§7.13.6) is operational (has produced at least one flag or confirmed zero inconsistencies, demonstrating the checks are running rather than silently disabled), (e) constraint propagation verification (§7.13.7) has executed without unresolved constraint version mismatches — confirming that guardrail and constraint changes propagate correctly to executors and orchestrator before decisions are applied, and (f) semantic coherence validation (§8.1) has been running at authoring time and review time — core invariants (C1-C4) are verified operational, and for systems adopting `[ROBUST]` features, cross-entity invariants (R1-R4) and reconciliation checks (§8.2.3) produce results (even if all pass, demonstrating the checks are active rather than silently disabled). A system graduating to Stage 3+ while its signal pipeline is degraded, its memory integrity is unchecked, its constraint propagation is unverified, or its semantic coherence checks are not running is operating at higher autonomy without the observability that justifies it. Additionally, the Governor should note the scope's Finding Classification distribution (§14.3.8): if a high proportion of health assessments carry `information_gap` classification over consecutive cycles, this may indicate signal pipeline immaturity — the system is producing recommendations but the evidence basis is thin. This does not block graduation, but should be weighed against readiness indicators. (g) Sycophancy detection operational (§14.3.9): health reports must include substantive Risk Factors sections for at least 3 consecutive reports before Stage 3 promotion. Signal-recommendation consistency check must be active. If deliberation mode is enabled, at least 3 deliberation cycles must have produced the Independence Assessment with no `low_dissent_frequency` flag (the flag requires 3+ cycles to trigger, so fewer than 3 cycles makes this check vacuous). Additionally, at least 2 of these cycles must have Round 1 position diversity (no `round1_unanimity` flag). A system graduating to Stage 3+ without sycophancy detection is granting autonomy to a system whose framing biases have not been monitored.
 
 **Crisis-aware assessment.** The readiness indicators above measure steady-state performance ("N consecutive cycles of good plans"). But steady-state competence does not guarantee crisis competence. A system that passes graduation after 3 easy weeks may fail catastrophically in week 4 when a crisis requires cross-domain synthesis or novel reasoning. If no crisis or significant disruption has occurred during the assessment window, the Governor should issue a **challenge scenario** before granting graduation: a hypothetical disruption relevant to the domain ("What would you propose if a late frost destroyed 50% of the current crop?" / "What if the top-performing tactic's primary channel went down for 2 weeks?"). The orchestrator must produce a response plan that the Governor evaluates for cross-domain reasoning quality, not just format compliance. A challenge scenario is not a trick — it tests whether the AI can reason under novel conditions, which is the core capability needed at the next autonomy level. If the orchestrator's response requires the Governor to redesign it substantially, graduation should be held regardless of steady-state indicators.
 
@@ -6640,9 +6679,12 @@ Domain Agents are temporary, stateless agents grounded in a single domain model 
 
 ```
 ROUND 1:
-1. LOAD §8.5 three-element framing (protocol context, Governor
-   oversight, domain scope boundary)
+1. LOAD Dispatch Preamble (Deliberation Protocol §8.5):
+   three-element framing (protocol context, Governor oversight,
+   domain scope boundary) + evidence engagement (conditional) +
+   analytical frame constraint (conditional, from AFC §9.2)
    → This is the prompt preamble that prevents agent refusals
+     and constrains the analytical frame
 2. LOAD assigned domain model (full)
    → The agent's entire grounding. Full concepts, quality
      principles, anti-patterns, hypothesis library.
@@ -6682,7 +6724,7 @@ ROUND 1:
 9. WRITE: Position Paper (to deliberation artifact store)
 
 ROUND 2+:
-1. LOAD §8.5 three-element framing (same as Round 1)
+1. LOAD Dispatch Preamble (same as Round 1)
 2. LOAD assigned domain model (full — same as Round 1)
 3. LOAD own Round 1 Position Paper (full)
    → The agent needs its own prior position to respond
@@ -7766,6 +7808,38 @@ Define the scope as narrowly as you can while still capturing the strategic deci
 **Test your scope:** Can you name 1-3 goals that are all clearly within this scope and that a single Governor can own? If you can't reduce to under 4 goals, your scope may be too broad. If you can only think of one goal that's really a disguised objective (measurable, time-bound), your scope may be too narrow.
 
 Once the scope is clear, declare it using the template from Section 9.1 (Identity and Scope).
+
+### 21.2a Analytical Frame Derivation
+
+Before writing goals, determine whether this scope's deliverable answers an analytical question. If it does, derive the Analytical Frame Contract (AFC) from the scope's purpose. The AFC feeds into goal derivation (Section 21.3) — the dissatisfaction cluster must be framed from the AFC's Stance perspective.
+
+**When to derive an AFC:** Any scope where the deliverable answers an analytical question — assessment, evaluation, exposure analysis, market characterization, regulatory mapping, roadmap sequencing, competitive intelligence. Skip for non-analytical scopes (operational, content production, code implementation) where the deliverable is an artifact rather than an answer.
+
+**Derivation process:**
+
+1. **Identify the Stance.** Who does the scope's purpose place the assessor alongside? The Stance determines the perspective from which all findings are framed.
+
+2. **Identify the Output Verb.** What action does the deliverable perform? This is the verb that should appear in the goal and in every objective's analytical question.
+
+3. **Identify the Failure Mode.** What goes wrong if the assessment fails its purpose? This is what every strategy's rationale should serve.
+
+4. **Identify the Prohibited Frame.** What analytical frame would answer a different question than the stated goal? The Prohibited Frame is the deliverable type that would result from applying a different stance to the same subject matter. If no other stance would produce a meaningfully different deliverable, the Prohibited Frame is "—" (none).
+
+5. **Optionally, declare Verdict Vocabulary.** AFC-consistent terms for deliverable verdicts reduce interpretive ambiguity at frame integrity validation time.
+
+**Worked examples:**
+
+| Session Type | Stance | Output Verb | Failure Mode | Prohibited Frame |
+|---|---|---|---|---|
+| Vendor evaluation | prospective buyer | evaluate | bad purchase | — |
+| Dependency exposure | dependent organization | expose | unmanaged dependency | procurement advisory |
+| Market analysis | market observer | characterize | missed market shift | vendor recommendation |
+| Policy research | policy maker | map | regulatory non-compliance | political recommendation |
+| Internal roadmap | product team | sequence | strategic misdirection | external vendor recommendation |
+| Technology obsolescence | dependent team | expose | unmanaged technical debt | technology recommendation |
+| Competitive intelligence | strategy team | compare | competitive blind spot | partnership recommendation |
+
+The AFC is confirmed by the Governor before goal derivation begins. Once confirmed, it propagates into the OD (Section 9.2, Analytical Frame Contract element) and constrains all downstream layers.
 
 ### 21.3 Layer 1: Deriving Goals
 

@@ -1,0 +1,56 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash cowork/hooks/log-dispatch.sh",
+            "timeout": 5000,
+            "async": true,
+            "asyncRewake": false
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash cowork/hooks/log-dispatch.sh",
+            "timeout": 5000,
+            "async": true,
+            "asyncRewake": false
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash cowork/hooks/log-dispatch.sh",
+            "timeout": 5000,
+            "async": true,
+            "asyncRewake": false
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash cowork/hooks/audit-closeout.sh",
+            "timeout": 30000
+          }
+        ]
+      }
+    ]
+  }
+}

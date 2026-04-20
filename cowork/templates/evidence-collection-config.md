@@ -136,11 +136,16 @@
 |---|---|---|
 | ... | ... | ... |
 
-## Pool-Agent Integration
+## Pool-Agent Store Build and Per-Domain Loading
 
 - Expected evidence volume: [estimated item count]
 - Pool-agent vector store: [enabled if >50 items / disabled]
 - Score thresholds: >=0.58 read full, 0.50-0.57 excerpt, <0.50 ignore
+- Per-domain loading threshold: 30
+  <!-- Items per domain. At dispatch time, domains with more items than this threshold
+       use pool-agent retrieval instead of direct file loading. Default: 30 items
+       (~9K tokens of evidence). Adjust based on models used — smaller context windows
+       may need a lower threshold. See evidence-collection-protocol §6.4. -->
 
 ## Evidence Archive Import
 

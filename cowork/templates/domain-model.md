@@ -2,7 +2,7 @@
 
 **Source:** [Primary source — cite the original document, regulation, or book chapter. Use the actual source text, not summaries, interpretations, or experiment-derived files. Examples: "Regulation (EU) 2022/2554 — original text from EUR-Lex", "Michael Porter, Competitive Strategy — Chapter 2: Generic Competitive Strategies (28 pages)"]
 **Enhancement Sources:** [Optional. Secondary sources consulted AFTER building from primary source. Examples: "sessions/example-project-v2/domain-models/value-creation.md — scoring criteria VC-1 through VC-12 reviewed for project-specific elements to incorporate"]
-**Application Context:** [What session/domain this is written for]
+**Application Context:** [What session/domain this is written for. For reused models with Preserve adaptation intent: explain how this general-purpose lens serves the current session — this header is the only session-specific element.]
 **Created:** [date]
 **Purpose:** [[Model type: constraint | operational | craft | audience-facing] What evaluation criteria this model provides. Example: "[Audience-facing] Provides knowledge about what funding assessors value so that announcement content can naturally demonstrate alignment..."]
 

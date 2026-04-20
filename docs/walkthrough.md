@@ -78,6 +78,14 @@ constraints I control.
 
 ---
 
+### Group 2A — Analytical Frame Contract (skipped for this walkthrough)
+
+For analytical/assessment scopes (vendor evaluation, dependency exposure, regulatory mapping, etc.), the AI derives an Analytical Frame Contract (AFC) from your goal — four fields that lock the session's analytical posture. This prevents the deliverable from answering the wrong question.
+
+In this walkthrough, we're prioritizing features — an operational scope, not an analytical one — so Group 2A is skipped. See the AFC modification plan (`cowork/afc-modification-plan.md`) for worked examples of sessions where Group 2A fires.
+
+---
+
 ### Group 3 — Domain Models
 
 The AI explains what domain models are — structured knowledge files that ground reasoning, not generic reference docs. It scans the repo for existing models, finds the examples in `domain-models/examples/`, and asks which to use.
@@ -136,6 +144,7 @@ Scope Type:       finite (simple)
 Mode:             cowork
 Independence:     2
 Deliberation:     disabled
+Analytical Frame: N/A (non-analytical scope)
 Goal:             Decide which 3 of 5 features to build next quarter
 Why GOSTA:        Want explicit criteria, not AI gut feel
 Domain Models:    user-value (new), engineering-cost (new)

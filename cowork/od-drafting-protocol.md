@@ -150,6 +150,9 @@ The OD Architect presents this template to the Governor. Every field is optional
 
 ### Hypotheses (optional)
 [If you already suspect something — "I think we should prioritize compliance over features", "I believe the European market requires a local partner" — state it. These become testable hypotheses in the OD.]
+
+### Analytical Frame (auto-derived — OD Architect confirms with Governor)
+[The OD Architect derives the Analytical Frame Contract (AFC) from the Problem Statement and presents it for confirmation before decomposition begins. This ensures decomposition agents receive the correct analytical frame. Omit for non-analytical scopes.]
 ```
 
 ### 3.2 Commission Clarification
@@ -165,6 +168,7 @@ After receiving the commission, the OD Architect performs a structured clarifica
 4. **Multi-stakeholder scope:** If the problem involves multiple stakeholders or perspectives → "Should different perspectives be independently evaluated (deliberation) or sequentially analyzed?"
 5. **Prior failures:** If the Governor mentions prior attempts → "What went wrong before? This helps set guardrails and kill conditions."
 6. **Governor capacity:** If the scope appears complex → "How much time can you dedicate to reviewing and deciding? This affects how we structure review cadences and autonomy."
+7. **Analytical frame (for analytical scopes):** Derive the AFC from the Problem Statement. Present: "Based on your problem statement, the assessor stands alongside [stance], the deliverable will [output verb], and the assessment protects against [failure mode]. The deliverable will NOT be a [prohibited frame]. Is this correct?" If the Governor corrects, re-derive before proceeding to decomposition. Skip for non-analytical scopes.
 
 **Do not ask more than 5 clarification questions.** If the commission is too vague for even basic decomposition after 5 questions, the OD Architect proposes a minimal viable OD (single goal, single objective, 2-3 strategies) and presents it for iteration rather than asking more questions.
 
@@ -192,7 +196,7 @@ This is the core innovation of the protocol: domain agents propose how the probl
 
 Based on the commission and any clarifications, the OD Architect:
 
-1. **Proposes domain models.** Identify 3-7 domains relevant to the problem. For each, state: domain name, why it's relevant to this commission, whether a pre-built model exists or needs to be authored.
+1. **Proposes domain models.** Identify 3-7 domains relevant to the problem. For each, state: domain name, why it's relevant to this commission, whether a pre-built model exists or needs to be authored. For each pre-built model proposed for reuse, include a recommended adaptation intent (Adapt or Preserve as independent lens) with rationale, following the same criteria as startup.md Group 3. Governor confirms intent per model.
 
 2. **Presents to Governor for approval.** "I propose analyzing this from these N perspectives: [list with one-line rationale each]. Add, remove, or modify?"
 
@@ -243,6 +247,8 @@ When populating guardrails, classify each as `mechanical` (explicit numeric thre
 The OD Architect (acting as coordinator for this phase) synthesizes the decomposition proposals into a single Draft OD:
 
 1. **Goal synthesis:** If agents propose the same goal with different framings → merge. If they propose different goals → present to Governor as a scope decision ("Your commission could be structured as Goal A or Goal B — which better captures your intent?").
+
+1a. **AFC consistency check (when AFC exists).** After synthesizing the goal, verify that the synthesized goal's framing matches the AFC derived from the Governor Commission (§3.2 step 7). If the synthesis drifted the frame (e.g., the commission said "expose dependency risk" but synthesis produced "evaluate vendor suitability"), correct before proceeding to objective synthesis. Log any correction.
 
 2. **Objective synthesis:** Map proposed objectives across agents. Merge overlapping objectives. Flag complementary objectives (both belong in the OD). Flag competing objectives (Governor must choose or both become strategies under a broader objective).
 
@@ -328,13 +334,14 @@ Run the cowork protocol's OD structural integrity checks (§12.1):
 - Kill conditions evaluable (C1 invariant)
 - Allocation arithmetic correct (C2 invariant)
 - Temporal ordering consistent (C3 invariant)
+- Entity reference integrity verified (C4 invariant) — every domain model name, agent ID, and cross-reference in OBJ/STR/TAC resolves to a declared entity in the OD's roster, model list, or guardrail table
 - Guardrails calibrated above/below baseline (§4.1)
 - Guardrail evaluation mode declared: `mechanical` for numeric thresholds, `interpretive` for qualitative constraints (§5.1)
 
 ### 6.2 Domain Model Quality Gate
 
 If domain models were created or selected during this process, run the 3-test quality gate (cowork protocol §5.2):
-1. Specificity — concept descriptions explain how they apply to this scope
+1. Specificity — concept descriptions explain how they apply to this scope. For models with Preserve adaptation intent (startup.md Group 3), evaluate Application Context header only — general-purpose concept descriptions are expected and should not be flagged as specificity failures.
 2. Distinctiveness — concepts produce different results than generic analysis
 3. Anti-Pattern specificity — anti-patterns go beyond basic critical thinking
 
@@ -351,6 +358,8 @@ Additional checks specific to agent-drafted ODs:
 3. **Tier consistency:** Verify the OD doesn't use [ROBUST] or [ADVANCED] features at a Tier 0 scope without justification. If the OD Architect recommended Tier 0 but populated [ROBUST] fields (e.g., deliberation), confirm the Governor understands the implications.
 
 4. **Decomposition boundary check:** For each strategy, verify it's a strategy (approach logic, reasoning) and not a tactic (specific implementation). For each tactic, verify it's a tactic (testable hypothesis) and not an action (specific task). Use §2.4 Layer Transformation Model as the test.
+
+5. **AFC frame consistency (when AFC exists):** Does every objective's analytical question use the AFC's output verb? Does every strategy's rationale serve the AFC's failure mode? Does every tactic's hypothesis test something relevant to the AFC's stance? Does any deliverable description produce the AFC's prohibited frame? If any section fails, flag as `[FRAME-DRIFT]` and return to Governor for correction before handoff.
 
 ---
 

@@ -34,12 +34,32 @@
 - **Sycophancy Flags (§14.3.9):** [none | list: generic_risk_section / recommendation_divergence / kill_proximity_silent / round1_unanimity / low_dissent_frequency / narrative_quantitative_divergence — with brief context]
 
 ## Semantic Coherence (from GOSTA §8.1, §8.2)
-- **Authoring-time checks:** [all pass | flags: C1 [details] | C2 [auto-corrected: details] | C3 [flag: details]]
+- **Authoring-time checks:** [all pass | flags: C1 [details] | C2 [auto-corrected: details] | C3 [flag: details] | C4 [flag: details]]
 - **Review-time checks (if strategy review session):** [R1-R4 results | not applicable — not a review session]
 - **Reconciliation (if strategy review session):** [forward: N decisions checked, M applied | reverse: N elements checked, M unauthorized | parameter drift: [none | details]]
 
+## OD Mutations (post-bootstrap edits) — omit section if no post-bootstrap OD edits occurred
+| Timestamp | Field Changed | Old → New | Cascade Checked | Cascade Skipped | Downstream Changes |
+|---|---|---|---|---|---|
+| [time] | [field] | [old] → [new] | [section IDs reviewed] | [section IDs not reviewed + rationale] | [changes applied] |
+
+## Guardrail Attestation (from Cowork Protocol §12.13)
+| Guardrail | Sections Checked | Method | Supporting Quote | Result |
+|---|---|---|---|---|
+| [G-N: name] | [deliverable sections] | [mechanical / interpretive] | "[verbatim quote supporting compliance conclusion]" | [pass / fail — action taken] |
+
+**AFC Frame Integrity (if AFC enabled):**
+- Output verb match: [pass / FRAME-DRIFT — details]
+- Stance reader match: [pass / FRAME-DRIFT — details]
+- Failure mode alignment: [pass / FRAME-DRIFT — details]
+
 ## Deliverables Produced
 - [Files created or modified]
+
+### Revision Trail — omit subsection if deliverable accepted without revision
+| Rev | Trigger | Sections Changed | Frame Correction | Snapshot |
+|---|---|---|---|---|
+| [0→1] | [Governor feedback / §12.12 FRAME-DRIFT / G-N violation] | [sections] | [what changed in analytical framing] | [deliverables/name-rev-0.md] |
 
 ## Open Items
 - [What wasn't finished, what needs follow-up]

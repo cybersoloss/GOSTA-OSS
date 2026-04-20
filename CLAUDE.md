@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Repo Is
 
-GOSTA is a **specification and protocol framework** — not a software application. The primary artifacts are markdown files. There are no build steps, no test runner, and no compilation. The only executable artifact is `cowork/tools/pool-agent.py` (a Python CLI for offline semantic search over reference pools).
+GOSTA is a **specification and protocol framework** — not a software application. The primary artifacts are markdown files. There are no build steps, no test runner, and no compilation. Executable artifacts are `cowork/tools/pool-agent.py` (a Python CLI for offline semantic search over reference pools) and the shell scripts in `cowork/hooks/` (Claude Code hooks for automatic dispatch logging and closeout auditing).
 
 ## Running Sessions
 
@@ -60,6 +60,8 @@ cowork/
   CLAUDE.md                                ← Per-session Claude Code directive. Copied into
                                                sessions/[name]/ during bootstrap, then customized.
   templates/                               ← 14 stub templates (OD, domain model, health report, etc.)
+  hooks/                                   ← Claude Code hooks for automatic dispatch logging
+                                               and closeout auditing (§19.7). Shell scripts.
   tools/pool-agent.py                      ← Offline semantic search over reference pools
   evidence-archive/                        ← Promoted evidence items with aging/re-verification
 domain-models/examples/                    ← Shared reusable domain models
@@ -89,6 +91,15 @@ The source of truth is `GOSTA-agentic-execution-architecture.md` (the spec). All
 - Do NOT use sync-manifest.md, changelogs, reading guides, or other derivative files to decide what to read. Use them only after forming your own understanding from the spec, and only to find protocol sections that need updating.
 - Do NOT trust component counts, version numbers, or feature lists from any file other than the spec. If a derivative file disagrees with the spec, the spec wins.
 - When editing protocols, read the relevant spec section first, then the protocol section. Never edit a protocol based solely on another protocol's description of what the spec says.
+
+## Change Authoring Principles
+
+Changes to the spec, protocols, or templates originate from session-specific observations (shortfalls, feedback, PCCAs), but the changes themselves must be **domain-agnostic and generic**. The framework is domain-agnostic by design (spec §0.1) — domain models are content, not framework structure.
+
+When editing any file in this repo (excluding `sessions/`):
+- Frame mechanisms in terms of roles (Governor, orchestrator, agent), structural concepts (guardrails, phase gates, signals), and abstract examples — not in terms of specific vendors, products, domains, or session types.
+- If examples are needed, use diverse domains (e.g., regulatory analysis, product roadmap, hiring pipeline) rather than drawing all examples from the session that motivated the change.
+- Test the change mentally: would this text make sense to a Governor running a completely different type of session? If the text assumes a vendor assessment, a deliberation-heavy scope, or any other specific session shape, generalize it.
 
 ## Post-Change Consistency Audit (PCCA)
 

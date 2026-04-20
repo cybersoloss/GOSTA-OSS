@@ -66,9 +66,10 @@ The AI:
 
 1. **Reads the framework and protocol** — building its understanding of GOSTA
 2. **Asks you clarifying questions** — scope type, complexity, what you're trying to achieve
-3. **Creates or loads domain models** — pluggable knowledge files that ground the AI's reasoning in your specific domain
-4. **Drafts an Operating Document (OD)** — the single document that contains your goal, guardrails, objectives, strategies, tactics, and actions
-5. **Presents the OD for your approval** — you review, request changes, and approve
+3. **Derives an Analytical Frame Contract** (for analytical scopes) — four fields that lock the session's analytical posture and prevent the deliverable from answering the wrong question
+4. **Creates or loads domain models** — pluggable knowledge files that ground the AI's reasoning in your specific domain
+5. **Drafts an Operating Document (OD)** — the single document that contains your goal, guardrails, analytical frame (when applicable), objectives, strategies, tactics, and actions
+6. **Presents the OD for your approval** — you review, request changes, and approve
 
 The OD is the most important artifact. Everything downstream inherits its structure. Take the time to get it right.
 

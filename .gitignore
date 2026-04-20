@@ -1,5 +1,6 @@
-# Session working directories (created by startup.md, never committed)
+# Session working directories and symlink (created by startup.md, never committed)
 /sessions/
+/sessions
 /experiments/
 
 # Uploaded files and reference pools (rebuild locally)

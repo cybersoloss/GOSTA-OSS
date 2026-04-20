@@ -1,4 +1,4 @@
-# GOSTA-Cowork Protocol v3.12
+# GOSTA-Cowork Protocol v3.15
 
 **Purpose:** Defines how to run the GOSTA framework with a session-based AI (Claude Cowork or Claude Code) as orchestrator/executor, with a human Governor. No custom infrastructure required — just files and disciplined conversation.
 
@@ -134,6 +134,10 @@ The difference is in cycle cadence and termination condition, not in structure.
 │       ├── interim-assessment.md     Coordinator interim assessment after each round
 │       ├── synthesis-report.md       Coordinator final synthesis
 │       └── proxy-[agent-id].md       (If agent failed) Coordinator-generated proxy. See Deliberation Protocol §7.1.
+│
+├── debug-logs/                 ← (When debug logging is enabled only)
+│   ├── orchestrator-trace.md      Orchestrator's own actions + all dispatch records
+│   └── [AGENT-ID].trace.md        Child agent self-reported execution traces
 │
 └── osint/                      ← (When evidence collection mode is active only)
     ├── capability-test.md          Execution environment detection result
@@ -278,10 +282,30 @@ Declare timing in the OD. If undeclared, default is `per-phase`.
 **Domain model replacement protocol:** When a guardrail violation is caused by input quality (bad domain model) rather than execution quality (bad tactic), the response is **replace**, not kill/pivot/persevere:
 1. **Detect:** Guardrail violation or quality flag traced to a specific domain model
 2. **Identify:** Which domain model(s) caused the failure
-3. **Select replacement:** Present Governor with alternatives: (a) pre-built model from `domain-models/examples/`, (b) upgraded version of the current model, (c) new model built from source material using `cowork/domain-model-authoring-protocol.md`, (d) AI-expanded model from Governor-provided keywords (minimum viable: 3 components per §3.1 rule 5). Governor selects; if (c), Governor must provide or approve the source resource before authoring begins.
+3. **Select replacement:** Present Governor with alternatives: (a) pre-built model from `domain-models/examples/`, (b) upgraded version of the current model, (c) new model built from source material using `cowork/domain-model-authoring-protocol.md`, (d) AI-expanded model from Governor-provided keywords (minimum viable: 3 components per §3.1 rule 5). Governor selects; if (c), Governor must provide or approve the source resource before authoring begins. If the replacement is a pre-built model (option a), ask the Governor for adaptation intent: Adapt or Preserve as independent lens (same criteria as startup.md Group 3).
 4. **Re-execute:** Re-run only the replaced domain's assessment — do not re-run domains that passed
 5. **Re-synthesize:** Run synthesis again with the replacement assessment alongside preserved good assessments
 6. **Cost:** In a product context, charge only for the re-run portion (partial credit, not full analysis)
+
+### 4.1a Analytical Frame Contract (from GOSTA §9.2, §21.2a)
+
+For any scope where the deliverable answers an analytical question (assessment, evaluation, exposure analysis, market characterization, regulatory mapping, roadmap sequencing), the OD declares an **Analytical Frame Contract (AFC)** — a four-field declaration derived from the goal during bootstrap (startup.md Group 2A) and stored in the OD.
+
+**Fields:**
+
+| Field | Definition |
+|---|---|
+| **Stance** | Who the assessor stands alongside (e.g., dependent organization, buyer, market observer, policy maker, product team) |
+| **Output Verb** | What the deliverable does (e.g., expose, evaluate, characterize, map, sequence) |
+| **Failure Mode** | What the assessment protects against (e.g., unmanaged dependency, bad purchase, missed market shift) |
+| **Prohibited Frame** | What the deliverable must NOT become — the frame that would answer a different question than the stated goal. "—" if no other frame applies. |
+| **Verdict Vocabulary** (recommended) | AFC-consistent terms for deliverable verdicts. Reduces interpretive ambiguity at §12.12 validation. |
+
+**When required:** Any analytical/assessment scope. Skip for non-analytical scopes (operational, content production, code implementation) where the deliverable is an artifact rather than an answer.
+
+**Interaction with guardrails:** The AFC and guardrails are orthogonal. Guardrails constrain execution boundaries (what must not be violated). The AFC constrains the analytical frame (what question the session answers). A session may have a guardrail "no purchase recommendations" AND an AFC with Prohibited Frame "procurement advisory" — both enforce the same intent through different mechanisms. The guardrail is a self-attestation check; the AFC enables mechanical content-level validation (§12.12).
+
+**Frame consistency rule:** When the OD declares an AFC, all subsidiary sections must be frame-consistent — every OBJ analytical question, STR rationale, TAC hypothesis, and deliverable description must be answerable from the AFC's Stance perspective and must use the AFC's Output Verb. F-16 (startup.md Step 9) enforces this at OD drafting time.
 
 ---
 
@@ -318,11 +342,19 @@ Only Blocking tensions require explicit Governor response. This prevents tension
 
 **Question-reframing tension:** A special subtype where the user's question decomposes into sub-questions with different answers (e.g., "Is quantum computing ready?" → "Ready to use? Mostly no. Ready to defend against? Yes, start now."). This is not disagreement between domains — it's the analysis revealing that the question itself contains multiple questions. Present as: "Your question contains N hidden questions with different answers." This is often the highest-value insight for naive users.
 
-**Step 3c — Coherence check (at authoring time).** `[ROBUST]` After creating or modifying any OD element (tactic, strategy, objective, guardrail), run the semantic coherence checks from §12.7: C1 (kill condition evaluability — blocking), C2 (allocation arithmetic — auto-correct), C3 (temporal ordering — flag). At strategy review sessions, also run R1-R4 cross-entity invariants and the reconciliation check (§12.8). Coherence checks are lightweight at Tier 0 — the AI verifies mentally and reports results inline. The goal is to catch semantic issues *before* they enter the OD, not after.
+**Step 3c — Coherence check (at authoring time).** `[ROBUST]` After creating or modifying any OD element (tactic, strategy, objective, guardrail), run the semantic coherence checks from §12.7: C1 (kill condition evaluability — blocking), C2 (allocation arithmetic — auto-correct), C3 (temporal ordering — flag), C4 (entity reference integrity — blocking). At strategy review sessions, also run R1-R4 cross-entity invariants and the reconciliation check (§12.8). Coherence checks are lightweight at Tier 0 — the AI verifies mentally and reports results inline. The goal is to catch semantic issues *before* they enter the OD, not after.
 
 **Step 4 — Record.** Write outputs to appropriate files (signals, deliverables, decisions). **Grounding check:** Before recording each signal, verify provenance (§12.3) and attribution (§12.4). Signals missing provenance are flagged `[PROVENANCE-INCOMPLETE]`. Signals missing attribution are rejected — assign attribution before recording.
 
 **Step 5 — Update bootstrap.** Overwrite `00-BOOTSTRAP.md` with current state: what phase we're in, what was completed, what's pending, what the Governor needs to decide. **Prospective memory obligation (§18.2.5):** when updating "What Is Pending," scan all active tactics for approaching deadlines — kill conditions within 1 review cycle of their deadline, A/B test decision dates, deferred precondition timeouts — and surface them explicitly. Deadlines that exist only inside tactic specs are invisible until it's too late.
+
+**OD mutation logging.** When any OD field is edited after bootstrap approval (goal correction, strategy revision, tactic modification, guardrail recalibration), append an entry to the session log's OD Mutations section (see session-log template):
+- **What changed:** Field name + old value → new value (or summary if lengthy).
+- **Cascade check:** Which downstream OD sections were reviewed for consistency with this change. List section IDs explicitly.
+- **Cascade skipped:** Which downstream sections were NOT reviewed, with rationale (e.g., "TAC-3/TAC-4 — no dependency on goal framing" or "not checked — context pressure").
+- **Changes applied downstream:** What was modified as a result of the cascade check.
+
+For goal corrections specifically, the Goal Correction Procedure (startup.md Step 9) mandates AFC re-derivation + mini-PCCA. The mutation journal records the PCCA's scope and findings. This does NOT replace the Decision History entry required by the Goal Correction Procedure — both are written. The Decision History records the decision itself; the mutation journal records what was checked for cascade impact and what was not.
 
 **Step 6 — Write session log.** Create `session-logs/session-NNN.md` capturing: date, session type, what was discussed/decided/produced, what domain models were consulted, any framework feedback items discovered.
 
@@ -339,15 +371,32 @@ Only Blocking tensions require explicit Governor response. This prevents tension
    **Recommendation:** [advance | iterate | restructure]
    **Governor Action Required:** [YES — explicit approval needed | NO — proceeding with defaults]
    **Signal Coverage:** [N of M actions in this phase have completion signals in signals/. List any gaps.]
+   **Synthesis Verification (if deliberation completed this phase):** [completed — verification.md at [path] | Governor skipped — acknowledged | N/A — no deliberation completed this phase]
+   **Shortfall Log:** [If shortfall logging is enabled: N entries logged this phase / no entries. If no entries were logged, state: "No shortfalls encountered this phase" or explain why none were logged despite issues arising.]
+   **Shortfall Cross-Check (if shortfall logging enabled):** For each Session Lifecycle Compliance item that required AI correction (stale/missing/template-only/incomplete), verify a corresponding shortfall entry exists. If not: [writing missing entries now — IDs: SFL-NNN | all corrections have corresponding entries | no corrections were needed].
+   **Session Lifecycle Compliance:**
+   - 00-BOOTSTRAP.md reflects current phase: [yes — shows Phase N | no — stale at Phase M]
+   - Session log for completed sessions in this phase: [session-NNN.md populated | missing | template-only]
+   - Orchestrator trace entries since last gate (if debug logging enabled): [N entries covering M dispatches | incomplete — K of M dispatches missing, writing retroactive entries now | N/A — debug logging not enabled]
+   - session-status.md: [current — updated at Phase N completion | stale — last updated Phase M | template-only — never populated]
+   - deliberation-status.md (if deliberation enabled): [current — updated at Round N completion | stale — last updated Round M | template-only — never populated | N/A — deliberation not enabled]
+   - Active feature toggles: [debug_logging: on/off | evidence_collection: on/off | shortfall_logging: on/off | AFC: declared/not_declared | deliberation: enabled/disabled]
    ```
-2. If any Blocking tensions exist, the AI MUST NOT proceed until the Governor responds.
-3. If no Blocking tensions exist and exit criteria are met, the AI states "Proceeding to Phase N+1 in next message unless Governor intervenes" and waits ONE message turn before continuing.
-4. Compressing multiple phases into a single uninterrupted flow is a protocol violation.
-5. If any exit criterion is `partially_met`, the AI must state what's missing and recommend: (a) iterate to close the gap, or (b) advance with the gap noted as a risk. Governor decides.
-6. **Advance-with-degradation:** A 4th phase gate option alongside advance/iterate/restructure. Used when: the phase produced partial output, known failures are documented, and re-running would produce the same result. Subsequent phases proceed with the partial output AND the failure documentation as inputs. The failure itself becomes context — not a reason to halt, but information that shapes downstream work.
-7. **Kill condition discriminating power check (Phase Gate 0→1 only):** Before advancing from Bootstrap to Phase 1, assess each tactic's kill condition for discriminating power given the known inputs. For each kill condition, ask: "Given this session's reference pool composition, domain model framing, and scope constraints, could this kill condition plausibly trigger?" If the answer is no — e.g., a kill condition of "fewer than 50% of articles map to any feature" paired with a pool curated specifically for that feature domain — flag it as `non-discriminating` and recommend the Governor recalibrate to a threshold that would actually detect a meaningful mismatch. Example recalibration: instead of "fewer than 50% of articles map to any feature" (absolute threshold, trivially passed), use "fewer than 4 of 8 features have ≥10 evidence items from a 139-article pool" (relative threshold, catches real misalignment). Non-discriminating kill conditions are not blocking — the Governor may proceed with acknowledgment — but they should be surfaced as a Material Tension in the Phase Gate assessment.
+2. **Session Lifecycle Compliance is AI-blocking, not Governor-blocking.** The AI must fix lifecycle compliance issues before presenting the gate to the Governor: stale bootstrap → update it; missing session log → write it; incomplete orchestrator trace when debug logging is enabled → write retroactive entries for all dispatches that occurred in the phase (if dispatch details cannot be reconstructed, log this gap as a shortfall entry); template-only session-status.md → populate from current state; template-only deliberation-status.md when deliberation is enabled → populate from deliberation state. The Governor does not see lifecycle compliance failures — they are pre-gate corrections.
+3. If any Blocking tensions exist, the AI MUST NOT proceed until the Governor responds.
+4. If no Blocking tensions exist and exit criteria are met, the AI states "Proceeding to Phase N+1 in next message unless Governor intervenes" and waits ONE message turn before continuing.
+5. Compressing multiple phases into a single uninterrupted flow is a protocol violation.
+6. If any exit criterion is `partially_met`, the AI must state what's missing and recommend: (a) iterate to close the gap, or (b) advance with the gap noted as a risk. Governor decides.
+7. **Advance-with-degradation:** A 4th phase gate option alongside advance/iterate/restructure. Used when: the phase produced partial output, known failures are documented, and re-running would produce the same result. Subsequent phases proceed with the partial output AND the failure documentation as inputs. The failure itself becomes context — not a reason to halt, but information that shapes downstream work.
+8. **Input fidelity attestation (Phase Gate 0→1 only):** The Phase Gate 0→1 request must include an additional field:
+   ```
+   **Input Fidelity (F-16):** [passed — 0 flags | N flags — all resolved by Governor (list flag IDs) | NOT RUN — blocking]
+   ```
+   If F-16 was not run during bootstrap, this is a Blocking Tension — the AI must run it before the gate can advance. If it was run and the Governor resolved all flags, the gate records the resolution. This field is Governor-verifiable: the Governor remembers whether they saw fidelity flags during bootstrap and can challenge a false "passed" attestation.
 
-8. **Dependency Amendment Gate** `[ROBUST]` **(finite roadmap scopes with dependency graph deliverables):** If any Phase N synthesis output directly contradicts or requires modification of an approved Phase N-1 dependency graph, the amendment must be registered and presented as a named Governor decision BEFORE the subsequent sequencing phase begins. It is NOT activated by general phase gate approval.
+9. **Kill condition discriminating power check (Phase Gate 0→1 only):** Before advancing from Bootstrap to Phase 1, assess each tactic's kill condition for discriminating power given the known inputs. For each kill condition, ask: "Given this session's reference pool composition, domain model framing, and scope constraints, could this kill condition plausibly trigger?" If the answer is no — e.g., a kill condition of "fewer than 50% of articles map to any feature" paired with a pool curated specifically for that feature domain — flag it as `non-discriminating` and recommend the Governor recalibrate to a threshold that would actually detect a meaningful mismatch. Example recalibration: instead of "fewer than 50% of articles map to any feature" (absolute threshold, trivially passed), use "fewer than 4 of 8 features have ≥10 evidence items from a 139-article pool" (relative threshold, catches real misalignment). Non-discriminating kill conditions are not blocking — the Governor may proceed with acknowledgment — but they should be surfaced as a Material Tension in the Phase Gate assessment.
+
+10. **Dependency Amendment Gate** `[ROBUST]` **(finite roadmap scopes with dependency graph deliverables):** If any Phase N synthesis output directly contradicts or requires modification of an approved Phase N-1 dependency graph, the amendment must be registered and presented as a named Governor decision BEFORE the subsequent sequencing phase begins. It is NOT activated by general phase gate approval.
 
    Procedure:
    - **Register:** Name the amendment `DEP-AMEND-NNN` with: feature ID, original classification (as approved), proposed amended classification, basis (which synthesis finding or agent position recommends the change), and a circular dependency flag (does the amendment resolve or create a cycle? — if creates, block until cycle is resolved separately).
@@ -357,7 +406,7 @@ Only Blocking tensions require explicit Governor response. This prevents tension
 
    This item applies when: (a) a dependency graph is a Phase N-1 deliverable, AND (b) Phase N synthesis produces a finding that changes a feature's tier, prerequisite, or ordering constraint. If neither condition is met, this item is skipped.
 
-9. **Cross-Phase Consistency Check (CPCC)** `[ROBUST]` **(finite scopes with dependency graph + agent prerequisite registries):** Before applying Phase 1 dependency graph constraints to composite scores, the AI must execute a circular dependency check across the combined constraint set.
+11. **Cross-Phase Consistency Check (CPCC)** `[ROBUST]` **(finite scopes with dependency graph + agent prerequisite registries):** Before applying Phase 1 dependency graph constraints to composite scores, the AI must execute a circular dependency check across the combined constraint set.
 
    Procedure:
    - **Collect:** Set A = dependency graph edges (F-X → F-Y means F-Y requires F-X). Set B = all prerequisite registry constraints from domain agents (F-Y launch requires F-Z operational).
@@ -376,7 +425,7 @@ Only Blocking tensions require explicit Governor response. This prevents tension
 - Output: Draft OD for Governor approval, populated domain-models/ folder
 - Next: Governor approves/modifies OD, then first execution session
 - **Keyword disambiguation:** When user keywords map to multiple candidate domain models (e.g., "politics" → Diplomatic & International OR Domestic Politics), present the options explicitly: "Your keyword [X] matches multiple analytical lenses: [Option A], [Option B]. Which best fits your question?" Do not silently choose one — this is a value-affecting decision the Governor must make.
-- **Domain model quality gate:** After domain models are created or selected, run the 3 quality tests (from GOSTA §13.3): (1) Specificity — does each concept's *description* explain how it applies specifically to this session's product/context, not just define the concept generically? Evaluate the description content, not the concept name — standard terminology (Kaufman terms, article numbers) is fine if the description differentiates. (2) Distinctiveness — would this principle produce different results in another domain? (3) Anti-Pattern specificity — is this already basic critical thinking? If any test fails, warn: "This domain model may produce generic results. Consider adding Hypothesis Library/Guardrail Vocabulary, making concepts domain-specific, or using a pre-built model." If Governor proceeds with a flagged model, annotate the output with a quality warning. **Quality gate output must include:** (a) Overall grade: `PASS` / `PASS-WITH-FLAGS` / `FLAG-FOR-REVIEW`; (b) Flag count and severity breakdown: "PASS — 0 critical, 0 material, 3 informational flags"; (c) Flag severity criteria: CRITICAL = concept is generic to the point of being meaningless, MATERIAL = concept is real but underspecified (may produce undifferentiated scores), INFORMATIONAL = nuance lacking but concept is operable; (d) Governor decision prompt: for CRITICAL flags "Governor review required — flag may invalidate scoring," for MATERIAL flags "Governor discretion — flag may produce undifferentiated domain scores," for INFORMATIONAL flags "May proceed without review." **(e) Cross-model redundancy check (optional, multi-domain sessions):** When multiple domain models are loaded, identify concept pairs across models with overlapping scope. For each overlap, assess: do the concepts produce different evaluative *conclusions* on the same policy options (productive tension — no action needed), or similar conclusions from different frames (potential noise — flag for Governor review)? This check is informational and not blocking.
+- **Domain model quality gate:** After domain models are created or selected, run the 3 quality tests (from GOSTA §13.3): (1) Specificity — does each concept's *description* explain how it applies specifically to this session's product/context, not just define the concept generically? Evaluate the description content, not the concept name — standard terminology (Kaufman terms, article numbers) is fine if the description differentiates. For models with Preserve adaptation intent (startup.md Group 3), evaluate the Application Context header only — general-purpose concept descriptions are expected and correct; do not flag as specificity failures. (2) Distinctiveness — would this principle produce different results in another domain? (3) Anti-Pattern specificity — is this already basic critical thinking? If any test fails, warn: "This domain model may produce generic results. Consider adding Hypothesis Library/Guardrail Vocabulary, making concepts domain-specific, or using a pre-built model." If Governor proceeds with a flagged model, annotate the output with a quality warning. **Quality gate output must include:** (a) Overall grade: `PASS` / `PASS-WITH-FLAGS` / `FLAG-FOR-REVIEW`; (b) Flag count and severity breakdown: "PASS — 0 critical, 0 material, 3 informational flags"; (c) Flag severity criteria: CRITICAL = concept is generic to the point of being meaningless, MATERIAL = concept is real but underspecified (may produce undifferentiated scores), INFORMATIONAL = nuance lacking but concept is operable; (d) Governor decision prompt: for CRITICAL flags "Governor review required — flag may invalidate scoring," for MATERIAL flags "Governor discretion — flag may produce undifferentiated domain scores," for INFORMATIONAL flags "May proceed without review." **(e) Cross-model redundancy check (optional, multi-domain sessions):** When multiple domain models are loaded, identify concept pairs across models with overlapping scope. For each overlap, assess: do the concepts produce different evaluative *conclusions* on the same policy options (productive tension — no action needed), or similar conclusions from different frames (potential noise — flag for Governor review)? This check is informational and not blocking.
 - **Guardrail feasibility check:** After the OD is drafted and before presenting the Phase Gate 0→1 assessment, verify that each guardrail referencing evidence or data inputs can be enforced given the session's actual inputs. For each guardrail: (1) identify what data source the guardrail requires (e.g., "counter-evidence receives equal weight" requires a pool that contains counter-evidence), (2) assess whether the reference pool, domain models, or other inputs can supply that data, (3) if a guardrail cannot be feasibly enforced — e.g., a falsification guardrail paired with a pool that is >70% incident-reporting and structurally underrepresents success cases — flag it as `feasibility-limited` in the Phase Gate assessment with an explanation of the structural limitation. The Governor decides: (a) proceed with the guardrail in observation mode (document attempts but don't treat absence of evidence as confirmation), (b) modify the guardrail to match available inputs, or (c) add supplementary inputs (e.g., Governor provides 5 success-case reference items to enable falsification). This check is informational — it does not block the Phase Gate, but it prevents the session from claiming to honor guardrails that its inputs structurally cannot support.
 - **Structured input detection (informed users):** If the Governor's question contains multiple clauses with analytical connectors ("given that," "assuming," "because"), treat as pre-structured. Show detected structure: "I detected: (1) primary question, (2) embedded hypothesis, (3) analytical constraints. Is this correct?" If confirmed, skip decomposition and map directly to domain assignments.
 
@@ -443,8 +492,32 @@ After retrospective outputs are written and before the completion signal is emit
 
 **Shortfall propagation check:**
 4. Read the shortfall log (if one exists for this session). For each entry with a "Suggested Fix" that targets a file outside the session directory (e.g., a protocol file, startup.md, a shared template), flag it to the Governor as a post-session PCCA action: "Shortfall [ID] suggests a fix to [file]. This is outside session scope — adding to post-session PCCA queue."
+5. If shortfall logging was enabled (check the OD or bootstrap config) but the shortfall log file is empty or contains only the header: flag to the Governor — "Shortfall logging was enabled but no entries were logged. Either (a) no shortfalls were encountered (confirm explicitly), or (b) shortfall logging was dropped during execution (this is itself a shortfall — log it now with a retrospective entry)." The AI must not silently close a session with an empty shortfall log when logging was enabled.
 
-**Enforcement:** The completion signal cannot be emitted until steps 1-4 are complete. Template stubs surviving to session close is a protocol violation.
+**Session log coverage:**
+6. Verify that `session-logs/` contains a populated session log for every session conducted. Compare session count against log file count. Template stubs (fields containing only placeholder brackets) count as missing. Populate gaps from memory before closeout — partial reconstruction is acceptable, absence is not.
+
+**Bootstrap file currency:**
+7. Verify that `00-BOOTSTRAP.md` reflects the session's final state — current phase, completion status, and final pending items. If it references an earlier phase as current, update before closeout.
+
+**Closeout compliance summary (mandatory output before completion signal):**
+
+8. The AI MUST produce a structured closeout compliance table listing every scaffolded file and its disposition. This table is presented to the Governor as part of the closeout:
+
+   ```
+   ## Closeout File Audit
+   | File | Status | Action |
+   |---|---|---|
+   | learnings.md | [populated | N/A: reason | STUB — populating now] | [none | populating | marking N/A] |
+   | gosta-framework-feedback.md | [populated | N/A: reason | STUB — populating now] | [none | populating | marking N/A] |
+   | session-status.md | [current | stale | template-only — populating now] | ... |
+   | deliberation-status.md | [current | N/A — no deliberation | template-only — populating now] | ... |
+   | [each additional scaffolded file] | ... | ... |
+   ```
+
+   Any file with status STUB or template-only is blocking — the AI must resolve it to "populated" or "N/A: [reason]" before the completion signal can be emitted. The Governor sees this table and can verify it against the session directory.
+
+**Enforcement:** The completion signal cannot be emitted until steps 1-8 are complete. Template stubs surviving to session close is a protocol violation.
 
 ---
 
@@ -491,7 +564,7 @@ Signals are the data that flows upward through the hierarchy. Logged in markdown
 | `knowledge_flag` | Executor (AI) | discovery_description, domain_relevance, source | When executor discovers new research, industry changes, or competitor approaches during action execution — feeds domain model evolution |
 | `narrative_assessment` | Orchestrator (AI) | narrative_actors[], competing_narratives[], credibility_assessment | At each analysis cycle when the information environment itself is an analytical variable (e.g., conflict analysis, political analysis) |
 | `environmental` | Orchestrator (AI) or System | condition_id, previous_state, current_state, affected_entities[], severity (informational/significant/critical) | When a condition on the environmental watch list (§7.14) changes beyond its threshold. At Tier 0: AI checks watch list at strategy review start and Governor reports changes. |
-| `dep_amendment_decision` | Governor | amendment_id (DEP-AMEND-NNN), feature_id, original_classification, amended_classification, decision (accept/reject), basis | When Governor accepts or rejects a dependency graph amendment at a phase gate (§5.1 item 8). Written as a standalone decision entry in decisions/governor-decisions.md. |
+| `dep_amendment_decision` | Governor | amendment_id (DEP-AMEND-NNN), feature_id, original_classification, amended_classification, decision (accept/reject), basis | When Governor accepts or rejects a dependency graph amendment at a phase gate (§5.1 item 9). Written as a standalone decision entry in decisions/governor-decisions.md. |
 | `options_universe_confirmed` | Governor | document_name, item_count, confirmed_date | When Governor explicitly confirms the derived item list from a narrative options-universe document (startup.md Step 6 Narrative Options-Universe Gate). Emitted before scoring begins; referenced at all subsequent phase gates. |
 | `cost_exceeded` | Orchestrator (AI) | tactic_id, category, budget, actual | When a tactic's per-cycle cost in any declared category exceeds its budget (§13.3) |
 | `cost_data_missing` | Orchestrator (AI) | tactic_id, category | When actions don't report cost metadata for a declared cost category (§13.3) |
@@ -727,6 +800,27 @@ The Operating Document should declare which level is the baseline and whether de
 **Information gap handling:** When deliberation or multi-domain assessment produces findings classified as `information_gap` (§14.3.8), the orchestrator logs the specified missing data as a signal collection target in the next cycle's action list. The orchestrator emits a `knowledge_flag` signal when the gap is resolved.
 
 **Interpretive guardrail escalation:** When 2+ interpretive guardrails produce ambiguous results (`near-violation` or `unclear` status) in the same review cycle, and deliberation mode is enabled, consider escalation to Level 3 deliberation for multi-agent evaluation of the guardrail cluster.
+
+**Dispatch Preamble (mandatory for every agent dispatch when any injectable feature is active):**
+
+Before dispatching any agent (evidence collection, deliberation, deliverable drafting), the orchestrator assembles the Dispatch Preamble by checking each injectable feature:
+
+| Feature | Condition | Injection Content |
+|---|---|---|
+| AFC | OD declares an AFC (§4.1a) | "Your assessment must [verb] from the perspective of [stance]. The failure this assessment protects against is [failure mode]. Do NOT produce [prohibited frame]." |
+| Debug logging (§19.4) | Debug logging = enabled | Standard debug logging injection block per §19.4 |
+| Evidence loading strategy | Evidence collection = enabled AND agent will consume evidence | Per evidence-collection-protocol §6.4: either evidence file paths (direct load) or pool store path + concept-to-query mappings (pool-agent retrieval), based on per-domain item count vs. threshold. |
+
+**Assembly rule:** The orchestrator concatenates all active injection blocks into a single preamble block. The preamble is prepended to the agent's task-specific prompt.
+
+**Dispatch Verification Check:** After assembling the dispatch prompt and before sending, the orchestrator performs a mechanical scan:
+
+1. If AFC is active: scan the assembled prompt for the AFC Output Verb term. If absent, halt and fix. If Prohibited Frame is not "—" (none), also scan for the Prohibited Frame term. If absent, halt and fix. If Prohibited Frame is "—", skip the Prohibited Frame scan (there is no frame to prohibit).
+2. If debug logging is active: scan for the §19.4 marker `<!-- DEBUG LOGGING — protocol §19 -->`. If absent, halt and fix.
+3. If evidence loading strategy is active: scan for either evidence file paths (at least one `osint/` path) or a pool store path (`osint/pool-store/`). If neither is present, halt and fix.
+4. Log the verification result to orchestrator-trace.md: `DISPATCH [agent-id]: preamble verified [AFC: yes/no] [DEBUG: yes/no] [EVIDENCE: direct/pool-agent/N/A]`
+
+This replaces separate independent injection points that each require separate protocol compliance. One mechanism, one verification check, one failure point to monitor.
 
 ### 7.5a Evidence Collection Integration (from GOSTA §14.8)
 
@@ -1062,17 +1156,19 @@ Beyond structural schema checks (§12.1), the AI validates that OD elements are 
 
 3. **Temporal ordering (C3).** When creating tactics with deadlines, the AI checks: does this tactic's estimated completion fall before its parent strategy's next review? If not: "TAC-5 estimated completion is March 30. Strategy review is March 15. This tactic's results won't be available for that review. Proceed, or adjust timeline?"
 
-4. **Guardrail compatibility (R3, R4).** When the Governor introduces new guardrails, the AI reasons about compatibility with existing guardrails: "This new cost guardrail (max €5/outcome) may conflict with the inherited engagement guardrail (minimum 3 touchpoints per lead, which typically costs €6-8/outcome). Want to calibrate?"
+4. **Entity reference integrity (C4).** After drafting or modifying the OD, the AI scans all cross-references that name domain models or agents: Deduplication Rules table, Tactic Domain Model Dependencies, Evidence Collection agent domain assignments, Domain Model Adaptations table. Every name must match an entry in the Domain Models Referenced list or the Deliberation Agent Roster. Phantom references — names that look plausible but don't exist in the session — are flagged: "Deduplication rule references [OPS-1] but no agent with that ID exists in the roster. Remove or correct." **Blocking** — phantom references must be resolved before OD approval.
+
+5. **Guardrail compatibility (R3, R4).** When the Governor introduces new guardrails, the AI reasons about compatibility with existing guardrails: "This new cost guardrail (max €5/outcome) may conflict with the inherited engagement guardrail (minimum 3 touchpoints per lead, which typically costs €6-8/outcome). Want to calibrate?"
 
 **At strategy review:**
 
-5. **Hypothesis-domain model coherence (R1).** The AI checks whether any active tactic's hypothesis references domain model concepts that have been modified or removed since the tactic was created. If so: "TAC-2's hypothesis cites 'founder authority premium' which was removed from the content-strategy domain model in session 8. The tactic is still running against a concept the domain model no longer supports."
+6. **Hypothesis-domain model coherence (R1).** The AI checks whether any active tactic's hypothesis references domain model concepts that have been modified or removed since the tactic was created. If so: "TAC-2's hypothesis cites 'founder authority premium' which was removed from the content-strategy domain model in session 8. The tactic is still running against a concept the domain model no longer supports."
 
-6. **WMBT-objective alignment (R2).** The AI presents its alignment assessment for each strategy: "STR-1's WMBTs (organic reach >5K, engagement rate >3%) relate to OBJ-1's metric (qualified leads) because [reasoning]. Alignment: moderate — high engagement doesn't guarantee lead quality. Flag for Governor attention."
+7. **WMBT-objective alignment (R2).** The AI presents its alignment assessment for each strategy: "STR-1's WMBTs (organic reach >5K, engagement rate >3%) relate to OBJ-1's metric (qualified leads) because [reasoning]. Alignment: moderate — high engagement doesn't guarantee lead quality. Flag for Governor attention."
 
-7. **Reconciliation check (§8.2.3).** The AI cross-references the decision log with OD state: "Since last strategy review: 4 decisions recorded, all applied correctly. All active tactics have authorization references. No unauthorized state found." Or: "TAC-7 exists in the OD but has no decision entry — it may have been created in a session I don't have full context for. Governor: confirm or remove?"
+8. **Reconciliation check (§8.2.3).** The AI cross-references the decision log with OD state: "Since last strategy review: 4 decisions recorded, all applied correctly. All active tactics have authorization references. No unauthorized state found." Or: "TAC-7 exists in the OD but has no decision entry — it may have been created in a session I don't have full context for. Governor: confirm or remove?"
 
-**What the AI does NOT do:** block the Governor from proceeding. Coherence flags are informational except for C1 (kill condition evaluability), which is blocking — a tactic without an evaluable kill condition must not be activated. All other flags are presented for Governor awareness. The Governor may accept known incoherence with reasoning that the AI records.
+**What the AI does NOT do:** block the Governor from proceeding. Coherence flags are informational except for C1 (kill condition evaluability) and C4 (entity reference integrity), which are blocking — a tactic without an evaluable kill condition or an OD with phantom domain references must not proceed. All other flags are presented for Governor awareness. The Governor may accept known incoherence with reasoning that the AI records.
 
 ### 12.8 Decision-to-State Traceability (from GOSTA §8.2) `[ROBUST]`
 
@@ -1180,6 +1276,56 @@ When claims cross agent trust boundaries — during deliberation synthesis, cros
 - **Tier 2+:** Automated propagation audit across all trust boundaries. Claims crossing more than two boundaries without independent grounding are auto-flagged for Governor review.
 
 **Interaction with §12.5 (Synthesis Verification):** Propagation tracking complements synthesis verification. §12.5 checks whether the Coordinator faithfully represented agent positions; §12.11 checks whether grounding status was preserved across the boundary. A synthesis can be faithful (accurately representing what agents said) but still propagate ungrounded claims if the agents themselves had ungrounded inputs.
+
+### 12.12 Frame Integrity Validation (from GOSTA §9.2 AFC) `[CORE]`
+
+**Frame declaration.** Before producing deliverable content, the deliverable agent states its frame interpretation at the top of the deliverable draft:
+
+```
+<!-- FRAME DECLARATION
+Task interpretation: [1 sentence — what I understand my task to be]
+Analytical stance: [who is the reader, what is their relationship to the subject]
+Output answers the question: [the question this deliverable answers]
+-->
+```
+
+In AFC-enabled sessions, the frame declaration is mechanically compared against AFC fields before drafting proceeds:
+- Task interpretation must align with AFC Output Verb.
+- Analytical stance must match AFC Stance.
+- Output question must avoid AFC Prohibited Frame.
+
+If any mismatch is detected, the agent corrects its interpretation before drafting. The declaration remains in the deliverable as an HTML comment (invisible to readers, visible in source) for post-session audit.
+
+**Non-AFC sessions:** The frame declaration is still produced (it costs 3 lines) but is not mechanically validated — it serves as an audit trail only.
+
+When the OD declares an Analytical Frame Contract (§4.1a), the deliverable agent performs three content-level checks at deliverable authoring time:
+
+1. **Output verb match:** Deliverable section verbs and framing match the AFC Output Verb. A dependency-exposure AFC should produce sections that "expose," "surface," or "identify" — not sections that "recommend," "evaluate for adoption," or "advise on procurement." If the OD declares a Verdict Vocabulary, check verdict terms against the declared vocabulary (e.g., "LOW EXPOSURE" not "VIABLE").
+2. **Stance reader match:** Recommended actions, postures, or conclusions address the AFC Stance's reader. A dependency-exposure deliverable addresses "organizations depending on [target]" — not "customers evaluating [target] for purchase." A regulatory-mapping deliverable addresses "policy makers assessing coverage" — not "vendors seeking compliance certification."
+3. **Failure mode alignment:** Risk characterization aligns with the AFC Failure Mode. A dependency-exposure deliverable characterizes "dependency risk" and "exposure severity" — not "purchase risk" or "adoption suitability." A roadmap-sequencing deliverable characterizes "sequencing constraints" and "strategic misdirection risk" — not "vendor selection risk."
+
+**Annotation:** Sections failing any check receive `[FRAME-DRIFT]` annotation. Severity: MATERIAL — requires revision before Governor acceptance. The deliverable agent must revise annotated sections to align with the AFC before presenting the deliverable for Governor review.
+
+**Relationship to existing guardrails:** §12.12 supplements, not replaces, existing guardrail attestation. G-1 (or any session-specific guardrail like "no purchase recommendation") continues to operate — the deliverable agent self-attests compliance. §12.12 adds a second, independent check that is AFC-aware and content-level. In a session with an AFC, both checks run: G-1 attestation catches what the agent recognizes as a violation; §12.12 catches what the agent misses because its training-data default matches the Prohibited Frame. If a session has no AFC, §12.12 does not apply and G-1 attestation is the sole frame check.
+
+**Revision trail.** When a deliverable fails §12.12 checks or Governor review and requires revision, the pre-revision version is preserved before edits are applied. Preservation method by tier:
+- *Tier 0:* Before applying revisions, copy the deliverable file to `deliverables/[name]-rev-[N].md` (where N is the revision number, starting at 0 for the original). The revision entry in the session log (see template) records: what triggered the revision, which sections changed, and the nature of the frame correction.
+- *Tier 1+:* Version-controlled deliverable store handles this automatically.
+
+The final accepted deliverable retains its original filename. Revision copies are retained for post-session analysis but are not promoted to evidence archive.
+
+### 12.13 Guardrail Attestation Log `[CORE]`
+
+When the deliverable agent performs guardrail self-attestation (hard guardrails G-1 through G-N), the attestation is recorded in the session log's Guardrail Attestation section (see session-log template). For each guardrail attested:
+
+1. **What was checked:** Which deliverable sections were evaluated for this guardrail.
+2. **Check method:** `mechanical` (pattern scan for prohibited phrases) or `interpretive` (semantic evaluation of intent).
+3. **Supporting evidence:** A verbatim quote from the checked content that the attestor relied on to conclude compliance. Maximum 2 sentences per guardrail.
+4. **Conclusion:** `pass` or `fail — [action taken]`.
+
+For AFC-enabled sessions, §12.12 Frame Integrity Validation results are also recorded in this section — they are a second independent check layer.
+
+**Rationale:** Self-attestation without a trail is unauditable. The attestation log makes the attestor's reasoning visible to the Governor at review time without requiring debug logging.
 
 ---
 
@@ -1565,6 +1711,170 @@ For simple scoring (no deliberation needed), Level 3 can still use direct parall
 
 ---
 
+## 19. Agent Debug Logging
+
+When debug logging is enabled (Group 1 toggle), the orchestrator and all dispatched agents produce incremental execution traces. Debug logging is observational — it does not affect session outputs, scoring, or governance decisions. Its purpose is post-session analysis: diagnosing agent behavior, identifying inefficiencies, and improving future runs.
+
+### 19.1 Storage Structure
+
+All trace files live in `sessions/[SESSION_NAME]/debug-logs/`:
+
+```
+debug-logs/
+  orchestrator-trace.md          ← Orchestrator's own actions + all dispatch records
+  [AGENT-ID].trace.md            ← Child agent's self-reported execution trace
+  ...
+```
+
+File naming: child traces use the agent's ID as filename (e.g., `COLL-1-financial.trace.md`, `DELIB-advocate.trace.md`, `COORD-1.trace.md`). The orchestrator specifies the exact filename in the dispatch prompt.
+
+### 19.2 Orchestrator Trace Format
+
+The orchestrator logs two categories of entries to `orchestrator-trace.md`, interleaved chronologically:
+
+**Own actions** — every tool call the orchestrator makes directly (web searches, file reads, file writes, reasoning decisions):
+
+```markdown
+## [timestamp] Action: [action type]
+- Tool: [tool name]
+- Input: [query, file path, or parameters]
+- Result: [summary — hit count, file size, key finding]
+- Decision: [what the orchestrator decided based on this result]
+```
+
+**Dispatch records** — every agent dispatch and its outcome:
+
+```markdown
+## [timestamp] Dispatch: [AGENT-ID]
+- Role: [agent role description]
+- Prompt: [full dispatch prompt text — or if >500 words: first 200 words + "... [truncated, N words total]"]
+- Context injected: [list of files/artifacts passed to agent]
+- Files writable: [list of paths the agent can write to]
+- Debug logging block: injected [yes/no]
+
+## [timestamp] Return: [AGENT-ID]
+- Duration: [time elapsed]
+- Output summary: [1-3 sentence summary of what the agent returned]
+- Files written by agent: [list of files the agent created/modified]
+- Trace file: debug-logs/[AGENT-ID].trace.md
+- Trace integrity: [N actions logged in trace vs N items/files in output — note discrepancies]
+```
+
+**Trace integrity check.** After each agent returns, the orchestrator opens the agent's trace file and compares: (a) number of logged actions against the agent's claimed output (e.g., 12 evidence items but only 4 search actions logged = discrepancy), (b) whether the trace file exists at all (agent may have skipped logging). Discrepancies are noted in the dispatch record — they indicate the trace is incomplete, not that the agent's output is wrong.
+
+### 19.3 Child Agent Trace Format
+
+Child agents write their own trace incrementally during execution. The dispatch prompt includes a standard logging block (§19.4) that instructs the agent to log before moving to each next action.
+
+**Child trace file format:**
+
+```markdown
+# Agent Trace: [AGENT-ID]
+**Task received:** [agent's interpretation of its assignment — 1-3 sentences]
+**Started:** [timestamp]
+
+## Step 1: [action type]
+- Detail: [search query, file path, or decision description]
+- Result: [what came back — hit count, key findings, or "no useful results"]
+- Selected: [what the agent chose to use and why]
+- Rejected/skipped: [what was discarded and why — dead ends, irrelevant results]
+- Decision: [what the agent decided to do next based on this result]
+
+## Step 2: [action type]
+...
+
+## Output Summary
+- Items/artifacts produced: [count and brief description]
+- Confidence: [agent's self-assessed confidence in its output]
+- Gaps identified: [what the agent couldn't find or resolve]
+- Dead ends: [searches or approaches that produced nothing useful]
+
+**Ended:** [timestamp]
+```
+
+**Action types** used in step headers: `Web search`, `File read`, `File write`, `Evidence synthesis`, `Scoring`, `Analysis`, `Decision point`, `Dead end pivot`.
+
+### 19.4 Standard Debug Logging Injection Block
+
+When debug logging is enabled, the orchestrator appends the following block to every agent dispatch prompt. This block is defined here as a protocol-level standard — the orchestrator copies it verbatim, substituting only `[AGENT-ID]` and `[SESSION_PATH]`.
+
+```markdown
+<!-- DEBUG LOGGING — protocol §19 -->
+## Execution Trace Requirement
+
+You MUST write an incremental execution trace to:
+  [SESSION_PATH]/debug-logs/[AGENT-ID].trace.md
+
+Trace format (follow exactly):
+1. Begin the file with: `# Agent Trace: [AGENT-ID]` followed by your interpreted task and start timestamp.
+2. Before each tool call or major decision, append a step entry:
+   ```
+   ## Step N: [action type]
+   - Detail: [what you're doing]
+   - Result: [what came back]
+   - Selected: [what you kept and why]
+   - Rejected/skipped: [what you discarded and why]
+   - Decision: [what you'll do next]
+   ```
+3. Write each step IMMEDIATELY — do not reconstruct the trace from memory at the end.
+4. After completing your task, append an Output Summary section with items produced, confidence, gaps, and dead ends.
+5. End with your completion timestamp.
+
+Action types for step headers: Web search, File read, File write, Evidence synthesis, Scoring, Analysis, Decision point, Dead end pivot.
+
+This trace is for post-session analysis only. It does not affect your task or output quality. Prioritize your primary task — if context is critically constrained, you may abbreviate step entries, but never skip them entirely.
+<!-- END DEBUG LOGGING -->
+```
+
+**Injection rule:** The orchestrator appends this block to the end of every dispatch prompt when debug logging is enabled. It is not included when debug logging is disabled. The block is self-contained — agents need no other context to produce a valid trace.
+
+### 19.5 Orchestrator Self-Logging
+
+The orchestrator's own actions are logged via protocol discipline, not an injection block (the orchestrator cannot inject prompts into itself). The protocol instruction is:
+
+**When debug logging is enabled:** Before each tool call (web search, file read, file write) and after each significant reasoning decision, append an entry to `debug-logs/orchestrator-trace.md` using the §19.2 "Own actions" format. Before each agent dispatch, append a "Dispatch" entry. After each agent returns, append a "Return" entry with the trace integrity check.
+
+**Timing:** Log entries are appended in real-time during execution. The orchestrator does not reconstruct the trace post-hoc. If the orchestrator forgets to log an action (context pressure, complex reasoning chains), the gap is acceptable — the trace is best-effort for the orchestrator, mandatory for dispatched agents (who receive explicit instructions).
+
+**Minimum checkpoint obligation.** Regardless of real-time logging fidelity, the orchestrator MUST write a phase-transition entry to `orchestrator-trace.md` at every phase gate. Format:
+
+```
+## Phase [N] checkpoint — [timestamp]
+- Agents dispatched this phase: [count] ([IDs])
+- Key orchestration decisions: [1-3 sentence summary]
+- Files written: [list]
+- Dispatch anomalies: [none | list]
+- Dispatch Verification Check results: [all passed | failures: list]
+```
+
+The Phase Gate Enforcement Protocol (§7.4) verifies this entry exists via the Session Lifecycle Compliance field before the gate request is presented to the Governor. Real-time per-action entries remain best-effort; the checkpoint entry is mandatory.
+
+### 19.6 Interaction with Other Session Features
+
+- **Shortfall logging:** Independent toggle. A session can have both shortfall logging and debug logging enabled. Shortfall entries go to `session-shortfall-log.md`; debug entries go to `debug-logs/`. If a shortfall is discovered via debug log analysis, it is recorded in the shortfall log with a cross-reference to the relevant trace file.
+- **Evidence collection:** When debug logging is enabled during evidence collection, each COLL agent receives the logging block and writes its own trace. The orchestrator's dispatch records capture the full prompt sent to each collection agent, enabling prompt-to-output analysis.
+- **Deliberation:** When debug logging is enabled during deliberation, each domain agent and the coordinator receive the logging block. This captures each agent's reasoning path through its domain model, not just the final position paper.
+- **Phase gates:** Debug log content is not reviewed at phase gates (it is diagnostic, not a governance artifact). However, the Session Lifecycle Compliance field in the Phase Gate Request (§7.4) reports orchestrator trace entry count when debug logging is enabled. An empty trace triggers the minimum checkpoint obligation (§19.5) — the orchestrator writes at least a phase-transition summary entry before the gate can be presented. Phase Gate 0→1 additionally checks that `debug-logs/` was scaffolded and `orchestrator-trace.md` contains at least a Phase 0 checkpoint entry.
+- **Closeout:** Debug logs are retained in the session directory after closeout. They are not promoted to the evidence archive or any cross-session artifact.
+
+### 19.7 Automatic Logging (Claude Code Hooks)
+
+When running in Claude Code with debug logging enabled, the session can use hooks to automatically capture dispatch events without relying on model self-logging. This provides a mechanical floor — dispatches and returns are always captured, regardless of model attention allocation under context pressure.
+
+**Components:**
+
+- **`cowork/hooks/log-dispatch.sh`** — Triggered by PreToolUse, PostToolUse, and SubagentStop on the Task tool. Appends §19.2-format entries to `orchestrator-trace.md` with timestamps, prompt text (truncated per §19.2 if >500 words), duration (correlated across Pre/Post pairs), and result summaries. All hook-generated entries carry a `[HOOK-GENERATED]` marker to distinguish them from model-written entries.
+- **`cowork/hooks/audit-closeout.sh`** — Triggered by SessionEnd. Walks the session directory and checks every `.md` file for template stub indicators (unresolved bracket placeholders). Writes a compliance report to `debug-logs/closeout-audit.md` listing each file's status (populated / stub / empty) with a summary count and compliance verdict. This implements a mechanical version of the §5.5 Closeout File Audit.
+- **`cowork/templates/hooks-settings.json`** — Configuration template for `.claude/settings.json`. Points hooks to the scripts in `cowork/hooks/`. Copied or merged into the session's settings during bootstrap (Step 2).
+
+**Relationship to §19.5 self-logging:** Hooks capture the mechanical facts — that a dispatch happened, what prompt was sent, what came back, how long it took. Self-logging (§19.5) captures the semantic layer — reasoning decisions, context injected, files writable, trace integrity checks. The two are complementary. Hooks ensure the trace is never empty; self-logging enriches it when the model complies. If both are active, the trace contains interleaved `[HOOK-GENERATED]` entries (automatic) and unmarked entries (model-written).
+
+**Scope limitations:** Hooks fire on Task tool dispatches only. In single-session-sequential mode (where the model role-plays multiple agents in a single context rather than dispatching subagents), there are no Task calls to intercept and hooks provide no dispatch logging. The closeout audit hook works in all modes. If a session uses single-session-sequential mode with debug logging enabled, the trace depends entirely on §19.5 self-logging for dispatch records.
+
+**Not a replacement for protocol compliance:** Hooks address one failure mode (model forgetting to log). They do not address: session-status.md population during execution, deliberation-status.md updates between rounds, shortfall log entries, or any other mid-execution obligation. Those remain model responsibilities enforced at Phase Gates (§7.4 Session Lifecycle Compliance).
+
+---
+
 ## Version History
 
 | Version | Date | Change |
@@ -1594,3 +1904,6 @@ For simple scoring (no deliberation needed), Level 3 can still use direct parall
 | 3.7 | 2026-03-23 | Evidence pool and scoring robustness (from product-value-validation session feedback FB-001 through FB-006). Signal-first execution pattern and compressed signal format (from stress-test report Gap 1.2). OD template scope-type branching for analytical objectives (from stress-test report Gap 1.3). §18.5: Reference Pool Consumption Strategy — index-first protocol for pools >50 items, OD `pool_consumption_strategy` field, checkpoint-before-narrative pattern. §18.5→§18.6 renumbering (Multi-Agent Parallelism). §5.2 Bootstrap Session: Guardrail feasibility check — verify guardrails referencing evidence can be enforced given actual inputs, `feasibility-limited` flag for structurally unsupported guardrails. Phase Gate Enforcement Protocol item 7: Kill condition discriminating power check — assess whether kill conditions could plausibly trigger given known inputs, `non-discriminating` flag with recalibration recommendation. §7.6: Per-domain anchoring for multi-domain scoring — 3 reference anchors per domain, mid-pass consistency check for >30 scoring decisions. OD template: Evidence Blind Spots field in tactic template — declare items where pool structurally cannot observe failure modes, alternative evidence sources, `[BLIND-SPOT]` annotation. OD template: Domain Model Adaptations section — per-concept applicability mapping (applies/does-not-apply/requires-interpretation) when reusing models across analytical contexts. | §6.2: Signal integrity check — narrative-quantitative divergence detection with `[DIVERGENCE]` tag. §7.1: Kill Proximity Alerting (20% threshold, consecutive cycle tracking), Signal-Recommendation Consistency Check (flag when signals trend negative but persevere recommended), Signal Integrity Check (discard qualitative framing for divergence-tagged signals). §7.1 Output: Mandatory non-empty Risk Factors section with sycophancy self-check. Sycophancy self-check timing specified: after Signal Integrity Check, before output generation, with previous cycle comparison. §5.1 Step 1b: Bootstrap state conflict resolution protocol added — decision log authoritative for decisions, OD for structure, bootstrap is summary. `bootstrap_anomaly` signal on conflict. §7.5: Cross-deliberation dissent frequency tracking (`low_dissent_frequency` flag). §12.5: Sycophancy verification in Governor synthesis review (Coordinator framing bias check). CLAUDE.md: Core Rules for risk surfacing and alignment checking. Templates updated: health-report.md (Risk Factors section, Signal-Recommendation Alignment fields, Sycophancy Indicators), signal-entry.md (Signal Integrity Check), session-log.md (Sycophancy Flags field), operating-document.md (kill proximity threshold), learnings.md (Dissent Frequency Tracking), deliberation-status.md (Independence Assessment). |
 | 3.11 | 2026-03-26 | Consistency audit fixes (cowork ↔ deliberation protocol ↔ spec). §7.6: Scoring scale bands aligned to spec §20.10 (5 bands: 1-2 Absent, 3-4 Weak, 5-6 Moderate, 7-8 Strong, 9-10 Exceptional — was 4 bands). §7.5: Min Rounds hard floor cross-referenced from Deliberation Protocol §5.1; role-bleed warning expanded with mitigation actions; convergence probe cross-referenced from §4.5. §3 File Structure: deliberation/ directory added. §4: OD Deliberation section requirements specified with cross-reference to Deliberation Protocol §2.1. §6.1: Agent Source field added to signal format (deliberation-mode only). §12.5: Extended grounding obligations paragraph added referencing Deliberation Protocol §10.5. §3.1: Domain model authoring protocol cross-reference added. §3.1.1: First-cycle correction-derived domain model creation (operationalizes Framework §21.11). §4 replacement protocol: four concrete replacement options with routing to authoring procedures. §6.3 triage threshold and §12.2 UNGROUNDED flag: routing to domain model creation procedures. |
 | 3.12 | 2026-03-30 | Cross-Boundary Claim Propagation (Framework §14.3.10). §6.2: `claim_propagation` signal type added — emitted when claims cross agent trust boundaries during deliberation, with grounding status metadata (source_agent_id, grounding_status, boundary_crossed, propagation_flag). §12 intro updated: seven → eight grounding components, claim laundering (continuity corruption) added. §12.11: Cross-Boundary Claim Propagation operationalized — three propagation failure modes (flag stripping, authority accumulation, cross-session persistence), grounding provenance flags table (`[GROUNDED]`, `[UNGROUNDED]`, `[PARTIALLY-UNGROUNDED]`, `[PROPAGATED-UNGROUNDED]`, `[CROSS-DOMAIN]`), four propagation rules, seven trust boundary types table, tier implementation (0/1/2+), interaction with §12.5 Synthesis Verification. OD template: Agent Roster gains Trust Boundaries column with per-role boundary declarations. Deliberation Protocol updated to v0.9 (position paper cross-boundary claims, synthesis propagation audit, roster trust boundaries, coordinator propagation tracking). |
+| 3.13 | 2026-04-18 | Agent Debug Logging (§19). New section: two-way parent-child execution tracing. §19.1: Storage structure (`debug-logs/` directory). §19.2: Orchestrator trace format — own actions + dispatch records with trace integrity check. §19.3: Child agent trace format — incremental step-by-step execution log. §19.4: Standard debug logging injection block — protocol-level template appended to all dispatch prompts when enabled. §19.5: Orchestrator self-logging discipline. §19.6: Interaction with shortfall logging, evidence collection, deliberation, phase gates, closeout. startup.md: Group 1 toggle, Phase 2 summary field, Step 2 scaffold, Phase Gate 0→1 criterion. |
+| 3.15 | 2026-04-19 | Phase Gate enforcement hardening, closeout audit, and automatic logging (SFL-009 through SFL-015 + hooks). Phase Gate: Item 8 Input fidelity attestation (0→1 only, F-16 pass/fail, blocking if not run); Synthesis Verification field (when deliberation completed); session-status.md and deliberation-status.md currency fields in lifecycle compliance; orchestrator trace strengthened to dispatch-count verification; Shortfall Cross-Check field cross-referencing lifecycle corrections against shortfall entries; items 9-11 renumbered (was 8-10). §5.5 Closeout: structured compliance table (step 8) listing all scaffolded files with disposition, blocking on unresolved stubs. §19.7: Automatic Logging via Claude Code hooks — `cowork/hooks/log-dispatch.sh` captures Task dispatches/returns to orchestrator-trace.md without model cooperation; `cowork/hooks/audit-closeout.sh` detects template stubs at SessionEnd; `cowork/templates/hooks-settings.json` configuration template; startup.md Step 2 hook setup integration. |
+| 3.14 | 2026-04-19 | AFC integration, logging compliance (SFL-008), evidence context management. §4.1a: Analytical Frame Contract — stance, output verb, failure mode, prohibited frame, verdict vocabulary (operationalizes Framework §9.2). §7.5: Dispatch Preamble gains AFC constraint as injectable prompt element; evidence loading strategy row added (direct load vs. pool-agent retrieval per evidence-collection-protocol §6.4); dispatch verification check extended to 4 steps with evidence loading confirmation. §12.12: Frame Integrity Validation — per-section frame drift check against AFC fields at deliverable completion. §12.13: Guardrail attestation log — structured per-guardrail compliance record at deliverable and phase gate. §5.1: OD mutation journal added to session log — cascade check recording for OD changes. Phase Gate Enforcement Protocol: lifecycle compliance field added. §19.5: Orchestrator trace minimum checkpoint obligation — trace entries required at phase gates, dispatch, and completion events. startup.md: Group 2A AFC derivation, F-16 fidelity checkpoint, AFC-to-OD propagation rule, domain model frame audit, goal correction procedure, SFL-001 domain model adaptation intent gate, SFL-002 scaffold verification step, evidence context management (§5.3 build/consumption split, §6.4 pre-dispatch content estimation, per-domain loading threshold in Group 3B and evidence-collection-config template). |

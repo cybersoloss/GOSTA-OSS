@@ -1,4 +1,4 @@
-# GOSTA Deliberation Protocol v0.9.2
+# GOSTA Deliberation Protocol v0.9.3
 
 **Purpose:** Defines how multiple domain-grounded agents coordinate through structured deliberation to produce recommendations for the Governor. This protocol sits above the Cowork Protocol — each individual agent follows Cowork Protocol mechanics internally; this protocol orchestrates between them.
 
@@ -254,7 +254,7 @@ Before deliberation begins, the Coordinator prompts the Governor to review and u
 
 **Checklist (Coordinator presents to Governor before Round 1):**
 
-1. **OD currency:** "Does the operating document reflect your current intent? Any constraints, budget changes, or strategic decisions made since the last OD update?" → If yes, Governor amends the OD before deliberation starts. Amendments go through standard structural validation (§8.1 C1-C3).
+1. **OD currency:** "Does the operating document reflect your current intent? Any constraints, budget changes, or strategic decisions made since the last OD update?" → If yes, Governor amends the OD before deliberation starts. Amendments go through standard structural validation (§8.1 C1-C4).
 2. **Environmental watch list:** "Have any external conditions changed — regulatory, market, partner, competitive?" → If yes, Governor updates the environmental watch list (§7.14) or adds entries. Changes enter the signal architecture with standard provenance.
 3. **Reference material:** "Do you have documents, data, or research that agents should consider?" → If yes, Governor adds to the Reference Pool (§17.2.4). Material enters with Governor curation attribution.
 4. **Specific questions:** "Are there specific questions you want the deliberation to address beyond the trigger topic?" → If yes, Coordinator incorporates these as targeted prompts in Round 1 instructions.
@@ -345,6 +345,14 @@ Before producing the Interim Assessment, the Coordinator runs the four pre-delib
 
 The Coordinator also tracks epistemic signals — information gaps and conditional assumptions surfaced by agents (from Confidence Basis and Falsifiability fields) — for aggregation into the Finding Classification at synthesis. Additionally, the Coordinator maintains a cumulative Issue Ledger tracking each identified issue's status across rounds.
 
+**AFC self-check (conditional — only when AFC exists).** Before dispatching the Interim Assessment, the Coordinator performs an analytical frame self-check:
+
+1. **Scan the interim assessment text** — divergence descriptions, Round N+1 instructions, and framing questions — for language that assumes the Prohibited Frame. Examples: AFC prohibits "procurement advisory" → check whether Round 2 instructions ask agents to address "customer procurement" questions rather than the AFC-framed questions. AFC prohibits "commercial vendor recommendation" → check whether Round 2 instructions ask agents to "compare vendor suitability" rather than the AFC-framed analytical question.
+2. **Reframe Round N+1 instructions under the AFC Stance.** Examples: "Provide customer-context-weighted interpretation" → "provide dependency-context-weighted interpretation" (dependency-exposure AFC). "Assess which solution best addresses the requirement" → "map which regulatory obligations are addressed and which remain uncovered" (regulatory-mapping AFC).
+3. **Log the self-check result** in orchestrator-trace.md: `COORDINATOR INTERIM R[N]: AFC self-check [pass/corrected — details]`
+
+This prevents the Coordinator from becoming a frame-drift amplifier during multi-round deliberation. The Coordinator's interim assessment shapes all subsequent agent responses — if it normalizes the Prohibited Frame, AFC injection at dispatch is overridden by the Coordinator's framing.
+
 The Interim Assessment determines whether the next round is needed:
 - If **zero hard disagreements and zero novel arguments**: skip Round 2, proceed to Synthesis.
 - If **any hard disagreements or novel arguments**: proceed to Round 2.
@@ -390,6 +398,13 @@ All Governor decisions are recorded in `decisions/governor-decisions.md` per Cow
 
 ```markdown
 ### Position Paper — [Agent ID] | [Date] [Deliberation ID] | Round 1
+
+**Frame Declaration (required):**
+- Task interpretation: [1 sentence — what I understand my assessment task to be]
+- Analytical stance: [who I am assessing for — the reader/stakeholder perspective]
+- My output answers: [the question this position paper answers]
+
+*In AFC sessions, the Coordinator verifies frame declarations against AFC fields during the Interim Assessment. Mismatches are logged in the AFC self-check (§3.3).*
 
 **Domain:** [Domain model name]
 **Evaluation Target:** [What is being evaluated]
@@ -726,6 +741,17 @@ Claims based on externally collected evidence (OSINT, signals, reference pool en
 - **Coordinator neutrality self-check:** [The Coordinator states whether its synthesis framing favors the OD's strategy direction. If yes, identifies the specific framing choices and offers an alternative framing.]
 - **Cross-cycle dissent trend:** [healthy (≥1.0 hard disagreements/cycle) | declining | low_dissent_frequency flag active]
 
+#### AFC Compliance (conditional — only when AFC exists, §9.2/§4.1a)
+For each domain agent position paper, the Coordinator assesses analytical frame consistency:
+
+| Agent ID | AFC Output Verb Match | AFC Stance Match | Prohibited Frame Detected | Status |
+|----------|----------------------|-----------------|--------------------------|--------|
+| [agent] | [yes / drift — used "[verb]" instead of "[AFC verb]"] | [yes / drift — framed from "[stance]" instead of "[AFC stance]"] | [none / detected — "[phrase]" matches prohibited frame "[X]"] | [pass / FRAME-DRIFT] |
+
+Papers flagged `[FRAME-DRIFT]` are noted in the synthesis but their frame-drifted findings are not incorporated into the Consensus Recommendation without reframing. If 50%+ of papers exhibit frame-drift, the Coordinator flags this as a systemic issue: "Majority frame drift detected — Dispatch Preamble may not have been effective. Governor: review agent dispatch prompts before next deliberation."
+
+If no AFC is active: "AFC Compliance not applicable (no AFC declared)."
+
 #### Governor Decision Required
 [YES — with specific question(s) / NO — consensus recommendation can proceed]
 ```
@@ -933,6 +959,9 @@ In Cowork mode, the AI Session (which normally acts as unified Orchestrator + Ex
 - **Role-bleed risk:** The primary risk of single-session mode is that the Coordinator's synthesis is influenced by recency bias (the last domain agent's position is freshest in context). Mitigation: Governor reads position papers directly for every hard disagreement in the synthesis (Cowork Protocol §12.5).
 - **Resuming normal operation:** After synthesis, the AI announces exit from deliberation mode and resumes the Orchestrator/Executor role.
 
+**Subagent dispatch (when platform supports it):**
+- If the conversational platform supports subagent dispatch (e.g., via an Agent tool or task API), follow §8.1's isolation pattern — each domain agent as a separate subagent with its own context. This eliminates role-bleed and evidence cross-contamination structurally.
+
 **Multi-session alternative:**
 - For true isolation (Level 3), run each agent in a separate conversation session. Write position papers to files. Coordinator runs in a subsequent session that reads all position paper files. Expensive (N+2 sessions for N agents + coordinator + synthesis) but eliminates role-bleed entirely.
 - **File I/O:** Governor copies position papers between sessions if using multi-session isolation. In single-session mode, all artifacts are in-conversation (and optionally written to files in the deliberation/ directory).
@@ -1017,6 +1046,16 @@ When evidence collection is active for the session, add a fourth element to the 
 4. **Evidence engagement.** "For every substantive claim in your scoring — whether factual, interpretive, or qualitative — cite your evidentiary basis. Three citation categories: (a) collected evidence by OSINT-ID (e.g., OSINT-042), (b) Governor-provided reference materials as `[reference-pool: SOURCE-ID]`, (c) training knowledge as `[training-knowledge]` with explanation of why no collected or reference evidence addresses this point. Every substantive claim must carry one of these three markers. When you cite both a domain model concept and evidence for the same claim, state the connection — how the evidence supports the domain model concept's application."
 
 This instruction extends the three-element framing (protocol context, Governor oversight, domain scope) to include evidence engagement. It does not replace any existing element. The Coordinator performs an evidence engagement audit after each round — see evidence-collection-protocol §10.7 Path 1.
+
+**Analytical frame constraint (conditional — only when AFC exists, §9.2/§4.1a):**
+
+When the OD declares an Analytical Frame Contract, add a fifth element to the agent prompt:
+
+5. **Analytical frame constraint.** "Your assessment must [AFC output verb] from the perspective of [AFC stance]. Frame your findings as answers to: what [AFC failure mode] does this create? Do not frame findings as [AFC prohibited frame]."
+
+This prevents domain agents from defaulting to an analytical frame that differs from the session goal's stated stance — whether that default is vendor evaluation, regulatory compliance, competitive comparison, or any other frame the LLM's training data makes dominant for the subject domain. When the Prohibited Frame is "—" (none), omit the "Do not frame findings as..." sentence.
+
+This element is delivered via the Dispatch Preamble (cowork protocol §7.5) alongside any other injectable content (including debug logging when enabled — the Dispatch Preamble carries all applicable injection content per §7.5, not only AFC; the Dispatch Verification Check confirms completeness before dispatch). It does not replace any existing prompt element.
 
 **Scoring signal `evidence_basis` field (conditional — only when evidence collection is enabled, §14.3.3 extension):**
 
@@ -1223,7 +1262,7 @@ Use this protocol when:
 
 ## Maintenance Notes
 
-**Version:** 0.9.2
+**Version:** 0.9.3
 **Status:** Validated on geopolitical-sim (DELIB-TEST-001, 5 agents), roadmap-session-v2 (DELIB-TEST-002, 6 agents, business+regulatory), and ai-regulation-stress-test (DELIB-TEST-003, 10 agents, 3 rounds, engineered guardrail contradictions). DELIB-TEST-003 confirmed 10-agent viability with known degradations; produced 6 framework issues (ISSUE-001 through ISSUE-006) driving v0.5 changes. v0.6 changes (Mirror-derived enhancements) not yet simulation-validated.
 **Depends on:** Framework, Cowork Protocol
 
@@ -1251,5 +1290,7 @@ Use this protocol when:
 - v0.9 → v0.9.1 (Collection-Stage Evidence Verification): Four additions from GOSTA §14.3.11. (a) §3.3 gains pre-deliberation evidence verification paragraph — Coordinator runs 4 checks (tier re-classification, specificity audit, negative claim audit, range suppression audit) before producing Interim Assessment. (b) §4.2 Interim Assessment template gains Evidence Verification section with check results table and annotated claims forwarded to agents. (c) §4.4 Synthesis Report template gains Evidence Verification Audit section — structured tables for pre-deliberation and in-deliberation checks with annotation types (`[TIER-MISMATCH]`, `[UNVERIFIED-NUMBER]`, `[UNVERIFIED-ABSENCE]`, `[SINGLE-SOURCE-ESTIMATE]`, `[PHANTOM-EVIDENCE]`, `[SELECTIVE-CITATION]`), plus impact summary linking to Finding Classification. (d) §10.5 Coordinator grounding obligations gains evidence verification requirement — 7 checks (4 pre-deliberation + 3 in-deliberation) with annotation taxonomy. Addresses 4 LLM failure modes: number confabulation, absence-as-evidence fallacy, selection bias/cherry-picking, conflation of similar data points. Discovered during IBM/Guardium vendor viability assessment (7 hallucination errors in collected evidence).
 
 - v0.9.1 → v0.9.2 (Parametric Claim Audit — Check 8): Extends §14.3.11 from 7 checks to 8 (4 pre-deliberation + 4 in-deliberation). Addresses a 5th LLM failure mode: parametric injection — agents introducing factual claims from training data that bypass the evidence pipeline entirely. Three sub-types: stale substitution, unsourced approximation, constructed composite. (a) §3.3 updated — Coordinator now runs 4 in-deliberation checks after Round 1 position papers, including parametric claim audit. (b) §4.1 Position Paper template gains factual claim grounding obligation — every specific number/date/statistic must cite OSINT-ID or be tagged `[TRAINING-DATA-ESTIMATE]`. (c) §4.2 Interim Assessment template gains in-deliberation checks table with parametric claim audit row. (d) §4.4 Synthesis Report Evidence Verification Audit gains Check 8 row with breakdown of UNCITED-MATCH, PARAMETRIC-STALE, PARAMETRIC-UNVERIFIED, and TRAINING-DATA-ESTIMATE annotations. (e) §10.5 Coordinator evidence verification obligation updated from 7 to 8 checks with 4 new annotation types. Discovered during IBM/Guardium assessment-2 fact-check: FCF $12.7B (stale — FY2024 value from training data; actual FY2025 = $14.7B), Krishna "6yr" tenure (unsourced approximation), layoffs "13,000–17,000" (constructed composite).
+
+- v0.9.2 → v0.9.3 (AFC integration + subagent dispatch): Five additions. (a) §8.5 gains AFC as fifth prompt element for domain agent dispatch — analytical frame constraint (stance, output verb, prohibited frame) injected alongside three-element framing, domain scope boundary, and evidence engagement instruction. (b) §4.4 Synthesis Report gains AFC Compliance section — per-agent frame drift assessment against AFC fields, with `[FRAME-DRIFT]` annotation for violations. (c) §3.3 gains Coordinator AFC self-check — Coordinator verifies own interim assessment framing against AFC before dispatch, preventing frame-drift amplification across rounds. (d) §4.1 Position Paper template gains frame declaration requirement — agents declare their analytical frame at paper top; Coordinator verifies against AFC during interim assessment. (e) §8.2 gains subagent dispatch cross-reference — platforms with subagent capability (Agent tool, task API) directed to §8.1 isolation pattern for structural role-bleed and evidence cross-contamination prevention. Sync manifest: D77-D80, D82.
 
 Framework v6.1 now references this protocol in §7.1 (Deliberation Components), §7.2 (Strategy Cycle escalation check), §4.5 (cross-domain deliberation path), §13.7 (domain model stacking at scale), §14.7 (three-level escalation model), §6.3 (stage-conditional deliberation autonomy), §14.2/§14.3.5 (synthesis hallucination type and grounding component), §14.3.8 (Finding Classification — deliberation and health assessments), §14.3.9 (Sycophancy Detection — deliberation independence and convergence probes), §14.3.10 (Cross-Boundary Claim Propagation — trust boundaries and propagation rules), and §18.3/§18.4/§18.5/§18.6 (memory architecture for Coordinator and Domain Agent). The protocol remains a standalone document — it has not been merged into the Cowork Protocol.
