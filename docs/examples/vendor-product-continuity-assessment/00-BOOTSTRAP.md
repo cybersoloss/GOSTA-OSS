@@ -72,14 +72,23 @@ After evidence collection (Phase 1), also load:
 
 ---
 
-## Agent Pairing
+## Deliberation Agents
 
-| Agent | Name | Domains | Signal Category |
-|---|---|---|---|
-| A | Business Model Analyst | ECON-1 + DISP-1 | Business Model Signals (1-3) |
-| B | Structural Viability Analyst | ADAPT-1 + SAAS-1 | Signal 1 depth + adaptation capacity |
-| C | Dependency Exposure Analyst | STICK-1 + REG-1 | Contractual Position (4-5) + Dependency Exposure (6) |
-| D | Leading Indicator Analyst | GOV-1 + TAL-1 | Leading indicators (governance + talent) |
+Default: one agent per domain model (8 agents + coordinator). Each agent operates independently with maximum isolation.
+
+| Agent | Domain | Signal Category |
+|---|---|---|
+| ECON-1 | Financial & Business Health | Business Model Signals (1, 3) |
+| DISP-1 | Competitive Displacement | Business Model Signal (2) |
+| ADAPT-1 | Adaptation Capacity | Leading indicator |
+| SAAS-1 | SaaS Structural Viability | Business Model Signal (1) |
+| STICK-1 | Structural Stickiness | Dependency Exposure (6) |
+| REG-1 | Regulatory Entrenchment | Contractual Position (4, 5) |
+| GOV-1 | Governance & Strategic Coherence | Leading indicator |
+| TAL-1 | Talent & Workforce | Leading indicator |
+| COORD-1 | — (Coordinator) | Synthesis across all signals |
+
+Optional 4-agent pairing is documented in `session-config/deliberation-config.md`.
 
 ---
 

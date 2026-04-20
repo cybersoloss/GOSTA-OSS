@@ -66,20 +66,27 @@ The session assesses vendor viability through six observable signals grouped int
 
 ## The Eight Domain Models
 
-The domain models form four agent pairs designed to create productive friction during deliberation:
+Each domain model becomes an independent deliberation agent. The bootstrapper assigns one agent per model — 8 agents plus a coordinator:
 
-| Agent | Name | Domains | Signal Coverage |
-|---|---|---|---|
-| A | Business Model Analyst | ECON-1 + DISP-1 | Signals 1, 2, 3 |
-| B | Structural Viability Analyst | ADAPT-1 + SAAS-1 | Signal 1 depth + adaptation |
-| C | Dependency Exposure Analyst | STICK-1 + REG-1 | Signals 4, 5, 6 |
-| D | Leading Indicator Analyst | GOV-1 + TAL-1 | Forward-looking early warning |
+| Agent | Domain | Signal Coverage |
+|---|---|---|
+| ECON-1 | Financial & Business Health | Signals 1, 3 |
+| DISP-1 | Competitive Displacement | Signal 2 |
+| ADAPT-1 | Adaptation Capacity | Leading indicator |
+| SAAS-1 | SaaS Structural Viability | Signal 1 |
+| STICK-1 | Structural Stickiness | Signal 6 |
+| REG-1 | Regulatory Entrenchment | Signals 4, 5 |
+| GOV-1 | Governance & Strategic Coherence | Leading indicator |
+| TAL-1 | Talent & Workforce | Leading indicator |
+| COORD-1 | — (Coordinator) | Synthesis across all signals |
 
-Financial pressure (ECON-1) constrains adaptation capacity (ADAPT-1). High stickiness (STICK-1) can mask declining viability (ECON-1 + DISP-1). Regulatory moats (REG-1) protect vendor demand but amplify exit costs (STICK-1). Talent signals (TAL-1) provide early warning of governance opacity (GOV-1) and product deprioritization before they manifest in financial metrics. The deliberation protocol forces these tensions to surface explicitly rather than being silently resolved by a single analyst.
+Cross-domain tensions surface through deliberation rounds when agents challenge each other's assessments. Financial pressure (ECON-1) constrains adaptation capacity (ADAPT-1). High stickiness (STICK-1) can mask declining viability (ECON-1 + DISP-1). Regulatory moats (REG-1) protect vendor demand but amplify exit costs (STICK-1). Talent signals (TAL-1) provide early warning of governance opacity (GOV-1) and product deprioritization before they manifest in financial metrics.
+
+**Optional: 4-agent pairing.** For reduced coordinator complexity, you can merge agents into 4 pairs: A (ECON-1 + DISP-1), B (ADAPT-1 + SAAS-1), C (STICK-1 + REG-1), D (GOV-1 + TAL-1). This creates intra-agent tension (each pair holds both sides of a tradeoff) but reduces independence. The `session-config/deliberation-config.md` documents this pairing if you want to use it.
 
 ## Prerequisites — GOSTA Familiarity
 
-This template assumes you understand GOSTA's core concepts: Governor, Operating Document, Analytical Frame Contract, domain models, phase gates, and deliberation. If these are unfamiliar, work through the [walkthrough](../../walkthrough.md) or the [my-first-session](../my-first-session/) example first — both are short and cover the fundamentals. The vendor assessment is a complex session (8 domains, 4-agent deliberation) and is not the best place to learn the framework from scratch.
+This template assumes you understand GOSTA's core concepts: Governor, Operating Document, Analytical Frame Contract, domain models, phase gates, and deliberation. If these are unfamiliar, work through the [walkthrough](../../walkthrough.md) or the [my-first-session](../my-first-session/) example first — both are short and cover the fundamentals. The vendor assessment is a complex session (8 domains, 8-agent deliberation) and is not the best place to learn the framework from scratch.
 
 ## Run Your Own Assessment
 
@@ -146,7 +153,7 @@ The bootstrapper derives an AFC from your goal text and asks you to confirm. Rev
 Confirm if the bootstrapper's derivation matches this. If it differs, correct it before proceeding — the AFC propagates to every objective, strategy, and agent dispatch.
 
 **Group 2B — Target Reconnaissance:**
-Because you named an assessment target in Group 1, the bootstrapper dispatches a reconnaissance agent to build a profile of your target vendor. This takes 1-2 minutes. The bootstrapper presents the profile for your review — confirm accuracy or correct errors. The profile informs domain model suggestions and evidence collection strategy.
+Because you named an assessment target in Group 1, the bootstrapper presents a search plan (typically 5 queries) and asks you to adjust before running. Add a leadership/executive query — the default queries cover business model and product but not leadership trajectory, which directly feeds the leading indicator domains (GOV-1, TAL-1). Example addition: `"[your vendor] leadership CEO executive changes [recent years]"`. Confirm or adjust, then the bootstrapper dispatches a reconnaissance agent. This takes 1-2 minutes. Review the resulting profile for accuracy — correct errors before proceeding. The profile informs domain model suggestions and evidence collection strategy.
 
 **Group 3 — Domain Models:**
 The bootstrapper scans the repo for available domain models and lists them numbered. Because you copied the domain models into `domain-models/` in Step 1, all eight will appear in the list. Select all eight:
@@ -163,11 +170,11 @@ The bootstrapper scans the repo for available domain models and lists them numbe
 When asked about adaptation intent for each model, choose `adapt` — the bootstrapper will update application context headers for your specific target. The quality gate may warn that some models have fewer than 6 core concepts — this is expected for models written for a specific analytical scope. Choose "proceed with warning" when prompted.
 
 **Group 3A — Deliberation Configuration:**
-The bootstrapper auto-generates an agent roster with **one agent per domain model** — so it will present 8 agents plus a coordinator. For this session, you want 4 paired agents instead. Tell the bootstrapper to merge them:
+The bootstrapper auto-generates an agent roster with one agent per domain model — 8 agents plus a coordinator. Confirm the roster as-is. Each agent gets maximum independence: its own domain perspective, uninfluenced by other domains until deliberation rounds force cross-domain challenges.
 
-> Merge the 8 agents into 4 paired agents: Agent A (Business Model Analyst) gets ECON-1 + DISP-1, Agent B (Structural Viability Analyst) gets ADAPT-1 + SAAS-1, Agent C (Dependency Exposure Analyst) gets STICK-1 + REG-1, Agent D (Leading Indicator Analyst) gets GOV-1 + TAL-1. Keep COORD-1 as coordinator.
+For cadence: trigger `on_governor_request`, max rounds `5`, new argument gate enabled, governor interaction `at_synthesis`.
 
-Four agents with paired domains produce structured disagreement across all eight domain models and all six signals. The pairing is deliberate — each pair creates internal tension (e.g., financial pressure in ECON-1 constrains the adaptation capacity assessed by ADAPT-1). For cadence: trigger `on_governor_request`, max rounds `3`, new argument gate enabled, governor interaction `at_synthesis`.
+*Optional:* If you prefer fewer, broader agents, you can merge into 4 paired agents (see the pairing table in the "Eight Domain Models" section above). Tell the bootstrapper to merge and reduce max rounds to `3` — paired agents cover more ground per round.
 
 **Group 3B — Evidence Collection Configuration:**
 Since you enabled evidence collection in Group 1, the bootstrapper asks about collection setup. Recommended answers:
