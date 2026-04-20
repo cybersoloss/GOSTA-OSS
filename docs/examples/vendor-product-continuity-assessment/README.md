@@ -1,6 +1,6 @@
 # Vendor-Product Continuity Assessment — GOSTA Session Template
 
-A ready-to-run GOSTA session template for assessing whether continued dependency on a vendor's product represents material third-party risk. Copy this directory, replace the placeholders with your target vendor and product, and execute.
+A ready-to-run GOSTA session template for assessing whether continued dependency on a vendor's product represents material third-party risk. Clone the repo, copy the domain models into position, run the GOSTA bootstrapper, and replace the placeholders with your target vendor and product. The full process is described in [Run Your Own Assessment](#run-your-own-assessment) below.
 
 This session implements the analytical framework from **"Breach Risk Is Scored. Survival Risk Is Not."** — six observable vendor viability signals, eight analytical domain models, four-agent deliberation, and a structured risk determination. The session is designed to produce exactly the analysis the framework describes: business model viability, contractual position, dependency exposure, and leading indicator assessment.
 
@@ -76,6 +76,10 @@ The domain models form four agent pairs designed to create productive friction d
 | D | Leading Indicator Analyst | GOV-1 + TAL-1 | Forward-looking early warning |
 
 Financial pressure (ECON-1) constrains adaptation capacity (ADAPT-1). High stickiness (STICK-1) can mask declining viability (ECON-1 + DISP-1). Regulatory moats (REG-1) protect vendor demand but amplify exit costs (STICK-1). Talent signals (TAL-1) provide early warning of governance opacity (GOV-1) and product deprioritization before they manifest in financial metrics. The deliberation protocol forces these tensions to surface explicitly rather than being silently resolved by a single analyst.
+
+## Prerequisites — GOSTA Familiarity
+
+This template assumes you understand GOSTA's core concepts: Governor, Operating Document, Analytical Frame Contract, domain models, phase gates, and deliberation. If these are unfamiliar, work through the [walkthrough](../../walkthrough.md) or the [my-first-session](../my-first-session/) example first — both are short and cover the fundamentals. The vendor assessment is a complex session (8 domains, 4-agent deliberation) and is not the best place to learn the framework from scratch.
 
 ## Run Your Own Assessment
 
@@ -289,6 +293,8 @@ Your results will differ from the example outputs. Deliberation is non-determini
 
 ## Related
 
+- [All Examples](../) — examples index with all available session templates
+- [GOSTA Walkthrough](../../walkthrough.md) — learn the core concepts before running a complex session
 - [GOSTA Specification](../../../GOSTA-agentic-execution-architecture.md)
 - [GOSTA Cowork Protocol](../../../cowork/gosta-cowork-protocol.md)
 - [Deliberation Protocol](../../../cowork/deliberation-protocol.md)

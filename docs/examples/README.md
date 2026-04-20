@@ -11,6 +11,6 @@ Complete session examples with domain models, session configuration, and output 
 
 **New to GOSTA?** Start with [my-first-session](my-first-session/) or the [walkthrough](../walkthrough.md).
 
-**Want to assess a vendor?** The [vendor-product continuity assessment](vendor-product-continuity-assessment/) is a ready-to-run session template — clone, replace the placeholders, and execute.
+**Want to assess a vendor?** The [vendor-product continuity assessment](vendor-product-continuity-assessment/) is a ready-to-run session template with 8 domain models, 4-agent deliberation, and a six-signal viability framework. It includes a step-by-step guide for running your own assessment. Familiarity with GOSTA basics (from the walkthrough or my-first-session) is recommended first.
 
 **Want to see what each AI layer adds?** The [CISO roadmap](ciso-roadmap/) runs the same question through five architectures, from generic prompt to governed deliberation.
