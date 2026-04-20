@@ -89,8 +89,10 @@ Financial pressure (ECON-1) constrains adaptation capacity (ADAPT-1). High stick
 
 ```bash
 git clone <this-repo-url>
-cd GOSTA-OSS
+cd <repo-directory>
 ```
+
+Use the clone URL from the green "Code" button at the top of this repository.
 
 ### Step 2: Start a GOSTA session
 
@@ -100,7 +102,7 @@ In Claude Code, from the repo root:
 Read cowork/startup.md and start a new session.
 ```
 
-This launches the interactive bootstrapper. Here is how to answer the questions for a vendor-product continuity assessment:
+This launches the interactive bootstrapper. It asks questions in groups. Below is how to answer each group for a vendor-product continuity assessment. The bootstrapper may ask additional sub-questions within each group — the guidance below covers the key decisions.
 
 **Group 1 — Identity:**
 - Session name: `vendor-assessment` (or name it after your target, e.g., `acme-product-tprm`)
@@ -109,16 +111,32 @@ This launches the interactive bootstrapper. Here is how to answer the questions 
 - Mode: `code`
 - Independence level: `2` (agents see each other's output but maintain independent positions)
 - Deliberation: `yes`
-- Shortfall logging: `yes` (recommended)
-- Assessment target: your vendor and product name
+- Shortfall logging: `yes` (recommended — captures domain model gaps during execution)
+- Assessment target: your vendor and product name (e.g., "Acme Corp / Acme Platform")
+- Debug logging: `no` (unless you want full agent execution traces for debugging)
+- Evidence collection: `yes` (required — the session collects open-source intelligence about your target)
 
 **Group 2 — Goal and Why:**
 - Goal: "Assess whether continued dependency on [Target Vendor]'s [Target Product] represents material third-party risk. Produce a six-signal viability assessment covering business model exposure, contractual position, and dependency exposure — with dual-level scoring across 8 domains, a risk determination with timeline, and mitigation recommendations grounded in cross-domain findings."
 - Why GOSTA: "Single-perspective analysis resolves cross-domain tensions silently. A vendor can score well on adaptation while its financial trajectory undermines that adaptation. Governance forces each domain to surface tensions before convergence."
 
+**Group 2A — Analytical Frame Contract:**
+The bootstrapper derives an AFC from your goal text and asks you to confirm. The correct AFC for this session:
+
+| Field | Value |
+|---|---|
+| Stance | Dependent organization (existing customer) |
+| Output Verb | Assess |
+| Failure Mode | Unmanaged dependency |
+| Prohibited Frame | Procurement advisory, competitive comparison, migration planning |
+
+Confirm these when presented, or adjust if your situation differs.
+
+**Group 2B — Target Reconnaissance:**
+Because you named an assessment target in Group 1, the bootstrapper dispatches a reconnaissance agent to build a profile of your target vendor. It will present the profile for your review. Confirm accuracy or correct errors — the profile informs domain model suggestions and evidence collection.
+
 **Group 3 — Domain Models:**
-- When asked which existing models to reuse: `none`
-- When asked about new domain models: point the bootstrapper to the eight files in this example:
+The bootstrapper scans the repo for available domain models and lists them. Select the eight files from this example:
 
 ```
 docs/examples/vendor-product-continuity-assessment/domain-models/financial-business-health.md
@@ -131,10 +149,10 @@ docs/examples/vendor-product-continuity-assessment/domain-models/governance-stra
 docs/examples/vendor-product-continuity-assessment/domain-models/talent-workforce.md
 ```
 
-The bootstrapper will copy them into your session directory and run a quality gate on each one.
+The bootstrapper will copy them into your session directory and run a quality gate on each one. The gate may warn that some models have fewer than 6 core concepts — this is expected for models written for a specific analytical scope. Choose "proceed with warning" when prompted.
 
 **Group 3A — Deliberation Configuration:**
-The bootstrapper will auto-generate an agent roster from your domain models. To match the recommended pairing:
+The bootstrapper auto-generates an agent roster from your domain models. To match the recommended pairing:
 
 - Agent A (Business Model Analyst): ECON-1 + DISP-1
 - Agent B (Structural Viability Analyst): ADAPT-1 + SAAS-1
@@ -144,32 +162,50 @@ The bootstrapper will auto-generate an agent roster from your domain models. To 
 
 Four agents with paired domains produce structured disagreement across all eight domain models and all six signals. For cadence: trigger `on_governor_request`, max rounds `3`, new argument gate enabled, governor interaction `at_synthesis`.
 
+**Group 3B — Evidence Collection Configuration:**
+Since you enabled evidence collection in Group 1, the bootstrapper asks about collection setup. Recommended answers:
+- Topology: `single-target` (you are assessing one vendor)
+- Agent count: accept the computed default (typically 5-6 agents: one per domain pair + discovery + adversarial)
+- Adversarial collection: `counter-framing` (generates counter-hypotheses to prevent confirmation bias)
+- Evidence quality audit: `directional` (checks for sycophantic over-collection of confirming evidence, threshold 70%)
+- URL verification: accept defaults (100% Tier 1, 30% Tier 2)
+
 **Group 4 — Constraints:**
-- Use the constraints from `session-config/constraints.md` — or state directly: dependency risk frame only (no procurement advice), evidence-grounded scoring, dual-level assessment (vendor + product independently), single-session scope.
+- Use the constraints from `session-config/constraints.md` — or state directly: dependency risk frame only (no procurement advice), six-signal coverage required, evidence-grounded scoring, dual-level assessment (vendor + product independently), single-session scope.
 - Success criteria: all 6 signals scored with evidence citations, cross-domain tensions explicitly identified, risk determination with timeline, leading indicator assessment, at least 3 mitigation recommendations grounded in multiple domains.
 
-**Group 5 — Prior learnings:** skip (first session)
+**Group 5 — Prior learnings:** skip (first session). If you have run prior GOSTA sessions, select relevant learnings files when the bootstrapper lists them.
 
 **Group 6 — Hypotheses:** Provide the eight hypotheses from `session-config/hypotheses.md`, or write your own based on what you already know about the target vendor.
 
 ### Step 3: Confirm and scaffold
 
-The bootstrapper presents a summary table. Confirm it. It then:
+The bootstrapper presents a summary table of all inputs. Confirm it. It then:
 1. Runs a Fresh Framework Read (reads the GOSTA spec)
 2. Creates the session directory under `sessions/[your-session-name]/`
 3. Copies protocol files, templates, and your domain models
 4. Runs the quality gate on each domain model
 5. Drafts the Operating Document for your approval
 
+The bootstrapper drafts the OD from your inputs. The pre-written OD in `session-config/operating-document.md` serves as the reference — the bootstrapper's draft should match its structure (six-signal framework, four objectives, nine guardrails). If the draft diverges from the reference, request changes to align it. The reference OD defines the Talk-2-aligned analytical structure; the bootstrapper's draft instantiates it for your specific target.
+
 Review the OD carefully — it defines the Analytical Frame Contract (you are assessing dependency risk, not making a procurement decision), the six-signal framework, guardrails, strategy, tactics, and phase gates. Approve or request changes.
 
 ### Step 4: Collect evidence
 
+Once the OD is approved, request evidence collection:
+
+```
+Run evidence collection for TAC-1.
+```
+
 The system dispatches collection agents to gather open-source intelligence about your target vendor and product. Each agent searches for evidence relevant to its assigned domains and tags evidence items with both domain relevance and signal relevance (which of the six signals each item informs). Evidence items are tier-classified (Tier 1: primary sources, Tier 2: authoritative analysis, Tier 3: secondary sources).
+
+After collection completes, the system runs a directional balance check (G-6) — if more than 70% of evidence points in one direction (all "risk" or all "stable"), you review the evidence distribution before proceeding. You also review the evidence manifest to confirm adequate coverage across all six signals.
 
 ### Step 5: Run the deliberation
 
-Once evidence is collected and the OD is approved, request the deliberation:
+Once evidence is collected and reviewed, request the deliberation:
 
 ```
 Run the deliberation for TAC-2.
@@ -185,7 +221,7 @@ The coordinator synthesizes and produces a report structured per the six-signal 
 
 ### Step 6 (optional): Reference pool
 
-You can enhance evidence quality by building a semantic search pool from your own sources (analyst reports, vendor documentation, financial filings, regulatory guidance):
+You can enhance evidence quality by building a semantic search pool from your own sources (analyst reports, vendor documentation, financial filings, regulatory guidance) before running evidence collection:
 
 ```bash
 pip3 install numpy pyyaml onnxruntime
