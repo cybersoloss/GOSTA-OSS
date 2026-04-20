@@ -41,7 +41,7 @@ Ask:
 
 - Assessment target? (default: none)
   - **None** — Session is about the Governor's own work, internal project, or self-contained deliverable. No external entity to research. Examples: "prioritize our roadmap," "design our GTM strategy," "draft a playbook."
-  - **Named target(s)** — Session analyzes one or more specific external entities (vendor, product, market, regulation, technology, competitor, organization). State the target name(s). Examples: "Picus Security," "NIS2 directive," "BAS market," "CrowdStrike vs SentinelOne vs Palo Alto."
+  - **Named target(s)** — Session analyzes one or more specific external entities (vendor, product, market, regulation, technology, competitor, organization). State the target name(s). Examples: "Acme Corp," "GDPR regulation," "EV market," "Salesforce vs HubSpot vs Zoho."
   - If the Governor names a target, note it — Group 2B will run target reconnaissance before domain model selection.
   - Multiple targets: list all. Recon runs a profile for each.
 

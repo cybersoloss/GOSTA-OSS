@@ -194,6 +194,13 @@ cp cowork/deliberation-protocol.md sessions/{{SESSION_NAME}}/
 
 Note: `CLAUDE.md` is the Claude Code directive — it tells the AI how to behave when entering this session directory in future sessions. Copy it as-is — no session-specific customization needed.
 
+If debug logging is enabled and running in Claude Code mode:
+```bash
+# Copy or merge hooks configuration into session .claude/settings.json
+cp cowork/templates/hooks-settings.json sessions/{{SESSION_NAME}}/.claude/settings.json
+```
+This enables automatic dispatch logging (§19.7) via `cowork/hooks/log-dispatch.sh` and closeout auditing via `cowork/hooks/audit-closeout.sh`. If `.claude/settings.json` already exists, merge the `hooks` array from `hooks-settings.json` into the existing file.
+
 **Step C — Copy template stubs:**
 
 *Code mode:* `cp cowork/templates/{operating-document.md,learnings.md,gosta-framework-feedback.md} sessions/{{SESSION_NAME}}/`
@@ -337,7 +344,7 @@ Wait for Governor approval before proceeding to Phase 1.
 ## Template Maintenance Notes
 
 **Version:** 1.4
-**Protocol version:** 3.12
+**Protocol version:** 3.15
 **Framework version:** 6.1
 **Deliberation Protocol version:** 0.7
 

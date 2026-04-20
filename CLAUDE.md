@@ -59,7 +59,7 @@ cowork/
                                                Consult this after any spec edit to find what needs review.
   CLAUDE.md                                ← Per-session Claude Code directive. Copied into
                                                sessions/[name]/ during bootstrap, then customized.
-  templates/                               ← 14 stub templates (OD, domain model, health report, etc.)
+  templates/                               ← 14 stub templates + hooks configuration (OD, domain model, health report, etc.)
   hooks/                                   ← Claude Code hooks for automatic dispatch logging
                                                and closeout auditing (§19.7). Shell scripts.
   tools/pool-agent.py                      ← Offline semantic search over reference pools

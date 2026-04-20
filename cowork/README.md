@@ -49,11 +49,15 @@ cowork/
 ├── sync-manifest.md                   ← Framework-to-Protocol derivation map
 ├── protocol-assessment-prompt.md      ← Six-dimension protocol assessment tool
 ├── domain-model-authoring-protocol.md ← Source-to-domain-model extraction procedure
+├── hooks/
+│   ├── log-dispatch.sh                ← Automatic dispatch logging (§19.7)
+│   └── audit-closeout.sh             ← Closeout file audit (§5.5)
 └── templates/
     ├── 00-BOOTSTRAP.md                ← Session continuity file
     ├── operating-document.md          ← OD template (5-layer hierarchy)
     ├── scope-definition.md            ← What/why/constraints
     ├── domain-model.md                ← Domain model template
+    ├── evidence-collection-config.md  ← Evidence collection configuration
     ├── session-log.md                 ← Per-session record
     ├── session-status.md              ← Live session dashboard (overwrite-only)
     ├── deliberation-status.md         ← Live deliberation dashboard (overwrite-only)
@@ -62,7 +66,8 @@ cowork/
     ├── gosta-framework-feedback.md    ← Framework improvement log
     ├── decision-entry.md              ← Governor decision format
     ├── health-report.md               ← Health computation output
-    └── signal-entry.md                ← Signal recording format
+    ├── signal-entry.md                ← Signal recording format
+    └── hooks-settings.json            ← Claude Code hooks configuration
 ```
 
 ## Protocol Reference
@@ -79,10 +84,14 @@ cowork/
 | §9 | Context management (bootstrap, session logs, structural memory) |
 | §10 | Framework feedback mechanism |
 | §11 | Graduation stages |
-| §12 | Quality checks |
+| §12 | Grounding and quality checks |
 | §13 | Closing a scope |
-| §14 | Parallelism rules |
-| §15 | Claude Code mode specifics |
+| §14 | Agent failure and safe defaults |
+| §15 | Governor succession |
+| §16 | Protocol self-update mechanism |
+| §17 | Parallelism rules |
+| §18 | Claude Code mode specifics |
+| §19 | Agent debug logging (incl. §19.7 automatic hooks) |
 
 ## Framework Reference
 

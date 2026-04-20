@@ -10,6 +10,9 @@ reference-pool*.yaml
 # Large model files (download via: python3 cowork/tools/pool-agent.py setup-model)
 *.onnx
 
+# Claude local config
+.claude/
+
 # OS
 .DS_Store
 Thumbs.db
