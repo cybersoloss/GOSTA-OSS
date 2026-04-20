@@ -2,7 +2,9 @@
 
 A ready-to-run GOSTA session template for assessing whether continued dependency on a vendor's product represents material third-party risk. Clone the repo, copy the domain models into position, run the GOSTA bootstrapper, and replace the placeholders with your target vendor and product. The full process is described in [Run Your Own Assessment](#run-your-own-assessment) below.
 
-This session implements the analytical framework from **"Breach Risk Is Scored. Survival Risk Is Not."** — six observable vendor viability signals, eight analytical domain models, four-agent deliberation, and a structured risk determination. The session is designed to produce exactly the analysis the framework describes: business model viability, contractual position, dependency exposure, and leading indicator assessment.
+This session implements the analytical framework from **"Breach Risk Is Scored. Survival Risk Is Not."** — six observable vendor viability signals, eight analytical domain models, eight-agent deliberation, and a structured risk determination. The session is designed to produce exactly the analysis the framework describes: business model viability, contractual position, dependency exposure, and leading indicator assessment.
+
+**Everything in this template is a starting point, not a prescription.** The goal text, hypotheses, constraints, domain models, agent configuration, and deliberation settings provided below are designed to work out of the box — but you can modify any of them to match your organization's specific needs. Adjust hypotheses based on what you already know about your target vendor. Add constraints that reflect your risk appetite. Swap or extend domain models for your industry. Run the template as-is on a first pass, then tune inputs on subsequent runs as you learn what matters most for your context.
 
 ## Structure
 
@@ -194,18 +196,20 @@ Since you enabled evidence collection in Group 1, the bootstrapper asks about co
 
 ### Step 3: Confirm and scaffold
 
-The bootstrapper presents a summary table of all inputs. Review it and confirm. It then:
+The bootstrapper presents a summary table of all inputs. Review it and confirm — but include the OD template instruction in your confirmation response, because the bootstrapper executes all of Phase 3 (FFR, scaffold, quality gate, OD draft) in one pass after you confirm. If you just say "confirmed," it drafts the OD from scratch. To use the pre-written Talk-2-aligned OD instead, confirm like this:
+
+> Confirmed. Use the OD from `docs/examples/vendor-product-continuity-assessment/session-config/operating-document.md` as the template. Replace `[Target Vendor]` with Acme Corp and `[Target Product]` with Acme Platform throughout.
+
+This gives the bootstrapper the six-signal framework, four objectives (OBJ-1 through OBJ-4), nine guardrails (G-1 through G-9), and the Talk-2-aligned deliverable structure — all pre-written and tested. The bootstrapper will copy it into your session directory, substitute your target, and present it for your approval. This is faster and more reliable than having the bootstrapper draft from scratch.
+
+After confirmation, the bootstrapper:
 1. Runs a Fresh Framework Read (reads the GOSTA spec)
 2. Creates the session directory under `sessions/[your-session-name]/`
 3. Copies protocol files, templates, and your domain models
 4. Runs the quality gate on each domain model
-5. Drafts the Operating Document for your approval
+5. Drafts (or adapts) the Operating Document for your approval
 
-The bootstrapper drafts an OD from your inputs. For the Talk-2-aligned session, tell the bootstrapper to use the pre-written OD as the starting point:
-
-> Use the OD from `docs/examples/vendor-product-continuity-assessment/session-config/operating-document.md` as the template. Replace `[Target Vendor]` with Drata and `[Target Product]` with Drata Platform throughout.
-
-This gives the bootstrapper the six-signal framework, four objectives (OBJ-1 through OBJ-4), nine guardrails (G-1 through G-9), and the Talk-2-aligned deliverable structure — all pre-written and tested. The bootstrapper will copy it into your session directory, substitute your target, and present it for your approval. This is faster and more reliable than having the bootstrapper draft from scratch.
+If you didn't provide the OD template instruction and the bootstrapper drafted from scratch, that still works — but the result may have fewer objectives, different guardrail naming, or lack the six-signal framework as a standalone section. You can compare the draft against `session-config/operating-document.md` and request revisions.
 
 Review the OD carefully — it defines the Analytical Frame Contract, the six-signal framework, guardrails, strategy, tactics, and phase gates. Approve or request changes. The bootstrapper will not proceed until you approve.
 
