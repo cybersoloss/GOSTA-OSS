@@ -165,15 +165,11 @@ The bootstrapper scans the repo for available domain models and lists them numbe
 When asked about adaptation intent for each model, choose `adapt` — the bootstrapper will update application context headers for your specific target. The quality gate may warn that some models have fewer than 6 core concepts — this is expected for models written for a specific analytical scope. Choose "proceed with warning" when prompted.
 
 **Group 3A — Deliberation Configuration:**
-The bootstrapper auto-generates an agent roster from your domain models. To match the recommended pairing:
+The bootstrapper auto-generates an agent roster with **one agent per domain model** — so it will present 8 agents plus a coordinator. For this session, you want 4 paired agents instead. Tell the bootstrapper to merge them:
 
-- Agent A (Business Model Analyst): ECON-1 + DISP-1
-- Agent B (Structural Viability Analyst): ADAPT-1 + SAAS-1
-- Agent C (Dependency Exposure Analyst): STICK-1 + REG-1
-- Agent D (Leading Indicator Analyst): GOV-1 + TAL-1
-- Coordinator: COORD-1 (auto-generated)
+> Merge the 8 agents into 4 paired agents: Agent A (Business Model Analyst) gets ECON-1 + DISP-1, Agent B (Structural Viability Analyst) gets ADAPT-1 + SAAS-1, Agent C (Dependency Exposure Analyst) gets STICK-1 + REG-1, Agent D (Leading Indicator Analyst) gets GOV-1 + TAL-1. Keep COORD-1 as coordinator.
 
-Four agents with paired domains produce structured disagreement across all eight domain models and all six signals. For cadence: trigger `on_governor_request`, max rounds `3`, new argument gate enabled, governor interaction `at_synthesis`.
+Four agents with paired domains produce structured disagreement across all eight domain models and all six signals. The pairing is deliberate — each pair creates internal tension (e.g., financial pressure in ECON-1 constrains the adaptation capacity assessed by ADAPT-1). For cadence: trigger `on_governor_request`, max rounds `3`, new argument gate enabled, governor interaction `at_synthesis`.
 
 **Group 3B — Evidence Collection Configuration:**
 Since you enabled evidence collection in Group 1, the bootstrapper asks about collection setup. Recommended answers:
