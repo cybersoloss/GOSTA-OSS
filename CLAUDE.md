@@ -109,16 +109,16 @@ After any spec or protocol change, perform an FFR for the affected sections, the
 
 `cowork/tools/pool-agent.py` provides offline semantic search using all-MiniLM-L6-v2 (quantized ONNX). The model file (`model.onnx`, ~22MB) lives at `cowork/tools/pool-agent/models/` and is gitignored — it is downloaded and quantized automatically via the `setup-model` command.
 
-**Runtime dependencies:** `numpy`, `pyyaml`, `onnxruntime`
-**Setup-model dependencies (one-time):** `tokenizers`, `huggingface-hub`, `onnx`
+**Runtime dependencies:** `numpy`, `pyyaml`, `onnxruntime`, `tokenizers`
+**Setup-model-only dependencies (one-time):** `huggingface-hub`, `onnx`
 
 ```bash
-# Install runtime dependencies
-pip3 install numpy pyyaml onnxruntime
+# Install runtime dependencies (required for query, build, index-doc, update)
+pip3 install numpy pyyaml onnxruntime tokenizers
 
 # First-time setup: download and quantize the embedding model
-# (requires additional packages: tokenizers, huggingface-hub, onnx)
-pip3 install tokenizers huggingface-hub onnx
+# (requires additional packages beyond runtime: huggingface-hub, onnx)
+pip3 install huggingface-hub onnx
 python3 cowork/tools/pool-agent.py setup-model
 
 # Build a vector store from a pool YAML

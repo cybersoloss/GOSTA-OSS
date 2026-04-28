@@ -49,6 +49,13 @@ AI fills this section at session start before substantive work:
 - **Cost guardrail status:** `[ROBUST]` [no cost categories declared | cost_exceeded flags: [list] | cost_data_missing flags: [list] | all on_track]
 - **OD fingerprint:** `[ROBUST]` [goals: N, objectives: N, strategies: N, tactics (active): N, total allocation sum: X.X, guardrails: N — compared against last session's fingerprint. Match | mismatch: [describe detected changes, surface for Governor confirmation]]
 
+**Pre-Flight Validation Gates (from GOSTA §8.7) — bootstrap-entry boundary:**
+- V5 Runtime Imports: import-test for declared tools (e.g., `python3 -c "from tokenizers import Tokenizer; import onnxruntime, yaml, numpy"` for pool-agent). PASS / FAIL.
+- V6 Declared Artifact Existence: `test -s` per artifact declared in CLAUDE.md / OD / scope as a phase deliverable. List missing-or-empty.
+- V7 Vertical-Fit: concept-coverage on inherited domain models against session concept set. Coverage % per inherited model.
+
+Any FAIL or sub-threshold result blocks Phase 0 closure.
+
 ## Tier 0 State Persistence (from GOSTA §7.7, §7.13, §18.2.5)
 
 *At Tier 0, the AI is stateless between sessions. These fields carry cross-session state that would be automatic at Tier 1+. The AI updates them at session end; the next session reads them at session start. Without these fields, retry logic resets every session, recovery tracking is lost, and approaching deadlines are invisible.*

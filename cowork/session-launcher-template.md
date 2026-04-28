@@ -328,6 +328,18 @@ Present the complete OD to Governor for approval.
 - [If deliberation was NOT enabled but 3+ domain models are loaded AND material tensions exist: flag as potential deliberation trigger per Framework §14.7. Ask Governor whether to enable the Deliberation Protocol. Default: No (standard sequential assessment). If Yes: collect §11 configuration and update the OD with the Deliberation section before proceeding.]
 - [If deliberation enabled: verify the OD contains a complete `## Deliberation` section with roster table, cadence config, and termination thresholds. If any are missing, flag and fix before advancing.]
 
+### Pre-Flight Validation Gate Results (from GOSTA §8.7)
+
+Per-invariant outcomes at this phase boundary. PASS / WARN / BLOCK / N/A. BLOCK rows prevent advancement; WARN rows require explicit Governor acknowledgment. Reference §8.7.3 for invariant definitions.
+
+- V1 Retrieval Contract Validation: [PASS — all (unit, pool) cells VALIDATED | WARN — N CORPUS-FIT-GAP / M VOCABULARY-MISMATCH cells with logged disposition | BLOCK — K unresolved ESCALATE cells | N/A — Phase 0 does not consume per-unit retrieval]
+- V2 Build Artifact Shape Verification: [PASS — shape matches expected chunking | WARN — suspicious N_emb == N_files for non-trivial inputs | BLOCK — downstream depends on chunk-level discrimination and shape is wrong | N/A — no build artifact produced this phase]
+- V3 Decision Spine Consistency: [PASS — OD/scope symmetric difference empty | BLOCK — K named entities in scope not in OD or vice-versa | N/A — only checked at Phase 1 entry]
+- V4 Continuous Capture Operationalization: [PASS — capture artifacts non-empty proportional to friction | WARN — capture empty AND friction observed; resolution: backfill OR explicit "no capture-class observations apply" | N/A — no continuous-capture mode flag active]
+- V5 Runtime Import Verification: [PASS — import-test succeeded | BLOCK — module(s) missing: list | N/A — no runtime tools in use yet]
+- V6 Declared Artifact Existence: [PASS — every CLAUDE.md / OD / scope-declared artifact present with non-zero content | BLOCK — missing-or-empty list with disposition: create-now / defer-with-reason / remove-from-declaration]
+- V7 Vertical-Fit on Inherited Artifacts: [PASS — concept coverage ≥70% for inherited domain models | WARN — coverage below threshold; disposition: extend / accept-with-acknowledgment / substitute | N/A — no inherited artifacts]
+
 ### Recommendation
 [advance | iterate | restructure — with reasoning]
 

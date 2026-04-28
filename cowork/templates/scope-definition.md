@@ -45,3 +45,15 @@
 [What could go wrong that the OD's guardrails should protect against? Each risk factor listed here should have a corresponding guardrail in the OD's Goal section. If a risk has no guardrail, either add one during OD drafting or note why it's accepted unmitigated.]
 
 - [Risk description] → maps to: [G-N in OD, or "accepted — rationale"]
+
+## Validation Manifest (from GOSTA §8.7)
+
+Declared structures and their per-boundary mechanical tests. Authored at scope definition; consumed by phase-gate runner per spec §8.7.4.
+
+| Declared Structure | Boundary | Mechanical Test | Failure Mode |
+|---|---|---|---|
+| <e.g., per-unit retrieval contract for Phase N> | phase entry | <e.g., 1 query per (unit, pool) cell against actual operational query set> | <BLOCK / WARN / LOG> |
+| <e.g., named declared artifact at phase exit> | phase exit | <e.g., test -s <path>> | <BLOCK / WARN / LOG> |
+| <e.g., continuous-capture mode-flag if active> | phase exit | <e.g., wc -l <log> vs friction signal count> | <WARN> |
+
+Add one row per declared structure introduced by this scope. Speculative prerequisites (failure modes not empirically observed in prior sessions) are excluded per §8.7.4 anti-patterns.

@@ -73,7 +73,7 @@ The AI:
 
 The OD is the most important artifact. Everything downstream inherits its structure. Take the time to get it right.
 
-Before execution begins, the AI presents a structured **Phase Gate Request**: Are all guardrails feasible? Are kill conditions discriminating? Is the domain model loaded and quality-gated? You approve, and execution begins.
+Before execution begins, the AI presents a structured **Phase Gate Request**: Are all guardrails feasible? Are kill conditions discriminating? Is the domain model loaded and quality-gated? Have all pre-flight validation gates returned PASS — retrieval contract validated against the operational query set, build artifacts shape-verified, OD-scope decision spine consistent, runtime imports tested, declared artifacts present, inherited artifacts vertical-fit-checked (GOSTA §8.7 V1-V7)? You approve, and execution begins.
 
 ### Execution Cycles (Phase 1+)
 

@@ -390,6 +390,8 @@ The Governor receives the Synthesis Report and decides:
 
 All Governor decisions are recorded in `decisions/governor-decisions.md` per Cowork Protocol §8.
 
+**Phase-gate dependencies (from GOSTA §8.7).** Deliberation phases that consume retrieval contracts (per-feature / per-vendor / per-candidate / per-regulation queries against declared pools) are subject to V1 Retrieval Contract Validation at phase entry — phase entry blocks on unresolved ESCALATE outcomes. Continuous-capture mode flags active during deliberation (debug, shortfall, framework feedback) are subject to V4 Continuous Capture Operationalization at phase exit — phase exit blocks if capture is empty AND friction was observed without explicit confirmation. Declared-artifact existence (deliberation outputs declared in CLAUDE.md / OD as phase deliverables) is subject to V6 — phase exit blocks on missing-or-empty declared artifacts. Deliberation orchestration must verify these gates before proceeding to the next phase.
+
 ---
 
 ## 4. Artifact Formats

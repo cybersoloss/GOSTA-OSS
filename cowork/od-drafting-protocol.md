@@ -361,6 +361,21 @@ Additional checks specific to agent-drafted ODs:
 
 5. **AFC frame consistency (when AFC exists):** Does every objective's analytical question use the AFC's output verb? Does every strategy's rationale serve the AFC's failure mode? Does every tactic's hypothesis test something relevant to the AFC's stance? Does any deliverable description produce the AFC's prohibited frame? If any section fails, flag as `[FRAME-DRIFT]` and return to Governor for correction before handoff.
 
+### 6.4 Decision-Spine Consistency Check (from GOSTA §8.7 V3)
+
+The Operating Document and the scope-definition file must derive from a single decision spine. At OD authoring time and at every Phase 1 entry, run a cross-document key-set comparison:
+
+- Every `STR-N` declared in the OD has a corresponding row in scope §6 (or equivalent objectives section).
+- Every guardrail name referenced in scope appears in the OD's guardrail set.
+- Every scope deliverable references an OD strategy ID by exact match.
+- Every OD `TAC-N` references a scope strategy or signal.
+
+This is a mechanical key-set comparison, not a strategic-alignment judgment. Run by reading both documents and computing the symmetric difference of named entities.
+
+**Failure mode:** BLOCK at Phase 1 entry on non-empty symmetric difference. Reconcile by extending the OD to match scope OR revising scope to match the OD. Do NOT advance to Phase 1 with drift; the v3-class failure of mid-construction Option-B reconciliation is the empirical pattern V3 exists to prevent.
+
+**Authoring-time check:** When drafting an OD, after each Strategy or Tactic addition, verify the corresponding scope entry exists. Add scope entries before OD entries — scope is upstream.
+
 ---
 
 ## 7. Handoff to Cowork Protocol

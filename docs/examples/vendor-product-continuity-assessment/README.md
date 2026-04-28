@@ -250,10 +250,11 @@ The final report is saved to `sessions/[your-session-name]/deliverables/`. The s
 You can enhance evidence quality by building a semantic search pool from your own sources (analyst reports, vendor documentation, financial filings, regulatory guidance) before running evidence collection:
 
 ```bash
-pip3 install numpy pyyaml onnxruntime
+pip3 install numpy pyyaml onnxruntime tokenizers
 
 # First-time: download and quantize the embedding model
-pip3 install tokenizers huggingface-hub onnx
+# (additional one-time deps beyond runtime: huggingface-hub, onnx)
+pip3 install huggingface-hub onnx
 python3 cowork/tools/pool-agent.py setup-model
 
 # Build a vector store from your sources

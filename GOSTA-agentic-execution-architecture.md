@@ -3591,6 +3591,200 @@ All Tier 1 implementations apply, plus:
 - **Predictive contract monitoring:** The system tracks contract violation rates over time. If signal schema violations increase from 1% to 5% over 4 cycles, it flags a degradation trend before the rate reaches a critical threshold. Same for staleness rates, missing attribution rates, and computation drift frequency.
 - **Scale safety:** At Tier 2+, multiple orchestrator instances may operate concurrently (e.g., one per scope in a multi-scope deployment). Contract validation must be concurrency-safe: OD mutations use optimistic locking (version numbers), signal writes are idempotent (duplicate signal IDs are detected and deduplicated), and health computation uses snapshot isolation (reads a consistent point-in-time view of the signal store).
 
+### 8.7 Pre-Flight Validation Gates
+
+§8.1 Semantic Coherence Validation catches *specification* inconsistencies — incoherence within and across the OD's declared elements (a kill condition referencing an unevaluable metric, two guardrails that cannot simultaneously hold, a hypothesis grounded in a deprecated domain-model concept). §8.6 Interface Contracts specifies the schema and consistency rules at component handoffs. Pre-Flight Validation Gates target a different class of failure: *operational-truth gaps* — the divergence between what the system has declared at a lifecycle boundary and what is empirically true at that boundary when the next phase begins.
+
+The pattern surfaces whenever a session declares a structure (an artifact path, a retrieval contract, a runtime dependency, a continuous-capture mode flag, an inherited domain model) and proceeds past a boundary that depends on the structure being operationally true, without an empirical check that exercises the actual operational path. The structure is correctly declared. The semantic coherence check passes. The interface contract is well-formed. And yet a phase entered with an unvalidated retrieval contract, a build artifact whose embeddings are silently wrong-shaped, a "continuous capture" mode flag that produced no capture, an OD/scope pair that drifted at authoring time, an artifact declared in the bootstrap that was never written across three phase boundaries — all are failures of operational truth, not failures of specification.
+
+**Relationship to existing mechanisms.** §8.1 validates specifications (proactive — fires at authoring and review time). §7.13.6 validates Governor decisions against current state (reactive — fires when a decision is issued). §14.3.1 validates schema against field requirements (structural — fires at bootstrap and phase gates). §8.6 validates handoffs between components (boundary contracts at signal emission, health computation, decision-to-OD, etc.). Pre-flight validation gates target the orthogonal question that none of these answer: "is what we declared at this boundary actually operationally true right now, by mechanical test?" §8.7 is the runtime enforcement layer for the boundaries §8.6 names — where §8.6 says *what* must be valid at the handoff, §8.7 specifies *how to mechanically verify* the declared structure is operationally true before the boundary is crossed.
+
+#### 8.7.1 Boundary Catalog
+
+Pre-flight validation gates apply only at lifecycle boundaries that have been empirically observed to fail with the operational-truth-gap pattern. The catalog is intentionally bounded — speculative boundaries (boundaries where the failure mode is plausible but not yet observed) are not added; they are added only when the friction is recorded and the addition is traceable to a specific observation.
+
+| Boundary | What Crosses It | What Fails If Validation Is Skipped |
+|----------|-----------------|--------------------------------------|
+| **Bootstrap entry** | Session inherits OD, scope, domain models, runtime tooling, continuous-capture mode flags from declared sources. | Inherited artifacts are present-by-name but not vertical-fit-validated; runtime tools verified by file presence rather than import-test; mode flags activated as text without operational backing. |
+| **Phase entry** | Phase begins with declared prerequisites: retrieval contracts, deliberation roster, evidence pools, inherited decisions. | Retrieval contract not exercised against operational query set; phase consumes the first batch of operational queries and discovers structural mismatch at scale. |
+| **Phase exit** | Phase produces declared artifacts before the next phase consumes them. | Artifact declared in CLAUDE.md or OD as a phase deliverable is missing or empty; downstream phase proceeds against a phantom predecessor. |
+| **Tool invocation (first call per session)** | Tooling reaches its first operational invocation; runtime imports execute. | Verification checked file presence or documented dep list; first call surfaces `ImportError` or runtime failure not caught by the verification step. |
+| **Artifact production** | A build, query, render, or computation produces a downstream-consumable artifact. | Artifact shape (count, dimensionality, chunking ratio) is silently wrong; downstream consumers operate on corrupt input. |
+| **Mode-flag activation (continuous-capture-class)** | A mode flag declares a continuous capture obligation (debug capture, shortfall reporting, framework feedback, episodic logging). | Flag is set as text but produces no capture-checkable artifacts; absence is interpreted as "nothing to report" rather than "capture-discipline failure." |
+| **Declared-artifact existence checks at phase exits** | Every artifact declared in CLAUDE.md, the OD, or scope must exist with non-zero content at the phase boundary that owns it. | Declared artifact never written; no gate notices; absence is silently inherited by the next phase. |
+
+These seven boundaries are the empirical set. Future framework feedback may add boundaries; additions follow the same evidentiary discipline (one observation, one boundary).
+
+#### 8.7.2 Validation Manifest Format
+
+A validation manifest declares, for each prerequisite at a boundary, a record of four fields:
+
+```yaml
+- prerequisite: <human-readable name of declared structure>
+  declared_structure: <what the OD/scope/CLAUDE.md/template said>
+  mechanical_test: <shell command, Read-tool path check, import call, shape check, grep, count check — verifiable without interpretation>
+  failure_mode: BLOCK | WARN | LOG
+  escalation: <how the Governor sees this failure; what fix path is offered>
+```
+
+**The mechanical-test field is the load-bearing element.** Tests must be verifiable by shell command, Read-tool inspection, import call, or count/shape check. Tests phrased as "the assistant verifies that the contract is sound" or "the orchestrator checks that capture is proportional to friction" are interpretive judgments dressed as tests, and §8.7 explicitly excludes them. The test-what-runs principle: if the verification step does not exercise the path that operational execution will exercise, it is the wrong-shaped test, regardless of how thorough the verification language reads.
+
+**Failure mode defaults.** Structural prerequisites (retrieval contracts, build artifact shapes, runtime imports, declared-artifact existence) default to **BLOCK** — phase entry cannot proceed until the test passes. Capture-discipline prerequisites (continuous-capture artifacts proportional to observable friction) default to **WARN** — phase exit proceeds only with explicit Governor or assistant confirmation that no capture-class observations apply. Cross-document consistency prerequisites (OD/scope spine alignment) default to **BLOCK** at authoring-time entry to Phase 1. Vertical-fit prerequisites on inherited artifacts default to **WARN** with a recorded fitness assessment.
+
+**Escalation paths.** Every failure mode names a Governor-visible fix path. BLOCK failures present the Governor with: (a) the specific test that failed, (b) the operational state observed, (c) at least two mitigation paths (threshold adjustment, query-engineering pass, source extraction redo, mode-flag deactivation, etc.). No silent failures: a gate that fails without surfacing to the Governor is itself a §8.7 violation.
+
+#### 8.7.3 Core Invariants
+
+These invariants must hold for any GOSTA implementation that operates at Tier 0 or above with declared artifacts, retrieval, runtime tooling, or capture-mode flags. Each invariant is derived from a specific empirical observation in the framework feedback log; speculative invariants (rules without an observed instance) are excluded by design.
+
+##### Invariant V1 — Retrieval Contract Validation `[CORE]`
+
+**Statement.** For every per-unit retrieval contract a phase declares (per-feature, per-vendor, per-candidate, per-regulation, per-hypothesis, per-domain, etc.), at least one query derived from the actual unit name OR the unit's concept-vocabulary translation must clear the configured score floor against each declared pool **before phase entry that depends on the contract.** Phase entry against an unvalidated retrieval contract is a V1 violation.
+
+**Check.** For each `(unit, pool)` cell in the operational matrix, run the actual query that the phase will run (not a topic-vocabulary probe) and record one of four outcomes per cell:
+- **VALIDATED** — retrieval clears the floor.
+- **CORPUS-FIT-GAP** — retrieval below floor; corpus content (verified by source-text grep) does not meaningfully cover the unit's concept. Documented; not blocked at this gate but logged for §14.8 information_gap classification.
+- **VOCABULARY-MISMATCH** — retrieval below floor; corpus content covers the concept under different vocabulary. Per-unit query-engineering pass with concept-vocabulary translation; not blocked but documented.
+- **ESCALATE** — retrieval below floor; coverage diagnostic ambiguous. Escalate to Governor with three mitigation paths (threshold lowering / source extraction redo / embedding model upgrade) before phase entry proceeds.
+
+**Response.** **BLOCK** at phase entry if the cell distribution contains any unresolved ESCALATE outcomes. **WARN** if CORPUS-FIT-GAP or VOCABULARY-MISMATCH cells exist without explicit Governor disposition. Pass-through if all cells are VALIDATED or have explicit dispositions logged.
+
+**Example.**
+- *Regulatory analysis session, Phase 2 entry:* The phase will run per-regulation queries against jurisdictional-statute, official-guidance, and case-law pools. Pre-launch probe queries used domain-vocabulary phrasings ("incident notification timelines") that retrieved fine. The V1 gate runs the actual phase queries — by article identifier ("NIS2 Art 23(1)") and by concept-vocabulary translation ("notification within 24 hours of awareness") — against each pool and records a VALIDATED/CORPUS-FIT-GAP/VOCABULARY-MISMATCH/ESCALATE per cell. Phase 2 entry blocks until the matrix is resolved.
+- *Hiring pipeline session, Phase 2 entry:* The phase will run per-candidate queries against portfolio, technical-writing-sample, and reference pools. The V1 gate runs at least one query derived from each candidate's actual identifier OR a capability-vocabulary translation against each pool. Cells where the candidate's portfolio terminology diverges from corpus terminology surface as VOCABULARY-MISMATCH and trigger a per-candidate query-engineering pass before phase entry.
+
+##### Invariant V2 — Build Artifact Shape Verification `[CORE]`
+
+**Statement.** Pool builds and any embedding-producing build that consumes input files must verify the shape of produced artifacts (count, dimensionality, chunking ratio) against the expected shape implied by input characteristics. Suspicious outputs (e.g., `N_embeddings == N_input_files` for non-trivial input file sizes) emit a warning at minimum and should be flagged as candidate corruption.
+
+**Check.** After any pool, index, or embedding build, run a shape inspection:
+```bash
+python3 -c "import numpy as np; a = np.load('<embeddings>.npy'); print('shape:', a.shape, 'mean_input_size_kb:', <computed>)"
+```
+If `N_embeddings == N_input_files` AND `mean(input_file_size_kb) > THRESHOLD` (default 20-50KB plain-text), the build produced document-level averaged embeddings rather than chunked embeddings. Verify the build subcommand was the intended one (chunked-index vs. whole-document-embed). Verify dimensionality matches the model's declared output dimension.
+
+**Response.** **WARN** with explicit recommended remediation (e.g., "rebuild with chunked-index `--heading-level 2` per file"). **BLOCK** at phase entry if the build feeds a phase that depends on chunk-level discrimination and the suspicious-shape pattern is present. The warning is suppressible only via an explicit `--no-shape-warning` flag plus a logged Governor acknowledgment.
+
+**Example.**
+- *Vendor evaluation session, pre-Phase-2:* Pool built from vendor whitepapers (typical size 30-300KB each). The V2 check inspects produced `embeddings.npy` shape and observes `(8, 384)` for 8 input files averaging 145KB. WARN fires; the build subcommand was the document-averaging variant when chunked-index was required for paragraph-scale discrimination. Build is reissued with the correct subcommand before Phase 2 enters.
+- *Product roadmap session, pre-Phase-2:* Pool built from short-form market commentary articles (typical size 2-4KB each). The V2 check observes `N_embeddings == N_input_files == 60` with mean input size 3.1KB — below the threshold. No warning; document-level embeddings are appropriate for the input scale.
+
+##### Invariant V3 — Decision Spine Consistency `[CORE]`
+
+**Statement.** The Operating Document and the scope-definition file must derive from a single decision spine. Cross-document consistency must verify, at Phase 1 entry, that every OD strategy has a corresponding scope objective row, every guardrail referenced in scope exists in the OD, and every scope deliverable maps to an OD strategy. Phase 1 entry against a drifted OD/scope pair is a V3 violation.
+
+**Check.** Run a cross-document grep/match pass:
+- Every `STR-N` in the OD has a row in scope §6 (or equivalent objectives section).
+- Every guardrail name referenced in scope appears in the OD's guardrail set.
+- Every scope deliverable references an OD strategy ID by exact match.
+- Every OD `TAC-N` references a scope strategy or signal.
+
+This is a mechanical key-set comparison: read the OD, read the scope file, intersect the named entities. The check does not reason about strategic alignment (that is C2/R2's job in §8.1) — it verifies that the named entities are present in both documents.
+
+**Response.** **BLOCK** at Phase 1 entry. The Governor sees the symmetric difference of named entities between the two documents and a proposed reconciliation — either expand the OD to match the scope or revise the scope to match the OD. Phase 1 cannot enter until the symmetric difference is empty or the deltas have explicit dispositions logged.
+
+**Example.**
+- *Regulatory analysis session, Phase 1 entry:* Scope file declares 4 jurisdictional comparison strategies; OD declares 3. V3 check identifies the missing strategy in the OD and BLOCKs Phase 1 entry. The Governor either adds STR-4 to the OD or removes the fourth strategy from scope before Phase 1 begins.
+- *Hiring pipeline session, Phase 1 entry:* Scope references guardrail "no-candidate-name-leakage-across-domains"; OD does not declare this guardrail. V3 fires; the Governor either adds the guardrail to the OD or removes the scope reference.
+
+##### Invariant V4 — Continuous Capture Operationalization `[CORE]`
+
+**Statement.** Mode flags that promise capture (debug + shortfall reporting, continuous capture, framework feedback, episodic session logging) must produce phase-gate-checkable artifacts. At every phase exit, the orchestrator verifies the artifacts are non-empty proportional to observable friction; absence-without-explicit-confirmation is a gate failure. The invariant applies separately to each declared continuous-capture artifact (shortfall log, framework-feedback file, session log, etc.).
+
+**Check.** At each phase exit, for each active continuous-capture mode flag, count entries written to the corresponding artifact during the phase and compare to observable friction signals:
+```bash
+wc -l <session>/session-shortfall-log.md
+wc -l <session>/gosta-framework-feedback.md
+ls -la <session>/session-logs/
+```
+If any active capture flag's artifact is empty AND the phase produced any friction signals (errors observed, decisions revised, retrieval issues, scope edits, etc.), the gate fails unless the assistant or Governor explicitly confirms that no capture-class observations apply. Default capture-to-friction ratio is configurable; absent configuration, the default is at least one entry per phase if ≥3 friction signals occurred.
+
+**Response.** **WARN** at phase exit (default for capture-discipline). Proceeds only with explicit confirmation. The phase-gate template includes a Capture Coverage line: "Were friction signals observed this phase? Y/N. Were continuous-capture entries written? Y/N. If first Y and second N, confirm explicitly that no capture-class observations apply."
+
+**Example.**
+- *Vendor evaluation session, Phase 1 exit:* Debug + Shortfall Reporting Mode active. Phase produced 4 errors (vendor pool retrieval misses, scoring rubric edits, deliberation roster revision, two timing slips). Shortfall log has 0 entries. V4 fires; the assistant either backfills the missed entries before phase exit or explicitly logs "all 4 frictions are session-execution-specific; no protocol-class observation."
+- *Product roadmap session, Phase 1 exit:* Continuous-capture mode active. Session log artifact (`session-logs/session-NNN.md`) declared in CLAUDE.md and OD. The directory is empty. V4 fires (and V6 fires concurrently — see below); phase exit blocks until either the artifact is created with the phase's narrative or the declared-artifact slot is explicitly deferred with Governor acknowledgment.
+
+##### Invariant V5 — Runtime Import Verification `[CORE]`
+
+**Statement.** Tool verification at bootstrap and at first invocation must exercise the actual runtime path — import calls, smoke calls, live shape returns — not check proxies (file existence, dependency-list documentation, mode flag presence). The test-what-runs principle: a verification that does not run what runs at operational time is the wrong-shaped test.
+
+**Check.** For each declared tool, run an import-test or smoke-call that exercises the runtime path:
+```bash
+python3 -c "from <runtime_modules> import *; <minimal_smoke_call>"
+```
+If the import or smoke call fails, list the missing modules or failing call site and the fix command. Verification by file presence (e.g., model file exists) or by comparison to a documented dep list does not satisfy V5.
+
+**Response.** **BLOCK** at first tool invocation. The fix command is presented to the Governor inline; verification re-runs after the fix.
+
+**Example.**
+- *Regulatory analysis session, bootstrap:* Bootstrap declares an embedding-pool tool. V5 runs `python3 -c "from tokenizers import Tokenizer; import onnxruntime; import yaml; import numpy"` and observes `ModuleNotFoundError: No module named 'tokenizers'`. BLOCK; the fix command (`pip3 install tokenizers`) is presented; verification re-runs.
+- *Hiring pipeline session, first deliberation-coordinator call:* V5 runs a minimal smoke call against the deliberation tool's actual entry point with a one-position-paper input. If the smoke call returns a well-formed synthesis stub, pass; if it raises, BLOCK and surface the trace.
+
+##### Invariant V6 — Declared Artifact Existence `[CORE]`
+
+**Statement.** Every artifact declared in CLAUDE.md, the Operating Document, or scope as a phase deliverable must verify present-with-non-zero-content at every phase exit, OR be flagged as deferred-with-Governor-acknowledgment. Declared-but-absent artifacts at phase exit are a V6 violation.
+
+**Check.** At each phase exit, the orchestrator reads the declared-artifact list (from CLAUDE.md and OD §Decision History entries that name artifacts) and runs:
+```bash
+for artifact in <declared_artifacts>; do
+  test -s "$artifact" || echo "MISSING_OR_EMPTY: $artifact"
+done
+```
+Every entry on the missing-or-empty list must be either created or explicitly deferred with a logged Governor acknowledgment that names the deferral reason.
+
+**Response.** **BLOCK** at phase exit. The Governor sees the missing-artifact list and chooses, per artifact: create-now, defer-with-reason, or remove-from-declaration (the artifact was declared in error and is no longer required). No silent inheritance of the absence to the next phase.
+
+**Example.**
+- *Vendor evaluation session, Phase 2 exit:* CLAUDE.md declares `phase-2-evidence-collection-trace.md` and `phase-2-vendor-scoring-grid.md`. The trace exists with content; the scoring grid is empty. V6 BLOCKs phase exit. The Governor authors the scoring grid or defers it to Phase 3 with an explicit reason logged in the OD decision history.
+- *Product roadmap session, Phase 1 exit:* OD declares per-execution-session episodic narrative `session-logs/session-NNN.md`. The directory is empty across the phase. V6 BLOCKs phase exit. The cleanest empirical case: the narrative is authored from in-session evidence, or the artifact slot is explicitly deferred with Governor acknowledgment naming the deferral. Silent inheritance is excluded.
+
+##### Invariant V7 — Vertical-Fit Verification on Inherited Artifacts `[ROBUST]`
+
+**Statement.** When a session inherits domain models, scope decisions, deliberation rosters, or templates from a prior session or from the framework's example library, a vertical-fit check at Phase 1 entry must verify that the inherited artifact carries concepts the current session's deliberation actually needs. Generic-pass models — artifacts that load without error but do not cover the session's concept set — are not a substitute for vertical-fit-validated artifacts.
+
+**Check.** At Phase 1 entry, for each inherited artifact, run a concept-coverage test: extract the session's declared concept set (from scope objectives, OD strategies, deliberation roster) and grep/match against the inherited artifact's concept set. If coverage falls below a configured threshold (default: 70% of declared concepts have at least one matching reference in the inherited artifact), surface the gap.
+
+**Response.** **WARN** at Phase 1 entry. The orchestrator presents the gap to the Governor: "Inherited domain model covers 9 of 14 declared session concepts. Missing: [list]. Options: (a) extend the inherited model with the missing concepts before Phase 1 enters, (b) accept the gap and proceed with explicit acknowledgment that the missing concepts will be reasoned about without domain-model grounding, (c) substitute a vertical-fit-validated model from the example library."
+
+**Example.**
+- *Hiring pipeline session, Phase 1 entry:* Session inherits a generic "candidate evaluation" domain model from the example library. The session's scope concepts include "publication-record-as-signal," "open-source-contribution-as-proxy," and "interview-loop-calibration." The inherited model covers only "interview-loop-calibration." V7 surfaces 2 of 3 concepts uncovered; the Governor either extends the model with the missing concepts or accepts the gap explicitly.
+- *Regulatory analysis session, Phase 1 entry:* Session inherits scope decisions from a prior session in a related jurisdiction. Concept-coverage test confirms 12 of 13 declared regulatory dimensions have references in the inherited scope; the one missing dimension (sectoral overlay) is flagged. The Governor extends scope to cover the missing dimension before Phase 1 enters.
+
+**Implementation by tier.**
+
+- *Tier 0:* The AI runs each V-invariant check as inline reasoning during bootstrap, phase entry, and phase exit. V1's per-cell matrix is computed by running actual queries and tabulating outcomes conversationally. V2 runs the shape inspection as a shell command and reads the output. V3 runs the cross-document grep/match in conversation, listing the symmetric difference. V4 reads the artifact file sizes and compares against observed friction count from the session transcript. V5 runs the import-test directly. V6 reads the declared-artifact list and tests each path. V7 extracts the declared concept set and greps the inherited artifact. Failures are surfaced to the Governor conversationally with the fix path.
+- *Tier 1:* Validation-manifest YAML is committed alongside templates; a phase-gate runner executes the manifest's mechanical tests and blocks the gate if any BLOCK-class test fails. Failures appear in the approval UI with the fix command inline.
+- *Tier 2+:* Validation manifests are versioned; manifest violations correlate across boundaries (a V1 cell-distribution gap that leads to a V4 capture-coverage gap that leads to a V6 declared-artifact absence is tracked as a single causal chain, mirroring §8.6.9's cross-contract correlation pattern).
+
+#### 8.7.4 Validation Manifest Authoring
+
+**Where validation manifests live.** Per-template manifests live alongside the template they validate (e.g., `templates/operating-document.md` is paired with `templates/operating-document.validation.yaml`). Per-session manifests live in the session's scope or OD as a §Validation Manifest section. Per-tool manifests live alongside the tool's verification step in the bootstrap protocol.
+
+**When manifests are authored.** During scope definition or OD authoring (whichever introduces the prerequisite). Every new artifact declaration, every new tool dependency, every new continuous-capture mode flag, and every new retrieval contract introduces at least one prerequisite that must be added to the relevant manifest at the same time.
+
+**How manifests are consumed at runtime.** Phase-gate templates reference the manifest sections relevant to that gate (bootstrap entry, phase entry, phase exit, tool first-call). At Tier 0, the AI walks the manifest as a checklist during the gate. At Tier 1+, a phase-gate runner executes the manifest's mechanical tests automatically.
+
+**Anti-patterns.** Three failure modes of validation-manifest authoring recur and are explicitly excluded:
+
+1. **Overspecification.** A manifest longer than the artifact it validates indicates the validation discipline has overshot. Manifests should be terse: one prerequisite per declared structure, one mechanical test per prerequisite. Manifests are not exhaustive enumerations of "what could go wrong" — they enumerate what has been observed to go wrong, plus the immediate adjacent boundaries. Speculative prerequisites are excluded by the same evidentiary discipline that bounds the boundary catalog in §8.7.1.
+
+2. **Interpretive checks dressed as mechanical.** A test phrased as "the orchestrator verifies that the retrieval contract is sound" or "the assistant confirms capture is proportional to friction" is interpretive, not mechanical. Mechanical tests are shell commands, file presence checks with `test -s`, import calls that succeed or raise, count comparisons, and grep/match operations. If a test cannot be run by a non-reasoning agent, it is not §8.7-compliant.
+
+3. **Deferred validation that never runs.** A manifest entry tagged `validate at next strategy review` and never re-evaluated is a deferral that never fires. Every WARN-class deferral has a deadline; deferrals past their deadline elevate to BLOCK at the next phase boundary. This parallels §8.1.4's authoring-time vs. review-time discipline: deferrals are review-time entries, but they have explicit deadlines, not open-ended ones.
+
+#### 8.7.5 Relationship to Other §8 Subsections
+
+**§8.1 Semantic Coherence Validation** catches *specification* inconsistencies — the OD's declared elements failing internal coherence. §8.7 catches *operational-truth gaps* — the live system failing to match the OD's specifications at lifecycle boundaries. The two are complementary, not duplicative: a session can pass every §8.1 check (every C, R, and A invariant holds) and still fail every §8.7 check (the retrieval contract was never exercised, the capture flag produced no capture, the declared artifact was never written). Conversely, a session can pass every §8.7 check (everything declared is operationally true) while failing §8.1 (the declarations themselves are incoherent). Both layers are required.
+
+**§8.6 Interface Contracts Between Components** specifies the validation contracts at component handoffs (signal emission, health computation, decision-to-OD mutation, OD-to-work-plan, memory loading, learning routing, environmental monitoring, deliberation output). §8.7 is the runtime enforcement of those contracts at the lifecycle boundaries where the handoffs cross phase or session edges. Where §8.6 says "the producer must conform to schema and the consumer must validate completeness, freshness, and cross-source consistency," §8.7 specifies the mechanical tests that verify the producer-consumer relationship is operationally true at the boundary. §8.6 is the contract; §8.7 is the gate that enforces the contract before the next phase consumes the producer's output.
+
+**§8.2 Decision-to-State Traceability and §8.3 OD State Versioning** trace decisions to elements and snapshot context at decision time. §8.7 does not duplicate this trace; it complements it by ensuring that the elements decisions reference are operationally true at the boundaries where the decisions take effect. A decision authorized by DEC-N (§8.2) that references an artifact never produced (V6) is structurally complete in the trace but operationally false — §8.7 catches the operational-truth gap that §8.2's authorization trace alone cannot detect.
+
+**§8.4 Causal Context at Kill Decisions** surfaces confounders at irreversible decision points. §8.7 surfaces operational-truth gaps at lifecycle boundaries that *precede* decision-making. A pre-flight gate failure caught at phase entry is an upstream confounder that, if missed, would surface as a confounder at the next kill decision (e.g., "tactic underperformance was confounded by a retrieval contract that never validated against the operational query set"). §8.7 catches the gap upstream; §8.4 surfaces it downstream if §8.7 missed it.
+
+**§22 Execution Protocols** operationalize §8.7 in the cowork protocol family. The evidence-collection protocol pattern (§22.4) is the operational realization of V1; phase-gate templates in the cowork protocol carry V4 and V6 enforcement; tool verification steps in the bootstrap protocol carry V5. The pattern: §8.7 declares the invariant; §22's protocol family realizes it operationally per session shape.
+
 ---
 
 ## 9. Operating Document Template

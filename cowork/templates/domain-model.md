@@ -10,6 +10,8 @@
 >
 > **Knowledge vs. strategy (critical distinction):** Domain models encode what is *true* (knowledge), what *good* looks like (quality principles), and what is *forbidden* (guardrails). They do NOT encode what agents should *choose* — that is strategy, and strategy belongs to agents during deliberation. If you find yourself writing specific CTAs, content hooks, posting sequences, audience-to-channel mappings, structural templates, or tactical prescriptions in Core Concepts or Quality Principles, you are encoding strategy as knowledge and stealing the agent's deliberation space. Test: could an agent reasonably choose a *different* approach while still satisfying all Quality Principles and Guardrails? If not, the model is too prescriptive. Everything the model does not constrain is implicitly available for agents to decide.
 
+**Vertical-Fit Validation (from GOSTA §8.7 V7):** When this domain model is inherited by a new session, run a concept-coverage check at Phase 1 entry: extract the new session's declared concept set (scope objectives + OD strategies + deliberation roster) and verify ≥70% of concepts have at least one matching reference in this domain model's §1 Core Concepts. Coverage below threshold: extend, accept-with-acknowledgment, or substitute. Generic-pass models that load without error but do not cover the session's concept set are NOT a substitute for vertical-fit-validated models.
+
 ---
 
 ## 1. Core Concepts

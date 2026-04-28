@@ -55,6 +55,22 @@ Omit this section for non-analytical scopes (operational, content production, et
 - **Relationship to sibling strategies:** [competing | complementary]
 - **Authorized By:** `[ROBUST]` [GOV-session-1 | DEC-N — reference to the decision that created or last modified this strategy. For initial OD authoring: GOV-session-1. For subsequent modifications: DEC-N referencing the specific decision entry.]
 
+## Validation Manifest (per spec §8.7)
+
+Per-strategy and per-tactic validation prerequisites. Each entry declares a structure, a mechanical test, and a failure mode. Authored at OD authoring time; consumed at phase-gate runtime.
+
+| Prerequisite | Declared At | Mechanical Test | Failure Mode | Escalation |
+|---|---|---|---|---|
+| Retrieval contract for STR-N (V1) | OD STR-N | Run actual phase queries against each declared pool; record VALIDATED / CORPUS-FIT-GAP / VOCABULARY-MISMATCH / ESCALATE per (unit, pool) cell | BLOCK at phase entry on unresolved ESCALATE | Three mitigation paths: threshold lowering / source extraction redo / embedding model upgrade |
+| Build artifact shape for pool-N (V2) | TAC-N evidence collection | `numpy.load('embeddings.npy').shape`; flag suspicious `N_emb == N_files` for non-trivial inputs | WARN; BLOCK if downstream depends on chunk-level discrimination | Rebuild with `index-doc --heading-level N` |
+| Decision spine consistency (V3) | OD vs scope §6 | Cross-document key-set comparison: STRs, guardrails, deliverables | BLOCK at Phase 1 entry on non-empty symmetric difference | Reconcile by extending OD or revising scope |
+| Continuous-capture coverage for mode-N (V4) | OD §Decision History mode activation | `wc -l` capture artifacts vs friction signals at phase exit | WARN; explicit confirmation required | Backfill entries OR explicit "no capture-class observations apply" |
+| Tool runtime imports (V5) | TAC-N tool dependency | `python3 -c "from <runtime_modules> import <symbols>"` | BLOCK first call | `pip3 install <missing>` |
+| Declared-artifact existence (V6) | CLAUDE.md / OD / scope deliverable list | `test -s <path>` per declared artifact at phase exit | BLOCK phase exit | Create-now / defer-with-reason / remove-from-declaration |
+| Vertical-fit on inherited artifacts (V7) | OD §Domain Models Referenced | Concept-coverage grep against session's declared concept set | WARN at Phase 1 entry | Extend / accept-with-acknowledgment / substitute |
+
+Sessions may add additional entries for session-specific prerequisites. The seven entries above are the empirical baseline derived from §8.7.1 boundary catalog.
+
 ## Tactics
 ### TAC-1: [Named tactic] → serves STR-1
 **[CORE — required for any GOSTA implementation]**

@@ -374,6 +374,15 @@ For goal corrections specifically, the Goal Correction Procedure (startup.md Ste
    **Synthesis Verification (if deliberation completed this phase):** [completed — verification.md at [path] | Governor skipped — acknowledged | N/A — no deliberation completed this phase]
    **Shortfall Log:** [If shortfall logging is enabled: N entries logged this phase / no entries. If no entries were logged, state: "No shortfalls encountered this phase" or explain why none were logged despite issues arising.]
    **Shortfall Cross-Check (if shortfall logging enabled):** For each Session Lifecycle Compliance item that required AI correction (stale/missing/template-only/incomplete), verify a corresponding shortfall entry exists. If not: [writing missing entries now — IDs: SFL-NNN | all corrections have corresponding entries | no corrections were needed].
+   **Pre-Flight Validation Gate Results (from GOSTA §8.7):** Per-invariant outcomes at this phase boundary.
+   - V1 Retrieval Contract Validation: [PASS — all (unit, pool) cells VALIDATED | WARN — N CORPUS-FIT-GAP / M VOCABULARY-MISMATCH cells with logged disposition | BLOCK — K unresolved ESCALATE cells | N/A — phase does not consume per-unit retrieval]
+   - V2 Build Artifact Shape Verification: [PASS — shape matches expected chunking | WARN — suspicious N_emb == N_files for non-trivial inputs | BLOCK — downstream depends on chunk-level discrimination and shape is wrong | N/A — no build artifact produced this phase]
+   - V3 Decision Spine Consistency: [PASS — OD/scope symmetric difference empty | BLOCK — K named entities in scope not in OD or vice-versa | N/A — only checked at Phase 1 entry]
+   - V4 Continuous Capture Operationalization: [PASS — capture artifacts non-empty proportional to friction | WARN — capture empty AND friction observed; resolution: backfill OR explicit "no capture-class observations apply" | N/A — no continuous-capture mode flag active]
+   - V5 Runtime Import Verification: [PASS — import-test succeeded | BLOCK — module(s) missing: list | N/A — only checked at first tool invocation per session]
+   - V6 Declared Artifact Existence: [PASS — every CLAUDE.md / OD / scope-declared artifact present with non-zero content | BLOCK — missing-or-empty list with disposition: create-now / defer-with-reason / remove-from-declaration]
+   - V7 Vertical-Fit on Inherited Artifacts: [PASS — concept coverage ≥70% | WARN — coverage below threshold; disposition: extend / accept-with-acknowledgment / substitute | N/A — only checked at Phase 1 entry]
+   Any BLOCK row prevents phase advancement. WARN rows require explicit Governor acknowledgment. Reference §8.7.3 for invariant definitions and §8.7.2 for failure-mode semantics.
    **Session Lifecycle Compliance:**
    - 00-BOOTSTRAP.md reflects current phase: [yes — shows Phase N | no — stale at Phase M]
    - Session log for completed sessions in this phase: [session-NNN.md populated | missing | template-only]
@@ -1326,6 +1335,38 @@ When the deliverable agent performs guardrail self-attestation (hard guardrails 
 For AFC-enabled sessions, §12.12 Frame Integrity Validation results are also recorded in this section — they are a second independent check layer.
 
 **Rationale:** Self-attestation without a trail is unauditable. The attestation log makes the attestor's reasoning visible to the Governor at review time without requiring debug logging.
+
+### 12.14 Pre-Flight Validation Gates Operationalization (from GOSTA §8.7) `[CORE]`
+
+Beyond specification coherence (§12.7) and contract validation at handoffs (§14 interface contracts), the AI verifies that declared structures (artifacts, retrieval contracts, runtime tools, capture-mode flags, inherited domain models) are operationally true at every lifecycle boundary they cross. This catches the operational-truth gap class — declarations that pass §12.1 schema validation and §12.7 semantic coherence but fail at runtime because the declared structure was never empirically exercised.
+
+**At bootstrap entry:**
+
+1. **Runtime import verification (V5).** For each declared tool, the AI runs an actual import test against the runtime path: `python3 -c "from <runtime_modules> import <symbols>"`. File-presence checks against model files or comparison to documented dep lists do NOT satisfy V5. Failure: BLOCK with the missing modules and fix command surfaced to Governor inline.
+
+2. **Inherited-artifact vertical-fit (V7).** For each inherited domain model, scope decision, deliberation roster, or template, the AI extracts the new session's declared concept set (from scope objectives + OD strategies + deliberation roster) and runs a concept-coverage grep against the inherited artifact. Default threshold: ≥70% of declared concepts have at least one matching reference. Below threshold: WARN with three response options surfaced (extend / accept-with-acknowledgment / substitute).
+
+**At Phase 1 entry:**
+
+3. **Decision spine consistency (V3).** The AI runs a cross-document key-set comparison between OD and scope: every STR-N appears in both, every guardrail referenced in scope exists in OD, every scope deliverable maps to an OD strategy ID, every OD TAC-N references a scope strategy or signal. This is a mechanical key-set comparison, not a strategic-alignment judgment. Failure: BLOCK at Phase 1 entry on non-empty symmetric difference.
+
+**At every phase entry that consumes per-unit retrieval:**
+
+4. **Retrieval contract validation (V1).** Before any phase running per-unit queries at scale, the AI runs the actual operational queries (not topic-vocabulary probes) against each declared pool and tabulates outcomes per (unit, pool) cell: VALIDATED / CORPUS-FIT-GAP / VOCABULARY-MISMATCH / ESCALATE. Failure: BLOCK on unresolved ESCALATE; WARN on CORPUS-FIT-GAP or VOCABULARY-MISMATCH cells without explicit Governor disposition. Cell-by-cell results are surfaced with the three mitigation paths from §8.7.3 V1.
+
+**After every artifact-producing build:**
+
+5. **Build artifact shape verification (V2).** After any pool, index, or embedding build, the AI inspects the produced artifact's shape: `numpy.load('<embeddings>.npy').shape`, file count, byte count. If `N_embeddings == N_input_files` for non-trivial inputs (default threshold 20-50KB plain-text), the AI flags as suspicious and verifies the build subcommand was the intended one. Failure: WARN; BLOCK if downstream depends on chunk-level discrimination.
+
+**At every phase exit:**
+
+6. **Continuous-capture coverage (V4).** For each active continuous-capture mode flag (Debug + Shortfall Reporting, framework feedback, episodic session logging), the AI runs `wc -l` against the corresponding artifact and compares to friction signals observed during the phase. If friction observed and capture is empty without explicit "no capture-class observations apply" confirmation, the gate fails. The AI either backfills entries before phase exit or logs the explicit confirmation.
+
+7. **Declared artifact existence (V6).** For every artifact named in CLAUDE.md, OD §Decision History, or scope as a phase deliverable, the AI runs `test -s <path>`. Missing-or-empty artifacts BLOCK phase exit unless explicitly deferred with a Governor-acknowledged reason in OD §Decision History. The Governor sees the missing-artifact list and chooses per artifact: create-now / defer-with-reason / remove-from-declaration.
+
+**What the AI does NOT do:** suppress gate failures, paraphrase verification from memory, or treat declared structure as operationally true without a mechanical test. Pre-flight gates surface failures to the Governor with explicit fix paths; the Governor decides on resolution. The AI's role is the mechanical verification, not interpretive judgment about whether the failure matters. A gate that fails without surfacing to the Governor is itself a §8.7 violation.
+
+**Phase-gate request integration.** §5.1 Phase Gate Enforcement Protocol's structured Phase Gate Request includes a mandatory "Pre-Flight Validation Gate Results (from GOSTA §8.7)" field listing per-V-invariant outcome at the boundary. BLOCK rows prevent gate advancement; WARN rows require explicit Governor acknowledgment in the gate response.
 
 ---
 

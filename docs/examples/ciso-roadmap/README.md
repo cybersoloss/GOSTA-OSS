@@ -149,11 +149,11 @@ The coordinator synthesizes after each round and produces a final synthesis repo
 The original session drew from a 575-item reference pool during deliberation. You can run the session without a reference pool — agents will reason from domain models alone. If you want to add your own evidence sources:
 
 ```bash
-# Install runtime dependencies
-pip3 install numpy pyyaml onnxruntime
+# Install runtime dependencies (required for query, build, index-doc, update)
+pip3 install numpy pyyaml onnxruntime tokenizers
 
-# Install setup dependencies (one-time, needed for model download)
-pip3 install tokenizers huggingface-hub onnx
+# Install setup-model-only dependencies (one-time, beyond runtime)
+pip3 install huggingface-hub onnx
 
 # Download and quantize the embedding model (one-time, ~22MB result)
 python3 cowork/tools/pool-agent.py setup-model

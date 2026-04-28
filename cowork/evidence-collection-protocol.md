@@ -567,10 +567,28 @@ Assessment agents MUST address flagged contradictions. Ignoring a documented con
 
 ## §10 Quality Gates
 
+### §10.0 Pre-Flight Retrieval Contract Validation (from GOSTA §8.7 V1) `[CORE]`
+
+This gate runs **before** evidence collection begins, at the phase boundary that authorizes per-unit retrieval at scale. It exists because the post-collection gates §10.1–§10.8 cannot rescue a session whose retrieval contract was never validated against its operational query set — by the time those gates run, the corrupt or absent evidence is already in the corpus.
+
+**Procedure.** For each per-unit retrieval contract the phase declares (per-feature, per-vendor, per-candidate, per-regulation, per-hypothesis, per-domain), run at least one query derived from the actual unit name OR the unit's concept-vocabulary translation against each declared pool. Tabulate outcomes per `(unit, pool)` cell:
+
+- **VALIDATED** — retrieval clears the configured score floor.
+- **CORPUS-FIT-GAP** — retrieval below floor; corpus content (verified by source-text grep) does not meaningfully cover the unit's concept. Documented; logged for §14.8 information_gap classification; does not block the gate but reduces evidence-base coverage.
+- **VOCABULARY-MISMATCH** — retrieval below floor; corpus content covers the concept under different vocabulary. Per-unit query-engineering pass with concept-vocabulary translation; documented but does not block.
+- **ESCALATE** — retrieval below floor; coverage diagnostic ambiguous (corpus presence/absence unclear). Escalate to Governor with three mitigation paths (threshold lowering / source extraction redo / embedding model upgrade) before the gate can pass.
+
+**Gate behavior.** **BLOCK** if any cell is unresolved ESCALATE. **WARN** if CORPUS-FIT-GAP or VOCABULARY-MISMATCH cells exist without explicit Governor disposition. PASS if all cells are VALIDATED or have explicit dispositions logged.
+
+**Pre-launch probe queries are not §10.0-compliant.** Pre-launch verification that uses topic-vocabulary probe queries (e.g., "third-party risk management," "incident response") instead of the actual operational queries (per-unit names or concept-vocabulary translations) does not exercise the retrieval contract. The gate must run the queries the phase will actually execute, not proxies for them. (This is the V1 operationalization of §8.7.2's test-what-runs principle.)
+
+**Relationship to §10.2 Source Verification.** §10.2 verifies that cited sources exist and contain what evidence items claim. §10.0 verifies that the retrieval mechanism can find relevant sources for the phase's operational query set in the first place. §10.0 runs first; §10.2 cannot compensate for §10.0 failures because §10.2 only operates on items already in the corpus.
+
 ### §10.1 Execution Order
 
-Quality gates execute in this order after collection and before assessment:
+Quality gates execute in this order. §10.0 runs before collection; §10.2–§10.8 run after collection and before assessment:
 
+0. **Pre-Flight Retrieval Contract Validation** (§10.0) — runs at phase entry, before collection
 1. **Source Verification** (§10.2)
 2. **Evidence Quality Audit** (§10.3)
 3. **Adversarial Collection Review** (§10.4)
@@ -580,7 +598,7 @@ Quality gates execute in this order after collection and before assessment:
 7. **Evidence Engagement** audit configuration (§10.7) — audit itself runs during/after assessment
 8. **Evidence-Domain Model Reconciliation** (§10.8)
 
-Assessment does not begin until all gates pass or the Governor acknowledges and accepts warnings.
+Collection does not begin until §10.0 passes. Assessment does not begin until §10.1–§10.8 all pass or the Governor acknowledges and accepts warnings.
 
 ### §10.2 Source Verification
 

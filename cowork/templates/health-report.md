@@ -99,6 +99,22 @@
   | [criterion] | met / partially_met / not_met | [reference] |
 - **Recommendation:** [advance | iterate | restructure]
 
+### Pre-Flight Validation Gate Results (per spec §8.7)
+
+Per-invariant test outcomes at this phase boundary. PASS / WARN / BLOCK per row; BLOCK rows must be resolved before phase advances.
+
+| Invariant | Test | Outcome | Notes |
+|---|---|---|---|
+| V1 Retrieval Contract | per-unit query matrix vs declared pools | PASS / WARN / BLOCK | Cell distribution: VALIDATED / CORPUS-FIT-GAP / VOCABULARY-MISMATCH / ESCALATE |
+| V2 Build Artifact Shape | embeddings.npy shape vs expected chunking | PASS / WARN / BLOCK | Shape observed; expected ratio |
+| V3 Decision Spine | OD ↔ scope key-set symmetric difference | PASS / BLOCK | (Phase 1 entry only) |
+| V4 Continuous Capture | capture entries vs friction signals | PASS / WARN | Capture artifact line counts |
+| V5 Runtime Imports | tool import-test results | PASS / BLOCK | (First-call per session only) |
+| V6 Declared Artifact Existence | `test -s` per declared artifact | PASS / BLOCK | Missing-or-empty list |
+| V7 Vertical-Fit | concept-coverage on inherited artifacts | PASS / WARN | (Phase 1 entry only) |
+
+Any BLOCK row prevents phase advancement. WARN rows require explicit Governor acknowledgment in the phase gate request.
+
 ---
 
 ## Guardrail Status

@@ -304,6 +304,20 @@ The agent does NOT auto-expand keywords into domain models without Governor revi
 
 ---
 
+## 7. Vertical-Fit Verification at Inheritance (from GOSTA §8.7 V7)
+
+When a session inherits a domain model from a prior session or from the framework's example library, run a vertical-fit check at Phase 1 entry **before** Phase 1 deliberation begins. The check is mechanical:
+
+1. Extract the new session's declared concept set from scope objectives, OD strategies, and deliberation roster.
+2. Grep / match the inherited domain model's §1 Core Concepts against the declared concept set.
+3. Compute coverage percentage. Default threshold: 70% of declared concepts must have at least one matching reference in the inherited model.
+
+**Below threshold:** Three response options: (a) extend the inherited model with the missing concepts before Phase 1 enters, (b) accept the gap with explicit Governor acknowledgment that the missing concepts will be reasoned about without domain-model grounding, (c) substitute a vertical-fit-validated model from the example library or author a session-specific model.
+
+**Anti-pattern:** Inheriting a domain model that loads without error but does not cover the session's deliberation concept set is NOT a substitute for vertical-fit-validated models. Generic-pass inheritance is exactly the failure mode V7 exists to prevent.
+
+---
+
 ## Version History
 
 | Version | Date | Changes |

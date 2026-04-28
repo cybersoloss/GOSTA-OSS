@@ -26,6 +26,46 @@ Every time you enter a GOSTA session directory:
 - **Dimension Elicitation** — when drafting a tournament-enabled tactic in the OD, analyze session context (domain model tensions, guardrail pairs, reference pool clusters, deliverable trade-offs) and propose candidate behavior space dimensions to the Governor before declaring the behavior space. Do not invent dimensions without evidence from context sources.
 - **Check signal-recommendation alignment** — if most signals trend negative but you recommend persevere, state why with specific countervailing evidence.
 
+## Verification Discipline
+
+Pre-flight validation gates per spec §8.7 are operational requirements at runtime, not advisory checks. The framework declares the structures (artifacts, retrieval contracts, runtime tools, capture-mode flags); this section specifies the assistant-side discipline that keeps those declarations operationally true at every lifecycle boundary.
+
+### Phase-gate verification (mandatory at every phase entry and phase exit)
+
+1. **Declared-artifact existence check (V6).** For every artifact named in `00-BOOTSTRAP.md`, the OD §Decision History, or the scope file as a phase deliverable: run `test -s <path>`. Empty or missing artifacts BLOCK phase exit unless explicitly deferred with a Governor-acknowledged reason in OD §Decision History.
+
+2. **Continuous-capture coverage check (V4).** When Debug + Shortfall Reporting Mode (or any continuous-capture mode flag) is active, run `wc -l` against the relevant log artifacts (shortfall log, framework-feedback file, session-log directory) and compare to friction signals observed during the phase. If friction was observed and capture is empty, either backfill entries before phase exit OR explicitly confirm "all friction this phase is session-execution-specific, not framework-class" in writing.
+
+3. **Cross-doc consistency check (V3).** At Phase 1 entry: run a cross-document key-set comparison between OD and scope file (every STR-N appears in both, every guardrail referenced exists, every deliverable maps to a strategy). Symmetric difference must be empty before Phase 1 enters.
+
+4. **Retrieval contract validation (V1).** Before any phase that runs per-unit queries at scale: for at least one representative query per declared pool, run the actual operational query (not a topic-vocabulary probe) and record VALIDATED / CORPUS-FIT-GAP / VOCABULARY-MISMATCH / ESCALATE per cell. Phase entry blocks on unresolved ESCALATE.
+
+### Tool-invocation discipline
+
+5. **First-call-per-session import test (V5).** Before the first invocation of any pool-agent, embedding, or runtime-dependent tool: run `python3 -c "<actual import statements the tool will execute>"`. File-presence checks against the model file or dependency list do NOT satisfy V5 — verify what runs, not what is documented to run.
+
+6. **Post-build shape verification (V2).** After any pool build, embedding generation, or chunking operation: inspect the produced artifact's shape (`numpy.load(...).shape`, file count, byte count). If `N_embeddings == N_input_files` for non-trivial input sizes, treat as suspicious and present to Governor before proceeding.
+
+### Audit-tool discipline (cross-cutting)
+
+7. **Audits MUST invoke the Read tool per file checked.** When asked to audit, verify, or summarize a file's state: invoke Read with the file path. Line counts and byte counts reported MUST match disk values, not inferred values. If a count cannot be obtained from a Read call, report "unable to verify" — do not estimate.
+
+8. **Tool-output read-back after non-trivial edits.** After Edit operations on cross-referenced sections (OD ↔ scope, signal ↔ decision, template ↔ session): Read the modified region back and verify the Edit applied as intended. Edit-tool failure modes (whitespace mismatch, partial application) are silent without explicit verification.
+
+9. **Self-correction is not evidence of integrity.** If a prior assistant turn produced unverified content (estimated counts, paraphrased content, fabricated audit) and a subsequent turn corrects it: log the correction explicitly as a `[CORRECTED-IN-LATER-TURN]` annotation. The fact of self-correction does not retroactively validate the prior turn — both must be visible in the trace.
+
+### Active-detection requirement
+
+10. **If you observe friction, log it.** Any of the following is a logging trigger: protocol gap encountered, retrieval below threshold, OD/scope inconsistency, sycophancy event, cite-then-apply violation, out-of-scope engagement attempt, missing declared artifact, mode-flag-without-output. Active capture is the assistant's job; the Governor's review reads the captured artifacts. Capture failures are §8.7 V4 violations.
+
+11. **If a declared structure does not match operational reality, escalate.** Discovering a gap (a declared artifact that doesn't exist; a retrieval contract that doesn't return; an inherited model that doesn't cover declared concepts) is not a continuation signal — it is a halt-and-report signal. The Governor decides what to do with the gap; the assistant's job is to surface it visibly.
+
+### Anti-patterns (excluded)
+
+- **Paraphrasing from memory is not verification.** If the discipline requires a count, a shape, an existence check — invoke the tool. Estimated counts, recalled file structure, and "I believe the file contains" are not §8.7-compliant.
+- **Forward-progress bias when a check would surface a gap.** The default assistant behavior is to continue toward the next task. The discipline is to STOP when a check is required, run the check, then continue. Skipping a check because the next step is clear is exactly the failure mode §8.7 exists to prevent.
+- **Trusting declared state without verification at boundaries.** "CLAUDE.md says session-logs/ should be populated, so I assume it is" is not §8.7-compliant. Check at the boundary where it matters; do not assume continuity from declaration to operational truth.
+
 ## Output Paths
 
 Deliverables and session artifacts go in their canonical directories. Do not mix them:

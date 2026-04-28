@@ -533,18 +533,24 @@ After creating all scaffold files, list the session directory contents and verif
 
 If any file is missing, misnamed (e.g., `shortfall-log.md` instead of `session-shortfall-log.md`), or placed in the wrong directory (e.g., `orchestrator-trace.md` at session root instead of `debug-logs/`), correct it immediately before proceeding to Step 3. Log any correction to the shortfall log if one exists.
 
-**Pool-agent model check (Code mode only):**
-If the session will use reference pools with >50 items or large document indexing (§18.5), verify the embedding model is available:
+**Pool-agent model + runtime-deps check (Code mode only):**
+If the session will use reference pools with >50 items or large document indexing (§18.5), verify both the embedding model AND the runtime imports are available. Checking the model file alone is insufficient — pool-agent imports `tokenizers`, `onnxruntime`, `numpy`, and `pyyaml` at query/build/index-doc time, and any missing import causes a `ModuleNotFoundError` on first invocation.
 
 ```bash
-# Check if model exists
+# Check the model file
 ls cowork/tools/pool-agent/models/model.onnx
 
-# If missing — download and quantize (~90MB download, ~22MB result)
-python3 cowork/tools/pool-agent.py setup-model
+# Verify runtime imports succeed (covers numpy, pyyaml, onnxruntime, tokenizers)
+python3 -c "from tokenizers import Tokenizer; import onnxruntime, yaml, numpy"
+
+# If either check fails:
+pip3 install numpy pyyaml onnxruntime tokenizers
+python3 cowork/tools/pool-agent.py setup-model   # only if model file missing
 ```
 
-If the model file is missing, alert the Governor: *"The pool-agent embedding model is not installed. Reference pool semantic search and large document indexing will not work until it's set up. Run `python3 cowork/tools/pool-agent.py setup-model` to download and install it (requires internet, one-time setup). Shall I run it now?"* Do not silently skip this — sessions that need pool-agent will fail at build/query time without the model.
+If the model file is missing, alert the Governor: *"The pool-agent embedding model is not installed. Reference pool semantic search and large document indexing will not work until it's set up. Run `python3 cowork/tools/pool-agent.py setup-model` to download and install it (requires internet, one-time setup). Shall I run it now?"* If the import-test fails, alert the Governor: *"Pool-agent runtime dependencies are missing: [list modules]. Reference pool retrieval will fail at first query. Run `pip3 install numpy pyyaml onnxruntime tokenizers` to fix. Shall I run it now?"* Do not silently skip either check — sessions that need pool-agent will fail at build/query time without both the model and the runtime imports.
+
+**Relationship to spec §8.7:** This check operationalizes V5 Runtime Import Verification (test-what-runs principle: verify the actual import path, not file-presence proxies) at the bootstrap-entry boundary. V6 Declared Artifact Existence (artifacts named in CLAUDE.md / OD / scope verified at phase exits) is checked separately by the phase-gate template. V7 Vertical-Fit Verification on Inherited Artifacts is checked at Phase 1 entry against the session's declared concept set.
 
 **Web search capability check (required when OSINT collection or external evidence gathering is planned):**
 

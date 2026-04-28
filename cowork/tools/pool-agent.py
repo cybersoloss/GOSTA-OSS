@@ -49,8 +49,8 @@ Model files (cowork/tools/pool-agent/models/):
   tokenizer_config.json     # tracked in git
   special_tokens_map.json   # tracked in git
 
-Dependencies (runtime): pip install numpy pyyaml onnxruntime
-Dependencies (setup-model only): pip install tokenizers huggingface-hub onnx
+Dependencies (runtime, required for query/build/index-doc/update): pip install numpy pyyaml onnxruntime tokenizers
+Dependencies (setup-model-only, beyond runtime): pip install huggingface-hub onnx
 """
 
 import argparse

@@ -38,6 +38,12 @@
 - **Review-time checks (if strategy review session):** [R1-R4 results | not applicable — not a review session]
 - **Reconciliation (if strategy review session):** [forward: N decisions checked, M applied | reverse: N elements checked, M unauthorized | parameter drift: [none | details]]
 
+## Pre-Flight Validation Gate Results (from GOSTA §8.7)
+
+V1-V7 invariant results at this session's phase boundaries. Compact form: list any BLOCK or WARN outcomes with (a) which invariant fired, (b) what the test observed, (c) how it was resolved.
+
+If no validation gates fired this session, state: "All §8.7 invariants PASS at the boundaries crossed this session."
+
 ## OD Mutations (post-bootstrap edits) — omit section if no post-bootstrap OD edits occurred
 | Timestamp | Field Changed | Old → New | Cascade Checked | Cascade Skipped | Downstream Changes |
 |---|---|---|---|---|---|
