@@ -109,9 +109,11 @@ Per-invariant test outcomes at this phase boundary. PASS / WARN / BLOCK per row;
 | V2 Build Artifact Shape | embeddings.npy shape vs expected chunking | PASS / WARN / BLOCK | Shape observed; expected ratio |
 | V3 Decision Spine | OD ↔ scope key-set symmetric difference | PASS / BLOCK | (Phase 1 entry only) |
 | V4 Continuous Capture | capture entries vs friction signals | PASS / WARN | Capture artifact line counts |
-| V5 Runtime Imports | tool import-test results | PASS / BLOCK | (First-call per session only) |
-| V6 Declared Artifact Existence | `test -s` per declared artifact | PASS / BLOCK | Missing-or-empty list |
+| V5 Runtime Imports | tool import-test results in orchestrator runtime | PASS / BLOCK | (First-call per session only) |
+| V6 Declared Artifact Existence and Population | Layer A: `test -s` per declared artifact; Layer B: sentinel-removal grep + per-section word-count for templated artifacts | PASS / BLOCK | Missing-or-empty list (Layer A) + template-shaped list (Layer B). Fires explicitly at closeout phase gate on closeout-mandated artifacts. |
 | V7 Vertical-Fit | concept-coverage on inherited artifacts | PASS / WARN | (Phase 1 entry only) |
+| V8 Subagent Dispatch Capability Smoke-Test | probe subagent marker-file write + no-op tool call; orchestrator-independent Read verification | PASS / BLOCK / N/A | (Bootstrap only; conditional on subagent-dispatch declaration) |
+| V9 Inheritance Framework-Residue Audit | token extraction from session declarations vs inherited artifacts; set difference as residue list | PASS / WARN / N/A | (Phase 1 entry only; conditional on inheritance declaration) |
 
 Any BLOCK row prevents phase advancement. WARN rows require explicit Governor acknowledgment in the phase gate request.
 

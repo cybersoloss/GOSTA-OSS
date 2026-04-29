@@ -55,6 +55,38 @@ Omit this section for non-analytical scopes (operational, content production, et
 - **Relationship to sibling strategies:** [competing | complementary]
 - **Authorized By:** `[ROBUST]` [GOV-session-1 | DEC-N — reference to the decision that created or last modified this strategy. For initial OD authoring: GOV-session-1. For subsequent modifications: DEC-N referencing the specific decision entry.]
 
+## Per-Deliverable Caps (per spec §8.7 mechanizable-discipline subset, M3)
+
+Optional but recommended. Declares per-deliverable size caps that the M3 cap-overage hook (`cowork/hooks/check-cap-overage.sh`) reads to surface overages to Governor visibility. Sessions that omit this section get no M3 check (silent skip — not a violation; mechanizable enforcement of caps is opt-in). Caps may be expressed in KB or words.
+
+Format: one row per declared deliverable / class of deliverables. Pattern matching is on the basename (e.g., `phase-N-act-N-*.md` matches all per-act outputs in that phase). Hook performs case-sensitive substring or numeric-pattern match.
+
+| Path Pattern (basename) | Cap (declared) | Rationale |
+|---|---|---|
+| `[e.g., phase-N-act-N-*.md]` | `[e.g., 40 KB]` | `[e.g., per-act output cap; consistent with cluster-synthesis density]` |
+| `[e.g., deliverables/*-roadmap.md]` | `[e.g., 90 KB or 12000 words]` | `[e.g., final deliverable cap; calibrated for analytical scopes — cite-then-apply density at per-feature × per-domain typically requires 2× the cap of operational scopes]` |
+
+**Cap-overage convention:** The M3 hook emits WARN (not BLOCK) on overage. Cap-overage is sometimes substantively justified (DEC-PG-03 C precedent in v4: cite-then-apply density at per-feature × per-domain consistently exceeded preamble caps; subagent judgment to preserve substance over compression was vindicated at every Governor review). The hook surfaces the overage; the Governor decides whether to accept, request compression, or recalibrate the cap.
+
+Sessions that omit this section: no M3 check fires. Mechanizable enforcement of caps requires explicit declaration here.
+
+## Framework-Version Markers (per spec §8.7.3 V9)
+
+Explicit declaration of session-specific framework structure that V9 (Inheritance Framework-Residue Audit) compares inherited artifacts against. Authored at OD authoring time; consumed by V9 at Phase 1 entry when the session inherits artifacts. Optional but recommended for sessions that inherit from prior sessions or example libraries — without explicit declaration, V9's free-text marker check has no baseline to compare against and falls back to structural-identifier checks only.
+
+Fill in the markers your session declares. Omit rows that don't apply to this session.
+
+| Marker Class | Declared Value | Examples (illustrative — adapt or remove) |
+|---|---|---|
+| Objective enumeration | [e.g., "5-objective: OBJ-1 through OBJ-5"] | regulatory analysis: 4-objective; hiring pipeline: 6-objective |
+| Strategy enumeration | [e.g., "3-strategy: STR-1 through STR-3"] | vendor evaluation: 4-strategy |
+| Bucket vocabulary | [e.g., "2-bucket: MVP / Post-MVP"] | hiring pipeline: 3-bucket (Hire / Hold / Pass); roadmap: 2-bucket |
+| Scoring framework | [e.g., "5-band scoring: 1-2 Absent, 3-4 Weak, 5-6 Moderate, 7-8 Strong, 9-10 Exceptional"] | hiring pipeline: 4-dimension scoring; vendor evaluation: 6-dimension scoring |
+| Phase enumeration | [e.g., "5-phase: Phase 0 (bootstrap) through Phase 4"] | regulatory analysis: 3-phase |
+| Session-specific identifiers | [e.g., "FLAG-N for Governor-disposition flags; HL-N for hypothesis labels"] | varies per session |
+
+V9 reads this section at Phase 1 entry. For each marker the session declares, V9 verifies the inherited artifact's references match (or surfaces residue tokens that don't). If the session does not inherit artifacts, this section may be omitted entirely.
+
 ## Validation Manifest (per spec §8.7)
 
 Per-strategy and per-tactic validation prerequisites. Each entry declares a structure, a mechanical test, and a failure mode. Authored at OD authoring time; consumed at phase-gate runtime.
@@ -65,11 +97,13 @@ Per-strategy and per-tactic validation prerequisites. Each entry declares a stru
 | Build artifact shape for pool-N (V2) | TAC-N evidence collection | `numpy.load('embeddings.npy').shape`; flag suspicious `N_emb == N_files` for non-trivial inputs | WARN; BLOCK if downstream depends on chunk-level discrimination | Rebuild with `index-doc --heading-level N` |
 | Decision spine consistency (V3) | OD vs scope §6 | Cross-document key-set comparison: STRs, guardrails, deliverables | BLOCK at Phase 1 entry on non-empty symmetric difference | Reconcile by extending OD or revising scope |
 | Continuous-capture coverage for mode-N (V4) | OD §Decision History mode activation | `wc -l` capture artifacts vs friction signals at phase exit | WARN; explicit confirmation required | Backfill entries OR explicit "no capture-class observations apply" |
-| Tool runtime imports (V5) | TAC-N tool dependency | `python3 -c "from <runtime_modules> import <symbols>"` | BLOCK first call | `pip3 install <missing>` |
-| Declared-artifact existence (V6) | CLAUDE.md / OD / scope deliverable list | `test -s <path>` per declared artifact at phase exit | BLOCK phase exit | Create-now / defer-with-reason / remove-from-declaration |
+| Tool runtime imports (V5) | TAC-N tool dependency | `python3 -c "from <runtime_modules> import <symbols>"` in orchestrator runtime | BLOCK first call | `pip3 install <missing>` |
+| Declared-artifact existence and population (V6) | CLAUDE.md / OD / scope deliverable list; templated closeout artifacts | Layer A: `test -s <path>` per declared artifact at phase exit. Layer B (templated artifacts): `grep -c "\[POPULATE:"` returns 0 + per-section word-count floor (default 20); fingerprint-diff fallback. Fires explicitly at closeout phase gate. | BLOCK phase exit (Layer A or Layer B) | Create-or-populate-now / defer-with-reason / remove-from-declaration |
 | Vertical-fit on inherited artifacts (V7) | OD §Domain Models Referenced | Concept-coverage grep against session's declared concept set | WARN at Phase 1 entry | Extend / accept-with-acknowledgment / substitute |
+| Subagent dispatch capability smoke-test (V8) — conditional | OD or scope declaration that any phase will dispatch subagents | Probe subagent writes marker file at session directory + runs no-op tool call; orchestrator independently verifies marker via Read tool | BLOCK at first phase that depends on subagent dispatch | Reroute-path / extend-sandbox / collapse-to-orchestrator |
+| Inheritance framework-residue audit (V9) — conditional | OD or scope declaration that session inherits artifacts from prior session or example library | At Phase 1 entry: extract framework-concept tokens from inheriting session's OD/scope/CLAUDE.md and from each inherited artifact (regex on structural identifiers + framework-version markers); compute set difference as residue list | WARN at Phase 1 entry; Governor classifies and disposes per token | Update inherited artifact / acknowledge-as-historical / extend inheriting session's declarations |
 
-Sessions may add additional entries for session-specific prerequisites. The seven entries above are the empirical baseline derived from §8.7.1 boundary catalog.
+Sessions may add additional entries for session-specific prerequisites. The nine entries above are the empirical baseline derived from §8.7.1 boundary catalog. V8 and V9 rows are omitted (or marked N/A) when the session does not declare subagent dispatch / does not inherit artifacts respectively.
 
 ## Tactics
 ### TAC-1: [Named tactic] → serves STR-1

@@ -3605,15 +3605,16 @@ Pre-flight validation gates apply only at lifecycle boundaries that have been em
 
 | Boundary | What Crosses It | What Fails If Validation Is Skipped |
 |----------|-----------------|--------------------------------------|
-| **Bootstrap entry** | Session inherits OD, scope, domain models, runtime tooling, continuous-capture mode flags from declared sources. | Inherited artifacts are present-by-name but not vertical-fit-validated; runtime tools verified by file presence rather than import-test; mode flags activated as text without operational backing. |
+| **Bootstrap entry** | Session inherits OD, scope, domain models, runtime tooling, continuous-capture mode flags from declared sources. | Inherited artifacts are present-by-name but neither vertical-fit-validated for coverage (V7) nor framework-residue-audited for inverse-direction concept presence (V9 — concepts referenced inside the inherited artifact that do not appear in the inheriting session's declarations); runtime tools verified by file presence rather than import-test; mode flags activated as text without operational backing. |
 | **Phase entry** | Phase begins with declared prerequisites: retrieval contracts, deliberation roster, evidence pools, inherited decisions. | Retrieval contract not exercised against operational query set; phase consumes the first batch of operational queries and discovers structural mismatch at scale. |
 | **Phase exit** | Phase produces declared artifacts before the next phase consumes them. | Artifact declared in CLAUDE.md or OD as a phase deliverable is missing or empty; downstream phase proceeds against a phantom predecessor. |
 | **Tool invocation (first call per session)** | Tooling reaches its first operational invocation; runtime imports execute. | Verification checked file presence or documented dep list; first call surfaces `ImportError` or runtime failure not caught by the verification step. |
+| **Subagent dispatch (first dispatch per session)** | Orchestrator dispatches a subagent that runs in a separate sandbox or environment from the orchestrator's own runtime. | Sandbox-specific capabilities (file-system path resolution, mounted-directory visibility, declared-tool callability under the subagent context) verified only at the orchestrator's environment; the subagent's first dispatch fails on an environment-specific capability that orchestrator-side smoke did not exercise. |
 | **Artifact production** | A build, query, render, or computation produces a downstream-consumable artifact. | Artifact shape (count, dimensionality, chunking ratio) is silently wrong; downstream consumers operate on corrupt input. |
 | **Mode-flag activation (continuous-capture-class)** | A mode flag declares a continuous capture obligation (debug capture, shortfall reporting, framework feedback, episodic logging). | Flag is set as text but produces no capture-checkable artifacts; absence is interpreted as "nothing to report" rather than "capture-discipline failure." |
 | **Declared-artifact existence checks at phase exits** | Every artifact declared in CLAUDE.md, the OD, or scope must exist with non-zero content at the phase boundary that owns it. | Declared artifact never written; no gate notices; absence is silently inherited by the next phase. |
 
-These seven boundaries are the empirical set. Future framework feedback may add boundaries; additions follow the same evidentiary discipline (one observation, one boundary).
+These eight boundaries are the empirical set. Future framework feedback may add boundaries; additions follow the same evidentiary discipline (one observation, one boundary).
 
 #### 8.7.2 Validation Manifest Format
 
@@ -3707,7 +3708,7 @@ If any active capture flag's artifact is empty AND the phase produced any fricti
 
 ##### Invariant V5 — Runtime Import Verification `[CORE]`
 
-**Statement.** Tool verification at bootstrap and at first invocation must exercise the actual runtime path — import calls, smoke calls, live shape returns — not check proxies (file existence, dependency-list documentation, mode flag presence). The test-what-runs principle: a verification that does not run what runs at operational time is the wrong-shaped test.
+**Statement.** Tool verification at bootstrap and at first invocation must exercise the actual runtime path — import calls, smoke calls, live shape returns — not check proxies (file existence, dependency-list documentation, mode flag presence). The test-what-runs principle: a verification that does not run what runs at operational time, *in the environment where it will run*, is the wrong-shaped test. V5 covers the orchestrator's own runtime environment. Where the runtime path crosses an environment boundary into a subagent sandbox or other isolated runtime (file-system mounts differ, path resolution differs, declared-tool callability differs), V5's orchestrator-side smoke is necessary but insufficient; the call-site-environment smoke is V8's responsibility.
 
 **Check.** For each declared tool, run an import-test or smoke-call that exercises the runtime path:
 ```bash
@@ -3721,23 +3722,37 @@ If the import or smoke call fails, list the missing modules or failing call site
 - *Regulatory analysis session, bootstrap:* Bootstrap declares an embedding-pool tool. V5 runs `python3 -c "from tokenizers import Tokenizer; import onnxruntime; import yaml; import numpy"` and observes `ModuleNotFoundError: No module named 'tokenizers'`. BLOCK; the fix command (`pip3 install tokenizers`) is presented; verification re-runs.
 - *Hiring pipeline session, first deliberation-coordinator call:* V5 runs a minimal smoke call against the deliberation tool's actual entry point with a one-position-paper input. If the smoke call returns a well-formed synthesis stub, pass; if it raises, BLOCK and surface the trace.
 
-##### Invariant V6 — Declared Artifact Existence `[CORE]`
+##### Invariant V6 — Declared Artifact Existence and Population `[CORE]`
 
-**Statement.** Every artifact declared in CLAUDE.md, the Operating Document, or scope as a phase deliverable must verify present-with-non-zero-content at every phase exit, OR be flagged as deferred-with-Governor-acknowledgment. Declared-but-absent artifacts at phase exit are a V6 violation.
+**Statement.** Every artifact declared in CLAUDE.md, the Operating Document, or scope as a phase deliverable must verify present-with-non-zero-content AND populated-with-session-specific-content-where-population-is-mandated-by-the-artifact-spec at every phase exit (including the closeout phase gate), OR be flagged as deferred-with-Governor-acknowledgment. Declared-but-absent artifacts at phase exit are a V6 violation. Declared-but-template-shaped artifacts — present and non-zero, but containing only template scaffolding without session-specific population — are also a V6 violation: an unpopulated template at phase exit is the same operational-truth gap as an absent file, expressed through a different surface (the file-existence proxy passes; the actual-population property is what the gate must verify).
 
-**Check.** At each phase exit, the orchestrator reads the declared-artifact list (from CLAUDE.md and OD §Decision History entries that name artifacts) and runs:
+**Check.** At each phase exit, the orchestrator reads the declared-artifact list (from CLAUDE.md and OD §Decision History entries that name artifacts) and runs two layers of mechanical test:
+
+*Layer A — present-with-non-zero-content:*
 ```bash
 for artifact in <declared_artifacts>; do
   test -s "$artifact" || echo "MISSING_OR_EMPTY: $artifact"
 done
 ```
-Every entry on the missing-or-empty list must be either created or explicitly deferred with a logged Governor acknowledgment that names the deferral reason.
 
-**Response.** **BLOCK** at phase exit. The Governor sees the missing-artifact list and chooses, per artifact: create-now, defer-with-reason, or remove-from-declaration (the artifact was declared in error and is no longer required). No silent inheritance of the absence to the next phase.
+*Layer B — populated-where-population-is-mandated (templated artifacts):*
+For each artifact whose template carries `[POPULATE: <description>]` sentinel markers in mandatory-population sections, run:
+```bash
+# (1) Sentinel removal — sentinels must be replaced with session content
+grep -c "\[POPULATE:" "$artifact"   # must return 0
+# (2) Minimum-content check — each formerly-sentineled section must meet
+#     a word-count floor (configurable; default 20 words per section)
+```
+For artifacts where sentinel markup does not fit the artifact shape, fall back to a template-fingerprint diff: hash the template baseline at session-init; compare against the current artifact at phase exit; fail if the diff is below threshold (default: <30% of template lines changed). The fingerprint-diff fallback is heuristic; sentinel-plus-word-count is preferred when applicable. Both checks are mechanical per §8.7.4 (no interpretive judgment of content quality — only that content is present in mandated sections).
+
+Every Layer A or Layer B failure must be either resolved (artifact created or populated) or explicitly deferred with a logged Governor acknowledgment that names the deferral reason.
+
+**Response.** **BLOCK** at phase exit. The Governor sees the missing-or-template-shaped-artifact list and chooses, per artifact: create-or-populate-now, defer-with-reason, or remove-from-declaration (the artifact was declared in error and is no longer required). No silent inheritance of the absence or template-shape to the next phase. **At the closeout phase gate, V6 fires explicitly on closeout-mandated artifacts** (the framework's closeout-population set, e.g., `learnings.md`, `session-logs/session-NNN.md`, `gosta-framework-feedback.md`, and any session-specific closeout deliverables declared in the OD). Closeout cannot complete with template-shaped closeout artifacts. This is the most common surface for closeout-fidelity gaps — files exist, file sizes are non-zero (templates have content), but session-specific population was never executed; Layer A passes silently, Layer B catches.
 
 **Example.**
-- *Vendor evaluation session, Phase 2 exit:* CLAUDE.md declares `phase-2-evidence-collection-trace.md` and `phase-2-vendor-scoring-grid.md`. The trace exists with content; the scoring grid is empty. V6 BLOCKs phase exit. The Governor authors the scoring grid or defers it to Phase 3 with an explicit reason logged in the OD decision history.
-- *Product roadmap session, Phase 1 exit:* OD declares per-execution-session episodic narrative `session-logs/session-NNN.md`. The directory is empty across the phase. V6 BLOCKs phase exit. The cleanest empirical case: the narrative is authored from in-session evidence, or the artifact slot is explicitly deferred with Governor acknowledgment naming the deferral. Silent inheritance is excluded.
+- *Vendor evaluation session, Phase 2 exit:* CLAUDE.md declares `phase-2-evidence-collection-trace.md` and `phase-2-vendor-scoring-grid.md`. The trace exists with content; the scoring grid is empty. V6 Layer A BLOCKs phase exit. The Governor authors the scoring grid or defers it to Phase 3 with an explicit reason logged in the OD decision history.
+- *Product roadmap session, Phase 1 exit:* OD declares per-execution-session episodic narrative `session-logs/session-NNN.md`. The directory is empty across the phase. V6 Layer A BLOCKs phase exit. The narrative is authored from in-session evidence, or the artifact slot is explicitly deferred with Governor acknowledgment naming the deferral. Silent inheritance is excluded.
+- *Hiring pipeline session, closeout phase gate:* The closeout step reports `learnings.md` populated. Layer A passes — the file is non-zero because the template scaffolding itself has content. Layer B runs sentinel-removal: `grep -c "\[POPULATE:" learnings.md` returns 14 (sentinels still present in mandatory-population sections such as "Validated Patterns", "Anti-Patterns Discovered", and "Calibrated Norms"). V6 BLOCKs closeout. The Governor populates each section with session-evidence-grounded content before closeout completes, or explicitly defers specific sections with named reasons. The closeout-fidelity gap is caught at the gate, not inherited into the next session as an unaudited claim of "learnings populated."
 
 ##### Invariant V7 — Vertical-Fit Verification on Inherited Artifacts `[ROBUST]`
 
@@ -3751,9 +3766,76 @@ Every entry on the missing-or-empty list must be either created or explicitly de
 - *Hiring pipeline session, Phase 1 entry:* Session inherits a generic "candidate evaluation" domain model from the example library. The session's scope concepts include "publication-record-as-signal," "open-source-contribution-as-proxy," and "interview-loop-calibration." The inherited model covers only "interview-loop-calibration." V7 surfaces 2 of 3 concepts uncovered; the Governor either extends the model with the missing concepts or accepts the gap explicitly.
 - *Regulatory analysis session, Phase 1 entry:* Session inherits scope decisions from a prior session in a related jurisdiction. Concept-coverage test confirms 12 of 13 declared regulatory dimensions have references in the inherited scope; the one missing dimension (sectoral overlay) is flagged. The Governor extends scope to cover the missing dimension before Phase 1 enters.
 
+##### Invariant V8 — Subagent Dispatch Capability Smoke-Test `[ROBUST]`
+
+**Statement.** When a session declares subagent dispatch in scope, the OD, or CLAUDE.md (i.e., any phase will dispatch subagents to run capabilities — Task agents, deliberation coordinators, evidence-collection workers, etc.), a bootstrap-time smoke-test must exercise an actual dispatch in the subagent's environment before any phase that depends on subagent capability proceeds. The smoke-test verifies the subagent's runtime can perform the minimum capabilities the session will require: file-system access at the session directory, declared-tool callability under subagent context, and any environment-specific resource the session declares (mounted volumes, environment variables, network reach). Sessions that do not declare subagent dispatch do not run V8. V8 is the call-site-environment generalization of V5: V5 verifies the orchestrator's own runtime; V8 verifies the subagent's runtime, where it differs from the orchestrator's by sandbox isolation, separate mounts, or independent dependency resolution.
+
+**Check.** At session bootstrap, conditional on subagent-dispatch declaration, the orchestrator dispatches a minimal probe subagent and runs three mechanical tests:
+
+```
+# (1) Probe writes a marker file at the session directory:
+#     mkdir <session-dir>/probe/ && touch <session-dir>/probe/marker.md
+# (2) Probe runs any declared-for-subagent tool with a no-op call
+#     (e.g., a list_* call against a declared MCP) and returns the
+#     response.
+# (3) Orchestrator independently verifies, via its own Read tool, that
+#     the marker file exists at the path the probe reported.
+```
+
+V8 fails if any of:
+- The probe reports `permission denied`, `Bash blocked`, `Write denied`, or a sandbox-path-resolution error during step (1).
+- The probe's tool no-op in step (2) raises an environment-specific error not seen in the orchestrator's V5 smoke (e.g., `ImportError` for a dependency present in the orchestrator's runtime but absent in the subagent's).
+- The orchestrator's independent Read in step (3) does not see the marker file at the reported path — the probe ran but its writes did not land where the orchestrator can observe them, surfacing an environment-mismatch on the file-system boundary.
+
+The mechanical test surfaces three classes of environment-mismatch failure: (a) path-resolution boundaries (workspace symlinks not mounted in the subagent sandbox), (b) permission-grant scope (orchestrator-environment grants do not propagate into the subagent's separate sandbox), (c) declared-tool callability differences (a tool that imports cleanly in the orchestrator may not be available in the subagent's runtime).
+
+**Response.** **BLOCK** at the first phase that depends on subagent dispatch. The Governor sees the failure trace and chooses among at least two mitigation paths: (a) reroute subsequent dispatches to a path the subagent can resolve (e.g., absolute symlink-target rather than the symlinked workspace path), (b) extend the subagent sandbox configuration to mount the missing path or install the missing dependency, or (c) reshape the session to run without subagent dispatch (collapse to single-orchestrator execution where feasible). The chosen mitigation is captured in session CLAUDE.md or in the OD's Validation Manifest before the dependent phase enters.
+
+**Example.**
+- *Regulatory analysis session, bootstrap:* Session declares subagent dispatch for parallel jurisdictional retrieval workers. Workspace uses a symlink to a private content directory (private-vs-public separation pattern). V8 smoke-test dispatches a probe subagent that attempts `mkdir <session-dir>/probe/ && touch <session-dir>/probe/marker.md`. The probe reports `Bash blocked` — the symlink target is not mounted in the subagent sandbox, so the workspace-relative path appears unwritable in the subagent's environment, even though the orchestrator's V5 smoke passed (orchestrator follows the symlink transparently). V8 BLOCKs. Mitigation: reroute subsequent dispatch preambles to use the absolute symlink-target path; logged in CLAUDE.md before any retrieval-worker phase enters; subsequent dispatches succeed.
+- *Hiring pipeline session, bootstrap:* Session declares subagent dispatch for parallel candidate-portfolio analysis. No workspace symlinks; sandbox configuration is uniform across orchestrator and subagent. V8 probe dispatches, writes the marker, returns the no-op tool response. Orchestrator independently reads the marker via its own file tool. V8 passes; no mitigation needed; session proceeds to Phase 1.
+- *Vendor evaluation session, bootstrap:* Session declares subagent dispatch for a vendor-specific scraping tool. V8 probe runs the tool's no-op call inside the subagent sandbox and reports `ImportError: <scraping_dependency>` — the tool imports cleanly in the orchestrator's runtime (V5 passed) but the subagent sandbox uses a separate environment that does not have the dependency installed. V8 BLOCKs. Mitigation: extend the subagent sandbox setup to install the missing dependency, or reroute that specific capability to the orchestrator's runtime (orchestrator-side tool-call rather than subagent-dispatched). The chosen path is logged before Phase 2 enters.
+
+##### Invariant V9 — Inheritance Framework-Residue Audit `[ROBUST]`
+
+**Statement.** When a session inherits artifacts (domain models, scope decisions, deliberation rosters, templates, reference artifacts) from a prior session or from a different framework version, a residue-audit at Phase 1 entry must verify that framework-concept references *inside* the inherited artifact match the inheriting session's framework declarations. Concepts referenced in the inherited artifact that do not appear in the inheriting session's OD, scope, or CLAUDE.md are *framework residue* — concepts from the source session's framework version (different identifier conventions, different scoring frameworks, different objective enumerations) that may not apply to the inheriting session. V9 is the inverse direction of V7: V7 asks "does the inherited artifact carry concepts the session needs?" (coverage gap); V9 asks "does the inherited artifact carry concepts the session does not declare?" (residue). Sessions that do not inherit any artifacts skip V9.
+
+**Check.** At Phase 1 entry, conditional on inheritance declaration, for each inherited artifact:
+
+```
+# (1) Extract framework-concept tokens from inheriting session's
+#     OD + scope + CLAUDE.md. Token classes:
+#     - Structural identifiers: regex with word-boundary anchors on
+#       \bOBJ-\d+\b, \bSTR-\d+\b, \bTAC-\d+\b, \bACT-\d+\b,
+#       \bDEC-PG-\d+\b, \bDEC-\d+\b, \bDELIB-\d+\b,
+#       \bG-[A-Za-z]+\b, etc.
+#     - Framework-version markers: explicit phrases declared in the
+#       inheriting session's OD §Framework-Version Markers section
+#       (or equivalent declaration in CLAUDE.md / scope) — e.g.,
+#       "N-objective", "X-bucket", "Y-dimension scoring"; whatever
+#       the session's declarations name as framework-version-
+#       specific structure. Sessions that omit OD §Framework-Version
+#       Markers fall back to structural-identifier checks only.
+# (2) Extract the same token classes from each inherited artifact.
+# (3) Compute set difference: tokens in inherited artifact NOT in
+#     inheriting session's declarations. This set is the framework-
+#     residue list.
+```
+
+The mechanical check produces the raw set-difference list. The Governor's WARN response classifies each residue token (framework-version-mismatch / concept-version-mismatch / neutral content) — that classification is interpretive and lives in the response, not in the check itself, preserving §8.7.4 anti-pattern #2 compliance.
+
+V9 coverage depends on session authoring discipline: structural-identifier coverage is automatic (regex matches the canonical GOSTA identifier set); free-text framework-marker coverage requires the inheriting session to declare its markers in OD §Framework-Version Markers. Sessions that inherit but omit the markers section get partial V9 coverage (structural identifiers only) — adequate for many cases but weaker than full declaration.
+
+**Response.** **WARN** at Phase 1 entry. The Governor sees the residue list and chooses per token: (a) update the inherited artifact to remove or rename the residue, (b) treat as historical context only with explicit acknowledgment in OD §Decision History (e.g., "Inherited reference artifact references prior-framework OBJ-N; treated as historical naming only — no current-session OBJ-N exists"), or (c) extend the inheriting session's declarations to include the residue concept. Phase 1 entry proceeds either way; the Governor's disposition per token is logged before downstream phases consume the inherited artifact.
+
+**Example.**
+- *Regulatory analysis session, Phase 1 entry:* Session inherits scope artifacts from a prior session in a different jurisdiction that declared 5 strategies. The inheriting session's OD declares only STR-1 through STR-4 and uses different jurisdictional vocabulary. V9 surfaces "STR-5 Member-State Calibration" as residue. The Governor either extends the inheriting session's OD to include STR-5 (with the inherited definition) or acknowledges the inherited reference as historical only — no STR-5 exists in this session's framework.
+- *Hiring pipeline session, Phase 1 entry:* Session inherits a candidate-evaluation artifact from a prior session that used a 6-dimension scoring framework. Current session declares a 4-dimension framework in CLAUDE.md ("4-dimension scoring: technical-fit, cultural-fit, growth-trajectory, communication"). V9 extracts the residue token "6-dimension scoring" — the inherited phrase does not appear anywhere in the inheriting session's declarations. The Governor either updates the inherited artifact to map onto the 4-dimension framework (collapsing the prior 6 into 4) or acknowledges the difference in OD §Decision History before Phase 1 deliberation consumes the artifact.
+- *Vendor evaluation session, Phase 1 entry:* Session inherits a vendor-pool reference artifact from a prior session that classified vendors using "Tier-A / Tier-B / Tier-C" but the inheriting session's OD declares vendor classifications "Primary / Secondary / Deferred." V9 surfaces the prior-tier tokens (Tier-A, Tier-B, Tier-C) as residue. The Governor renames the inherited classifications to match the inheriting session's vocabulary, accepts both classification systems coexisting with an explicit cross-mapping in OD §Decision History, or extends the inheriting session's OD to include the prior-tier vocabulary as a parallel classification.
+
 **Implementation by tier.**
 
-- *Tier 0:* The AI runs each V-invariant check as inline reasoning during bootstrap, phase entry, and phase exit. V1's per-cell matrix is computed by running actual queries and tabulating outcomes conversationally. V2 runs the shape inspection as a shell command and reads the output. V3 runs the cross-document grep/match in conversation, listing the symmetric difference. V4 reads the artifact file sizes and compares against observed friction count from the session transcript. V5 runs the import-test directly. V6 reads the declared-artifact list and tests each path. V7 extracts the declared concept set and greps the inherited artifact. Failures are surfaced to the Governor conversationally with the fix path.
+- *Tier 0:* The AI runs each V-invariant check as inline reasoning during bootstrap, phase entry, and phase exit. V1's per-cell matrix is computed by running actual queries and tabulating outcomes conversationally. V2 runs the shape inspection as a shell command and reads the output. V3 runs the cross-document grep/match in conversation, listing the symmetric difference. V4 reads the artifact file sizes and compares against observed friction count from the session transcript. V5 runs the import-test directly in the orchestrator's runtime. V6 reads the declared-artifact list and tests each path with both Layer A (existence + non-zero) and Layer B (sentinel-removal + word-count for templated artifacts; fingerprint-diff fallback) — explicitly fired again at the closeout phase gate on closeout-mandated artifacts. V7 extracts the declared concept set and greps the inherited artifact for coverage. V8 (when subagent dispatch is declared) runs at bootstrap by dispatching a probe subagent and verifying the orchestrator can observe the probe's writes. V9 (when the session inherits artifacts) extracts framework-concept tokens from the inheriting session's declarations and from each inherited artifact, then surfaces the set difference as the framework-residue list at Phase 1 entry. Failures at any V-invariant are surfaced to the Governor conversationally with the fix path.
 - *Tier 1:* Validation-manifest YAML is committed alongside templates; a phase-gate runner executes the manifest's mechanical tests and blocks the gate if any BLOCK-class test fails. Failures appear in the approval UI with the fix command inline.
 - *Tier 2+:* Validation manifests are versioned; manifest violations correlate across boundaries (a V1 cell-distribution gap that leads to a V4 capture-coverage gap that leads to a V6 declared-artifact absence is tracked as a single causal chain, mirroring §8.6.9's cross-contract correlation pattern).
 
@@ -3783,7 +3865,7 @@ Every entry on the missing-or-empty list must be either created or explicitly de
 
 **§8.4 Causal Context at Kill Decisions** surfaces confounders at irreversible decision points. §8.7 surfaces operational-truth gaps at lifecycle boundaries that *precede* decision-making. A pre-flight gate failure caught at phase entry is an upstream confounder that, if missed, would surface as a confounder at the next kill decision (e.g., "tactic underperformance was confounded by a retrieval contract that never validated against the operational query set"). §8.7 catches the gap upstream; §8.4 surfaces it downstream if §8.7 missed it.
 
-**§22 Execution Protocols** operationalize §8.7 in the cowork protocol family. The evidence-collection protocol pattern (§22.4) is the operational realization of V1; phase-gate templates in the cowork protocol carry V4 and V6 enforcement; tool verification steps in the bootstrap protocol carry V5. The pattern: §8.7 declares the invariant; §22's protocol family realizes it operationally per session shape.
+**§22 Execution Protocols** operationalize §8.7 in the cowork protocol family. The evidence-collection protocol pattern (§22.4) is the operational realization of V1; phase-gate templates in the cowork protocol carry V4 and V6 enforcement (with V6 firing at every phase exit and explicitly at the closeout gate); tool verification steps in the bootstrap protocol carry V5 (orchestrator-runtime smoke); subagent-dispatch smoke-test in the bootstrap protocol carries V8 (call-site-environment smoke, conditional on subagent-dispatch declaration); inheritance-residue audit at Phase 1 entry in the bootstrap protocol and the cowork protocol's succession step carries V9 (token set-difference between inheriting session declarations and inherited artifact, conditional on inheritance declaration). The pattern: §8.7 declares the invariant; §22's protocol family realizes it operationally per session shape.
 
 ---
 

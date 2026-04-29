@@ -105,7 +105,7 @@ Beyond the five layers, nine subsystems make the control loop reliable:
 
 **Environmental Signal Architecture** — Watch lists monitoring external conditions (competitor moves, regulatory changes, market shifts). Environmental signals carry distinct provenance and scale by tier.
 
-**Structural Integrity** — Nine structural rules, semantic coherence validation, decision-to-state traceability, OD state versioning, feature interaction rules, eight interface contracts defining data flow between components, and seven pre-flight validation gates (V1-V7) that mechanically verify declared structures (retrieval contracts, build artifacts, decision spine, capture mode flags, runtime imports, declared artifacts, inherited-artifact vertical fit) are operationally true at every lifecycle boundary.
+**Structural Integrity** — Nine structural rules, semantic coherence validation, decision-to-state traceability, OD state versioning, feature interaction rules, eight interface contracts defining data flow between components, and nine pre-flight validation gates (V1-V9; V8 conditional on subagent-dispatch declaration; V9 conditional on inheritance declaration) that mechanically verify declared structures (retrieval contracts, build artifacts, decision spine, capture mode flags, runtime imports in orchestrator runtime, declared artifacts present-and-populated, inherited-artifact vertical fit (coverage), subagent-dispatch capability smoke at call-site environment, inherited-artifact framework-residue audit (the inverse-direction check on inherited artifacts)) are operationally true at every lifecycle boundary.
 
 ---
 

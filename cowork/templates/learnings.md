@@ -1,15 +1,15 @@
 # Learnings — [Session Name]
 
+> **Sentinel discipline (V6 Layer B):** Sections marked `[POPULATE: ...]` are mandatory at closeout — V6 Layer B blocks the closeout phase gate if any `[POPULATE:` sentinel remains. If a section genuinely has nothing to record, replace the sentinel with an explicit "None — [reason]" statement (still satisfies the populated-check). Sections marked `[OPTIONAL: ...]` are conditional and may remain as-is when the relevant condition does not apply.
+
 ## Validated Patterns
-- [What worked and why — with signal evidence]
+- [POPULATE: list patterns observed during this session that worked, with signal evidence supporting each. Mandatory at closeout. If no validated patterns surfaced, state explicitly: "None — [reason]". Replace this sentinel with content before closeout.]
 
 ## Anti-Patterns Discovered
-- [What failed and why — with signal evidence]
+- [POPULATE: list patterns observed during this session that failed, with signal evidence supporting each. Mandatory at closeout. If no anti-patterns surfaced, state explicitly: "None — [reason]". Replace this sentinel with content before closeout.]
 
 ## Calibrated Norms
-- [Baseline expectations adjusted by experience — e.g., "feature scoring
-  against Sales domain model consistently over-weights Risk Reversal
-  relative to actual purchase behavior"]
+- [POPULATE: list baseline expectations adjusted by experience this session — e.g., "feature scoring against Sales domain model consistently over-weights Risk Reversal relative to actual purchase behavior". Mandatory at closeout. If no norms were calibrated this session, state explicitly: "None — [reason]". Replace this sentinel with content before closeout.]
 
 ### Confidence Calibration (populated at strategy review or after 3+ tactic review cycles per §14.6)
 | Confidence Level | Signals Declared | Signals Accurate | Accuracy Rate | Notes |
@@ -41,7 +41,7 @@ Systematic omission patterns found:
 | [DEC-N] | [description of external event] | [what was lost — progress, resources, commitments] | [new ENV-N entry to monitor, or existing ENV-N threshold adjusted, or "no actionable monitoring possible"] |
 
 ## Cross-Domain Insights
-- [Interactions between domain models not predicted by their stacking notes]
+- [POPULATE: list interactions between domain models observed this session that were not predicted by their stacking notes. Mandatory at closeout for sessions that consulted ≥2 domain models. If no cross-domain insights surfaced, state explicitly: "None — [reason]". Replace this sentinel with content before closeout.]
 
 ## Tournament Execution Patterns (when tournament mode was active)
 

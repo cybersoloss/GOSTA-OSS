@@ -50,9 +50,11 @@ AI fills this section at session start before substantive work:
 - **OD fingerprint:** `[ROBUST]` [goals: N, objectives: N, strategies: N, tactics (active): N, total allocation sum: X.X, guardrails: N — compared against last session's fingerprint. Match | mismatch: [describe detected changes, surface for Governor confirmation]]
 
 **Pre-Flight Validation Gates (from GOSTA §8.7) — bootstrap-entry boundary:**
-- V5 Runtime Imports: import-test for declared tools (e.g., `python3 -c "from tokenizers import Tokenizer; import onnxruntime, yaml, numpy"` for pool-agent). PASS / FAIL.
-- V6 Declared Artifact Existence: `test -s` per artifact declared in CLAUDE.md / OD / scope as a phase deliverable. List missing-or-empty.
+- V5 Runtime Imports: import-test for declared tools in orchestrator runtime (e.g., `python3 -c "from tokenizers import Tokenizer; import onnxruntime, yaml, numpy"` for pool-agent). PASS / FAIL.
+- V6 Declared Artifact Existence and Population: Layer A — `test -s` per artifact declared in CLAUDE.md / OD / scope as a phase deliverable; list missing-or-empty. Layer B — for templated artifacts, run `grep -c "\[POPULATE:"` (must return 0) plus per-section word-count floor (default 20); list any artifact failing Layer B as template-shaped. **At closeout phase gate, V6 fires explicitly on closeout-mandated artifacts** (learnings.md, session-logs/session-NNN.md, gosta-framework-feedback.md, plus session-specific closeout deliverables).
 - V7 Vertical-Fit: concept-coverage on inherited domain models against session concept set. Coverage % per inherited model.
+- V8 Subagent Dispatch Capability Smoke-Test (conditional — only if scope/OD/CLAUDE.md declares subagent dispatch): probe subagent writes marker file at session directory + runs no-op tool call; orchestrator independently verifies marker via Read tool. PASS / BLOCK / N/A. On BLOCK, surface the failure trace and chosen mitigation path (reroute-path / extend-sandbox / collapse-to-orchestrator).
+- V9 Inheritance Framework-Residue Audit (conditional — only if session inherits artifacts from prior session or example library): extract framework-concept tokens from inheriting session's OD/scope/CLAUDE.md and from each inherited artifact; compute set difference as residue list. PASS (residue list empty) / WARN (N residue tokens surfaced; per-token Governor disposition: update / acknowledge-as-historical / extend-declarations) / N/A (session does not inherit artifacts).
 
 Any FAIL or sub-threshold result blocks Phase 0 closure.
 

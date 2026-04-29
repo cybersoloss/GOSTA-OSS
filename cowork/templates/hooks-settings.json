@@ -10,6 +10,13 @@
             "timeout": 5000,
             "async": true,
             "asyncRewake": false
+          },
+          {
+            "type": "command",
+            "command": "bash cowork/hooks/check-signal-first.sh",
+            "timeout": 5000,
+            "async": true,
+            "asyncRewake": false
           }
         ]
       }
@@ -21,6 +28,25 @@
           {
             "type": "command",
             "command": "bash cowork/hooks/log-dispatch.sh",
+            "timeout": 5000,
+            "async": true,
+            "asyncRewake": false
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash cowork/hooks/check-cap-overage.sh",
+            "timeout": 5000,
+            "async": true,
+            "asyncRewake": false
+          },
+          {
+            "type": "command",
+            "command": "bash cowork/hooks/check-afc-section.sh",
             "timeout": 5000,
             "async": true,
             "asyncRewake": false

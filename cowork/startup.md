@@ -550,7 +550,48 @@ python3 cowork/tools/pool-agent.py setup-model   # only if model file missing
 
 If the model file is missing, alert the Governor: *"The pool-agent embedding model is not installed. Reference pool semantic search and large document indexing will not work until it's set up. Run `python3 cowork/tools/pool-agent.py setup-model` to download and install it (requires internet, one-time setup). Shall I run it now?"* If the import-test fails, alert the Governor: *"Pool-agent runtime dependencies are missing: [list modules]. Reference pool retrieval will fail at first query. Run `pip3 install numpy pyyaml onnxruntime tokenizers` to fix. Shall I run it now?"* Do not silently skip either check — sessions that need pool-agent will fail at build/query time without both the model and the runtime imports.
 
-**Relationship to spec §8.7:** This check operationalizes V5 Runtime Import Verification (test-what-runs principle: verify the actual import path, not file-presence proxies) at the bootstrap-entry boundary. V6 Declared Artifact Existence (artifacts named in CLAUDE.md / OD / scope verified at phase exits) is checked separately by the phase-gate template. V7 Vertical-Fit Verification on Inherited Artifacts is checked at Phase 1 entry against the session's declared concept set.
+**Relationship to spec §8.7:** This check operationalizes V5 Runtime Import Verification (test-what-runs principle: verify the actual import path, not file-presence proxies) at the bootstrap-entry boundary in the orchestrator's runtime. V6 Declared Artifact Existence and Population (artifacts named in CLAUDE.md / OD / scope verified at phase exits with Layer A present-and-non-zero plus Layer B populated-where-templated; explicit firing at closeout phase gate) is checked separately by the phase-gate template. V7 Vertical-Fit Verification on Inherited Artifacts is checked at Phase 1 entry against the session's declared concept set. V8 Subagent Dispatch Capability Smoke-Test fires at bootstrap when the session declares subagent dispatch in scope/OD/CLAUDE.md — see Step (V8 dispatch smoke-test) below.
+
+**Hook-availability check at bootstrap (M5 of mechanizable-discipline subset, per spec §8.7 mechanizable subset):**
+
+Several mechanizable-discipline checks (signal-first PreToolUse `cowork/hooks/check-signal-first.sh`, cap-overage PostToolUse `cowork/hooks/check-cap-overage.sh`, AFC section presence PostToolUse `cowork/hooks/check-afc-section.sh`) depend on Claude Code hooks being enabled in the session. Without hook support, these checks fail silently and the mechanizable-discipline subset of §8.7 is inactive. Verify at bootstrap:
+
+1. **Hooks-configuration presence.** Check that `.claude/settings.local.json` (or equivalent platform-specific settings file) contains a `hooks` section. The session's `cowork/templates/hooks-settings.json` is the canonical source for this configuration; bootstrap copies it into `.claude/settings.local.json` when not already present.
+2. **Hook scripts executable.** Confirm each script in `cowork/hooks/` is present and executable. Run `ls -l cowork/hooks/*.sh` and verify executable bit.
+3. **Hook-execution smoke-test.** Optional but recommended: trigger a no-op tool call and confirm the hook trace appears in `debug-logs/orchestrator-trace.md` (the existing `log-dispatch.sh` writes here on every Task dispatch).
+
+If hooks are not enabled, alert the Governor: *"Claude Code hooks are not enabled for this session. Mechanizable-discipline checks (signal-first / cap-overage / AFC section presence) will not fire. Either (a) enable hooks via `cowork/templates/hooks-settings.json` (recommended), or (b) accept that mechanizable enforcement is inactive and rely on assistant-side discipline alone — which carries higher residual risk because documentation-only discipline tends to drift under attention load (the intrinsic LLM property of regressing toward training-distribution defaults when session-specific instructions compete with model priors)."*
+
+Record the result in `00-BOOTSTRAP.md` under the Pre-Flight Validation Gates section: `Hooks enabled: [yes — M1/M3/M4 active | no — mechanizable enforcement inactive; assistant-side discipline only]`.
+
+**Subagent dispatch capability smoke-test (V8 — required when session declares subagent dispatch):**
+
+If the session's scope, OD, or CLAUDE.md declares that any phase will dispatch subagents (Task agents, deliberation coordinators, evidence-collection workers, etc.), run a bootstrap-time smoke-test before scaffolding completes:
+
+1. **Dispatch a probe subagent.** The probe must (a) write a marker file at the session directory (e.g., `mkdir <session-dir>/probe/ && touch <session-dir>/probe/marker.md`) and (b) run any declared-for-subagent tool with a no-op call (e.g., a `list_*` against a declared MCP). Probe returns the marker path and the tool-call response.
+2. **Independently verify.** Orchestrator uses its own Read tool to confirm the marker file exists at the path the probe reported.
+3. **Interpret the result.** V8 fails if (a) the probe reports `permission denied` / `Bash blocked` / `Write denied` / sandbox-path-resolution error during file creation, (b) the no-op tool call raises an environment-specific error not seen in V5's orchestrator-runtime smoke (e.g., `ImportError` for a dependency present in the orchestrator but absent in the subagent sandbox), or (c) the orchestrator's independent Read does not see the marker file (the probe ran but its writes did not land where the orchestrator can observe them — environment-mismatch on the file-system boundary).
+4. **On V8 failure**, alert the Governor with three mitigation options surfaced: *"Subagent dispatch capability smoke-test (V8) failed: [trace]. Three mitigation paths: (a) reroute subsequent dispatch preambles to the absolute resolved path the subagent can see (e.g., absolute symlink-target rather than the symlinked workspace path); (b) extend the subagent sandbox configuration to mount the missing path or install the missing dependency; (c) reshape the session to run without subagent dispatch (collapse to single-orchestrator execution where feasible). Which path?"*
+5. **Record the result.** In the bootstrap's Execution Capabilities (or 00-BOOTSTRAP.md Pre-Flight Validation Gates section), record `V8 Subagent Dispatch: [PASS | BLOCK — chosen mitigation: <path>]` before any phase that depends on subagent dispatch enters.
+6. **Sessions without subagent-dispatch declaration skip V8.** No probe needed; record `V8 Subagent Dispatch: N/A — session does not declare subagent dispatch`.
+
+**Inheritance framework-residue audit (V9 — required when session inherits artifacts):**
+
+If the session inherits artifacts from a prior session or from a different framework version (domain models, scope decisions, deliberation rosters, templates, reference artifacts named in scope or OD), run a residue-audit at Phase 1 entry before any phase consumes the inherited artifacts:
+
+1. **Extract framework-concept tokens from the inheriting session's declarations.** Sources: `00-BOOTSTRAP.md`, the OD (specifically §Framework-Version Markers if present), the scope file, and `CLAUDE.md`. Token classes:
+   - **Structural identifiers** via regex with word-boundary anchors: `\bOBJ-\d+\b`, `\bSTR-\d+\b`, `\bTAC-\d+\b`, `\bACT-\d+\b`, `\bDEC-PG-\d+\b`, `\bDEC-\d+\b`, `\bDELIB-\d+\b`, `\bG-[A-Za-z]+\b`, plus any session-specific identifier patterns the framework declares.
+   - **Framework-version markers** drawn from OD §Framework-Version Markers — the session's declared marker set (objective enumeration, strategy enumeration, bucket vocabulary, scoring framework, phase enumeration, session-specific identifiers). Sessions that omit OD §Framework-Version Markers fall back to structural-identifier checks only — V9 still surfaces structural residue (e.g., OBJ-N where N is outside the session's declared range), but cannot detect free-text framework-marker residue (e.g., "6-dimension scoring framework" when the session uses a different framework).
+2. **Extract the same token classes from each inherited artifact.**
+3. **Compute the framework-residue list:** tokens present in the inherited artifact but absent from the inheriting session's declarations.
+4. **Surface the residue list to the Governor.** For each residue token, the Governor classifies and disposes:
+   - **framework-version-mismatch** (e.g., the inherited artifact references "OBJ-N" where N is outside the inheriting session's range) → update inherited artifact to remove/rename, OR acknowledge as historical only in OD §Decision History, OR extend inheriting session's declarations to include the concept.
+   - **concept-version-mismatch** (e.g., the inherited artifact references "X-dimension scoring" where the inheriting session uses a different scoring framework) → same three options.
+   - **neutral content** (e.g., a feature name, vendor name, or regulatory-article reference that does not encode framework framing) → leave as-is.
+5. **Record the result.** In `00-BOOTSTRAP.md` Pre-Flight Validation Gates section, record `V9 Inheritance Framework-Residue: [PASS — residue list empty | WARN — N tokens surfaced; per-token Governor disposition logged in OD §Decision History]` before Phase 1 entry concludes.
+6. **Sessions without inheritance declaration skip V9.** No audit needed; record `V9 Inheritance Framework-Residue: N/A — session does not inherit artifacts`.
+
+The residue audit is **mechanical** at the extraction step (regex + set difference per §8.7.4 anti-pattern #2 compliance) and **interpretive** at the Governor's classification step (which lives in the WARN response, not in the check itself).
 
 **Web search capability check (required when OSINT collection or external evidence gathering is planned):**
 

@@ -3,17 +3,19 @@
 **Mode:** [cowork | code]
 **Duration:** [approximate]
 
+> **Sentinel discipline (V6 Layer B):** Sections marked `[POPULATE: ...]` are mandatory at session-log closure — V6 Layer B blocks the closeout phase gate if any `[POPULATE:` sentinel remains in this file at the end of the final session of a scope.
+
 ## Summary
-[3-5 sentences: what was the purpose, what was accomplished]
+[POPULATE: 3-5 sentences describing the purpose of this session and what was accomplished. Mandatory at session-log closure. Replace this sentinel before closeout.]
 
 ## Domain Models Consulted
-- [Which models and which specific concepts were used]
+- [POPULATE: list which domain models were consulted this session and which specific concepts were used. If none, state explicitly: "None — session did not consult domain models". Mandatory at closure.]
 
 ## Signals Emitted
-- [Summary of signals produced this session]
+- [POPULATE: summarize signals produced this session (count + by-type breakdown is sufficient). If none, state explicitly: "None — session did not emit signals". Mandatory at closure.]
 
 ## Decisions Made
-- [Summary of Governor decisions]
+- [POPULATE: summarize Governor decisions made this session (DEC-N IDs and one-line summaries). If none, state explicitly: "None — session did not produce Governor decisions". Mandatory at closure.]
 
 ## Deliberation Activity (if type = deliberation or deliberation occurred during session)
 - **Cycle:** DELIB-[NNN]
@@ -40,7 +42,7 @@
 
 ## Pre-Flight Validation Gate Results (from GOSTA §8.7)
 
-V1-V7 invariant results at this session's phase boundaries. Compact form: list any BLOCK or WARN outcomes with (a) which invariant fired, (b) what the test observed, (c) how it was resolved.
+V1-V9 invariant results at this session's phase boundaries (V8 conditional on subagent-dispatch declaration; V9 conditional on inheritance declaration; either may be N/A). Compact form: list any BLOCK or WARN outcomes with (a) which invariant fired, (b) what the test observed, (c) how it was resolved. For V6, distinguish Layer A (existence) from Layer B (populated-where-templated) failures. For V8, note whether smoke-test fired (subagent dispatch declared) or was N/A. For V9, note whether residue audit fired (session inherited artifacts) or was N/A; if WARN, list residue tokens and per-token Governor disposition.
 
 If no validation gates fired this session, state: "All §8.7 invariants PASS at the boundaries crossed this session."
 
