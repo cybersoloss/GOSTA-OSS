@@ -300,7 +300,7 @@ Skip this group entirely if evidence collection mode is disabled. If enabled, as
 
 - **Independence level interaction:** Auto-computed from Group 1 independence level.
   - Independence 1-2: All quality gate warnings/failures require Governor review.
-  - Independence 3: Only FAIL-level outcomes halt. Warnings auto-resolve with logged rationale. Adversarial counter-framing auto-dispatched. Reconciliation minor adjustments auto-resolve; concept invalidations halt.
+  - Independence 3: FAIL-level outcomes halt. **Coverage-mode WARN escalates to Governor disposition regardless of independence** — coverage gaps have cascading verdict-confidence implications and are not routine. Other WARN classes (e.g., directional ratio) auto-resolve with logged rationale. Adversarial counter-framing auto-dispatched. Reconciliation minor adjustments auto-resolve; concept invalidations halt. Governor disposition options for coverage-mode WARN remain per spec §14.8: (a) accept-as-evidence-base-limitation (classified SCARCITY-ACKNOWLEDGED, propagates to deliverable per §12.15), (b) re-collect with revised query angles or extended pool scope, (c) downgrade dependent verdict bands.
   Present computed behavior and ask: *"At independence [N], evidence collection gates will behave as follows: [description]. Confirm or override?"*
 
 - **Source attribution tier policy:** Use framework defaults (§14.8 default 3-tier) or customize?

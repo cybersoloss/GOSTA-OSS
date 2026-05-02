@@ -3660,6 +3660,10 @@ These invariants must hold for any GOSTA implementation that operates at Tier 0 
 
 **Check.** After any pool, index, or embedding build, run a shape inspection:
 ```bash
+python3 cowork/tools/pool-agent.py verify-store --store '<store-path>'
+```
+The `verify-store` subcommand performs an LFS-pointer pre-check (emits an actionable `git lfs pull` diagnostic if the store's binary has not been pulled from LFS, instead of the cryptic numpy pickle-key error chain that ad-hoc `np.load` produces in that state), then prints embedding shape, dimensionality, metadata count, and any consistency issues; exits 0 on clean store, 1 on LFS pointer or missing files, 2 on consistency WARN. For ad-hoc inspection outside pool-agent, fall back to:
+```bash
 python3 -c "import numpy as np; a = np.load('<embeddings>.npy'); print('shape:', a.shape, 'mean_input_size_kb:', <computed>)"
 ```
 If `N_embeddings == N_input_files` AND `mean(input_file_size_kb) > THRESHOLD` (default 20-50KB plain-text), the build produced document-level averaged embeddings rather than chunked embeddings. Verify the build subcommand was the intended one (chunked-index vs. whole-document-embed). Verify dimensionality matches the model's declared output dimension.

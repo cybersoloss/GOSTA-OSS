@@ -39,7 +39,7 @@
 - Independence level: [1 / 2 / 3]
 - Quality gate behavior:
   - [Level 1-2: All warnings and failures require Governor review]
-  - [Level 3: Only FAIL halts. Warnings auto-resolve with logged rationale.]
+  - [Level 3: FAIL halts. Coverage-mode WARN escalates to Governor disposition regardless of independence (cascading verdict-confidence implications). Other WARN classes (directional ratio, etc.) auto-resolve with logged rationale.]
 - Adversarial dispatch: [Governor pre-reviews / auto-dispatched]
 - Reconciliation: [All contradictions halt / minor auto-resolve, invalidations halt]
 

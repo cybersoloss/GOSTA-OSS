@@ -357,6 +357,18 @@ The Interim Assessment determines whether the next round is needed:
 - If **zero hard disagreements and zero novel arguments**: skip Round 2, proceed to Synthesis.
 - If **any hard disagreements or novel arguments**: proceed to Round 2.
 
+**Verdict-split-aware termination (from Round 2 onward) `[CORE]`:** Beyond the basic disagreement / novel-argument check above, the Coordinator at every termination decision (after Round 2 and any subsequent round) checks whether any **intra-cluster verdict-band split exceeding the session's declared convergence threshold** remains open on any candidate. The convergence threshold is what the OD's Deliberation section declares (e.g., "agents within 1 band on recommendation" — sessions instantiate the threshold per their verdict vocabulary; this rule references whatever threshold the OD declared, not a session-specific guardrail label). Termination is permitted only when no such splits remain open. If ≥1 split is open at the proposed termination point, one of two paths must execute:
+
+(a) **Targeted re-dispatch on the open split.** The Coordinator dispatches one additional round limited to the disagreeing agents on the affected candidate. Cost: 1-2 agent dispatches per open split (much cheaper than full re-dispatch). Resolution rate: high when the disagreement is data-driven (more evidence or framing closes it), lower when the disagreement is structural (different domain models reaching incompatible conclusions because they use different evaluation lenses).
+
+(b) **Governor override.** Governor explicitly accepts shipping the candidate with the verdict split carried into the deliverable. The synthesis record adds a `[VERDICT-SPLIT-CARRIED]` annotation to the candidate's Verdict Strength Annotation (see §4.4 schema below), and the deliverable propagates the annotation inline alongside the verdict band per cowork-protocol §12.12.
+
+Default path: (a) targeted re-dispatch unless Governor selects (b). If targeted re-dispatch in option (a) does not close the split (typical for structural disagreements where no additional evidence shifts the involved domains), the Coordinator presents (b) to the Governor at the next termination check rather than running indefinite re-dispatches.
+
+**Rationale.** Without this rule, deliberation can satisfy global convergence criteria (e.g., "within-cluster 1-band convergence achieved across all clusters except one open split") and terminate while individual candidates still carry unresolved verdict splits. The deliverable then surfaces those splits in body-text footnotes that consumers may miss, with band labels that suggest more agreement than exists. The verdict-split-aware termination rule forces a deliberate decision (re-dispatch or override-with-annotation) at termination, surfacing structural disagreements visibly rather than allowing them to ship under cover of band-label conformance. Sessions where the Coordinator selects override (b) signal honestly: "this candidate's verdict carries an unresolved split that more rounds wouldn't close; here's the annotation so the consumer can calibrate."
+
+**When the rule does not apply.** Sessions with single-agent rosters, single-cluster topologies, or no declared verdict-band scale skip the rule (no possible intra-cluster splits to detect).
+
 ### 3.4 Round 2+: Response and Refinement
 
 Domain agents that are referenced in the Coordinator's Round N Prompts receive:
@@ -581,6 +593,38 @@ Weak prompts ("do you still agree with your position?") produce restated positio
 
 #### Consensus Recommendation
 [The recommendation that emerges from synthesis. If full consensus: state it. If partial consensus with unresolved disagreements: state the majority recommendation and note the dissents.]
+
+#### Verdict Strength Annotation (per recommended candidate) `[CORE]`
+
+For every recommended candidate, the Coordinator surfaces a structured strength annotation alongside the verdict band. The annotation makes evidence-strength variation within a band visible to deliverable consumers — without it, single-source-uncontested verdicts and cross-cluster-confirmed verdicts share the same band label and cannot be distinguished without reading the supporting fields.
+
+**Schema (required):**
+
+| Field | Definition | Derivation |
+|---|---|---|
+| `cluster-confirmation` | Count of distinct clusters (or domain agents, in cluster-less topologies) that produced a positive verdict on the candidate | Count of agents whose Round-N position paper recommends the candidate, grouped by declared cluster from OD topology |
+| `tier-floor` | Lowest evidence tier the verdict relies on, per spec §14.8 evidence tier model | Minimum tier across the OSINT items cited in supporting position papers' Recommendation + Reasoning sections |
+| `[VERDICT-SPLIT-CARRIED]` (conditional) | Annotation indicating the verdict shipped under §3.3 Governor override path (b) — an intra-cluster verdict-band split exceeding the session's declared convergence threshold remained open at termination, and Governor accepted shipping with the split visible | Set by Coordinator when §3.3 termination override path (b) is selected. Includes split width descriptor (e.g., `1-band` or `2-band`) and the disagreeing agents/clusters |
+
+**Surface format (illustrative — sessions instantiate per their verdict vocabulary):**
+
+```
+[VERDICT-BAND] [cluster-confirmation: N, tier-floor: T<X>]
+```
+
+When a verdict ships with the conditional `[VERDICT-SPLIT-CARRIED]` annotation:
+
+```
+[VERDICT-BAND] [cluster-confirmation: N, tier-floor: T<X>, VERDICT-SPLIT-CARRIED: <split-width> <disagreeing-agents-or-clusters>]
+```
+
+Examples (feature-evaluation domain): `ADOPT-HIGH [cluster-confirmation: 5, tier-floor: T1]`, `ADOPT-MEDIUM [cluster-confirmation: 1, tier-floor: T3]`, `ADOPT-MEDIUM [cluster-confirmation: 3, tier-floor: T2, VERDICT-SPLIT-CARRIED: 1-band LOW↔MED across <three disagreeing agent IDs>]`. Examples (regulatory-impact domain): `MATERIAL [cluster-confirmation: 3, tier-floor: T1]`, `LATENT [cluster-confirmation: 1, tier-floor: T2, VERDICT-SPLIT-CARRIED: 1-band LATENT↔MATERIAL across <two disagreeing agent IDs>]`.
+
+**Propagation to deliverable.** §12.12 Frame Integrity Validation requires the annotation to appear with each verdict in published deliverables. The deliverable agent transcribes from the synthesis report; does not re-derive. If the synthesis report lacks the annotation for any candidate, the deliverable cannot publish the verdict — surface to Coordinator before proceeding.
+
+**Rationale.** Verdict bands capture recommendation strength. Verdict bands DO NOT capture evidence-base width. A candidate can hold a HIGH band on single-lens reasoning (one domain confidently recommends it) just as easily as on cross-cluster confirmation (five domains independently confirm). Consumers reading the band-only label cannot distinguish these cases. The strength annotation surfaces the distinction inline, making within-band variation visible without changing band thresholds (which would invalidate cross-session verdict comparability) and without forcing re-classification (which would burden the deliberation with a discipline gap the existing band rules already left underspecified).
+
+**When the rule does not apply.** Single-agent assessments, sessions with no OSINT-tier model, or deliberations producing a single recommendation (no candidate set) skip the annotation. The Coordinator notes the omission in the Synthesis Report's Notes section.
 
 #### Consensus Strength
 - **Full consensus:** All agents agree on recommendation (may differ on emphasis)

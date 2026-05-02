@@ -28,6 +28,9 @@ python3 pool-agent.py index-doc \\
 # List available tags in pool
 python3 pool-agent.py tags --pool /path/to/reference-pool.yaml
 
+# Verify pool store integrity (LFS-pointer + shape + consistency check)
+python3 pool-agent.py verify-store --store /path/to/pool-store/
+
 STORE LAYOUT
 ------------
 pool-store/
@@ -150,6 +153,37 @@ def embed_texts(sess, tok, texts, batch_size=32, show_progress=False):
 
 # ── store I/O ──────────────────────────────────────────────────────────────────
 
+# Git LFS pointer files start with this exact byte sequence per LFS spec v1.
+# When a pool store's binary (e.g. embeddings.npy) has not been pulled from LFS,
+# the file on disk is a small (~130 byte) ASCII text file with this signature
+# instead of the actual binary. Loading it with np.load produces a cryptic
+# pickle-key error that does not point to the root cause; the helpers below
+# detect the pointer state and raise an actionable message.
+LFS_POINTER_SIGNATURE = b"version https://git-lfs.github.com/spec/v1"
+
+
+def _is_lfs_pointer(path):
+    """Return True if file at path is a Git LFS pointer (binary not pulled)."""
+    try:
+        with open(path, "rb") as f:
+            head = f.read(64)
+    except OSError:
+        return False
+    return head.startswith(LFS_POINTER_SIGNATURE)
+
+
+def _ensure_not_lfs_pointer(path):
+    """Raise RuntimeError with actionable diagnostic if path is an LFS pointer."""
+    if _is_lfs_pointer(path):
+        raise RuntimeError(
+            f"Git LFS pointer file detected at {path}.\n"
+            f"  The pool store's binary content has not been pulled from LFS.\n"
+            f"  Fix: cd into the git repository containing this file, then run:\n"
+            f"    git lfs pull --include '<path-relative-to-repo-root>'\n"
+            f"  Then re-run pool-agent."
+        )
+
+
 def save_store(store_path, embeddings, metadata, pool_info):
     store_path = Path(store_path)
     store_path.mkdir(parents=True, exist_ok=True)
@@ -164,6 +198,13 @@ def save_store(store_path, embeddings, metadata, pool_info):
 
 def load_store(store_path):
     store_path = Path(store_path)
+    # Guard all three pool-store files against Git LFS pointer state.
+    # JSON files are typically not LFS-tracked, but the check is cheap and
+    # produces a clear diagnostic if metadata.json or pool-info.json end up
+    # pointer-shaped (e.g. via a `.gitattributes` rule applied broadly).
+    _ensure_not_lfs_pointer(store_path / "embeddings.npy")
+    _ensure_not_lfs_pointer(store_path / "metadata.json")
+    _ensure_not_lfs_pointer(store_path / "pool-info.json")
     embeddings = np.load(str(store_path / "embeddings.npy"))
     metadata   = json.loads((store_path / "metadata.json").read_text())
     pool_info  = json.loads((store_path / "pool-info.json").read_text())
@@ -806,6 +847,74 @@ def cmd_tags(args):
         print(f"  {tag:<40} {n:>4}  ({pct:4.1f}%)  {bar}")
 
 
+# ── verify-store ──────────────────────────────────────────────────────────────
+
+def cmd_verify_store(args):
+    """Verify pool store integrity: LFS pointer detection + shape inspection.
+
+    Replaces ad-hoc `python3 -c 'import numpy as np; np.load(...).shape'`
+    invocations used at V2 (build-artifact-shape verification). Surfaces
+    Git LFS pointer files with an actionable `git lfs pull` diagnostic
+    instead of cryptic numpy `_pickle.UnpicklingError`-style errors, then
+    prints shape, metadata count, and any consistency issues.
+    """
+    store_path = Path(args.store)
+    if not store_path.exists():
+        print(f"ERROR: Store path does not exist: {store_path}", file=sys.stderr)
+        sys.exit(1)
+
+    embeddings_path = store_path / "embeddings.npy"
+    metadata_path   = store_path / "metadata.json"
+    pool_info_path  = store_path / "pool-info.json"
+
+    # LFS-pointer pre-check on all three files
+    for p in (embeddings_path, metadata_path, pool_info_path):
+        if not p.exists():
+            print(f"ERROR: Missing pool-store file: {p}", file=sys.stderr)
+            sys.exit(1)
+        if _is_lfs_pointer(p):
+            print(f"ERROR: Git LFS pointer file detected at {p}", file=sys.stderr)
+            print(f"  The pool store's binary content has not been pulled from LFS.", file=sys.stderr)
+            print(f"  Fix: cd into the git repository containing this file, then run:", file=sys.stderr)
+            print(f"    git lfs pull --include '<path-relative-to-repo-root>'", file=sys.stderr)
+            print(f"  Then re-run pool-agent.", file=sys.stderr)
+            sys.exit(1)
+
+    # Shape + content inspection
+    embeddings = np.load(str(embeddings_path))
+    metadata   = json.loads(metadata_path.read_text())
+    pool_info  = json.loads(pool_info_path.read_text())
+
+    n_emb     = embeddings.shape[0]
+    dim       = embeddings.shape[1] if embeddings.ndim > 1 else 0
+    n_meta    = len(metadata)
+    pool_name = pool_info.get("name", "<unknown>")
+    pool_ver  = pool_info.get("version", "<unknown>")
+    item_cnt  = pool_info.get("itemCount", "<unknown>")
+
+    print(f"pool: {pool_name} v{pool_ver}")
+    print(f"embeddings.shape: ({n_emb}, {dim})")
+    print(f"metadata items:   {n_meta}")
+    print(f"pool-info.itemCount: {item_cnt}")
+
+    # Consistency checks
+    issues = []
+    if n_emb != n_meta:
+        issues.append(f"embeddings count ({n_emb}) != metadata count ({n_meta})")
+    if isinstance(item_cnt, int) and item_cnt != n_emb:
+        issues.append(f"pool-info itemCount ({item_cnt}) != embeddings count ({n_emb})")
+    if dim != 384:
+        issues.append(f"embedding dimension is {dim}; expected 384 for all-MiniLM-L6-v2")
+
+    if issues:
+        print(f"\nWARN: store consistency issues detected:", file=sys.stderr)
+        for issue in issues:
+            print(f"  - {issue}", file=sys.stderr)
+        sys.exit(2)
+
+    print(f"\nstore is consistent.")
+
+
 # ── main ───────────────────────────────────────────────────────────────────────
 
 def main():
@@ -864,6 +973,12 @@ def main():
     tp = sub.add_parser("tags", help="Show tag distribution in pool")
     tp.add_argument("--pool", required=True, help="Path to reference-pool.yaml")
 
+    # verify-store
+    vp = sub.add_parser("verify-store",
+        help="Verify pool store integrity (LFS-pointer detection + shape + consistency check)")
+    vp.add_argument("--store", required=True,
+        help="Path to vector store to verify")
+
     args = p.parse_args()
 
     if args.command == "build":
@@ -880,6 +995,8 @@ def main():
         cmd_setup_model(args)
     elif args.command == "tags":
         cmd_tags(args)
+    elif args.command == "verify-store":
+        cmd_verify_store(args)
 
 
 if __name__ == "__main__":
