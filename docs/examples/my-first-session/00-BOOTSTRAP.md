@@ -1,6 +1,6 @@
 # BOOTSTRAP — my-first-session
 
-**Last Updated:** 2026-03-25 | **Session:** 001 | **Governor:** Murat
+**Last Updated:** 2026-03-25 (refreshed 2026-05-03 to current framework state) | **Session:** 001 | **Governor:** Murat
 
 ## Current State
 
@@ -10,7 +10,10 @@
 - **Graduation Stage:** 1
 - **Autonomy Constraints:** none
 - **Deliberation Mode:** disabled
-- **OD Last Updated:** 2026-03-25 (current)
+- **Framework Version:** v6.1 / Cowork Protocol v3.34 effective / Deliberation Protocol v0.9.3
+- **OD Last Updated:** 2026-03-25 (refreshed 2026-05-03 to add Per-Deliverable Caps, Validation Manifest, Hooks reference, U1 reviewer reference)
+- **Pre-Flight Validation Gates (V1–V9):** V3, V6 PASS; V1/V2/V4/V5 N/A (no retrieval contracts, pool builds, continuous-capture, or runtime imports beyond AI model); V7/V8/V9 SKIP (no inheritance, no subagent dispatch declared)
+- **M5 Hook-Availability:** state depends on whether hooks are installed at bootstrap (this session's original execution preceded current hook framework; current re-execution would surface PASS or WARN at bootstrap)
 
 ## Context Loading Order
 

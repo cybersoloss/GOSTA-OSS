@@ -1,13 +1,20 @@
 # Scope Definition: my-first-session
 
-**Created:** 2026-03-25 | **Governor:** Murat
+**Created:** 2026-03-25 (refreshed 2026-05-03 to current framework state) | **Governor:** Murat
 **Scope Type:** finite
 **Complexity:** simple
-**GOSTA Version:** current
-**Cowork Protocol:** current
-**Deliberation Protocol:** current
+**Framework Version:** v6.1
+**Cowork Protocol:** v3.34 (effective; per `cowork/sync-manifest.md` last entry C217)
+**Deliberation Protocol:** v0.9.3
 **Mode:** cowork
+**Independence Level:** 2
 **Deliberation Mode:** disabled
+**Shortfall Logging:** disabled
+**Assessment Target:** none
+**Debug Logging:** disabled
+**Evidence Collection Mode:** disabled
+**Bootstrap Mode:** interactive (Group 1 has 10 questions; the four "disabled/none" capability flags above were declined at bootstrap)
+**Analytical Frame Contract (AFC):** N/A — operational scope (feature prioritization, not analytical question)
 
 ## What This Session Is
 

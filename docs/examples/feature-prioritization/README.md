@@ -4,6 +4,47 @@
 
 A completed example of a moderate-complexity GOSTA session: 3 domain models + 1 scoped specialist agent (UX-1, scoped to activation-distance concerns), four-agent deliberation, and a phased two-quarter roadmap. Demonstrates how multi-agent deliberation surfaces cross-domain tensions that single-perspective analysis misses.
 
+## Reproducibility Notes
+
+A user re-executing this session today against current framework state will produce artifacts with the same conceptual structure but several visible differences from what this example shows:
+
+**Bootstrap-time differences:**
+- Group 1 of `cowork/startup.md` asks 10 questions, including 4 flags not in this session's original execution: shortfall logging, assessment target, debug logging, evidence collection mode. For a feature-prioritization scope, all four typically answer "no/none."
+- Group 2A may fire the AFC derivation — feature prioritization sits at the analytical/operational borderline. Current `cowork/startup.md` Group 2A heuristic would likely classify this as operational and skip the AFC. If the heuristic fires AFC derivation, the bootstrapper presents Stance/Output Verb/Failure Mode/Prohibited Frame for Governor confirmation.
+- Group 3A (Deliberation Configuration) fires because this session uses deliberation. The Governor would specify topology, max rounds, convergence definition, sub-coordinator structure.
+- Pre-Flight Validation Gates V1–V9 appear in bootstrap output. V8 fires if subagent dispatch declared (likely yes for code-mode deliberation); V9 SKIP if no inheritance.
+
+**Deliberation-time differences:**
+- Position papers would use **formula-based per-deliverable caps** (`base=4kb + 1.0kb × evidence_items_assigned`) per Plans #17 and #20, instead of the fixed cap this example used. Sessions using formula caps must include `evidence_items_assigned: <count>` in YAML front matter for the M3 hook to resolve correctly.
+- Round 2+ may invoke **sub-coordinator re-engagement** per Plan #24 if deliberation grows to cluster-then-synthesize topology with 3+ agents in any cluster.
+- Round 3+ termination is now **verdict-split-aware** per Plan #13: if any intra-cluster verdict-band split exceeding the convergence threshold remains open, deliberation cannot terminate without targeted re-dispatch OR Governor override carrying the split with `[VERDICT-SPLIT-CARRIED]` annotation. Original execution predates this discipline.
+
+**Synthesis report differences:**
+- Synthesis report would include `## Frame Integrity Validation` section if AFC declared (Plan #19 scope extension).
+- Each verdict in synthesis report carries **Verdict Strength Annotation** `[cluster-confirmation: N, tier-floor: T<X>]` per Plan #8.
+- If coverage came in below the session's threshold, synthesis report would include `## Coverage Limitations Disclosure` section per Plan #7.
+
+**Deliverable-time differences:**
+- Deliverables (`scored-feature-matrix.md`, `phased-roadmap.md`) would include `## Frame Integrity Validation` section if AFC declared. M4 hook fires WARN on deliverables without it (when AFC is in scope).
+- If deliverables make Party-X-reception claims (e.g., "users will adopt X"), an **Evidence Channel Disclosure** would declare which channels (analyst-consumed / empirically-validated / AI-domain-agent reasoning) supported the claim per Plan #11'.
+- Verdict Strength Annotations propagate from synthesis report to deliverable verdicts.
+
+**Hooks (when installed at `.claude/settings.local.json`):**
+- M1 fires PreToolUse Task — verifies signal stub before agent dispatch.
+- M3 fires PostToolUse Write|Edit — checks per-deliverable cap. Resolves formula caps if YAML front matter has `evidence_items_assigned`.
+- M4 fires PostToolUse Write|Edit on deliverable / synthesis-report / phase-gate files — checks AFC section presence.
+- M5 reports hook-availability at bootstrap.
+- log-dispatch + audit-closeout fire on Task lifecycle events.
+
+**What's the same:**
+- Conceptual structure of multi-agent deliberation (independent positions → tensions → synthesis → Governor decisions)
+- 6-component domain model structure
+- Cross-domain tension surfacing as the deliberation's value
+- Convergence Probe protocol on unanimous Round 1 results
+- 5-step graduated fallback for agent failures
+
+For a fully current-state example, see [`my-first-session/`](../my-first-session/) (refreshed 2026-05-03; simpler scope, no deliberation, no AFC, but demonstrates current Per-Deliverable Caps, Validation Manifest, Hooks reference, U1 reviewer reference).
+
 ## What This Session Does
 
 Prioritizes 12 candidate features for an EU developer tools SaaS product across Q2–Q3 2026. Four domain agents — market fit, technical feasibility, regulatory compliance, and UX/activation — independently score each feature, then deliberate to resolve conflicts. The Governor reviews the synthesis, applies guardrails (capacity budget, compliance prerequisites, activation distance), and commits a phased roadmap.

@@ -6,6 +6,52 @@ Companion artifacts for the article **"Five Ways to Build a Security Roadmap wit
 
 This example runs the same CISO planning question — "How should an EU-based mid-market CISO prioritize?" — through five AI architectures, from a generic prompt to a full GOSTA governed deliberation. Inputs and outputs are published here so readers can inspect the progression.
 
+## Reproducibility Notes
+
+A user re-executing the L5 (governed deliberation) layer today against current framework state will produce artifacts with these differences from this example's session-config:
+
+**Bootstrap-time differences:**
+- Group 1 asks 10 questions; original execution preceded the 4 added flags (shortfall logging, assessment target, debug logging, evidence collection mode).
+- Group 2A fires AFC derivation. CISO strategic planning is operational+analytical hybrid; current heuristic likely produces AFC with Stance: CISO-stakeholder; Output Verb: prioritize; Failure Mode: strategic misdirection; Prohibited Frame: vendor recommendation.
+- Group 3A (Deliberation Configuration) fires for the 3-agent (paired-domain) configuration.
+- Pre-Flight Validation Gates V1–V9 in bootstrap output; V8 fires if subagent dispatch declared.
+
+**L1–L4 LLM-output differences:**
+- These outputs are **LLM-state-stamped from early 2026**. Current LLMs (model versions deployed today) will produce different specific outputs at each level. The architecture-progression observation (more governance → more grounded output) is invariant; specific outputs are not.
+- See §"Regenerating L1–L4 Outputs" below for the procedure to capture fresh outputs against current LLMs.
+
+**L5 deliberation differences:**
+- Position papers use formula-based caps per Plans #17 and #20.
+- 3-agent paired-domain configuration: each agent uses 2 paired domain models (Regulatory-Operational, Threat-Technology, Business-Supply Chain). Current framework supports this; documented in `cowork/deliberation-protocol.md`.
+- Round 3+ verdict-split-aware termination per Plan #13 if any verdict-band split persists at termination.
+- Sub-coordinator re-engagement per Plan #24 typically does NOT apply at this scale (3 agents, paired-domain — not cluster-then-synthesize).
+
+**Synthesis report differences:**
+- `## Frame Integrity Validation` section per Plan #19.
+- Verdict Strength Annotation `[cluster-confirmation: N, tier-floor: T<X>]` per verdict per Plan #8.
+- Coverage Limitations Disclosure §12.15 added if coverage <100% per Plan #7.
+
+**Deliverable differences:**
+- Frame Integrity Validation section per §12.12.
+- Verdict Strength Annotations propagate from synthesis.
+- Evidence Channel Disclosure for any Party-X-reception claim per Plan #11'. CISO assessments often reference "what the board / regulator / auditor will accept" — Party-X claims; channel disclosure declares whether claim rests on analyst-consumed evidence vs empirical CISO-validated evidence vs AI-domain-agent reasoning.
+
+**Closeout differences:**
+- U1 independent reviewer dispatch at closeout per current framework.
+- V6 closeout audit on `learnings.md`, `gosta-framework-feedback.md`, deliverables.
+
+**Hooks:**
+- All 5 hooks fire if installed. Particularly relevant here: M4 (AFC-section presence) on synthesis-report and phase-gate files per Plan #19 scope extension.
+
+**What's the same:**
+- The 5-architecture comparison structure (L1 generic → L5 governed deliberation)
+- The 6 paired-domain models (regulatory-compliance, threat-landscape, operational-capacity, business-value-continuity, technology-architecture, supply-chain-risk)
+- The hypotheses framework and constraints
+- The 575-item reference pool composition (DBIR + ENISA + Gartner)
+- The educational point: more governance produces more grounded output
+
+For a fully current-state example, see [`my-first-session/`](../my-first-session/) (simpler scope but demonstrates current disciplines).
+
 ## Regenerating L1–L4 Outputs
 
 The L1–L4 output samples in `outputs/` were captured against LLMs available at original authoring time. To refresh them against current LLM behavior:

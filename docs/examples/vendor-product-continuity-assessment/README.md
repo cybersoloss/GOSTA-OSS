@@ -4,6 +4,55 @@
 
 A ready-to-run GOSTA session template for assessing whether continued dependency on a vendor's product represents material third-party risk. Clone the repo, copy the domain models into position, run the GOSTA bootstrapper, and replace the placeholders with your target vendor and product. The full process is described in [Run Your Own Assessment](#run-your-own-assessment) below.
 
+## Reproducibility Notes
+
+A user re-executing this template today against current framework state will produce a structurally similar assessment with these specific differences from what this template's example artifacts show:
+
+**Bootstrap-time differences:**
+- Group 1 of `cowork/startup.md` asks 10 questions including 4 flags not in this session's original execution: shortfall logging, assessment target (set to vendor name here), debug logging, evidence collection mode (set to YES for this session-class).
+- Group 2A fires AFC derivation. This template DOES already have an AFC; current framework would derive it the same way (Stance: dependent org; Output Verb: assess; Failure Mode: unmanaged dependency; Prohibited Frame: procurement advisory).
+- Group 2B fires Target Reconnaissance because assessment target is named. The bootstrapper runs a structured search to characterize the vendor before domain model selection. Original execution preceded the V2B mechanism.
+- Group 3A (Deliberation Configuration) fires for the 8-agent deliberation.
+- Group 3B (Evidence Collection Configuration) fires because evidence collection mode = yes. The Governor configures coverage threshold, per-domain Tier 1/2 floor, adversarial collection, pool-agent integration, reference pools, web search.
+- V8 fires (subagent dispatch declared for deliberation). V9 SKIP if no inheritance.
+
+**Evidence collection differences (Plan #22):**
+- Dispatch prompts to collection agents now embed the canonical evidence-item schema as **literal fenced YAML block** inline (not as section reference). Eliminates the lookup-and-forget failure mode that produced cross-agent schema heterogeneity in older sessions.
+
+**Deliberation differences:**
+- Position papers use formula-based caps per Plans #17 and #20. YAML front matter must include `evidence_items_assigned: <count>`.
+- Round 2+ sub-coordinator re-engagement decision rule per Plan #24 applies (this is an 8-agent session — likely cluster-then-synthesize).
+- Round 3+ verdict-split-aware termination per Plan #13.
+- Issue Ledger has new mandatory row class for rejection-taxonomy disagreements with canonical/secondary structure per Plan #21 (fires when 2+ agents apply different categorical reasons to the same rejection candidate).
+
+**Synthesis report differences:**
+- `## Frame Integrity Validation` section IS present in this example's synthesis (this template was authored after §12.12 was introduced). NO change.
+- Each verdict carries Verdict Strength Annotation `[cluster-confirmation: N, tier-floor: T<X>]` per Plan #8 — current synthesis would add this; original may not have.
+- Coverage Limitations Disclosure §12.15 added if coverage <100% per Plan #7.
+
+**Deliverable differences:**
+- Frame Integrity Validation section already present.
+- Verdict Strength Annotation propagates from synthesis to deliverable.
+- Evidence Channel Disclosure required for any Party-X-reception claim per Plan #11'.
+- VERDICT-SPLIT-CARRIED annotation appears inline alongside any verdict where intra-cluster split was carried per Plan #13.
+
+**Closeout differences:**
+- U1 independent reviewer dispatched at closeout per current framework (this template references it). Reviews deliverables, synthesis, AFC consistency, sycophancy patterns. Produces PASS/FAIL/PASS-WITH-NOTES.
+- V6 closeout audit applies Layer A + Layer B checks (existence + population) on closeout-mandated artifacts: `learnings.md`, `gosta-framework-feedback.md`, plus session-specific deliverables. session-logs/session-NNN.md is no longer V6-mandated per Plan #15'.
+
+**Hooks:**
+- All 5 hooks (M1/M3/M4/M5/log-dispatch/audit-closeout) fire if installed.
+- M4 fires WARN if synthesis-report.md or phase-gate-*.md files lack `## Frame Integrity Validation` section per Plan #19 scope extension.
+
+**What's the same:**
+- 6-signal vendor viability framework (the template's analytical core)
+- 8-domain analytical lens structure
+- AFC-driven dispatch propagation
+- Round-by-round deliberation with position independence verification
+- Convergence Probe on unanimous Round 1 results
+
+For a fully current-state example, see [`my-first-session/`](../my-first-session/) (refreshed 2026-05-03; simpler scope but demonstrates current Per-Deliverable Caps, Validation Manifest, Hooks reference, U1 reviewer reference). For another large-deliberation example with current-framework expectations, this template's underlying analytical structure remains canonical — only execution-flow disciplines have evolved.
+
 This session implements the analytical framework from **"Breach Risk Is Scored. Survival Risk Is Not."** — six observable vendor viability signals, eight analytical domain models, eight-agent deliberation, and a structured risk determination. The session is designed to produce exactly the analysis the framework describes: business model viability, contractual position, dependency exposure, and leading indicator assessment.
 
 **Everything in this template is a starting point, not a prescription.** The goal text, hypotheses, constraints, domain models, agent configuration, and deliberation settings provided below are designed to work out of the box — but you can modify any of them to match your organization's specific needs. Adjust hypotheses based on what you already know about your target vendor. Add constraints that reflect your risk appetite. Swap or extend domain models for your industry. Run the template as-is on a first pass, then tune inputs on subsequent runs as you learn what matters most for your context.
