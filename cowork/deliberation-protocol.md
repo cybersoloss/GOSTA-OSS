@@ -343,6 +343,15 @@ After Round 1 (and after each subsequent round in multi-round deliberations), th
 
 Before producing the Interim Assessment, the Coordinator runs the four pre-deliberation evidence verification checks defined in §14.3.11 (tier re-classification, specificity audit, negative claim audit, range suppression audit) against all externally-sourced evidence cited in position papers. After Round 1 position papers are received, the Coordinator also runs the four in-deliberation checks: phantom citation (Check 5), tier escalation in citation (Check 6), selective citation (Check 7), and parametric claim audit (Check 8). The parametric claim audit is the most operationally intensive: the Coordinator extracts every specific factual claim (numbers, dates, durations, named quantitative states) from each position paper and cross-references them against the evidence manifest, flagging `[UNCITED-MATCH]`, `[PARAMETRIC-STALE]`, or `[PARAMETRIC-UNVERIFIED]` as appropriate. All annotations from these checks are recorded in the Interim Assessment's Evidence Verification section and forwarded to agents in Round N+1 prompts where relevant.
 
+**Division of labor for §14.3.11 Checks 5-8 in cluster-then-synthesize topologies (Plan #25) `[CORE]`.** When the deliberation uses cluster-then-synthesize topology (sub-coordinators per cluster, COORD-1 cross-cluster), Checks 5-8 are distributed by scope to avoid duplication and preserve appropriate checking granularity:
+
+- **Sub-coordinators run Checks 5-8 within their cluster scope:** each sub-coordinator runs the four in-deliberation checks against the position papers and cited evidence WITHIN its cluster. Per-cluster checks are recorded in the cluster sub-synthesis output's Evidence Verification section.
+- **COORD-1 runs Checks 5-8 only on cross-cluster claims:** COORD-1's checks are scoped to claims that cite OSINT items tagged for multiple clusters OR claims that synthesize across clusters (i.e., the cross-cluster surface that sub-coordinators cannot see in isolation). Per-cluster check results from sub-coordinators propagate verbatim to COORD-1's Interim Assessment without re-derivation.
+
+Without explicit division of labor, deliberations may default to any of: (i) true duplication where both sub-coordinators and COORD-1 re-run checks on the same data (token waste; ambiguity about which check is canonical); (ii) lost coverage where only one tier runs checks (sub-coords miss cross-cluster; COORD-1 misses per-cluster lens-coherent checking); (iii) inconsistent across rounds. The explicit rule codifies the appropriate distribution: per-cluster sub-coords + cross-cluster COORD-1, propagation rather than re-derivation.
+
+For non-cluster topologies (flat agent rosters), this rule does not apply — COORD-1 runs all Checks 5-8 directly without sub-coordinator intermediation.
+
 The Coordinator also tracks epistemic signals — information gaps and conditional assumptions surfaced by agents (from Confidence Basis and Falsifiability fields) — for aggregation into the Finding Classification at synthesis. Additionally, the Coordinator maintains a cumulative Issue Ledger tracking each identified issue's status across rounds.
 
 **AFC self-check (conditional — only when AFC exists).** Before dispatching the Interim Assessment, the Coordinator performs an analytical frame self-check:
@@ -383,6 +392,17 @@ Each agent produces a **Response Paper** (§4.3). Agents may:
 - **Escalate** — declare that this disagreement cannot be resolved without Governor input and explain why
 
 Agents that are NOT referenced in Round N Prompts do not participate in that round — their most recent position stands.
+
+**Sub-coordinator re-engagement at Round 2+ (cluster-then-synthesize topologies) `[CORE]` (Plan #24).** In cluster-then-synthesize topologies (§2.1 — typically used for >7-agent rosters), Round 1 produces per-cluster sub-syntheses authored by sub-coordinators before COORD-1 consolidation. At Round 2+, the Coordinator decides whether sub-coordinators re-engage or COORD-1 consolidates response papers directly. The decision rule:
+
+- **Re-engage sub-coordinators when EITHER (a) OR (b):**
+  - **(a) Mechanical criterion:** any cluster has ≥3 agents responding in this round (sub-coordinator handles the per-cluster aggregation; reduces COORD-1 context load and preserves lens-coherent reconciliation within cluster)
+  - **(b) Interpretive criterion:** Round N prompts touch within-cluster verdict-band splits requiring lens-coherent reconciliation (e.g., the disagreement is rooted in the cluster's domain perspective and benefits from sub-coordinator framing before cross-cluster synthesis)
+- **Otherwise COORD-1 may consolidate response papers directly** (small clusters with <3 agents responding AND no within-cluster splits requiring lens-coherent reconciliation).
+
+The Coordinator records the engagement decision in the Round N Interim Assessment with the criterion that triggered the choice (e.g., `Sub-coordinator re-engagement: DEM (4 agents responding, criterion a); BLD (1 agent responding, direct COORD-1 consolidation); DEF (3 agents responding, criterion a); REG (2 agents responding, criterion b — REG-1 vs BI-1 verdict-band split requires lens-coherent reconciliation)`). Without explicit recording, the engagement decision is implicit and the protocol cannot audit whether the right consolidation pattern was used.
+
+For non-cluster topologies (flat agent rosters), this rule does not apply — COORD-1 always consolidates directly.
 
 **Multi-round flow (Round 3+).** For deliberations with max rounds > 2, each subsequent round follows the same pattern: Coordinator produces an Interim Assessment after the round, identifies remaining disagreements and any new arguments, issues prompts for the next round. The Coordinator's Interim Assessment accumulates — each version references what changed since the prior assessment, not just the full state. This prevents agents from losing track of what's already been argued.
 
@@ -501,6 +521,19 @@ All Governor decisions are recorded in `decisions/governor-decisions.md` per Cow
 - `escalated` — Agent explicitly escalated to Governor (position update: `escalated`). Enters `Unresolved Disagreements` in Synthesis Report.
 
 The Coordinator carries this ledger forward in each Interim Assessment, updating statuses after each round. New issues receive new ISS-IDs. The ledger is cumulative — no entries are removed, only status-updated.
+
+**Mandatory Issue Ledger row class — Rejection-taxonomy reason disagreements (Plan #21) `[CORE]`.** When the session's OD declares a rejection taxonomy (typically as a session-specific guardrail with multiple categorical reasons — e.g., session-declared values like `not-prospect-attractive`, `no-clear-revenue-mechanism`, `category-creep`, `weak-evidence-base`, `out-of-scope`, etc.), the Coordinator at every Interim Assessment runs a mechanical detection check on per-agent and per-cluster rejection records:
+
+> If two or more agents (or sub-coordinators) apply DIFFERENT categorical reasons to the SAME rejection candidate, the Coordinator MUST surface this as an Issue Ledger entry with description "Rejection-taxonomy reason disagreement on [candidate-ID]: Agent X picked [reason-A]; Agent Y picked [reason-B]." The entry's status starts as `open`; resolution at next round produces a canonical/secondary structure (see Disambiguation rule below) or escalates to Governor if structural disagreement (e.g., agents disagree on whether a quantitative anchor exists for either reason).
+
+Without this mechanical check, taxonomy-reason disagreements are surfaced ad-hoc — depending on Coordinator attention to notice the cross-agent inconsistency. The mechanical detection rule eliminates the discipline-dependence; the disagreement is detected consistently regardless of attention load.
+
+**Disambiguation rule — canonical/secondary structure for resolution.** When taxonomy-reason disagreement is resolved (whether at next round, by sub-coordinator judgment, or by Governor input), the resolution preserves both reasons in a structured canonical/secondary form:
+
+- **Canonical reason** = the taxonomy categorical reason that has direct quantitative-evidence anchoring (specific evidence item — typically an OSINT-ID — that empirically quantifies the rejection signal). The canonical reason drives synthesis-level rejection-list classification.
+- **Secondary reason** = the analytical-category-fit reason (taxonomy classification against framework boundaries; analytical reasoning without direct empirical anchor). Preserved for completeness; surfaces in deliverable rejection-list rationale alongside canonical.
+
+When two or more candidate canonical reasons each have quantitative anchors, the resolution picks the strongest anchor (highest evidence tier; densest cross-cluster confirmation). When no candidate reason has a quantitative anchor (all are analytical-category-fit), the resolution picks the most narrowly-fitting reason as canonical and notes the absence of empirical anchor in the rejection record. Sessions without a declared rejection taxonomy skip both the detection rule and the disambiguation rule (no Issue Ledger row class fires).
 
 #### Epistemic Signals
 [Which agents flagged information gaps (from Confidence Basis fields)? Which agents specified conditions (from Falsifiability fields)? Note patterns — e.g., "3 agents flag missing market data; this will likely become an information_gap finding at synthesis."]

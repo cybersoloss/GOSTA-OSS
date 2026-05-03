@@ -88,6 +88,8 @@
 
 **Mechanism.** When verification produces a drop verdict, annotate the source shortfall with the verification finding. Update any plan-tracking document. Do not execute partial-credit edits to feel productive.
 
+**Reconsideration of dropped plans.** If a previously-dropped plan is being reconsidered (because new framing, new evidence, or a different intervention angle has emerged), the verification must explicitly identify what changed that justifies un-dropping. Don't reverse a drop verdict silently — name what the prior drop missed and why the new framing addresses it. The reconsideration verification produces a fresh verdict (apply / simplify / drop-again) under the new framing. This discipline prevents flip-flopping and maintains audit-trail clarity for why drops are reversed.
+
 **Failure mode this catches.** Sunk-cost continuation on plans that verification has invalidated. Producing rule-text that adds complexity without addressing real defects.
 
 **Pattern observed across drops.** Plans that propose OD-time forcing functions over speculative or vaguely-defined concerns have been particularly likely to drop after verification. The verification typically reveals that the framework already provides the underlying mechanism through other channels (existing parameters, existing scope-bound declarations, existing audit machinery).

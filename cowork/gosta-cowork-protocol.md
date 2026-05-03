@@ -844,6 +844,7 @@ Before dispatching any agent (evidence collection, deliberation, deliverable dra
 | AFC | OD declares an AFC (§4.1a) | "Your assessment must [verb] from the perspective of [stance]. The failure this assessment protects against is [failure mode]. Do NOT produce [prohibited frame]." |
 | Debug logging (§19.4) | Debug logging = enabled | Standard debug logging injection block per §19.4 |
 | Evidence loading strategy | Evidence collection = enabled AND agent will consume evidence | Per evidence-collection-protocol §6.4: either evidence file paths (direct load) or pool store path + concept-to-query mappings (pool-agent retrieval), based on per-domain item count vs. threshold. |
+| Schema literal-embedding (Plan #22) | Agent will produce structured-schema output (collection agents producing evidence items, position-paper agents producing per-paper YAML, etc.) | Literal fenced YAML block of the canonical schema (per evidence-collection-protocol §2.1 for evidence items; per session-specific schema declaration for other artifact classes), embedded inline in the dispatch prompt — NOT a section reference. See evidence-collection-protocol §3.1 Schema Literal-Embedding Requirement. |
 
 **Assembly rule:** The orchestrator concatenates all active injection blocks into a single preamble block. The preamble is prepended to the agent's task-specific prompt.
 
@@ -852,7 +853,8 @@ Before dispatching any agent (evidence collection, deliberation, deliverable dra
 1. If AFC is active: scan the assembled prompt for the AFC Output Verb term. If absent, halt and fix. If Prohibited Frame is not "—" (none), also scan for the Prohibited Frame term. If absent, halt and fix. If Prohibited Frame is "—", skip the Prohibited Frame scan (there is no frame to prohibit).
 2. If debug logging is active: scan for the §19.4 marker `<!-- DEBUG LOGGING — protocol §19 -->`. If absent, halt and fix.
 3. If evidence loading strategy is active: scan for either evidence file paths (at least one `osint/` path) or a pool store path (`osint/pool-store/`). If neither is present, halt and fix.
-4. Log the verification result to orchestrator-trace.md: `DISPATCH [agent-id]: preamble verified [AFC: yes/no] [DEBUG: yes/no] [EVIDENCE: direct/pool-agent/N/A]`
+4. If schema literal-embedding is active (agent will produce structured-schema output): scan for a fenced YAML block (lines beginning with ```` ```yaml ```` or ```` ``` ```` followed by structured field declarations) in the dispatch prompt. If absent, halt and fix — schema must be embedded inline, not referenced by section.
+5. Log the verification result to orchestrator-trace.md: `DISPATCH [agent-id]: preamble verified [AFC: yes/no] [DEBUG: yes/no] [EVIDENCE: direct/pool-agent/N/A] [SCHEMA: embedded/N/A]`
 
 This replaces separate independent injection points that each require separate protocol compliance. One mechanism, one verification check, one failure point to monitor.
 

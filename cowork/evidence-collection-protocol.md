@@ -165,7 +165,9 @@ Where `domain_count` is the number of domains in the session's domain models. Ea
 - **Target name**: from `evidence-collection-config.md`
 - **Search specification**: domain-specific search guidance from config
 - **Source attribution tier rules**: session's tier definitions (§2.2)
-- **Output format instructions**: evidence item schema (§2.1), storage location (§5)
+- **Output format instructions**: evidence item schema **embedded as literal fenced YAML block** (per §2.1; see Schema Literal-Embedding Requirement below), storage location (§5)
+
+**Schema Literal-Embedding Requirement (Plan #22) `[CORE]`.** The dispatch prompt for every collection agent MUST include the canonical evidence-item schema (§2.1) as a literal fenced YAML block embedded inline, NOT as a section reference (e.g., NOT "see §2.1"). Reference-by-section requires the dispatched agent to look up the protocol; lookup-and-forget is a discipline-failure mode that has produced schema heterogeneity across collection agents (one agent in a session used `osint_id` instead of `id`, `title` instead of canonical schema fields, etc., despite §2.1 being available; downstream tooling required schema normalization at manifest generation). Literal embedding eliminates the lookup step at the source — the agent has the schema inline as the reference for its YAML front-matter output. Embedding cost: ~15-20 lines added to the dispatch prompt; benefit: removes the failure surface that produced cross-agent schema heterogeneity. Sessions whose evidence schema is non-canonical (custom session-specific schema) embed the session's schema verbatim rather than the framework default. The Dispatch Verification Check (cowork-protocol §7.5) extends accordingly to verify schema literal-embedding is present in the assembled dispatch prompt.
 - **Domain assignment**: which domain model domains this agent covers
 
 Agents operate independently. In code-mode normal, they have no access to other agents' findings during collection.
