@@ -42,14 +42,23 @@ if [ -z "$FILE_PATH" ] || [ ! -f "$FILE_PATH" ]; then
     exit 0
 fi
 
-# Only fire on writes to deliverables/ within a session directory
-if ! echo "$FILE_PATH" | grep -qE '/deliverables/[^/]+\.md$'; then
+# Fire on writes to deliverables/ AND deliberation/[DELIB-NNN]/synthesis-report.md
+# AND health-reports/phase-gate-*.md within a session directory.
+# Per cowork-protocol §12.12 and deliberation-protocol §4.4 Frame Integrity
+# Validation, synthesis-report and phase-gate request files are Governor-facing
+# artifacts that propagate to deliverables; they warrant the same §12.12 audit
+# as deliverable artifacts. Coverage extension per Plan #19 (Pattern 13 scope
+# extension justified: synthesis-report and phase-gate files are consumed by
+# Governor and frame-drift in them cascades to deliverables).
+if ! echo "$FILE_PATH" | grep -qE '/deliverables/[^/]+\.md$|/deliberation/[^/]+/synthesis-report\.md$|/health-reports/phase-gate-[^/]+\.md$'; then
     echo '{"continue": true}'
     exit 0
 fi
 
-# Resolve session directory from the file path
-SESS_DIR=$(echo "$FILE_PATH" | sed -E 's|/deliverables/.*$||')
+# Resolve session directory from the file path. Supports all three covered
+# path patterns: /deliverables/, /deliberation/[DELIB-NNN]/synthesis-report.md,
+# /health-reports/phase-gate-*.md.
+SESS_DIR=$(echo "$FILE_PATH" | sed -E 's|/deliverables/.*$||; s|/deliberation/[^/]+/synthesis-report\.md$||; s|/health-reports/phase-gate-[^/]+\.md$||')
 if [ ! -f "${SESS_DIR}/operating-document.md" ] && [ ! -f "${SESS_DIR}/01-scope-definition.md" ] && [ ! -f "${SESS_DIR}/CLAUDE.md" ]; then
     # Not a recognizable session directory
     echo '{"continue": true}'

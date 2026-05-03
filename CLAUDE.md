@@ -103,7 +103,15 @@ When editing any file in this repo (excluding `sessions/`):
 
 ## Post-Change Consistency Audit (PCCA)
 
-After any spec or protocol change, perform an FFR for the affected sections, then check every `.md` file in the repo (excluding `sessions/`) for inconsistencies with the changes. This includes but is not limited to: the framework spec, cowork protocol, deliberation protocol, all templates, all other `.md` files in `cowork/`, sync-manifest, OD drafting protocol, `docs/` (walkthroughs, architecture guide, examples), and `README.md`. Report what needs updating, then either apply the fixes directly or add them to the current plan.
+After any spec or protocol change, perform an FFR for the affected sections, then perform PCCA in two modes:
+
+**(A) Documentation PCCA.** Check every `.md` file in the repo (excluding `sessions/`) for inconsistencies with the changes. Includes the framework spec, cowork protocol, deliberation protocol, all templates, all other `.md` files in `cowork/`, sync-manifest, OD drafting protocol, `docs/` (walkthroughs, architecture guide, examples), `README.md`, and `cowork/verification-patterns.md`. The orphan-reference grep is the dominant mechanism here.
+
+**(B) Code PCCA.** When the change touches or affects executable framework files (`cowork/hooks/*.sh`, `cowork/tools/*.py`, `.github/hooks/*`), run smoke-tests against synthetic inputs that exercise the changed behavior. Verify the documented behavior matches actual behavior. Pure grep-based audit misses behavioral bugs that smoke-tests catch — a regex change to a hook may grep-clean but silently fail at runtime; a code-path extension may pass static review but fail when invoked. Empirically: this session caught three behavioral bugs via Code PCCA (pool-agent.py LFS detection coverage, M3 hook CAP_LINE table-format detection, M4 hook SESS_DIR sed pattern) that pure documentation grep would have missed.
+
+Report what needs updating from both modes, then either apply fixes directly (small consistency edits, behavioral bugfixes surfaced by smoke-tests) or add them to the current plan (larger coverage gaps warranting their own verification cycle).
+
+**Note on sync-manifest entries:** historical entries describe the framework state at their derivation time and are not retroactively edited; new derivations describe subsequent changes. Sessions/ remain excluded from PCCA.
 
 ## The pool-agent Tool
 

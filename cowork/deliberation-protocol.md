@@ -802,6 +802,27 @@ Papers flagged `[FRAME-DRIFT]` are noted in the synthesis but their frame-drifte
 
 If no AFC is active: "AFC Compliance not applicable (no AFC declared)."
 
+#### Frame Integrity Validation (per cowork-protocol §12.12) `[CORE]` (conditional — AFC sessions)
+
+The synthesis report carries a deliverable-level Frame Integrity Validation audit at the synthesis output, distinct from per-paper AFC Compliance above. AFC Compliance audits each domain agent's position paper for frame-drift; Frame Integrity Validation audits the synthesis report itself (and propagates to downstream deliverables) for prohibited-frame surface forms in the Coordinator's own consolidation. Both audits run in AFC-enabled sessions.
+
+**Scope rationale.** The synthesis report is consumed by the Governor at Phase Gate review and propagates to deliverables via transcription (verdict bands, rejection-list reasoning, attribution chains). Frame-drift introduced at synthesis cascades into deliverables. Auditing at synthesis catches drift one boundary earlier than deliverable-time §12.12 audit; deliverables transcribe from this section rather than re-deriving the audit.
+
+**Audit format (per AFC field):**
+
+| AFC Field | Synthesis Output Check | Result |
+|-----------|----------------------|--------|
+| Output verb | Synthesis section verbs and framing match AFC Output Verb? | [pass / drift — Coordinator used "[verb]" instead of "[AFC verb]" in section "[ref]"] |
+| Stance reader | Synthesis recommendations address AFC Stance's reader? | [pass / drift — Coordinator framed "[content]" for "[stance]" instead of AFC stance] |
+| Prohibited Frame | Synthesis prose contains AFC Prohibited Frame surface forms? | [none / detected — "[phrase]" matches prohibited frame "[X]" at section "[ref]"] |
+| Verdict Vocabulary (if declared) | Verdict terms match declared vocabulary? | [pass / drift — used "[term]" instead of declared "[vocab term]"] |
+
+Sections failing any check receive `[FRAME-DRIFT]` annotation. Severity: MATERIAL — requires Coordinator revision before synthesis report is presented to Governor (parallel to §12.12 deliverable-level rule).
+
+**Propagation to deliverables.** Per cowork-protocol §12.12, deliverable agents transcribe this audit into their own `## Frame Integrity Validation` section rather than re-deriving. If the synthesis report's Frame Integrity Validation section is missing or incomplete, deliverable agents surface the gap to the Coordinator before publishing.
+
+If no AFC is active: "Frame Integrity Validation not applicable (no AFC declared)."
+
 #### Governor Decision Required
 [YES — with specific question(s) / NO — consensus recommendation can proceed]
 ```

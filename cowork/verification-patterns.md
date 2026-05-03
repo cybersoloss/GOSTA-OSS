@@ -78,6 +78,8 @@
 
 **Failure mode this catches.** Stale references in documentation that confuse future readers or that the framework's own audit checklists rely on. Documentation drift.
 
+**Relationship to PCCA directive.** This pattern operationalizes the **Documentation PCCA mode** of the project-level PCCA directive (see project root `CLAUDE.md` § Post-Change Consistency Audit). The PCCA directive defines two modes — Documentation PCCA (the orphan-reference grep this pattern describes) and Code PCCA (smoke-tests for executable framework files). When a framework change touches executable code (`cowork/hooks/*.sh`, `cowork/tools/*.py`), Pattern 6 is necessary but not sufficient — Code PCCA mode (smoke-test) catches behavioral bugs that pure grep misses.
+
 ---
 
 ## Pattern 7 — Honest Drop Recommendation
@@ -150,6 +152,20 @@
 **Failure mode this catches.** Building unified-narrative artifacts when distributed artifacts already carry the canonical information. Forcing single-source-of-truth at high infrastructure cost when multi-source-with-cross-references would suffice.
 
 ---
+
+---
+
+## Pattern 13 — Resolve Scope Extension Explicitly
+
+**Statement.** When a proposed framework change extends an existing rule's scope to a new artifact class, surface, or boundary that the rule did not previously cover, the verification must explicitly justify the extension. Don't frame scope extension as mere "propagation" without answering: "Why should this rule apply at the new surface? What changes if it doesn't?"
+
+**Mechanism.** Identify whether the proposed change is (a) propagation of an existing rule to a surface where the rule already implicitly applied (consistency-only fix), or (b) extension of the rule's scope to a surface where the rule did not previously apply (semantic-scope fix). Propagation requires no semantic justification beyond consistency. Extension requires explicit answer to three questions: (i) what is the rule's current scope; (ii) why does the new surface warrant inclusion; (iii) what failure mode does the extension catch that the current scope doesn't.
+
+**Failure mode this catches.** Implicit scope creep — adding rules to new surfaces under "propagation" framing without explicit justification, leading to over-application of rules in cases where they don't fit OR under-application in cases where the original scoping was an oversight that should be corrected.
+
+**Distinction from Pattern 11.** Pattern 11 asks "does the framework already have this mechanism?" Pattern 13 asks "is this extending an existing mechanism's scope to a surface it didn't previously cover?" The two are complementary: Pattern 11 catches duplication; Pattern 13 catches semantic scope extension that should be explicit rather than implicit.
+
+**Concrete example.** A proposed plan adds a rule from one artifact class to another (e.g., from deliverable artifacts to synthesis-report artifacts). Verification asks: was synthesis report previously in this rule's scope? If no, the change is extension, not propagation. Justification required: why does synthesis report warrant the rule (e.g., consumed by Governor, propagates to deliverables, frame-drift at synthesis cascades downstream)? If justification is sound, extension is warranted; if not, the proposed change is over-applying the rule.
 
 ## How to Use This Document
 
