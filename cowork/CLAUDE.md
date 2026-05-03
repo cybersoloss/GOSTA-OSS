@@ -91,6 +91,22 @@ Deliverables and session artifacts go in their canonical directories. Do not mix
 - Use append-only for signals/ and decisions/ files — never edit existing entries.
 - The bootstrap file (00-BOOTSTRAP.md) is the ONLY file that gets fully overwritten each session.
 
+## Frame Integrity Validation Heading Conventions (AFC-enabled sessions)
+
+Deliverable agents producing output for AFC-enabled sessions MUST include a Frame Integrity Validation section per cowork-protocol §12.12. The M4 hook (`cowork/hooks/check-afc-section.sh`) verifies presence; missing the section produces WARN at write-time and BLOCK at closeout (V6 Layer B).
+
+**Canonical heading set** (any one of these is recognized; the first form is preferred):
+
+- `## Frame Integrity Validation`
+- `## AFC Frame Audit`
+- `## §12.12 Frame Integrity`
+- `## Frame Audit`
+- `## G-FrameIntegrity Validation`
+
+The hook accepts the canonical name anywhere in a markdown heading line (per Plan #31), so prefixed variants like `## Section 4: Frame Integrity Validation Self-Check (Cowork §12.12)` or `### Subsection 4.2: Frame Integrity Validation` also match. Mild over-permissiveness is acceptable since the hook checks presence, not content quality. Content quality is U1's territory.
+
+Synthesis-report.md and phase-gate-*.md files are also AFC-audited per Plan #19 §12.12 scope extension. They follow the same heading conventions.
+
 ## Multi-Domain Scoring
 
 When scoring against multiple domain models:

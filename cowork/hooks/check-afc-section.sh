@@ -89,9 +89,20 @@ if [ "$AFC_DECLARED" = "no" ]; then
 fi
 
 # Check deliverable for canonical Frame Integrity / AFC frame-audit section header.
-# Accept any of the canonical patterns.
+# Accept any of the canonical patterns. Per Plan #31 (FB-003 / SHF-002), regex
+# widened to accept canonical names anywhere in the heading line, not just
+# immediately after heading whitespace. Empirical bug: agents wrote headings
+# like "### Section 4: Frame Integrity Validation Self-Check (Cowork §12.12)"
+# which the original strict regex missed. Widened pattern accepts:
+#   - "## Frame Integrity Validation" (canonical)
+#   - "### Section 4: Frame Integrity Validation Self-Check (Cowork §12.12)"
+#   - "## §12.12 Frame Integrity Validation"
+#   - "### Subsection 4.2: Frame Integrity Validation"
+# Mild over-permissiveness is acceptable: M4 catches MISSING FIV sections; a
+# heading containing the canonical name anywhere is almost certainly a FIV-class
+# section. Content quality is U1's territory, not M4's.
 HEADER_FOUND="no"
-if grep -qE '^#{1,6}[[:space:]]+(Frame Integrity Validation|AFC Frame Audit|§12\.12 Frame Integrity|Frame Audit|G-FrameIntegrity Validation)' "$FILE_PATH" 2>/dev/null; then
+if grep -qE '^#{1,6}[[:space:]]+.*(Frame Integrity Validation|AFC Frame Audit|§12\.12 Frame Integrity|Frame Audit|G-FrameIntegrity Validation)' "$FILE_PATH" 2>/dev/null; then
     HEADER_FOUND="yes"
 fi
 

@@ -202,9 +202,17 @@ When a session uses Independence Level 3, domain assessment happens through stru
 
 The Governor resolves all structured decisions.
 
-### Independent Reviewer (U1)
+### Independent Reviewer (U1) — Dual-Role
 
-Sessions with deliberation or analytical scopes can dispatch a U1 independent-reviewer subagent at phase-gate decision support and at closeout. U1 has no domain model — it audits the orchestrator's claims against actual files (position papers, synthesis report, deliverables), looking for file-grounding violations, AFC consistency, sycophancy patterns, and binding-precondition annotations. U1 produces a PASS / FAIL / PASS-WITH-NOTES verdict that the Governor uses for disposition. The U1 prompt template is at `cowork/templates/independent-reviewer-prompt.md`.
+Sessions with deliberation or analytical scopes dispatch the U1 independent-reviewer in **two distinct roles** as separate subagent dispatches. U1 has no domain model — it audits the orchestrator's claims against actual files (position papers, synthesis report, deliverables).
+
+**U1-adversarial** (`cowork/templates/independent-reviewer-prompt-adversarial.md`) enumerates weaknesses: ungrounded citations, tier-inflation, verdicts that don't survive evidence read-through, classification issues against reference document, domain-attribution issues, sycophancy patterns, vague rejection reasons, omitted coverage gaps. Output: structured findings report with severity (high/medium/low) and category.
+
+**U1-constructive** (`cowork/templates/independent-reviewer-prompt-constructive.md`) verifies pass conditions on revised output: each adversarial finding's disposition (revision actually addresses gap, rebuttal actually addresses claim, limitation actually documented), AFC frame-integrity content quality, signal integrity, V6 closeout-mandated artifact population. Output: aggregate verdict PASS / PASS-WITH-NOTES / FAIL.
+
+**Sequencing.** Adversarial U1 fires first → orchestrator dispositions each finding (`addressed-via-revision` / `rebutted-in-writing` / `acknowledged-as-limitation`) → constructive U1 verifies on revisions. Unaddressed findings BLOCK closeout completion.
+
+**Why dual-role.** When one reviewer is asked to both find weaknesses and verify pass, the framings produce conflicting incentives in the same generation — the reviewer faces pressure to find few weaknesses (so PASS is easier). Splitting them gives each reviewer a coherent role: adversarial maximizes findings; constructive verifies revisions on a closed enumeration set. This pattern was empirically validated (45 findings enumerated, 44 addressed via revision, 1 acknowledged-as-limitation).
 
 ### Sycophancy Detection in Deliberation
 

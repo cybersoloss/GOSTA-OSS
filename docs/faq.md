@@ -72,6 +72,14 @@ Yes. `cowork/startup.md` is markdown; fork and modify. For session-specific twea
 
 If your modifications would benefit other users, contribute a PR per [CONTRIBUTING.md](../CONTRIBUTING.md).
 
+### Can I run a session end-to-end without live Governor interaction at every phase gate?
+
+Yes — through a per-session `governor-policy.md` file that pre-authorizes phase-gate dispositions, deliberation extensions, coverage WARN handling, U1 outcomes, and publish-approval. The bootstrap phase (Group 1–6 Q&A, OD review, Phase 0 → Phase 1 approval) still requires Governor interaction by design — phase gates are the framework's safety boundary and bootstrap is where misframing is caught. After bootstrap, with a complete governor-policy.md, the session can run autonomously through Phase 1 → Phase 2 → Phase 3 → Closeout, ESCALATEing only when criteria don't apply. ESCALATE in this mode means "write a structured handoff document to `decisions/ESCALATE-<timestamp>.md` and halt for asynchronous review" — not "wait for live Governor."
+
+The pattern was empirically validated in a discovery session (4 phase gates auto-dispositioned, zero ESCALATEs). A working example of a complete governor-policy.md — covering phase-gate criteria, deliberation Round 5+ handling, U1 FAIL revision rounds, stress-test + adversarial U1 pre-publish disciplines, ESCALATE handoff template — lives in that session's directory and can be copy-pasted as a starting point for autonomous-mode sessions. Adapt the criteria to your scope's risk tolerance before relying on it.
+
+This is opt-in. Sessions without a governor-policy.md continue with live Governor at each phase gate — appropriate for high-stakes setup where you want synchronous review.
+
 ---
 
 ## Maturity and Limitations

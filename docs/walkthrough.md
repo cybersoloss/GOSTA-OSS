@@ -443,9 +443,9 @@ This walkthrough is operational (prioritizing features). Analytical scopes (vend
 
 For sessions that gather external evidence (vendor research, regulatory text, market reports), Group 1's `evidence collection mode = yes` activates the §14.8 Evidence Collection Architecture and Group 3B configuration. The AI dispatches collection agents per domain, each producing structured evidence items with tier classifications, citation discipline, and counter-framing for adversarial collection. Coverage is audited against a Governor-set threshold; sub-threshold coverage produces a `## Coverage Limitations Disclosure` section (§12.15) in deliverables.
 
-### Independent Reviewer (U1)
+### Independent Reviewer (U1) — Dual-Role
 
-Sessions with deliberation or analytical scopes can dispatch a U1 independent-reviewer subagent at phase-gate decision support and at closeout. U1 has no domain model — it audits the orchestrator's claims against actual files, looking for file-grounding violations, AFC consistency, sycophancy patterns, and binding-precondition annotations. U1 produces a PASS / FAIL / PASS-WITH-NOTES verdict that the Governor uses for disposition.
+Sessions with deliberation or analytical scopes dispatch the U1 independent-reviewer in **two distinct roles** as separate subagent dispatches. **U1-adversarial** enumerates weaknesses (ungrounded citations, tier-inflation, verdicts that don't survive evidence, sycophancy patterns, vague rejections, omitted coverage gaps). Orchestrator dispositions each finding (`addressed-via-revision` / `rebutted-in-writing` / `acknowledged-as-limitation`). **U1-constructive** verifies on the revised output (each finding's disposition holds, AFC frame-integrity holds, signal integrity holds, V6 closeout-mandated artifacts populated). Output: aggregate verdict PASS / PASS-WITH-NOTES / FAIL. The dual-role separation prevents the rubber-stamping bias of single-role dispatch where enumeration + verification compete in the same generation. Templates at `cowork/templates/independent-reviewer-prompt-adversarial.md` and `cowork/templates/independent-reviewer-prompt-constructive.md`.
 
 ### Claude Code Hooks (Optional Mechanizable-Discipline Layer)
 

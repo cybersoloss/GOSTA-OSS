@@ -251,5 +251,5 @@ Hooks are advisory at write-time and structural at closeout. M5 hook-availabilit
 
 ## U1 Independent Reviewer (Optional)
 
-For sessions with deliberation or analytical scopes, a U1 independent-reviewer subagent can be dispatched at phase-gate decision support and at closeout per `cowork/templates/independent-reviewer-prompt.md`. This simple session does not require U1 since it has no deliberation or analytical scope, but the pattern is available if you want an audit of file-grounding integrity, sycophancy patterns, or signal-recommendation alignment before closeout.
+For sessions with deliberation or analytical scopes, the U1 independent-reviewer dispatches in **two distinct roles** as separate subagent dispatches: **U1-adversarial** (per `cowork/templates/independent-reviewer-prompt-adversarial.md`) enumerates weaknesses; **U1-constructive** (per `cowork/templates/independent-reviewer-prompt-constructive.md`) verifies pass conditions on revisions. This simple session does not require U1 since it has no deliberation or analytical scope, but the pattern is available if you want an audit of file-grounding integrity, sycophancy patterns, or signal-recommendation alignment before closeout. Single-dispatch (constructive-only) is acceptable for low-stakes sessions per the constructive template's standalone-mode behavior.
 

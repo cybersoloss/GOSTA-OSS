@@ -559,9 +559,10 @@ When two or more candidate canonical reasons each have quantitative anchors, the
 | Check | Result | Annotations |
 |-------|--------|-------------|
 | Phantom citation | [N flagged / clean] | [annotation IDs or "none"] |
-| Tier escalation in citation | [N flagged / clean] | [annotation IDs or "none"] |
+| Tier escalation in citation (usage-tier mismatch) | [N flagged / clean] | [annotation IDs or "none"] |
 | Selective citation | [N flagged / clean] | [annotation IDs or "none"] |
 | Parametric claim audit | [N claims lack OSINT citation. N matched to evidence (UNCITED-MATCH). N conflict with evidence (PARAMETRIC-STALE). N have no evidence counterpart (PARAMETRIC-UNVERIFIED). Or: "All factual claims cite OSINT items."] | [annotation IDs or "none"] |
+| Tier mislabel cross-check (labeling-tier mismatch) | [N flagged / clean] | [annotation IDs or "none"] |
 
 **Annotated claims forwarded to agents:** [List any claims with annotations that agents should address in Round N+1. If none: "No evidence quality issues requiring agent attention."]
 
@@ -640,7 +641,7 @@ For every recommended candidate, the Coordinator surfaces a structured strength 
 | Field | Definition | Derivation |
 |---|---|---|
 | `cluster-confirmation` | Count of distinct clusters (or domain agents, in cluster-less topologies) that produced a positive verdict on the candidate | Count of agents whose Round-N position paper recommends the candidate, grouped by declared cluster from OD topology |
-| `tier-floor` | Lowest evidence tier the verdict relies on, per spec §14.8 evidence tier model | Minimum tier across the OSINT items cited in supporting position papers' Recommendation + Reasoning sections |
+| `tier-floor` | Lowest evidence tier the verdict relies on, per spec §14.8 evidence tier model. If any cited item carries a `[TIER-MISLABEL]` annotation per §14.3.11 Check 9 (Tier Mislabel Cross-Check), the manifest tier (not the agent-stated tier) is used in the minimum calculation — the strength annotation reflects ground-truth manifest classification, not the agent's stated label | Minimum tier across the OSINT items cited in supporting position papers' Recommendation + Reasoning sections, using manifest-tier when `[TIER-MISLABEL]` annotations exist |
 | `[VERDICT-SPLIT-CARRIED]` (conditional) | Annotation indicating the verdict shipped under §3.3 Governor override path (b) — an intra-cluster verdict-band split exceeding the session's declared convergence threshold remained open at termination, and Governor accepted shipping with the split visible | Set by Coordinator when §3.3 termination override path (b) is selected. Includes split width descriptor (e.g., `1-band` or `2-band`) and the disagreeing agents/clusters |
 
 **Surface format (illustrative — sessions instantiate per their verdict vocabulary):**
