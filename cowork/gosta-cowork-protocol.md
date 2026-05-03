@@ -1332,6 +1332,8 @@ If any mismatch is detected, the agent corrects its interpretation before drafti
 
 **Non-AFC sessions:** The frame declaration is still produced (it costs 3 lines) but is not mechanically validated — it serves as an audit trail only.
 
+**Frame Integrity Validation section in initial draft (recommended):** Deliverable agents should include the `## Frame Integrity Validation` section header in the initial deliverable draft (as part of the deliverable structure), not reactively after the M4 hook fires. M4 is a backstop for sessions that omit the section entirely — its primary mode of operation should be silent (section already present from initial draft, no WARN fired). Sessions where M4 fires repeatedly per deliverable indicate the agent is producing drafts without the section and adding it after-the-fact; this produces correct outcomes but wastes attention on a reactive cycle that pre-emptive section inclusion eliminates.
+
 When the OD declares an Analytical Frame Contract (§4.1a), the deliverable agent performs three content-level checks at deliverable authoring time:
 
 1. **Output verb match:** Deliverable section verbs and framing match the AFC Output Verb. A dependency-exposure AFC should produce sections that "expose," "surface," or "identify" — not sections that "recommend," "evaluate for adoption," or "advise on procurement." If the OD declares a Verdict Vocabulary, check verdict terms against the declared vocabulary (e.g., "LOW EXPOSURE" not "VIABLE").

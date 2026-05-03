@@ -57,7 +57,7 @@ Omit this section for non-analytical scopes (operational, content production, et
 
 ## Per-Deliverable Caps (per spec §8.7 mechanizable-discipline subset, M3)
 
-Optional but recommended. Declares per-deliverable size caps that the M3 cap-overage hook (`cowork/hooks/check-cap-overage.sh`) reads to surface overages to Governor visibility. Sessions that omit this section get no M3 check (silent skip — not a violation; mechanizable enforcement of caps is opt-in). Caps may be expressed in KB or words.
+Optional but recommended. Declares per-deliverable size caps that the M3 cap-overage hook (`cowork/hooks/check-cap-overage.sh`) reads to surface overages to Governor visibility. Sessions that omit this section get no M3 check (silent skip — not a violation; mechanizable enforcement of caps is opt-in). Caps may be expressed in KB, words, or as a formula scaled to scope-specific input variables (see Formula-Based Caps below).
 
 Format: one row per declared deliverable / class of deliverables. Pattern matching is on the basename (e.g., `phase-N-act-N-*.md` matches all per-act outputs in that phase). Hook performs case-sensitive substring or numeric-pattern match.
 
@@ -65,8 +65,31 @@ Format: one row per declared deliverable / class of deliverables. Pattern matchi
 |---|---|---|
 | `[e.g., phase-N-act-N-*.md]` | `[e.g., 40 KB]` | `[e.g., per-act output cap; consistent with cluster-synthesis density]` |
 | `[e.g., deliverables/*-roadmap.md]` | `[e.g., 90 KB or 12000 words]` | `[e.g., final deliverable cap; calibrated for analytical scopes — cite-then-apply density at per-feature × per-domain typically requires 2× the cap of operational scopes]` |
+| `[e.g., position-*.md]` | `[e.g., formula: base=4kb + 1.0kb × evidence_items]` | `[e.g., position-paper cap formula-calibrated; see Formula-Based Caps]` |
 
-**Cap-overage convention:** The M3 hook emits WARN (not BLOCK) on overage. Cap-overage is sometimes substantively justified (DEC-PG-03 C precedent in v4: cite-then-apply density at per-feature × per-domain consistently exceeded preamble caps; subagent judgment to preserve substance over compression was vindicated at every Governor review). The hook surfaces the overage; the Governor decides whether to accept, request compression, or recalibrate the cap.
+### Formula-Based Caps (recommended for content-density-variable artifacts)
+
+Some artifact classes have content density that varies with input scope (e.g., position papers in deliberation: per-paper size scales with assigned evidence-pack size; cite-then-apply discipline forces evidence-grounding which expands the paper proportional to evidence count). Fixed-value caps for such artifacts produce systematic overage even when papers are appropriately sized — the cap is the wrong calibration target.
+
+For these artifacts, declare a formula cap instead of a fixed value:
+
+```
+Cap = base_kb + per_input_overhead_kb × input_count
+```
+
+Where `input_count` is the relevant scope-specific input variable (evidence items per agent, candidates per interviewer, regulations per analyst, etc.).
+
+**Recommended defaults for common artifact classes (override per session as needed):**
+
+| Artifact class | Default formula | Example calculations |
+|---|---|---|
+| Position papers (deliberation §4.1) | `base=4kb + 1.0kb × evidence_items_assigned_to_agent` | 12-item agent → 16 KB cap; 23-item agent → 27 KB cap |
+| Per-criterion evaluation papers (vendor / hiring) | `base=3kb + 0.8kb × candidate_responses_per_criterion` | 8-response criterion → 9.4 KB cap |
+| Per-regulation analyses | `base=5kb + 1.2kb × precedent_citations` | 10-citation analysis → 17 KB cap |
+
+**M3 hook formula support:** the M3 cap-overage hook (`cowork/hooks/check-cap-overage.sh`) reads either fixed-value caps OR formula caps from this section. For formula caps, the hook resolves `input_count` from the artifact's declared input scope (typically a YAML front-matter field on the artifact, e.g., `evidence_items_assigned: 14`) and computes the per-artifact cap before comparing against actual size. Sessions using formula caps must include the relevant input-count field in artifact front matter, or the hook falls back to base value only.
+
+**Cap-overage convention:** The M3 hook emits WARN (not BLOCK) on overage. Cap-overage is sometimes substantively justified — fixed-value cap mis-calibration was the primary driver of cap-overage friction in earlier sessions; formula-based caps eliminate this systemic issue while preserving discipline against truly bloated artifacts. The hook surfaces the overage; the Governor decides whether to accept, request compression, or recalibrate the cap.
 
 Sessions that omit this section: no M3 check fires. Mechanizable enforcement of caps requires explicit declaration here.
 

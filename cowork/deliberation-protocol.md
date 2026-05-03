@@ -410,6 +410,10 @@ All Governor decisions are recorded in `decisions/governor-decisions.md` per Cow
 
 ### 4.1 Position Paper (Domain Agent, Round 1)
 
+**Cap calibration note (per spec §8.7 mechanizable-discipline subset, M3).** Position-paper size scales with the agent's assigned evidence-pack size — cite-then-apply discipline (G-10) forces evidence-grounding which expands the paper proportional to evidence-item count. Sessions declaring per-deliverable caps for `position-*.md` artifacts should use formula-based calibration (see cowork/templates/operating-document.md §Per-Deliverable Caps → Formula-Based Caps). Recommended default formula: `cap-kb = 4 + 1.0 × evidence_items_assigned_to_agent`. Fixed-value caps for position papers consistently produce systematic overage even when papers are appropriately sized — formula-based caps eliminate this calibration friction while preserving discipline against truly bloated papers. Sessions using formula caps must include `evidence_items_assigned: <count>` in the position paper's YAML front matter for the M3 hook to resolve the formula.
+
+**Position paper template:**
+
 ```markdown
 ### Position Paper — [Agent ID] | [Date] [Deliberation ID] | Round 1
 

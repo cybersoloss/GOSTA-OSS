@@ -68,17 +68,38 @@ if [ -z "$FILE_PATH" ] || [ ! -f "$FILE_PATH" ]; then
 fi
 
 # Look for a declared cap in the OD for this file path.
-# Cap declarations follow the convention (Plan #3 / Plan #4):
-#   **Cap (declared at OD authoring):** [path-pattern]: [N KB | N words]
-# This hook scans OD for lines matching the file's basename and extracts
-# the cap value. Sessions that don't declare caps get no check.
+# Two formats supported:
+#   (1) Inline declaration: **Cap (declared...):** [path-pattern]: [N KB | N words]
+#   (2) Table format (canonical OD template):
+#       ## Per-Deliverable Caps
+#       | Path Pattern | Cap (declared) | Rationale |
+#       | path-pattern | N KB / formula | rationale |
+# Sessions that don't declare caps get no check.
 BASENAME=$(basename "$FILE_PATH")
 CAP_LINE=$(grep -E "Cap[[:space:]]*\(declared.*\)[[:space:]]*:.*${BASENAME}" "$OD_FILE" 2>/dev/null | head -1 || true)
 
 if [ -z "$CAP_LINE" ]; then
-    # Try matching by path pattern (e.g., "phase-N-act-N-*.md")
+    # Try inline format with path pattern (e.g., "phase-N-act-N-*.md")
     PATH_PATTERN=$(echo "$BASENAME" | sed 's/[0-9]\+/[0-9]+/g')
     CAP_LINE=$(grep -E "Cap[[:space:]]*\(declared.*\)" "$OD_FILE" 2>/dev/null | grep -E "$PATH_PATTERN" | head -1 || true)
+fi
+
+if [ -z "$CAP_LINE" ]; then
+    # Try table format: scan the Per-Deliverable Caps section's data rows.
+    # Extract basename stem (e.g., "position" from "position-test.md") and
+    # match against table data rows whose first cell pattern fits the basename.
+    BASENAME_STEM=$(echo "$BASENAME" | sed -E 's/[-._].*//' | sed -E 's/[0-9]+$//')
+    CAPS_SECTION=$(awk '/^## Per-Deliverable Caps/{f=1; next} /^## /{if(f) f=0} f' "$OD_FILE" 2>/dev/null || true)
+    if [ -n "$CAPS_SECTION" ] && [ -n "$BASENAME_STEM" ]; then
+        CAP_LINE=$(echo "$CAPS_SECTION" \
+            | grep "^|" \
+            | grep -v "^|[[:space:]]*-" \
+            | grep -vi "Path Pattern\|Path[[:space:]]*Pattern" \
+            | grep -v "\[e\.g\." \
+            | grep -v "\[e\\\\\.g\\\\\." \
+            | grep -F "$BASENAME_STEM" \
+            | head -1 || true)
+    fi
 fi
 
 if [ -z "$CAP_LINE" ]; then
@@ -90,6 +111,33 @@ fi
 # Extract cap value from the line (look for "N KB" or "N words")
 CAP_KB=$(echo "$CAP_LINE" | grep -oE '[0-9]+[[:space:]]*KB' | grep -oE '[0-9]+' | head -1 || true)
 CAP_WORDS=$(echo "$CAP_LINE" | grep -oE '[0-9]+[[:space:]]*words' | grep -oE '[0-9]+' | head -1 || true)
+
+# Formula-based cap support (Plan #17): if no fixed-value cap matched, try
+# parsing a formula cap of shape "base=N kb + M kb × VAR" or
+# "base=N kb + M kb * VAR" (× and * both supported). Resolves VAR by reading
+# the artifact's YAML front matter for "VAR: <integer>". Falls back to base
+# value only when VAR not found in front matter.
+if [ -z "$CAP_KB" ] && [ -z "$CAP_WORDS" ]; then
+    FORMULA_BASE=$(echo "$CAP_LINE" | grep -oiE 'base=[0-9.]+[[:space:]]*kb' | grep -oE '[0-9.]+' | head -1 || true)
+    FORMULA_PER=$(echo "$CAP_LINE" | grep -oiE '\+[[:space:]]*[0-9.]+[[:space:]]*kb[[:space:]]*[×*]' | grep -oE '[0-9.]+' | head -1 || true)
+    FORMULA_VAR=$(echo "$CAP_LINE" | grep -oE '[×*][[:space:]]*[a-zA-Z_][a-zA-Z0-9_]*' | sed 's/[×*][[:space:]]*//' | head -1 || true)
+
+    if [ -n "$FORMULA_BASE" ] && [ -n "$FORMULA_PER" ] && [ -n "$FORMULA_VAR" ]; then
+        # Try to read VAR from artifact's YAML front matter (between --- markers)
+        INPUT_COUNT=$(awk '/^---$/{flag=!flag; next} flag' "$FILE_PATH" 2>/dev/null \
+            | grep -E "^${FORMULA_VAR}:" \
+            | head -1 \
+            | grep -oE '[0-9]+' \
+            | head -1 \
+            || true)
+        if [ -n "$INPUT_COUNT" ]; then
+            CAP_KB=$(awk "BEGIN { printf \"%d\", $FORMULA_BASE + $FORMULA_PER * $INPUT_COUNT }")
+        else
+            # Fallback: front-matter field absent; use base value only
+            CAP_KB=$(awk "BEGIN { printf \"%d\", $FORMULA_BASE }")
+        fi
+    fi
+fi
 
 # Compute current artifact size
 ACTUAL_BYTES=$(wc -c < "$FILE_PATH" | tr -d ' ')

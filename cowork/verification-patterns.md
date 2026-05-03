@@ -50,7 +50,7 @@
 
 **Statement.** Don't only refine the fix; challenge the premise. Ask: "What would happen if we did NOTHING? Is the observed pattern actually a defect, or is it the framework correctly producing a transparent edge-case output?" Some observed patterns are misdiagnosed (category error in shortfall analysis) or speculative (fix proposed for a hypothetical defect not actually observed).
 
-**Mechanism.** Re-examine the source observation. Verify that the framework rule was actually violated, not that the observation was incorrectly characterized. Check whether the framework already has a mechanism that handles the case correctly. Distinguish "the framework failed" from "the framework correctly handled an edge case the observer didn't anticipate."
+**Mechanism.** Re-examine the source observation. Verify that the framework rule was actually violated, not that the observation was incorrectly characterized. Check whether the framework already has a mechanism that handles the case correctly. Distinguish "the framework failed" from "the framework correctly handled an edge case the observer didn't anticipate." **Apply this challenge equally to inherited categorizations from prior session analyses, not only to new observations** — accepting an earlier session's root-cause framing without empirical re-verification against current evidence is itself a Pattern 4 failure. Inherited categorizations may have been correctly named for the session that produced them but may not transfer to other sessions; verify before propagating.
 
 **Failure mode this catches.** Drafting fixes for problems that don't exist. Premature pattern-matching from one session's friction to a framework-rule deficiency when the framework rule was correctly applied.
 
