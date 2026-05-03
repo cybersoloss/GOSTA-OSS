@@ -1,8 +1,22 @@
 # CISO Roadmap — Five-Level AI Comparison
 
+> **Framework state — version-stamped 2026-05-03.** This example was authored against an earlier framework state (Cowork Protocol ~v3.15) and demonstrates the architecture progression (L1 generic prompt → L5 governed deliberation) accurately. The L5 (governed deliberation) session config does NOT show current deliverable-time disciplines: Verdict Strength Annotation `[cluster-confirmation: N, tier-floor: TX]` per verdict (Plan #8), §12.12 Frame Integrity Validation in synthesis report (Plan #19), §12.15 Coverage Limitations Disclosure (Plan #7), Evidence Channel Disclosure for Party-X-reception claims (Plan #11'), formula-based per-deliverable caps (Plans #17/#20). See `cowork/sync-manifest.md` C201–C217 for the change record. The L1–L4 outputs are version-stamped against the LLM model state at original authoring time (early 2026); current LLMs may produce different specific outputs at each level, but the architecture-progression observation (more governance → more grounded output) remains valid. To regenerate L1–L4 outputs against current LLMs, follow the procedure in §"Regenerating L1–L4 Outputs" below. For a fully current example demonstrating current GOSTA disciplines, see [`my-first-session/`](../my-first-session/) (refreshed 2026-05-03 to current framework state).
+
 Companion artifacts for the article **"Five Ways to Build a Security Roadmap with AI — The Last One Changes the Decision."**
 
 This example runs the same CISO planning question — "How should an EU-based mid-market CISO prioritize?" — through five AI architectures, from a generic prompt to a full GOSTA governed deliberation. Inputs and outputs are published here so readers can inspect the progression.
+
+## Regenerating L1–L4 Outputs
+
+The L1–L4 output samples in `outputs/` were captured against LLMs available at original authoring time. To refresh them against current LLM behavior:
+
+1. **L1 — Generic prompt:** paste the question "How should an EU-based mid-market CISO prioritize their next 6 months of security investment?" into a fresh AI conversation with no thinking mode and no context. Capture the output as `outputs/level1-generic-prompt.md`.
+2. **L2 — Extended reasoning:** same question, but enable thinking/extended-reasoning mode. Capture as `outputs/level2-extended-reasoning.md`.
+3. **L3 — Domain knowledge:** prepend the 6 domain model files in `domain-models/` to the prompt. Capture as `outputs/level3-domain-knowledge.md`.
+4. **L4 — Domain + evidence:** add 20 representative evidence items (DBIR 2025 statistics, ENISA threat landscape excerpts, NIS2 article texts, etc.). Capture as `outputs/level4-original-evidence.md`.
+5. **L4-enhanced — Domain + evidence + guardrails + hypotheses:** add the OD's guardrails and the hypotheses from `session-config/hypotheses.md`. Capture as `outputs/level4-enhanced-evidence.md`.
+
+Each capture should be the LLM's first complete response, not curated or edited. The educational value is in the architecture-progression contrast — what each governance layer adds — not in any specific output's correctness. L5 (full governed deliberation) is not a single-prompt capture; it requires running an actual GOSTA session per the `session-config/` files.
 
 ## Structure
 

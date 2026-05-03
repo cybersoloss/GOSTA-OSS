@@ -1,5 +1,7 @@
 # My First Session — GOSTA Walkthrough Companion
 
+**Framework state:** Refreshed 2026-05-03 against framework v6.1 / Cowork Protocol v3.34. This is the canonical current-state example. Other examples in `docs/examples/` are version-stamped against earlier framework states and remain accurate for the disciplines they demonstrated at authoring time. See [`docs/examples/README.md`](../README.md) §"Framework-Version Compatibility" for the version-stamping convention.
+
 A completed example of the simplest possible GOSTA session: two domain models, no deliberation, one deliverable. Use this to understand how the framework's core components fit together before tackling more complex sessions.
 
 ## What This Session Does

@@ -1,7 +1,12 @@
 # Operating Document: my-first-session
 
-**Version:** 1 | **Date:** 2026-03-25 | **Governor:** Murat
+**Version:** 1 | **Date:** 2026-03-25 (refreshed 2026-05-03 to current framework state) | **Governor:** Murat
 **Scope Type:** finite | **Graduation Stage:** 1
+**Framework Version:** v6.1 | **Cowork Protocol:** v3.34 | **Mode:** cowork | **Independence:** 2 | **Deliberation:** disabled
+
+## Analytical Frame Contract (AFC)
+
+N/A — operational scope (feature prioritization with no analytical question to answer). Group 2A of the bootstrapper does not fire for non-analytical scopes. AFC field is populated by the OD only when the deliverable answers a question rather than produces a prioritization artifact. See `cowork/startup.md` Group 2A for the AFC derivation procedure used in analytical scopes.
 
 ## Goal
 
@@ -207,4 +212,44 @@ None.
 
 - **Independence Level:** 2 (Sequential Isolation) — domains assessed independently, then synthesized
 - **Deliberation Mode:** disabled
+
+## Per-Deliverable Caps
+
+| Artifact | Cap | Notes |
+|---|---|---|
+| `signals/scoring-user-value.md` | 8 KB | 5 features × 6 concepts with cite-then-apply structure |
+| `signals/scoring-engineering-cost.md` | 8 KB | Same scope as user-value scoring |
+| `health-reports/HR-001.md` | 6 KB | Single-tactic scope, simple aggregation |
+| `decisions/DEC-001.md` | 4 KB | Single decision with rationale |
+| `deliverables/feature-ranking.md` | 6 KB | Ranked list of 3 + deferred rationale |
+
+Formula caps (`base=N kb + M kb × VAR`) are recommended for content-density-variable artifacts in deliberation-enabled sessions (see `cowork/templates/operating-document.md` § Formula-Based Caps). For this simple non-deliberation session, fixed caps are appropriate. The M3 hook (`cowork/hooks/check-cap-overage.sh`) fires WARN when an artifact exceeds 1.0× its cap.
+
+## Validation Manifest (from GOSTA §8.7)
+
+| Gate | Boundary | Mechanical Test | Failure Mode |
+|---|---|---|---|
+| V3 — Cross-doc consistency | Phase 1 entry | Every guardrail referenced in OD exists in scope; every deliverable maps to a strategy | BLOCK |
+| V6 — Declared artifact existence + population | Every phase exit + closeout | Layer A: `test -s` on each declared artifact; Layer B: `grep -c "\[POPULATE:"` returns 0 + per-section word floor ≥20 | BLOCK |
+| V7 — Inheritance vertical fit | Phase 1 entry (declared in scope) | N/A — no inheritance in this session | SKIP |
+| V8 — Subagent dispatch capability | Bootstrap entry (declared in scope) | N/A — no subagent dispatch declared (deliberation disabled) | SKIP |
+| V9 — Inheritance framework-residue audit | Phase 1 entry (declared in scope) | N/A — no inheritance | SKIP |
+
+V1, V2, V4, V5 not applicable to this session (no retrieval contracts, no pool builds, no continuous-capture mode, no orchestrator runtime imports beyond AI model itself).
+
+## Hooks (Optional — Claude Code Mechanizable-Discipline Layer)
+
+If running this session in Claude Code with `~/.claude/settings.local.json` (or per-project `.claude/settings.local.json`) configured per `cowork/templates/hooks-settings.json`:
+
+- **M1 — `check-signal-first.sh`** fires PreToolUse on Task — verifies signal stub exists before agent dispatch
+- **M3 — `check-cap-overage.sh`** fires PostToolUse on Write|Edit — checks per-deliverable cap overage
+- **M4 — `check-afc-section.sh`** fires PostToolUse on Write|Edit on deliverable / synthesis-report / phase-gate files — checks AFC section presence (silent here since AFC is N/A)
+- **`log-dispatch.sh`** fires PreToolUse + PostToolUse on Task + SubagentStop — logs all dispatches
+- **`audit-closeout.sh`** fires SessionEnd — runs closeout audit per protocol §5.5
+
+Hooks are advisory at write-time and structural at closeout. M5 hook-availability check at bootstrap warns if hooks are not configured.
+
+## U1 Independent Reviewer (Optional)
+
+For sessions with deliberation or analytical scopes, a U1 independent-reviewer subagent can be dispatched at phase-gate decision support and at closeout per `cowork/templates/independent-reviewer-prompt.md`. This simple session does not require U1 since it has no deliberation or analytical scope, but the pattern is available if you want an audit of file-grounding integrity, sycophancy patterns, or signal-recommendation alignment before closeout.
 

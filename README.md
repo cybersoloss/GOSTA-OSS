@@ -151,6 +151,9 @@ python3 pool-agent.py build --pool reference-pool.yaml --articles ./sources/ --s
 # Index a single large document by section headings
 python3 pool-agent.py index-doc --doc spec.md --store ./spec-store/ --heading-level 2
 
+# Verify a store is intact and not corrupted by Git LFS pointer issues
+python3 pool-agent.py verify-store --store ./pool-store/
+
 # Search the pool or document store during a session
 python3 pool-agent.py query "hospital cybersecurity incidents" --store ./pool-store/ --top 10
 
@@ -239,14 +242,17 @@ GOSTA-OSS/
 │   ├── deliberation-protocol.md         Multi-agent deliberation
 │   ├── evidence-collection-protocol.md  Evidence collection (§14.8 operationalization)
 │   ├── od-drafting-protocol.md          Operating Document authoring
+│   ├── domain-model-authoring-protocol.md  Source-to-domain-model extraction procedure
 │   ├── sync-manifest.md                Framework-to-protocol derivation map
+│   ├── verification-patterns.md         Decision verification patterns (universal + framework-change-specific)
 │   ├── startup.md                      Interactive session bootstrapper
 │   ├── session-launcher-template.md     Prompt template for session launch
 │   ├── simulation-protocol-prompt.md    Structured simulation runner
 │   ├── protocol-assessment-prompt.md    Six-dimension protocol assessment
 │   ├── CLAUDE.md                       Claude Code/Cowork directive
 │   ├── README.md                       Protocol directory overview
-│   ├── templates/                ← Session templates (14 files)
+│   ├── templates/                ← Session templates (15 stub templates + hooks-settings.json)
+│   ├── hooks/                    ← Claude Code hooks for automatic dispatch logging and closeout auditing (M1/M3/M4 mechanizable-discipline checks + log-dispatch + audit-closeout)
 │   ├── evidence-archive/         ← Framework-level evidence archive (promoted from sessions)
 │   └── tools/                    ← Reference pool agent (Python, offline semantic search, bundled ONNX model)
 ├── domain-models/
@@ -256,8 +262,10 @@ GOSTA-OSS/
 │   ├── architecture-guide.md     ← Architecture guide (five layers, tiers, session lifecycle)
 │   ├── images/                   ← Diagrams and animated GIFs
 │   └── examples/                 ← Complete session examples with domain models
-│       ├── vendor-product-continuity-assessment/  ← Vendor viability session template (6 signals, 8 domains)
-│       └── ciso-roadmap/         ← Five-level AI comparison (article companion artifacts)
+│       ├── my-first-session/                       ← Simplest example (2 domains, no deliberation)
+│       ├── feature-prioritization/                 ← 4-agent deliberation example
+│       ├── vendor-product-continuity-assessment/   ← Vendor viability session template (6 signals, 8 domains)
+│       └── ciso-roadmap/                           ← Five-level AI comparison (article companion artifacts)
 ├── LICENSE                        ← MIT
 ├── README.md                      ← This file
 └── CONTRIBUTING.md
@@ -295,7 +303,7 @@ The final reason is validation. A governance framework for autonomous AI needs t
 
 **Beta — Specification complete. Tier 0 usable. Tier 1 implementation next.**
 
-GOSTA is a complete specification (v6.1, 8,500+ lines, 22 sections) with three operational protocols, 13 session templates, example domain models, and a simulation test harness. The Tier 0 implementation — file-based, conversational AI as orchestrator — is usable today. You can run a governed session with any AI assistant by following the Cowork Protocol. No code, no infrastructure, no deployment. The framework targets Tier 3 (production-hardened, multi-scope, high autonomy) — it is currently validated at Tier 0, making this a beta release.
+GOSTA is a complete specification (v6.1, 8,500+ lines, 22 sections) with four operational protocols (Cowork, Deliberation, OD Drafting, Domain Model Authoring), 15 session templates, a verification-patterns reference, Claude Code hook scripts (M1/M3/M4 mechanizable-discipline + log-dispatch + audit-closeout), an independent-reviewer (U1) prompt template, example domain models, and a simulation test harness. The Tier 0 implementation — file-based, conversational AI as orchestrator — is usable today. You can run a governed session with any AI assistant by following the Cowork Protocol. No code, no infrastructure, no deployment. The framework targets Tier 3 (production-hardened, multi-scope, high autonomy) — it is currently validated at Tier 0, making this a beta release.
 
 **What has been tested:** Eight simulation designs run by the authors covering operational scopes, analytical scopes (product roadmap sequencing, policy analysis), multi-agent deliberation (up to 10 agents, 3 rounds), and failure injection — 15 scenario runs producing 1,107 decisions total. Simulations measured a 4.3× pivot-over-kill bias ratio, confirming that the mandatory confounder analysis mechanism catches a measurable and common failure mode in iterative AI systems. These are internal validation — no external deployments yet. The simulation protocol (`cowork/simulation-protocol-prompt.md`) is included so others can run their own. The specification provides scaling guidance from simple scopes (20–40 items) through complex scopes (400–800 items across multiple domains).
 

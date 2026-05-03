@@ -184,11 +184,25 @@ When a session uses Independence Level 3, domain assessment happens through stru
 
 **Round 1 — Independent positions.** Each domain agent produces a position paper. The Coordinator checks for position independence (are agents genuinely reasoning independently?) and produces an interim assessment listing disagreements.
 
-**Round 2 — Targeted responses.** Domain agents respond only to specific disagreements flagged in the interim assessment. They can revise scores, provide additional evidence, or explicitly defend their original position.
+**Round 2 — Targeted responses.** Domain agents respond only to specific disagreements flagged in the interim assessment. They can revise scores, provide additional evidence, or explicitly defend their original position. In cluster-then-synthesize topologies (4+ domains organized into clusters), sub-coordinators may re-engage at Round 2+ when (a) a cluster has 3+ agents responding (mechanical criterion) or (b) cross-cluster verdict-band splits require lens-coherent reconciliation (interpretive criterion); otherwise the cross-cluster Coordinator consolidates directly.
 
-**Round 3+ — New Argument Gate.** Additional rounds require at least one genuinely new argument (a domain concept not previously cited, or a concept applied to a new angle). If no new arguments exist, deliberation terminates — remaining disagreements are structural and need Governor resolution, not more rounds.
+**Round 3+ — New Argument Gate + verdict-split-aware termination.** Additional rounds require at least one genuinely new argument (a domain concept not previously cited, or a concept applied to a new angle). Termination is also gated on intra-cluster verdict-band splits: if any split exceeding the session's declared convergence threshold remains open, deliberation cannot terminate without either (a) a targeted re-dispatch round on the open split, or (b) explicit Governor override that carries the split into the deliverable with a `[VERDICT-SPLIT-CARRIED]` annotation. Structural disagreements that targeted re-dispatch cannot close fall back to (b).
 
-**Synthesis.** The Coordinator produces a synthesis report with consensus items, Governor decisions (structured with options and trade-offs), resolved tensions, and a sycophancy self-check. The Governor resolves all structured decisions.
+**Synthesis.** The Coordinator produces a synthesis report carrying:
+
+- **Consensus items** — verdicts where all relevant clusters agree.
+- **Verdict Strength Annotation** per recommended candidate — surface format `[cluster-confirmation: N, tier-floor: T<X>]` derived from position-paper count by cluster + minimum evidence tier across supporting items. Lets the Governor distinguish a high-confidence consensus from a single-lens or floor-tier-anchored verdict within the same band.
+- **Frame Integrity Validation** (§12.12) — synthesis-level audit of each AFC field (Stance, Output Verb, Failure Mode, Prohibited Frame) against the actual content of domain agents' position papers, demonstrating the deliberation produced the deliverable type the AFC declared rather than drifting into a prohibited frame.
+- **Coverage Limitations Disclosure** (§12.15) — included if any domain came in below the session's coverage threshold, transcribed from evidence manifest's coverage-disposition records.
+- **Evidence Channel Disclosure** — when verdicts rest on Party-X-reception claims (prospect-attractiveness, regulator-acceptance, candidate-fit, etc.), the synthesis declares which channels (analyst-consumed, empirically-validated, AI-domain-agent reasoning) supported the claim — letting the consumer calibrate trust in the band before acting.
+- **Governor decisions** — structured with options and trade-offs.
+- **Sycophancy self-check.**
+
+The Governor resolves all structured decisions.
+
+### Independent Reviewer (U1)
+
+Sessions with deliberation or analytical scopes can dispatch a U1 independent-reviewer subagent at phase-gate decision support and at closeout. U1 has no domain model — it audits the orchestrator's claims against actual files (position papers, synthesis report, deliverables), looking for file-grounding violations, AFC consistency, sycophancy patterns, and binding-precondition annotations. U1 produces a PASS / FAIL / PASS-WITH-NOTES verdict that the Governor uses for disposition. The U1 prompt template is at `cowork/templates/independent-reviewer-prompt.md`.
 
 ### Sycophancy Detection in Deliberation
 

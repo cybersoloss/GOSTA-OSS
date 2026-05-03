@@ -1,6 +1,8 @@
 # Feature Prioritization — GOSTA Deliberation Example
 
-A completed example of a moderate-complexity GOSTA session: four domain models, four-agent deliberation, and a phased two-quarter roadmap. Demonstrates how multi-agent deliberation surfaces cross-domain tensions that single-perspective analysis misses.
+> **Framework state — version-stamped 2026-05-03.** This example was authored against an earlier framework state (Cowork Protocol ~v3.15) and demonstrates the conceptual structure of multi-agent deliberation accurately. The framework has since added deliverable-time disciplines that this example does NOT show: Verdict Strength Annotation `[cluster-confirmation: N, tier-floor: TX]` per verdict (Plan #8), §12.12 Frame Integrity Validation section in synthesis report (Plan #19), §12.15 Coverage Limitations Disclosure when coverage is sub-threshold (Plan #7), Evidence Channel Disclosure for Party-X-reception claims (Plan #11'), `[VERDICT-SPLIT-CARRIED]` annotation when intra-cluster splits are carried unresolved (Plan #13), and formula-based per-deliverable caps (Plans #17/#20). See `cowork/sync-manifest.md` C201–C217 for the change record. Conceptual structure shown here remains accurate for understanding deliberation mechanics. For a fully current example, see [`my-first-session/`](../my-first-session/) (refreshed 2026-05-03 to current framework state).
+
+A completed example of a moderate-complexity GOSTA session: 3 domain models + 1 scoped specialist agent (UX-1, scoped to activation-distance concerns), four-agent deliberation, and a phased two-quarter roadmap. Demonstrates how multi-agent deliberation surfaces cross-domain tensions that single-perspective analysis misses.
 
 ## What This Session Does
 

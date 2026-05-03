@@ -40,7 +40,7 @@ The AI reads the startup protocol and begins asking you questions in groups. Her
 
 ### Group 1 — Identity
 
-The AI asks for session name, scope type, complexity, mode, independence level, and deliberation preference.
+The AI asks for session name, scope shape, complexity, mode, independence, deliberation, plus four optional capability flags (shortfall logging, assessment target, debug logging, evidence collection mode). All default to off/none for a simple session.
 
 **Answer:**
 
@@ -51,9 +51,13 @@ Complexity: simple
 Mode: cowork
 Independence: 2
 Deliberation: no
+Shortfall logging: no
+Assessment target: none
+Debug logging: no
+Evidence collection mode: no
 ```
 
-> **Why these choices?** Finite scope means we have a clear deliverable. Simple keeps it to 1-2 domain models. Independence 2 means the AI works autonomously within bounds but surfaces decisions. No deliberation — we'll use straightforward sequential assessment for a first session.
+> **Why these choices?** Finite scope means we have a clear deliverable. Simple keeps it to 1-2 domain models. Mode `cowork` (vs the default `code`) means the AI works through this conversation rather than direct file access — easier for a first session. Independence 2 means the AI works autonomously within bounds but surfaces decisions. The four "no/none" capability flags activate optional features only when needed: shortfall logging captures framework gaps for improvement cycles; assessment target enables target reconnaissance; debug logging traces agent dispatches; evidence collection mode activates the §14.8 Evidence Collection Protocol for sessions where the AI gathers external evidence. None apply for this simple roadmap session.
 
 ---
 
@@ -80,9 +84,18 @@ constraints I control.
 
 ### Group 2A — Analytical Frame Contract (skipped for this walkthrough)
 
-For analytical/assessment scopes (vendor evaluation, dependency exposure, regulatory mapping, etc.), the AI derives an Analytical Frame Contract (AFC) from your goal — four fields that lock the session's analytical posture. This prevents the deliverable from answering the wrong question.
+For analytical/assessment scopes (vendor evaluation, dependency exposure, regulatory mapping, etc.), the AI derives an Analytical Frame Contract (AFC) from your goal — four fields (Stance, Output Verb, Failure Mode, Prohibited Frame) that lock the session's analytical posture. This prevents the deliverable from answering the wrong question by surfacing — for example — a procurement recommendation when the goal asked for a regulatory analysis.
 
-In this walkthrough, we're prioritizing features — an operational scope, not an analytical one — so Group 2A is skipped. See the AFC modification plan (`cowork/afc-modification-plan.md`) for worked examples of sessions where Group 2A fires.
+In this walkthrough, we're prioritizing features — an operational scope, not an analytical one — so Group 2A is skipped. For a worked example of a session where Group 2A fires (and how the AFC propagates to every agent dispatch and surfaces in deliverables via §12.12 Frame Integrity Validation), see [`docs/examples/vendor-product-continuity-assessment/`](examples/vendor-product-continuity-assessment/).
+
+### Groups 2B / 3A / 3B (conditional — skipped for this walkthrough)
+
+The bootstrapper has three additional conditional groups that activate only when the relevant Group 1 flag is set:
+- **Group 2B — Target Reconnaissance:** runs when an assessment target is named. Performs a structured search to characterize the target before domain model selection.
+- **Group 3A — Deliberation Configuration:** runs when deliberation is enabled. Configures topology, max rounds, convergence definition, sub-coordinator structure.
+- **Group 3B — Evidence Collection Configuration:** runs when evidence collection mode is enabled. Configures coverage threshold, per-domain Tier 1/2 floor, adversarial collection, pool-agent integration, reference pools, web search.
+
+None of these fire for this walkthrough since the corresponding Group 1 flags are all off. See [`docs/examples/vendor-product-continuity-assessment/`](examples/vendor-product-continuity-assessment/) for a session that exercises all three.
 
 ---
 
@@ -419,6 +432,22 @@ When a session spans multiple conversations (the AI's context window resets betw
 This walkthrough used Independence Level 2 (the AI works autonomously within approved bounds but surfaces decisions). Level 1 means the Governor reviews every action before execution. Level 3 enables multi-agent deliberation — each domain model gets its own agent, plus a coordinator who synthesizes across them. See the [feature-prioritization example](examples/feature-prioritization/) for a Level 3 session.
 
 Within a session, graduation stages (1-4) control how much autonomy the AI earns over time. Stage 1 is the default — Governor approves all strategy and tactic changes. At Stage 3+, the AI can autonomously create tactics within approved strategies. Graduation is earned by demonstrating consistent quality, not assumed.
+
+### Analytical Frame Contract (AFC) for Analytical Scopes
+
+This walkthrough is operational (prioritizing features). Analytical scopes (vendor assessment, regulatory mapping, market analysis) trigger Group 2A, which derives a four-field AFC (Stance / Output Verb / Failure Mode / Prohibited Frame) that constrains every agent dispatch and surfaces in deliverables via a `## Frame Integrity Validation` section (§12.12). The AFC prevents drift — e.g., an assessment of a vendor surfacing as a buyer's procurement recommendation. See [`docs/examples/vendor-product-continuity-assessment/`](examples/vendor-product-continuity-assessment/).
+
+### Evidence Collection Mode
+
+For sessions that gather external evidence (vendor research, regulatory text, market reports), Group 1's `evidence collection mode = yes` activates the §14.8 Evidence Collection Architecture and Group 3B configuration. The AI dispatches collection agents per domain, each producing structured evidence items with tier classifications, citation discipline, and counter-framing for adversarial collection. Coverage is audited against a Governor-set threshold; sub-threshold coverage produces a `## Coverage Limitations Disclosure` section (§12.15) in deliverables.
+
+### Independent Reviewer (U1)
+
+Sessions with deliberation or analytical scopes can dispatch a U1 independent-reviewer subagent at phase-gate decision support and at closeout. U1 has no domain model — it audits the orchestrator's claims against actual files, looking for file-grounding violations, AFC consistency, sycophancy patterns, and binding-precondition annotations. U1 produces a PASS / FAIL / PASS-WITH-NOTES verdict that the Governor uses for disposition.
+
+### Claude Code Hooks (Optional Mechanizable-Discipline Layer)
+
+When running GOSTA sessions in Claude Code, optional hooks fire on Task / Write / Edit / SessionEnd events to enforce mechanizable disciplines: M1 checks signal-first execution before agent dispatch, M3 checks per-deliverable cap overage, M4 checks AFC section presence on deliverable production, plus log-dispatch and audit-closeout hooks for trace and closeout verification. Install via `cp cowork/templates/hooks-settings.json ~/.claude/settings.local.json` (or per-project in `.claude/settings.local.json`). Hooks are advisory at write-time and structural at closeout.
 
 ---
 
