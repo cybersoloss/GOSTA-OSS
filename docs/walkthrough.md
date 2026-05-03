@@ -4,6 +4,8 @@
 
 This walkthrough takes you from zero to a working GOSTA session in about 10 minutes. You'll need any AI assistant that can read files — Claude, ChatGPT, or similar.
 
+> **Unfamiliar terms?** See [glossary.md](glossary.md) for definitions of AFC, cite-then-apply, deliberation, V-gates, hooks, and other GOSTA terminology.
+
 ---
 
 ## What You'll Build

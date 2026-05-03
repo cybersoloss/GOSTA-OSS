@@ -4,6 +4,8 @@
 
 This guide explains how GOSTA works — the five-layer hierarchy, implementation tiers, session lifecycle, and decision mechanics. Read it before or after the [hands-on walkthrough](walkthrough.md).
 
+> **Unfamiliar terms?** See [glossary.md](glossary.md) for definitions of AFC, deliberation roles, V-gates, hook scripts, U1 reviewer, and other GOSTA terminology.
+
 ---
 
 ## The Five Layers

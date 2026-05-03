@@ -2,6 +2,8 @@
 
 Complete session examples with domain models, session configuration, and output demonstrations.
 
+> **Unfamiliar terms?** See [glossary.md](../glossary.md) for definitions of AFC, deliberation roles, evidence tiers, hooks, and other GOSTA terminology referenced in these examples.
+
 | Example | Use Case | Complexity | Domains | Deliberation |
 |---|---|---|---|---|
 | [my-first-session](my-first-session/) | First time with GOSTA — walkthrough companion | Simple | 2 | No |

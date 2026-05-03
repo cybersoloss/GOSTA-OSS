@@ -177,6 +177,14 @@ python3 pool-agent.py tags --pool reference-pool.yaml
 
 **[→ Understand the architecture first](docs/architecture-guide.md)** — five-layer hierarchy, implementation tiers, session lifecycle, health reports, and decision mechanics explained with diagrams.
 
+**[→ Glossary](docs/glossary.md)** — terminology lookup (AFC, cite-then-apply, V-gates, hooks, U1 reviewer, Verdict Strength Annotation, etc.).
+
+**[→ Is GOSTA right for this?](docs/is-gosta-right-for-this.md)** — self-assessment with yes-fit / no-fit signals, decision tree, and recommended starting points by problem profile.
+
+**[→ FAQ](docs/faq.md)** | **[→ Troubleshooting](docs/troubleshooting.md)** — common questions, symptom-driven issue resolution.
+
+**[→ Authoring Domain Models](docs/authoring-domain-models.md)** — walkthrough for writing your own domain model from scratch, with worked example and common-mistake annotations.
+
 See also: **[Vendor-Product Continuity Assessment](docs/examples/vendor-product-continuity-assessment/)** (ready-to-run session template — 8 domain models, 4-agent deliberation, six-signal vendor viability framework). **[Feature Prioritization Example](docs/examples/feature-prioritization/)** (12 features, 4 domain agents, 5 hard disagreements, Governor decisions). **[CISO Roadmap — Five-Level AI Comparison](docs/examples/ciso-roadmap/)** (the same CISO planning question through 5 AI architectures, from generic prompt to governed deliberation — companion artifacts for the article "Five Ways to Collaborate on a Security Roadmap with AI").
 
 ---
