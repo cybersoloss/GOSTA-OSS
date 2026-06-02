@@ -251,6 +251,8 @@ GOSTA-OSS/
 │   ├── evidence-collection-protocol.md  Evidence collection (§14.8 operationalization)
 │   ├── od-drafting-protocol.md          Operating Document authoring
 │   ├── domain-model-authoring-protocol.md  Source-to-domain-model extraction procedure
+│   ├── cycle-runner-protocol.md         Scheduler-triggered non-interactive Action Cycle execution
+│   ├── diff-agent-protocol.md           Environmental-watch agent minimal interface (input/output contract + failure-signal mapping)
 │   ├── sync-manifest.md                Framework-to-protocol derivation map
 │   ├── verification-patterns.md         Decision verification patterns (universal + framework-change-specific)
 │   ├── startup.md                      Interactive session bootstrapper

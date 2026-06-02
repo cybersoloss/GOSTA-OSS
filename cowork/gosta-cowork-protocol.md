@@ -447,6 +447,7 @@ For goal corrections specifically, the Goal Correction Procedure (startup.md Ste
 - Purpose: Execute actions from current plan, produce deliverables
 - Output: Deliverables in deliverables/, signals in signals/
 - Next: Continue execution or trigger review if phase gate reached
+- **Non-interactive variant:** Ongoing-scope sessions running on a scheduler (no Governor in the conversation at wake time) execute one Action Cycle per invocation per `cowork/cycle-runner-protocol.md`. The non-interactive path treats the OD as ratified, escalates Blocking tensions and V-gate BLOCKs to a Governor-bound escalation surface, and exits cleanly. Conversational and non-interactive execution sessions may interleave within the same session lifetime.
 
 **Review Session**
 - Trigger: Governor says "run [tactic/strategy/goal] review" or phase gate reached (finite) or cadence reached (ongoing)
