@@ -72,6 +72,13 @@ The following patterns apply to any decision or recommendation evaluation, regar
 
 **Concrete example.** A proposed fix had three intervention candidates: F1 (remove auto-resolve shortcut entirely), F2 (require structured classification before auto-resolve), F3 (F2 + mechanical hook + reviewer audit). F1 was structurally simplest — eliminated the failure path. F2 and F3 added procedural and enforcement layers on top of a discipline that had already been observed to fail. Verdict: F1 (structural) preferred.
 
+**Sub-pattern: Cascading-vs-per-instance failure modes determine earlier-catch value.** When considering whether to move a check earlier in the lifecycle (e.g., deliberation-time vs deliverable-production-time vs post-publish review), the cost-benefit depends on whether the failure mode cascades downstream:
+
+- **Cascading failure modes** (single instance propagates through downstream artifacts — e.g., tier-inflation in a citation that ripples through deliberation verdicts to synthesis to deliverable) benefit substantially from earlier catch. Single-fix prevents propagated revisions; later-catch requires unwinding the cascade.
+- **Per-instance failure modes** (each instance is local, doesn't propagate — e.g., per-entry classification permissiveness, per-cell formatting issues) gain little from earlier catch. Revision cost is linear in instance count regardless of catch-time. Later-catch via existing review mechanism is often adequate.
+
+When verification surfaces a "let's catch this earlier" proposal, ask: does this failure mode cascade? If yes, earlier-catch is structurally valuable (Plan #33 tier-cross-check fits this shape — labeling-tier mismatch cascades through deliberation). If no, prefer the lighter intervention — extending the existing review check rather than adding a new earlier check (Plan #35 ENHANCEMENT-OF permissiveness fits this shape — per-entry classification doesn't cascade; lighter U1 Check class B extension suffices).
+
 ---
 
 ## Pattern 7 — Honest Drop Recommendation

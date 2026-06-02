@@ -1,6 +1,6 @@
 # Closeout File Audit [HOOK-GENERATED]
 **Session:** templates
-**Generated:** 2026-05-03T06:25:43Z
+**Generated:** 2026-05-19T04:53:51Z
 **Method:** Automatic template-stub detection (cowork/hooks/audit-closeout.sh)
 
 | File | Lines | Placeholder Lines | Ratio | Status |
@@ -12,8 +12,8 @@
 | `evidence-collection-config.md` | 159 | 13 | 13% | populated |
 | `gosta-framework-feedback.md` | 30 | 11 | 61% | **STUB** |
 | `health-report.md` | 271 | 56 | 31% | populated |
-| `independent-reviewer-prompt-adversarial.md` | 200 | 18 | 11% | populated |
-| `independent-reviewer-prompt-constructive.md` | 200 | 22 | 12% | populated |
+| `independent-reviewer-prompt-adversarial.md` | 142 | 9 | 10% | populated |
+| `independent-reviewer-prompt-constructive.md` | 161 | 17 | 16% | populated |
 | `learnings.md` | 166 | 19 | 15% | populated |
 | `operating-document.md` | 429 | 78 | 24% | populated |
 | `scope-definition.md` | 59 | 4 | 10% | populated |
@@ -24,7 +24,7 @@
 
 ## Summary
 
-- **Populated:** 11
+- **Populated:** 12
 - **Stub/Template:** 4
 - **Empty:** 0
 

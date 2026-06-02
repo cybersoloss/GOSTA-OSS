@@ -91,6 +91,44 @@ Deliverables and session artifacts go in their canonical directories. Do not mix
 - Use append-only for signals/ and decisions/ files — never edit existing entries.
 - The bootstrap file (00-BOOTSTRAP.md) is the ONLY file that gets fully overwritten each session.
 
+## orchestrator-trace.md Format (Debug-Logged Sessions)
+
+When debug logging is enabled (Group 1 toggle), `debug-logs/orchestrator-trace.md` follows the format specified in cowork-protocol §19.2 — **chronological interleaving of Own Actions and Dispatch Records by timestamp**, not per-phase scaffolding.
+
+**Canonical format** (per §19.2):
+
+```markdown
+## [timestamp] Action: [action type]
+- Tool: [tool name]
+- Input: [query, file path, or parameters]
+- Result: [summary]
+- Decision: [what the orchestrator decided based on this result]
+
+## [timestamp] Dispatch: [AGENT-ID]
+- Role: [agent role description]
+- Prompt: [full dispatch prompt or first 200 words + truncation note]
+- Context injected: [list]
+- Files writable: [list]
+- Debug logging block: injected [yes/no]
+
+## [timestamp] Return: [AGENT-ID]
+- Duration: [time elapsed]
+- Output summary: [1-3 sentence summary]
+- Files written by agent: [list]
+- Trace file: debug-logs/[AGENT-ID].trace.md
+- Trace integrity: [N actions logged in trace vs N items/files in output]
+```
+
+Hook-generated warnings (M1/M3/M4 etc.) append at the bottom of the file in their own block, not interleaved with the chronological action/dispatch entries.
+
+**Anti-pattern: per-phase scaffolding without population.** Some sessions add per-phase section headers (`## Phase 1 — ...`, `## Phase 2 — ...`) to orchestrator-trace.md as scaffolding, then fail to populate the per-phase interior beyond the bootstrap phase. This produces audit-trail incompleteness — the per-phase headers create an expectation of phase narrative that isn't met. If you need per-phase narrative beyond what signals/ captures, populate continuously during execution; otherwise, follow §19.2's chronological format and rely on `signals/phase-N-signals.md` for phase-completion narrative.
+
+**Relationship to signals/**:
+- `orchestrator-trace.md` = chronological reasoning + dispatch trace (decision narrative)
+- `signals/phase-N-signals.md` = action-completion table per phase (what was produced + where)
+
+These are complementary, not redundant. signals/ is deterministic completion record; orchestrator-trace is reasoning narrative. Sessions needing per-phase reasoning narrative should populate orchestrator-trace continuously, not retroactively at closeout.
+
 ## Frame Integrity Validation Heading Conventions (AFC-enabled sessions)
 
 Deliverable agents producing output for AFC-enabled sessions MUST include a Frame Integrity Validation section per cowork-protocol §12.12. The M4 hook (`cowork/hooks/check-afc-section.sh`) verifies presence; missing the section produces WARN at write-time and BLOCK at closeout (V6 Layer B).

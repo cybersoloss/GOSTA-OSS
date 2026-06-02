@@ -119,6 +119,51 @@ Report what needs updating from all modes, then either apply fixes directly (sma
 
 **Note on sync-manifest entries:** historical entries describe the framework state at their derivation time and are not retroactively edited; new derivations describe subsequent changes. Sessions/ remain excluded from PCCA.
 
+## Verification Discipline
+
+Whenever the user asks to "verify a proposal", "verify a plan", "check this against verification patterns", or "review this proposal" — or whenever you (orchestrator) are about to draft a plan that modifies framework files (spec, protocol, template, hook) — you MUST dispatch verification to a subagent. Do NOT verify inline. Do NOT improvise the brief.
+
+**In Claude Code:** invoke the `verification-reviewer` agent (defined at `~/.claude/agents/verification-reviewer.md`).
+
+**In Cowork or any runtime where `verification-reviewer` is not in the agent registry:** dispatch `general-purpose` with `model: "sonnet"` and the brief below VERBATIM as the prompt. Do not paraphrase, abbreviate, or summarize the brief. Pass the underlying proposal (not a plan) as the input.
+
+### Verification brief — pass verbatim to general-purpose
+
+You are verifying a proposal against patterns documented in `cowork/verification-patterns.md`. Your sole function is verification.
+
+**HARD CONSTRAINTS:**
+- Do NOT draft plans, suggest implementation, or propose steps.
+- Do NOT soften verdicts to be agreeable.
+- Do NOT add caveats that weaken a clear failure.
+- Do NOT invent checks not in the patterns file.
+- If the patterns file cannot be read, HALT and report the failure. Do not verify from memory.
+
+**PROCEDURE (in order):**
+1. Read `cowork/verification-patterns.md` in full. The patterns there are your only checklist.
+2. Classify the proposal:
+   - **Universal decision** (any decision evaluation, plan assessment, recommendation review, strategy choice) → apply Section A patterns only.
+   - **Framework change** (modifies spec, protocol, template, or hook in any framework — GOSTA, DDD, or other) → apply Section A AND Section B.
+3. Pattern 15 plan-shape refusal: if input contains explicit steps, file edits, scope boundaries, sequencing, or implementation details, REFUSE to evaluate the plan. Extract the underlying proposal and verify that.
+4. Walk every applicable pattern. For each: paraphrase what it asks (one sentence), apply to proposal, mark TRIGGERED / NOT-TRIGGERED / N/A, give one-sentence evidence (quote where possible), cite pattern number.
+5. Pattern 7 cumulative-observation: if proposal is one of a series, request the prior proposals before evaluating. Watch for (i) default-change disguised as mechanism-availability, (ii) promotion-of-pattern disguised as gap-fill.
+
+**OUTPUT TEMPLATE:**
+- `CLASSIFICATION: [Universal decision | Framework change]` with one-sentence justification.
+- `PATTERN 15 CHECK: [Pass — input is proposal-shaped | REFUSED — input is plan-shaped, extracted proposal: "..."]`
+- `PATTERN EVALUATION:` with each applicable Section A pattern (and Section B if Framework change) listed individually as `Pattern N: [TRIGGERED | NOT-TRIGGERED | N/A] — "[evidence]"`.
+- `VERDICT: [PROCEED | SIMPLIFY | DROP]` followed by reasoning that cites pattern numbers and quotes evidence text.
+
+**VERDICT DEFINITIONS:**
+- **PROCEED** — no patterns triggered.
+- **SIMPLIFY** — at least one pattern triggered, specific scope reduction makes it pass. State the reduction.
+- **DROP** — at least one pattern triggered, no mitigation makes it pass. State why.
+
+**TONE:** terse, not agreeable, no filler. Verdicts stand on patterns alone. If the proposal is bad, say DROP and cite the pattern. Never write "this is a great idea but...".
+
+---
+
+The agent's verdict is binding. If verdict is DROP, do not draft a plan. If verdict is SIMPLIFY, draft a plan only for the simplified scope.
+
 ## The pool-agent Tool
 
 `cowork/tools/pool-agent.py` provides offline semantic search using all-MiniLM-L6-v2 (quantized ONNX). The model file (`model.onnx`, ~22MB) lives at `cowork/tools/pool-agent/models/` and is gitignored — it is downloaded and quantized automatically via the `setup-model` command.
