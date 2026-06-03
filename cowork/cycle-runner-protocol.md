@@ -90,6 +90,8 @@ After processing, the inter-cycle input surface is left in place (it is the Gove
 
 Per Cowork Protocol §5.1 Step 2: read the operating document, relevant domain models, signals since last cycle, last 5 decision log entries, latest tactic episode summaries. The §7.2 Action Cycle STEP 1 load specification governs the minimum read set.
 
+**Cycle-time enrichment bindings (when declared).** If the OD declares a `§Reference Materials` section (or equivalent named section) binding cycle-time enrichment sources — pool agents, web-search templates, evidence-archive imports, or analogous external-context fetch mechanisms — consult those bindings at this step and invoke them per the implementation's cycle-time enrichment convention before proceeding to Step 4. The Cycle Runner does NOT specify the enrichment runtime; it specifies that declared enrichment bindings are read at Step 3 and made available as cycle context before work plan generation at Step 5. Sessions without a `§Reference Materials` section (or equivalent declared enrichment bindings) treat this sub-step as a no-op.
+
 ### Step 4 — Pre-cycle V-gate verification
 
 Apply the applicable Pre-Flight Validation Gate invariants from spec §8.7.3 before producing work. The invariant set that applies at non-interactive cycle entry:

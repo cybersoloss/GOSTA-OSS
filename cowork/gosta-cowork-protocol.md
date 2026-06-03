@@ -448,6 +448,7 @@ For goal corrections specifically, the Goal Correction Procedure (startup.md Ste
 - Output: Deliverables in deliverables/, signals in signals/
 - Next: Continue execution or trigger review if phase gate reached
 - **Non-interactive variant:** Ongoing-scope sessions running on a scheduler (no Governor in the conversation at wake time) execute one Action Cycle per invocation per `cowork/cycle-runner-protocol.md`. The non-interactive path treats the OD as ratified, escalates Blocking tensions and V-gate BLOCKs to a Governor-bound escalation surface, and exits cleanly. Conversational and non-interactive execution sessions may interleave within the same session lifetime.
+- **Deliverable structure (recommended-default for ongoing-scope cycle deliverables at high Governor-consumption cadence):** `cowork/templates/cycle-deliverable.md` is the optional consumer-legibility template that separates body (Executive Summary + Actions Required + per-item directive sections) from appendix (framework apparatus — multi-model tables, attribution chains, V-gate records). The template does not weaken framework discipline; it re-organizes a discipline-complete deliverable so Governor-actionable content surfaces at the top while audit-trail completeness is preserved below the appendix divider. Template adoption is per-session (declared in the OD); the cowork-protocol does not enforce it.
 
 **Review Session**
 - Trigger: Governor says "run [tactic/strategy/goal] review" or phase gate reached (finite) or cadence reached (ongoing)

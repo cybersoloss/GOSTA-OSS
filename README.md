@@ -259,9 +259,10 @@ GOSTA-OSS/
 │   ├── session-launcher-template.md     Prompt template for session launch
 │   ├── simulation-protocol-prompt.md    Structured simulation runner
 │   ├── protocol-assessment-prompt.md    Six-dimension protocol assessment
+│   ├── framework-feedback-dispositions.md  Append-only DEFER/DROP disposition log
 │   ├── CLAUDE.md                       Claude Code/Cowork directive
 │   ├── README.md                       Protocol directory overview
-│   ├── templates/                ← Session templates (15 stub templates + hooks-settings.json)
+│   ├── templates/                ← Session templates (15 stub templates + hooks-settings.json + cycle-deliverable.md consumer-legibility template)
 │   ├── hooks/                    ← Claude Code hooks for automatic dispatch logging and closeout auditing (M1/M3/M4 mechanizable-discipline checks + log-dispatch + audit-closeout)
 │   ├── evidence-archive/         ← Framework-level evidence archive (promoted from sessions)
 │   └── tools/                    ← Reference pool agent (Python, offline semantic search, bundled ONNX model)
